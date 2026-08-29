@@ -1,0 +1,8 @@
+[nginx-botica-login]
+enabled = true
+filter = nginx-http-auth
+port = http,https
+logpath = /var/log/nginx/access.log
+maxretry = 10
+findtime = 600
+bantime = 3600

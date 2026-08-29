@@ -1,0 +1,17 @@
+﻿=== git log ===
+* c725c71 (HEAD -> develop, main, feature/hu-08-carga-masiva, feature/hu-04-tablero-alertas, feature/hu-03-catalogo-productos, feature/hu-01-autenticacion-roles) feat: sistema web de gestion y control para la Botica San Juan
+
+=== git branch -a ===
+* develop
+  feature/hu-01-autenticacion-roles
+  feature/hu-03-catalogo-productos
+  feature/hu-04-tablero-alertas
+  feature/hu-08-carga-masiva
+  main
+
+=== git status ===
+## develop
+ m botica-san-juan-backend
+?? infra/evidencias/
+
+=== archivos versionados: 260 ===

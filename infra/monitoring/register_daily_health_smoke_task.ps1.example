@@ -1,0 +1,19 @@
+param(
+  [string]$TaskName = 'Botica-Health-Smoke-Daily',
+  [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path,
+  [string]$ApiBase = 'http://127.0.0.1:8083/api',
+  [string]$RunAt = '07:00'
+)
+
+$ErrorActionPreference = 'Stop'
+
+$runner = Join-Path $RepoRoot 'infra\monitoring\run_daily_health_smoke.ps1'
+if (-not (Test-Path $runner)) { throw "No existe runner: $runner" }
+
+$action = New-ScheduledTaskAction -Execute 'pwsh.exe' -Argument "-NoProfile -ExecutionPolicy Bypass -File \"$runner\" -RepoRoot \"$RepoRoot\" -ApiBase \"$ApiBase\""
+$trigger = New-ScheduledTaskTrigger -Daily -At $RunAt
+$settings = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 30) -AllowStartIfOnBatteries -StartWhenAvailable
+
+Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Settings $settings -Description 'Health + smoke diario Botica San Juan' -Force
+
+Write-Host "TASK_REGISTERED name=$TaskName at=$RunAt"

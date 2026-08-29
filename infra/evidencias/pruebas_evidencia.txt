@@ -1,0 +1,22 @@
+﻿   PASS  Tests\Feature\ProductoApiTest
+  Ô£ô el listado de productos es publico                                                                           0.02s  
+  Ô£ô un administrador registra un producto                                                                        0.02s  
+  Ô£ô el nombre el stock y el precio son obligatorios                                                              0.02s  
+  Ô£ô no se admite stock negativo                                                                                  0.02s  
+  Ô£ô no se admite precio negativo                                                                                 0.02s  
+  Ô£ô el codigo de barras no puede repetirse                                                                       0.03s  
+  Ô£ô la categoria referenciada debe existir                                                                       0.02s  
+  Ô£ô un administrador actualiza el stock de un producto                                                           0.02s  
+  Ô£ô la venta fraccionada admite unidad blister y caja                                                            0.02s  
+  Ô£ô una unidad base no valida se rechaza                                                                         0.02s  
+  Ô£ô una categoria valida se asocia al producto                                                                   0.02s  
+
+   PASS  Tests\Feature\SaludYSeguridadTest
+  Ô£ô el endpoint de salud responde ok                                                                             0.02s  
+  Ô£ô el endpoint de salud de base de datos responde ok                                                            0.02s  
+  Ô£ô las respuestas incluyen las cabeceras de seguridad                                                           0.02s  
+  Ô£ô cada respuesta lleva un identificador de peticion                                                            0.02s  
+
+  Tests:    47 passed (112 assertions)
+  Duration: 2.05s
+
