@@ -1,0 +1,70 @@
+# ---------------------------------------------------------------------------
+# Sistema Web de Gestion y Control - Botica San Juan
+# ---------------------------------------------------------------------------
+
+# Dependencias
+node_modules/
+vendor/
+/botica-san-juan-backend/vendor/
+/botica-san-juan-frontend/node_modules/
+
+# Entornos y secretos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+auth.json
+
+# Compilados
+/botica-san-juan-frontend/dist/
+/botica-san-juan-backend/public/build/
+/botica-san-juan-backend/public/hot/
+/botica-san-juan-backend/public/storage/
+/botica-san-juan-backend/bootstrap/cache/*.php
+
+# Base de datos local
+*.sqlite
+*.sqlite-journal
+*.sqlite3
+*.bak
+/botica-san-juan-backend/database/*.sqlite*
+
+# Datos exportados de la migracion (pueden contener informacion del negocio)
+/infra/migracion/datos_postgres.sql
+/infra/migracion/filas_rechazadas.csv
+
+# Registros y evidencias operativas
+*.log
+/botica-san-juan-backend/storage/logs/*
+/botica-san-juan-backend/logs/backup-evidence/
+/botica-san-juan-backend/logs/incident-drills/
+/botica-san-juan-backend/logs/exports/
+/botica-san-juan-backend/logs/security-evidence/
+
+# Cuarentena de la auditoria
+/botica-san-juan-backend/_depuracion_archivada/
+
+# Cache de herramientas
+.phpunit.result.cache
+/botica-san-juan-backend/.phpunit.cache/
+.eslintcache
+*.tsbuildinfo
+
+# Editores y sistema operativo
+.vscode/
+.idea/
+.fleet/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Dependencias PHP de la version anterior en la raiz
+/vendor/
+/composer.phar
+
+# Volcados y datos de trabajo en la raiz
+/botica_san_juan.sql
+/productos_array.txt
+/productos_inserts.txt
+/reporte_productos.xlsx
