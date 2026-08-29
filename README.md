@@ -90,7 +90,9 @@ botica_san_juan/
 │   ├── migracion/               Migración de SQLite a PostgreSQL
 │   ├── monitoring/              Health checks e incidentes
 │   └── evidencias/              Capturas del sistema en ejecución
-└── docs/                        Documentación técnica y operativa
+├── docs/                        Documentación técnica y operativa
+├── scripts/                     Utilitarios de arranque del entorno local
+└── legacy-php/                  Versión anterior del sitio, conservada como referencia
 ```
 
 <br />
@@ -156,11 +158,11 @@ Los mensajes de commit siguen la convención
 | Documento | Contenido |
 |---|---|
 | [`AUDITORIA_Y_PLAN.md`](AUDITORIA_Y_PLAN.md) | Auditoría técnica con hallazgos clasificados por severidad |
-| [`CAMBIOS_BLOQUE1.md`](CAMBIOS_BLOQUE1.md) | Registro de cambios del bloque de fundamentos |
+| [`CAMBIOS_BLOQUE1.md`](docs/CAMBIOS_BLOQUE1.md) | Registro de cambios del bloque de fundamentos |
 | [`infra/migracion/GUIA_MIGRACION_POSTGRESQL.md`](infra/migracion/GUIA_MIGRACION_POSTGRESQL.md) | Migración de SQLite a PostgreSQL paso a paso |
-| [`GO_LIVE_CHECKLIST.md`](GO_LIVE_CHECKLIST.md) | Verificación previa a producción |
-| [`CONTINUIDAD_OPERATIVA.md`](CONTINUIDAD_OPERATIVA.md) | Política de continuidad y recuperación |
-| [`DEPLOYMENT.md`](DEPLOYMENT.md) | Guía de despliegue |
+| [`GO_LIVE_CHECKLIST.md`](docs/GO_LIVE_CHECKLIST.md) | Verificación previa a producción |
+| [`CONTINUIDAD_OPERATIVA.md`](docs/CONTINUIDAD_OPERATIVA.md) | Política de continuidad y recuperación |
+| [`DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Guía de despliegue |
 
 <br />
 

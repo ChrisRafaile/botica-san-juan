@@ -68,3 +68,12 @@ desktop.ini
 /productos_array.txt
 /productos_inserts.txt
 /reporte_productos.xlsx
+
+# Volcados y binarios que no deben versionarse
+/composer.phar
+/botica_san_juan.sql
+/productos_array.txt
+/productos_inserts.txt
+/reporte_productos.xlsx
+/src/
+/vendor/
