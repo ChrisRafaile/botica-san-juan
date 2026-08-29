@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Login - Botica San Juan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h1 class="text-2xl font-bold text-center mb-6">Debug Login</h1>
+
+        <div class="space-y-4">
+            <button id="testLogin" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                Probar Login con API Directa
+            </button>
+
+            <button id="testAuthStore" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">
+                Probar Auth Store
+            </button>
+
+            <button id="checkLocalStorage" class="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700">
+                Verificar localStorage
+            </button>
+
+            <button id="clearStorage" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700">
+                Limpiar localStorage
+            </button>
+        </div>
+
+        <div id="result" class="mt-4 p-4 rounded-md hidden"></div>
+        <div id="logs" class="mt-4 p-4 bg-gray-100 rounded-md text-sm font-mono max-h-64 overflow-y-auto hidden"></div>
+    </div>
+
+    <script type="module">
+        const resultDiv = document.getElementById('result');
+        const logsDiv = document.getElementById('logs');
+        const logsContainer = document.getElementById('logs');
+
+        function log(message, type = 'info') {
+            console.log(message);
+            const logEntry = document.createElement('div');
+            logEntry.className = `text-${type === 'error' ? 'red' : type === 'success' ? 'green' : 'gray'}-600`;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+            logsContainer.classList.remove('hidden');
+        }
+
+        function showResult(message, type = 'info') {
+            resultDiv.className = `mt-4 p-4 rounded-md ${type === 'error' ? 'bg-red-100 text-red-800' : type === 'success' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`;
+            resultDiv.textContent = message;
+            resultDiv.classList.remove('hidden');
+        }
+
+        // Test direct API call
+        document.getElementById('testLogin').addEventListener('click', async () => {
+            log('🔄 Testing direct API login...');
+            showResult('🔄 Probando API directa...');
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        dni: '12345678',
+                        password: '123456'
+                    })
+                });
+
+                log(`📥 Response status: ${response.status}`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Login successful', 'success');
+                    log(`👤 User: ${data.user.nombre} (${data.user.rol})`);
+                    log(`🔑 Token: ${data.token.substring(0, 20)}...`);
+                    showResult('✅ Login exitoso con API directa', 'success');
+                } else {
+                    const errorData = await response.text();
+                    log(`❌ Login failed: ${errorData}`, 'error');
+                    showResult(`❌ Error en API: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+                showResult(`❌ Error de red: ${error.message}`, 'error');
+            }
+        });
+
+        // Test auth store (this would require importing the store, simplified version)
+        document.getElementById('testAuthStore').addEventListener('click', () => {
+            log('🔄 Testing auth store access...');
+            showResult('ℹ️ Para probar el auth store, usa la página de login principal con las herramientas de desarrollo abiertas');
+        });
+
+        // Check localStorage
+        document.getElementById('checkLocalStorage').addEventListener('click', () => {
+            log('🔍 Checking localStorage...');
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('user');
+
+            if (token) {
+                log(`🔑 Token found: ${token.substring(0, 20)}...`, 'success');
+            } else {
+                log('❌ No token found', 'error');
+            }
+
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    log(`👤 User found: ${userData.nombre} (${userData.rol})`, 'success');
+                } catch (e) {
+                    log('❌ Invalid user data in localStorage', 'error');
+                }
+            } else {
+                log('❌ No user data found', 'error');
+            }
+
+            showResult('✅ localStorage verificado (ver logs)');
+        });
+
+        // Clear localStorage
+        document.getElementById('clearStorage').addEventListener('click', () => {
+            log('🧹 Clearing localStorage...');
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user');
+            log('✅ localStorage cleared', 'success');
+            showResult('✅ localStorage limpiado', 'success');
+        });
+
+        log('🚀 Debug page loaded');
+    </script>
+</body>
+</html>

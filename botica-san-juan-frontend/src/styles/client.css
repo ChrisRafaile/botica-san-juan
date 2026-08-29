@@ -1,0 +1,249 @@
+/* Estilos específicos para vistas de cliente */
+/* Tema claro y amigable para usuarios finales */
+
+.client-theme {
+  /* Colores principales para cliente */
+  --client-primary: #0ea5e9;
+  --client-secondary: #10b981;
+  --client-accent: #f59e0b;
+
+  /* Gradientes para cliente */
+  --client-gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  --client-gradient-secondary: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+/* Componentes comunes para cliente */
+.btn-primary {
+  background-color: #0ea5e9;
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0284c7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.btn-secondary {
+  background-color: #f1f5f9;
+  color: #1e293b;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.card {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  border: 1px solid #f1f5f9;
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+/* Header para clientes */
+.client-header {
+  background: var(--client-gradient-primary);
+  box-shadow: 0 2px 10px rgba(14, 165, 233, 0.1);
+}
+
+/* Botones específicos para cliente */
+.client-btn-primary {
+  background: var(--client-gradient-primary);
+  border: none;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(14, 165, 233, 0.1);
+}
+
+.client-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(14, 165, 233, 0.2);
+}
+
+.client-btn-secondary {
+  background: white;
+  border: 2px solid var(--client-primary);
+  color: var(--client-primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.client-btn-secondary:hover {
+  background: var(--client-primary);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Cards para productos/servicios */
+.client-product-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.client-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.client-product-card .card-header {
+  background: var(--client-gradient-primary);
+  color: white;
+  padding: 1rem;
+}
+
+.client-product-card .card-body {
+  padding: 1.5rem;
+}
+
+.client-product-card .card-footer {
+  background: #f8fafc;
+  padding: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Formularios de cliente */
+.client-form {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+}
+
+.client-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.client-form label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.client-form input,
+.client-form textarea,
+.client-form select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.client-form input:focus,
+.client-form textarea:focus,
+.client-form select:focus {
+  outline: none;
+  border-color: var(--client-primary);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+/* Navegación de cliente */
+.client-nav {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem 0;
+}
+
+.client-nav .nav-link {
+  color: #6b7280;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.client-nav .nav-link:hover,
+.client-nav .nav-link.active {
+  color: var(--client-primary);
+  background: rgba(14, 165, 233, 0.1);
+}
+
+/* Footer para cliente */
+.client-footer {
+  background: #1f2937;
+  color: white;
+  padding: 3rem 0 1rem;
+}
+
+.client-footer .footer-section h3 {
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.client-footer .footer-link {
+  color: #9ca3af;
+  transition: color 0.3s ease;
+}
+
+.client-footer .footer-link:hover {
+  color: var(--client-primary);
+}
+
+/* Animaciones específicas para cliente */
+@keyframes clientPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.client-pulse {
+  animation: clientPulse 2s infinite;
+}
+
+/* Responsive para cliente */
+@media (max-width: 768px) {
+  .client-product-card {
+    margin-bottom: 1rem;
+  }
+
+  .client-form {
+    padding: 1rem;
+  }
+
+  .client-btn-primary,
+  .client-btn-secondary,
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+}

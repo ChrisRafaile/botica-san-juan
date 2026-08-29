@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login - Botica San Juan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h1 class="text-2xl font-bold text-center mb-6">Test Login</h1>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">DNI</label>
+                <input type="text" id="dni" value="12345678" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Contraseña</label>
+                <input type="password" id="password" value="123456" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Iniciar Sesión
+            </button>
+        </form>
+
+        <div id="result" class="mt-4 p-4 rounded-md hidden"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const dni = document.getElementById('dni').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+
+            resultDiv.className = 'mt-4 p-4 rounded-md';
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = '<div class="text-blue-600">🔄 Intentando login...</div>';
+
+            try {
+                console.log('📤 Enviando petición de login...');
+
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ dni, password })
+                });
+
+                console.log('📥 Respuesta recibida:', response.status, response.statusText);
+
+                const data = await response.json();
+                console.log('📊 Datos:', data);
+
+                if (response.ok) {
+                    resultDiv.className = 'mt-4 p-4 rounded-md bg-green-100 text-green-800';
+                    resultDiv.innerHTML = `
+                        <div class="font-semibold">✅ Login exitoso!</div>
+                        <div class="text-sm mt-2">
+                            <strong>Usuario:</strong> ${data.user.nombre}<br>
+                            <strong>Rol:</strong> ${data.user.rol}<br>
+                            <strong>Token:</strong> ${data.token.substring(0, 20)}...
+                        </div>
+                    `;
+
+                    // Guardar token
+                    localStorage.setItem('auth_token', data.token);
+                    console.log('💾 Token guardado en localStorage');
+                } else {
+                    resultDiv.className = 'mt-4 p-4 rounded-md bg-red-100 text-red-800';
+                    resultDiv.innerHTML = `<div class="font-semibold">❌ Error:</div> ${data.message || 'Error desconocido'}`;
+                }
+
+            } catch (error) {
+                console.error('❌ Error en fetch:', error);
+                resultDiv.className = 'mt-4 p-4 rounded-md bg-red-100 text-red-800';
+                resultDiv.innerHTML = `<div class="font-semibold">❌ Error de conexión:</div> ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
