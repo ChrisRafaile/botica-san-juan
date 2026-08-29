@@ -1,0 +1,744 @@
+/* Reset CSS Moderno */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+/* Reset específico solo para elementos que realmente necesitan reset */
+body, h1, h2, h3, h4, h5, h6, p, ul, ol, figure, blockquote {
+    margin: 0;
+    padding: 0;
+}
+
+/* Mantener márgenes por defecto útiles para elementos inline */
+a, span, em, strong, b, i, small {
+    margin: 0;
+    padding: 0;
+}
+
+/* Reset para listas */
+ul, ol {
+    list-style: none;
+}
+
+/* Reset para imágenes y elementos multimedia */
+img, video, iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Reset para botones y inputs */
+button, input, textarea, select {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f4f4;
+    margin: 0;
+}
+
+/* Header Styles */
+header {
+    background-color: #1e88e5;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+header .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+header img.logo {
+    height: 80px;
+}
+
+header nav ul {
+    display: flex;
+    list-style: none;
+}
+
+header nav ul li {
+    margin-left: 2rem;
+}
+
+header nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+header nav ul li a:hover {
+    text-decoration: underline;
+}
+
+header .btn-buy {
+    background-color: #4caf50;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+header .btn-buy:hover {
+    background-color: #45a049;
+}
+
+/* Hero Section Styles */
+.hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 2rem 1rem;
+    background-color: #1e88e5;
+    color: #fff;
+}
+
+.hero-text {
+    max-width: 600px;
+}
+
+.hero-text h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.hero-text p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.hero-buttons .btn {
+    margin: 0.5rem;
+}
+
+.hero img.hero-image {
+    max-width: 100%;
+    height: auto;
+    margin-top: 2rem;
+}
+
+/* Main Section Styles */
+main .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.info-section, .about-us, .products-section, .delivery-section, .customer-service-section, .benefits-section, .testimonials, .cta-section {
+    margin-bottom: 3rem;
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Center align text */
+}
+
+.info-section h2, .about-us h2, .products-section h2, .delivery-section h2, .customer-service-section h2, .benefits-section h2, .testimonials h2, .cta-section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.about-us .about-image, .products-section .section-image, .delivery-section .section-image, .customer-service-section .section-image {
+    display: block;
+    margin: 0 auto;
+    max-width: 600px;
+    height: auto;
+    border-radius: 10px;
+    margin-top: 2rem;
+}
+
+.benefits-section .benefits-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    text-align: center; /* Center align text */
+}
+
+.benefit {
+    background-color: #f4f4f4;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex: 1 1 220px;
+    max-width: 220px;
+    text-align: center; /* Center align text */
+}
+
+.benefit h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.benefit p {
+    font-size: 1rem;
+}
+
+/* Testimonials Section Styles */
+.testimonials-section {
+    padding: 2rem;
+    background-color: #fff;
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.testimonials-section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.testimonials-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.testimonial {
+    background-color: #f4f4f4;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex: 1 1 300px;
+    max-width: 300px;
+    text-align: center;
+}
+
+.testimonial img {
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+    width: 100px;
+    height: 100px;
+}
+
+.testimonial-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stars {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.stars i {
+    color: #ffcc00;
+    margin: 0 0.1rem;
+}
+
+.testimonial p {
+    font-size: 1rem;
+}
+
+.testimonial-name {
+    font-weight: bold;
+    margin-top: 0.5rem;
+}
+
+/* CTA Section Styles */
+.cta-section {
+    padding: 2rem;
+    background-color: #1e88e5;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.cta-section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.cta-section p {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.cta-section a {
+    background-color: #fff;
+    color: #1e88e5;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.cta-section a:hover {
+    background-color: #e3f2fd;
+}
+
+/* Footer Styles */
+footer {
+    background-color: #1e88e5;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+}
+
+footer img.footer-logo {
+    height: 50px;
+    display: block;
+    margin: 0.5rem auto;
+}
+
+footer nav {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+footer nav a {
+    color: #fff;
+    text-decoration: none;
+}
+
+footer nav a:hover {
+    text-decoration: underline;
+}
+
+footer p {
+    margin-top: 1rem;
+}
+
+/* Styles specific to about.html */
+.about-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Center align text */
+}
+
+.about-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.about-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.about-header p {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+.about-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    text-align: center; /* Center align text */
+}
+
+.about-image {
+    flex: 1;
+    max-width: 500px;
+    border-radius: 10px;
+    margin: 0 auto;
+}
+
+.about-text {
+    flex: 2;
+    text-align: center; /* Center align text */
+}
+
+.about-text h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #1e88e5;
+}
+
+.about-text p {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+
+.delivery-info-section {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.delivery-info-section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #1e88e5;
+}
+
+.delivery-info-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center; /* Center the text */
+}
+
+.delivery-info-content p {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+/* Contact Info Section Styles */
+.contact-info-section {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.contact-info-section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #1e88e5;
+}
+
+.contact-info-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.contact-info-content .map {
+    flex: 1;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.contact-info-content .contact-details {
+    flex: 1;
+    max-width: 400px;
+    text-align: center; /* Center align text */
+    margin: 0 auto;
+}
+
+.contact-details p {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.contact-link {
+    color: #1e88e5;
+    text-decoration: none;
+}
+
+.contact-link:hover {
+    text-decoration: underline;
+}
+
+/* Map iframe */
+.contact-info-content .map iframe {
+    width: 100%;
+    max-width: 400px;
+    height: 300px;
+    margin-bottom: 1rem;
+}
+
+/* Contact Page Styles */
+.contact-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.contact-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+
+.contact-image {
+    flex: 1;
+    max-width: 400px; /* Reducir el tamaño máximo de la imagen */
+    border-radius: 10px;
+    margin: 0 auto;
+}
+
+.contact-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.contact-form {
+    flex: 2;
+    text-align: left; /* Ajustar alineación del texto */
+}
+
+.contact-form h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center; /* Centrar el título */
+}
+
+.contact-form p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.contact-form label {
+    display: block;
+    text-align: left;
+    margin-bottom: 0.5rem;
+}
+
+.contact-form input, 
+.contact-form select, 
+.contact-form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.contact-form .terms {
+    display: flex;
+    flex-direction: column; /* Cambiar a columna */
+    align-items: flex-start; /* Alinear al inicio */
+    margin-bottom: 1rem;
+}
+
+.contact-form .terms label {
+    margin-left: 1.5rem; /* Añadir margen izquierdo */
+}
+
+.contact-form button {
+    background-color: #1e88e5;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: flex-start; /* Alinear con el inicio */
+    margin-top: 1rem; /* Añadir margen superior */
+}
+
+.contact-form button:hover {
+    background-color: #1565c0;
+}
+
+/* Services Page Styles */
+.services-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.services-header {
+    margin-bottom: 2rem;
+}
+
+.services-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.services-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.service-item {
+    flex: 1;
+    max-width: 300px;
+    background-color: #f4f4f4;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.service-item img {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 1rem;
+}
+
+.service-item h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.service-item p {
+    font-size: 1rem;
+}
+
+.additional-info {
+    margin-top: 2rem;
+}
+
+.additional-info h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.additional-info p {
+    font-size: 1.1rem;
+}
+
+
+.products-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+.products-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+}
+.product-item {
+    flex: 1 1 300px;
+    max-width: 300px;
+    background-color: #f4f4f4;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+.product-item img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+}
+.product-item h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+.product-item p {
+    font-size: 1rem;
+    color: #555;
+}
+.product-item .price {
+    font-size: 1.2rem;
+    color: #1e88e5;
+    margin-bottom: 0.5rem;
+}
+.product-item .btn-add-to-cart {
+    background-color: #1e88e5;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.product-item .btn-add-to-cart:hover {
+    background-color: #1565c0;
+}
+
+.productos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+}
+
+.producto {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    border-radius: 10px;
+    max-width: 300px;
+    text-align: center;
+    background-color: #fff;
+}
+
+.producto img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.producto h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.producto p {
+    margin-bottom: 1rem;
+}
+
+/* Login Page Styles */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #f5f5f5;
+}
+
+.login-form {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.login-form h2 {
+    margin-bottom: 1rem;
+}
+
+.login-form input[type="email"],
+.login-form input[type="password"] {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.login-form input[type="submit"] {
+    width: 100%;
+    padding: 0.5rem;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.login-form input[type="submit"]:hover {
+    background: #0056b3;
+}
+

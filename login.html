@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Botica San Juan</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #6f86d6, #48c6ef);
+            font-family: 'Roboto', sans-serif;
+        }
+        .login-container {
+            display: flex;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .login-image {
+            margin-right: 2rem;
+        }
+        .login-image img {
+            max-width: 300px;
+            border-radius: 10px;
+        }
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .login-form h2 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        .login-form label {
+            margin-bottom: 0.5rem;
+        }
+        .login-form input {
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .login-form button {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            background-color: #1e88e5;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .login-form button:hover {
+            background-color: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-image">
+            <img src="images/doctors.jpg" alt="Doctors">
+        </div>
+        <div class="login-form">
+            <h2>BOTICA SAN JUAN</h2>
+            <form action="php/login.php" method="POST">
+                <label for="name">Nombres:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="dni">DNI:</label>
+                <input type="text" id="dni" name="dni" required>
+
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit">INICIAR SESIÓN</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

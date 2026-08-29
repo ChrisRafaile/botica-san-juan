@@ -1,0 +1,6 @@
+nombre,concentracion,adicional,laboratorio,presentacion,tipo,categoria,stock,precio,imagen
+Paracetamol,500mg,Tabletas recubiertas,Genfar,Blíster de 20 tabletas,Analgésico,Medicamentos,100,5.50,https://example.com/paracetamol.jpg
+Ibuprofeno,400mg,Tabletas,Procaps,Caja de 30 tabletas,Antiinflamatorio,Medicamentos,75,8.75,https://example.com/ibuprofeno.jpg
+Vitamina C,1000mg,Efervescente,Bayer,Tubo de 10 tabletas,Vitamina,Vitaminas,50,12.00,https://example.com/vitamina-c.jpg
+Jarabe para la tos,30mg/5ml,Códigoína,Mk,Caja de 120ml,Jarabe,Jarabes,30,15.25,https://example.com/jarabe-tos.jpg
+Crema hidratante,N/A,Hidratante,Cerave,Tubo de 454g,Cuidado Personal,Cuidado Personal,20,25.00,https://example.com/crema-hidratante.jpg
