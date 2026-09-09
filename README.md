@@ -16,7 +16,7 @@ con control de lotes, trazabilidad de vencimientos y facturación electrónica S
 ![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-47%20passing-22C55E?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-89%20passing-22C55E?style=flat-square)
 
 </div>
 
@@ -58,11 +58,11 @@ escritorio empaquetada con Tauri y al portal público del cliente.
 ```
 Presentación     Vue 3 · TypeScript · Pinia · Tailwind CSS · Tauri
      │
-Aplicación       15 controladores REST · middleware de rol, CORS y auditoría
+Aplicación       16 controladores REST · middleware de rol, CORS y auditoría
      │
 Dominio          Ventas · Inventario FEFO · Compras · Facturación · SunatClient
      │
-Persistencia     Eloquent ORM · 26 migraciones versionadas · PostgreSQL 16
+Persistencia     Eloquent ORM · 31 migraciones versionadas · PostgreSQL 16
      │
 Infraestructura  HTTPS · CI/CD · health checks · respaldos · monitoreo
 ```
@@ -74,14 +74,14 @@ Infraestructura  HTTPS · CI/CD · health checks · respaldos · monitoreo
 ```
 botica_san_juan/
 ├── botica-san-juan-backend/     API REST en Laravel 12
-│   ├── app/Http/Controllers/    15 controladores
+│   ├── app/Http/Controllers/    16 controladores
 │   ├── app/Http/Middleware/     Rol · CORS · auditoría · cabeceras de seguridad
 │   ├── app/Services/            Integración con la SUNAT
-│   ├── database/migrations/     26 migraciones versionadas
-│   └── tests/                   47 pruebas automatizadas
+│   ├── database/migrations/     31 migraciones versionadas
+│   └── tests/                   89 pruebas automatizadas
 ├── botica-san-juan-frontend/    SPA en Vue 3 + TypeScript
 │   └── src/
-│       ├── admin/               Panel administrativo (12 vistas)
+│       ├── admin/               Panel administrativo (20 vistas)
 │       ├── auth/                Autenticación
 │       ├── client/              Portal público
 │       └── services/            Cliente HTTP con interceptores
@@ -126,7 +126,7 @@ El sistema queda disponible en `http://localhost:5173` y la API en `http://local
 <img src="docs/assets/icons/flask.svg" width="18" align="top" />  **Pruebas**
 
 ```bash
-cd botica-san-juan-backend && php artisan test      # 47 pruebas, 112 aserciones
+cd botica-san-juan-backend && php artisan test      # 89 pruebas, 236 aserciones
 cd botica-san-juan-frontend && npm run type-check   # verificación de tipos
 ```
 
@@ -170,11 +170,11 @@ Los mensajes de commit siguen la convención
 
 | Componente | Estado |
 |---|:---:|
-| Base de datos PostgreSQL con 3 479 registros migrados | Operativa |
-| API REST con 15 controladores | Operativa |
+| Base de datos PostgreSQL con 3 537 registros migrados | Operativa |
+| API REST con 16 controladores | Operativa |
 | Seguridad: roles, doble factor y auditoría | Operativa |
-| Panel administrativo con 12 vistas | Operativa |
-| Suite de 47 pruebas automatizadas | Operativa |
+| Panel administrativo con 20 vistas | Operativa |
+| Suite de 89 pruebas automatizadas | Operativa |
 | Integración con la SUNAT | En desarrollo |
 | Punto de venta con descuento de stock | Planificado |
 
