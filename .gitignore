@@ -77,3 +77,8 @@ desktop.ini
 /reporte_productos.xlsx
 /src/
 /vendor/
+
+# El frontend usa npm; se evita mezclar gestores de paquetes
+pnpm-lock.yaml
+yarn.lock
+

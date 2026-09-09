@@ -77,14 +77,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: pnpm
-          cache-dependency-path: botica-san-juan-frontend/pnpm-lock.yaml
-
-      - name: Enable Corepack
-        run: corepack enable
+          cache: npm
+          cache-dependency-path: botica-san-juan-frontend/package-lock.json
 
       - name: Install frontend dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci
 
       - name: Type check and build frontend
-        run: pnpm build
+        run: npm run build

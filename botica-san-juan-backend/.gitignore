@@ -32,3 +32,10 @@ Thumbs.db
 /logs/incident-drills
 /logs/exports
 /logs/security-evidence
+
+# --- Artefactos que no deben versionarse (auditoria APF1) ---
+composer.phar
+/logs
+/storage/framework
+/storage/logs
+
