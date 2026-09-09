@@ -1,0 +1,56 @@
+﻿SECCION,CLAVE,VALOR_1,VALOR_2,VALOR_3
+kpi,ventas,0,,
+kpi,compras,2090.5,,
+kpi,margen,-2090.5,,
+kpi,margen_pct,0,,
+kpi,quiebres_riesgo,50,,
+stock_riesgo,"ACI BASIC",1,5,40
+stock_riesgo,"ACI TIP",1,5,40
+stock_riesgo,ALERCET,1,5,20
+stock_riesgo,"ACI BASIC",1,5,40
+stock_riesgo,"ACI TIP",1,5,40
+stock_riesgo,ALERCET,1,5,20
+stock_riesgo,"ACI BASIC",1,5,40
+stock_riesgo,"ACI TIP",1,5,40
+stock_riesgo,ALERCET,1,5,20
+stock_riesgo,"ACI BASIC",1,5,40
+stock_riesgo,"ACI TIP",1,5,40
+stock_riesgo,ALERCET,1,5,20
+stock_riesgo,"AB MOKS",2,5,40
+stock_riesgo,"ACI BASIC",2,5,40
+stock_riesgo,"ACI BASIC UVA",2,5,40
+stock_riesgo,ACICLAV,2,5,40
+stock_riesgo,DORIXINA,2,5,4
+stock_riesgo,DORIXINA,2,5,4
+stock_riesgo,"DORIXINA FAST",2,5,4
+stock_riesgo,DOXICICLINA,2,5,4
+stock_riesgo,DOXICICLINA,2,5,4
+stock_riesgo,DOXICICLINA,2,5,4
+stock_riesgo,DOXICICLINA,2,5,4
+stock_riesgo,"DOXICICLINA HICLATO",2,5,4
+stock_riesgo,DOXICLIN,2,5,4
+stock_riesgo,ELITON,2,5,4
+stock_riesgo,"ELITON FE 50",2,5,4
+stock_riesgo,ENALAPRIL,2,5,4
+stock_riesgo,ENALAPRIL,2,5,4
+stock_riesgo,ENALAPRIL,2,5,4
+stock_riesgo,ENALAPRIL,2,5,4
+stock_riesgo,ENALAPRIL,2,5,4
+stock_riesgo,ENALAPRIL,2,5,4
+stock_riesgo,ENTEROGERMINA,2,5,4
+stock_riesgo,ENTEROGERMINA,2,5,4
+stock_riesgo,"ENTEROGERMINA PLUS",2,5,4
+stock_riesgo,"ENTEROPHAR FORTE",2,5,4
+stock_riesgo,"ENTEROPHAR FORTE",2,5,4
+stock_riesgo,ERITROMICINA,2,5,4
+stock_riesgo,ERITROMICINA,2,5,4
+stock_riesgo,ERITROMICINA,2,5,4
+stock_riesgo,ERITROMICINA,2,5,4
+stock_riesgo,ERITROMICINA,2,5,4
+stock_riesgo,ESOMEPRAZOL,2,5,4
+stock_riesgo,ESOMEPRAZOL,2,5,4
+stock_riesgo,ESOMEPRAZOL,2,5,4
+stock_riesgo,ESOMEPRAZOL,2,5,4
+stock_riesgo,ESOMEPRAZOL,2,5,4
+stock_riesgo,"ESPASMO ANTALGINA",2,5,4
+stock_riesgo,FEBRAX,2,5,8

@@ -1,0 +1,35 @@
+[
+  {
+    "script": "smoke_admin_fixed.ps1",
+    "status": "failed",
+    "log": "C:\\tareas universitarios\\TAREAS U\\Tareas Univ\\Ciclo 5\\Taller de programacion Web\\botica_san_juan\\botica-san-juan-backend\\logs\\\\smoke-evidence\\\\20260412-214913\\smoke_admin_fixed.ps1.log",
+    "error": "exit code 1"
+  },
+  {
+    "script": "smoke_fase2_digemid.ps1",
+    "status": "ok",
+    "log": "C:\\tareas universitarios\\TAREAS U\\Tareas Univ\\Ciclo 5\\Taller de programacion Web\\botica_san_juan\\botica-san-juan-backend\\logs\\\\smoke-evidence\\\\20260412-214913\\smoke_fase2_digemid.ps1.log"
+  },
+  {
+    "script": "smoke_fase3_reportes.ps1",
+    "status": "failed",
+    "log": "C:\\tareas universitarios\\TAREAS U\\Tareas Univ\\Ciclo 5\\Taller de programacion Web\\botica_san_juan\\botica-san-juan-backend\\logs\\\\smoke-evidence\\\\20260412-214913\\smoke_fase3_reportes.ps1.log",
+    "error": "exit code 1"
+  },
+  {
+    "script": "smoke_fase3_facturacion.ps1",
+    "status": "ok",
+    "log": "C:\\tareas universitarios\\TAREAS U\\Tareas Univ\\Ciclo 5\\Taller de programacion Web\\botica_san_juan\\botica-san-juan-backend\\logs\\\\smoke-evidence\\\\20260412-214913\\smoke_fase3_facturacion.ps1.log"
+  },
+  {
+    "script": "smoke_fase5_sunat_comisiones.ps1",
+    "status": "ok",
+    "log": "C:\\tareas universitarios\\TAREAS U\\Tareas Univ\\Ciclo 5\\Taller de programacion Web\\botica_san_juan\\botica-san-juan-backend\\logs\\\\smoke-evidence\\\\20260412-214913\\smoke_fase5_sunat_comisiones.ps1.log"
+  },
+  {
+    "script": "smoke_fase6_security_readiness.ps1",
+    "status": "failed",
+    "log": "C:\\tareas universitarios\\TAREAS U\\Tareas Univ\\Ciclo 5\\Taller de programacion Web\\botica_san_juan\\botica-san-juan-backend\\logs\\\\smoke-evidence\\\\20260412-214913\\smoke_fase6_security_readiness.ps1.log",
+    "error": "exit code 1"
+  }
+]

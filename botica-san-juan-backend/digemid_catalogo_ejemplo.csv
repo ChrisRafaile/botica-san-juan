@@ -1,0 +1,6 @@
+codigo_digemid,nombre_producto,principio_activo,laboratorio_fabricante,requiere_receta,precio_maximo_regulado,activo
+DIG-0001,Paracetamol 500mg Tabletas,Paracetamol,Laboratorios San Juan,false,12.50,true
+DIG-0002,Amoxicilina 500mg Capsulas,Amoxicilina,Pharma Peru,true,28.90,true
+DIG-0003,Loratadina 10mg Tabletas,Loratadina,Medifarma,false,16.00,true
+DIG-0004,Ibuprofeno 400mg Tabletas,Ibuprofeno,Genfar,false,14.20,true
+DIG-0005,Azitromicina 500mg Tabletas,Azitromicina,AC Farma,true,45.00,true

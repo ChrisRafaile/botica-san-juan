@@ -1,0 +1,5 @@
+{
+  "secret": "Q56A5I7ZAQUUTTGFSLRLJFHNWD5J5ZAN",
+  "otpauth_url": "otpauth://totp/Botica%20San%20Juan:admin%40example.com?secret=Q56A5I7ZAQUUTTGFSLRLJFHNWD5J5ZAN&issuer=Botica%20San%20Juan&period=30&digits=6",
+  "message": "Escanea el QR/manual secret y confirma con /mfa/enable."
+}

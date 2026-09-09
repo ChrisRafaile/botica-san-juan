@@ -1,0 +1,366 @@
+{
+  "filters": {
+    "from": "2026-04-01",
+    "to": "2026-04-30"
+  },
+  "kpis": {
+    "ventas": 0,
+    "compras": 2090.5,
+    "margen": -2090.5,
+    "margen_pct": 0,
+    "quiebres_riesgo": 50
+  },
+  "top_productos": [],
+  "stock_riesgo": [
+    {
+      "producto_id": 16,
+      "nombre": "ACI BASIC",
+      "stock": 1,
+      "stock_minimo": 5,
+      "precio": 40
+    },
+    {
+      "producto_id": 18,
+      "nombre": "ACI TIP",
+      "stock": 1,
+      "stock_minimo": 5,
+      "precio": 40
+    },
+    {
+      "producto_id": 43,
+      "nombre": "ALERCET",
+      "stock": 1,
+      "stock_minimo": 5,
+      "precio": 20
+    },
+    {
+      "producto_id": 771,
+      "nombre": "ACI BASIC",
+      "stock": 1,
+      "stock_minimo": 5,
+      "precio": 40
+    },
+    {
+      "producto_id": 773,
+      "nombre": "ACI TIP",
+      "stock": 1,
+      "stock_minimo": 5,
+      "precio": 40
+    },
+    {
+      "producto_id": 798,
+      "nombre": "ALERCET",
+      "stock": 1,
+      "stock_minimo": 5,
+      "precio": 20
+    },
+    {
+      "producto_id": 1641,
+      "nombre": "ACI BASIC",
+      "stock": 1,
+      "stock_minimo": 5,
+      "precio": 40
+    },
+    {
+      "producto_id": 1643,
+      "nombre": "ACI TIP",
+      "stock": 1,
+      "stock_minimo": 5,
+      "precio": 40
+    },
+    {
+      "producto_id": 1668,
+      "nombre": "ALERCET",
+      "stock": 1,
+      "stock_minimo": 5,
+      "precio": 20
+    },
+    {
+      "producto_id": 2511,
+      "nombre": "ACI BASIC",
+      "stock": 1,
+      "stock_minimo": 5,
+      "precio": 40
+    },
+    {
+      "producto_id": 2513,
+      "nombre": "ACI TIP",
+      "stock": 1,
+      "stock_minimo": 5,
+      "precio": 40
+    },
+    {
+      "producto_id": 2538,
+      "nombre": "ALERCET",
+      "stock": 1,
+      "stock_minimo": 5,
+      "precio": 20
+    },
+    {
+      "producto_id": 4,
+      "nombre": "AB MOKS",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 40
+    },
+    {
+      "producto_id": 15,
+      "nombre": "ACI BASIC",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 40
+    },
+    {
+      "producto_id": 17,
+      "nombre": "ACI BASIC UVA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 40
+    },
+    {
+      "producto_id": 19,
+      "nombre": "ACICLAV",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 40
+    },
+    {
+      "producto_id": 436,
+      "nombre": "DORIXINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 437,
+      "nombre": "DORIXINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 438,
+      "nombre": "DORIXINA FAST",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 439,
+      "nombre": "DOXICICLINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 440,
+      "nombre": "DOXICICLINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 441,
+      "nombre": "DOXICICLINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 442,
+      "nombre": "DOXICICLINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 443,
+      "nombre": "DOXICICLINA HICLATO",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 444,
+      "nombre": "DOXICLIN",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 445,
+      "nombre": "ELITON",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 446,
+      "nombre": "ELITON FE 50",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 447,
+      "nombre": "ENALAPRIL",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 448,
+      "nombre": "ENALAPRIL",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 449,
+      "nombre": "ENALAPRIL",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 450,
+      "nombre": "ENALAPRIL",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 451,
+      "nombre": "ENALAPRIL",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 452,
+      "nombre": "ENALAPRIL",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 453,
+      "nombre": "ENTEROGERMINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 454,
+      "nombre": "ENTEROGERMINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 455,
+      "nombre": "ENTEROGERMINA PLUS",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 456,
+      "nombre": "ENTEROPHAR FORTE",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 457,
+      "nombre": "ENTEROPHAR FORTE",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 458,
+      "nombre": "ERITROMICINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 459,
+      "nombre": "ERITROMICINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 460,
+      "nombre": "ERITROMICINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 461,
+      "nombre": "ERITROMICINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 462,
+      "nombre": "ERITROMICINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 463,
+      "nombre": "ESOMEPRAZOL",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 464,
+      "nombre": "ESOMEPRAZOL",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 465,
+      "nombre": "ESOMEPRAZOL",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 466,
+      "nombre": "ESOMEPRAZOL",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 467,
+      "nombre": "ESOMEPRAZOL",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 468,
+      "nombre": "ESPASMO ANTALGINA",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 4
+    },
+    {
+      "producto_id": 469,
+      "nombre": "FEBRAX",
+      "stock": 2,
+      "stock_minimo": 5,
+      "precio": 8
+    }
+  ]
+}

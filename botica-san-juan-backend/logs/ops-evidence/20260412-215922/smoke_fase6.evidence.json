@@ -1,0 +1,50 @@
+{
+  "started_at": "2026-04-12T21:59:25.1813028-05:00",
+  "base_url": "http://127.0.0.1:8083/api",
+  "checks": [
+    {
+      "name": "admin_login",
+      "result": "ok",
+      "status_code": 200,
+      "request_id": "a4c7a3aa-3eab-4367-9f76-c413820dc7d5",
+      "timestamp": "2026-04-12T21:59:25.6436553-05:00"
+    },
+    {
+      "name": "health_app",
+      "result": "ok",
+      "status_code": 200,
+      "request_id": "a1ef7bb7-b0df-4b12-ae68-af36b2555537",
+      "timestamp": "2026-04-12T21:59:25.8084637-05:00"
+    },
+    {
+      "name": "health_db",
+      "result": "ok",
+      "status_code": 200,
+      "request_id": "4e5f33c5-666d-4593-9fbb-c834ea645799",
+      "timestamp": "2026-04-12T21:59:25.9689821-05:00"
+    },
+    {
+      "name": "unauthorized_admin_mutation",
+      "result": "ok",
+      "status_code": 401,
+      "request_id": "a778357d-b424-434c-b971-f898cc95c5ee",
+      "timestamp": "2026-04-12T21:59:26.1374125-05:00"
+    },
+    {
+      "name": "forbidden_client_admin_mutation",
+      "result": "ok",
+      "status_code": 403,
+      "request_id": "32f68db5-6281-445b-92fa-812323d25bb5",
+      "timestamp": "2026-04-12T21:59:26.7028232-05:00"
+    },
+    {
+      "name": "throttle_login_429",
+      "result": "ok",
+      "status_code": 429,
+      "request_id": "",
+      "timestamp": "2026-04-12T21:59:27.8332926-05:00"
+    }
+  ],
+  "result": "ok",
+  "finished_at": "2026-04-12T21:59:27.8347677-05:00"
+}

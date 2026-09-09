@@ -1,0 +1,22 @@
+{
+  "started_at": "2026-04-12T21:59:22.2849427-05:00",
+  "api_base": "http://127.0.0.1:8083/api",
+  "checks": [
+    {
+      "name": "healthcheck",
+      "status": "ok",
+      "log": "C:\\tareas universitarios\\TAREAS U\\Tareas Univ\\Ciclo 5\\Taller de programacion Web\\botica_san_juan\\botica-san-juan-backend\\logs\\ops-evidence\\20260412-215922\\health.log",
+      "error": "",
+      "timestamp": "2026-04-12T21:59:23.9974230-05:00"
+    },
+    {
+      "name": "smoke_fase6",
+      "status": "ok",
+      "log": "C:\\tareas universitarios\\TAREAS U\\Tareas Univ\\Ciclo 5\\Taller de programacion Web\\botica_san_juan\\botica-san-juan-backend\\logs\\ops-evidence\\20260412-215922\\smoke_fase6.log",
+      "error": "",
+      "timestamp": "2026-04-12T21:59:27.9302756-05:00"
+    }
+  ],
+  "finished_at": "2026-04-12T21:59:27.9304199-05:00",
+  "result": "ok"
+}
