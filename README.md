@@ -163,6 +163,7 @@ Los mensajes de commit siguen la convención
 | [`GO_LIVE_CHECKLIST.md`](docs/GO_LIVE_CHECKLIST.md) | Verificación previa a producción |
 | [`CONTINUIDAD_OPERATIVA.md`](docs/CONTINUIDAD_OPERATIVA.md) | Política de continuidad y recuperación |
 | [`DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Guía de despliegue |
+| [`EVALUACION_PNPM.md`](docs/EVALUACION_PNPM.md) | Evaluación del gestor de dependencias y plan de migración |
 
 <br />
 
