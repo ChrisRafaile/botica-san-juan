@@ -1,26 +1,51 @@
-@import "tailwindcss";
+/* ============================================================================
+   ESTILOS GLOBALES · BOTICA SAN JUAN
+   ----------------------------------------------------------------------------
+   Este archivo ya no define el sistema de diseño: sólo lo importa y añade
+   los complementos globales que no encajan en él (integración con Leaflet y
+   variables heredadas pendientes de migrar).
 
-/* Variables CSS globales */
+   El sistema de diseño —incluida la directiva @import "tailwindcss"— vive en
+   `design-system.css`. Importarlo aquí garantiza que se cargue una sola vez y
+   antes que cualquier otro estilo.
+   ========================================================================== */
+
+@import "./design-system.css";
+
+/* ----------------------------------------------------------------------------
+   VARIABLES HEREDADAS (en desuso)
+   ----------------------------------------------------------------------------
+   Se conservan porque varias vistas del panel y del portal todavía las
+   referencian. No usarlas en código nuevo: el equivalente actual está en
+   `design-system.css`.
+
+   Migración:
+     --primary-*      →  --color-botica-*
+     --success        →  --color-exito-500
+     --warning        →  --color-alerta-500
+     --error          →  --color-peligro-500
+     --info           →  --color-info-500
+     --spacing-*      →  utilidades de espaciado de Tailwind
+     --border-radius* →  --radius-*
+     --shadow*        →  --shadow-*
+   -------------------------------------------------------------------------- */
 :root {
-  /* Colores principales de la farmacia */
-  --primary-50: #f0f9ff;
-  --primary-100: #e0f2fe;
-  --primary-200: #bae6fd;
-  --primary-300: #7dd3fc;
-  --primary-400: #38bdf8;
-  --primary-500: #0ea5e9;
-  --primary-600: #0284c7;
-  --primary-700: #0369a1;
-  --primary-800: #075985;
-  --primary-900: #0c4a6e;
+  --primary-50: var(--color-botica-50);
+  --primary-100: var(--color-botica-100);
+  --primary-200: var(--color-botica-200);
+  --primary-300: var(--color-botica-300);
+  --primary-400: var(--color-botica-400);
+  --primary-500: var(--color-botica-500);
+  --primary-600: var(--color-botica-600);
+  --primary-700: var(--color-botica-700);
+  --primary-800: var(--color-botica-800);
+  --primary-900: var(--color-botica-900);
 
-  /* Colores de estado */
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
-  --info: #3b82f6;
+  --success: var(--color-exito-500);
+  --warning: var(--color-alerta-500);
+  --error: var(--color-peligro-500);
+  --info: var(--color-info-500);
 
-  /* Espaciado consistente */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -28,16 +53,19 @@
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
 
-  /* Bordes y sombras */
-  --border-radius: 0.5rem;
-  --border-radius-lg: 0.75rem;
-  --border-radius-xl: 1rem;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --border-radius: var(--radius-md);
+  --border-radius-lg: var(--radius-lg);
+  --border-radius-xl: var(--radius-xl);
+  --shadow-sm: var(--shadow-xs);
+  --shadow: var(--shadow-sm);
+  --shadow-lg: var(--shadow-lg);
 }
 
-/* Animaciones globales */
+/* ----------------------------------------------------------------------------
+   ANIMACIONES DE ENTRADA
+   Se mantienen para las vistas que ya las usan. Las nuevas animaciones se
+   hacen con GSAP y los tokens de `utils/motion.ts`.
+   -------------------------------------------------------------------------- */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -55,23 +83,45 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.5s var(--ease-salida);
 }
 
 .animate-slide-in-up {
-  animation: slideInUp 0.6s ease-out;
+  animation: slideInUp 0.6s var(--ease-salida);
 }
 
-/* Estilos para Leaflet maps */
+/* ----------------------------------------------------------------------------
+   LEAFLET
+   El mapa inyecta su propio CSS, así que se le alinea con el sistema desde
+   fuera. Incluye el modo oscuro, que Leaflet no contempla.
+   -------------------------------------------------------------------------- */
 .leaflet-container {
-  font-family: inherit !important;
+  font-family: inherit;
+  background-color: var(--superficie-hundida);
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
+  background-color: var(--superficie-flotante);
+  color: var(--texto-primario);
 }
 
 .leaflet-popup-tip {
-  background-color: white;
+  background-color: var(--superficie-flotante);
+}
+
+.leaflet-bar a,
+.leaflet-control-attribution {
+  background-color: var(--superficie-base);
+  color: var(--texto-secundario);
+}
+
+.leaflet-bar a:hover {
+  background-color: var(--superficie-interactiva);
+}
+
+/* En modo oscuro se atenúa la capa de teselas para que no deslumbre. */
+.dark .leaflet-tile-pane {
+  filter: brightness(0.82) contrast(1.06) saturate(0.85);
 }

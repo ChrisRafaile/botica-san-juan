@@ -1,0 +1,497 @@
+/* ============================================================================
+   DESIGN SYSTEM · BOTICA SAN JUAN
+   ----------------------------------------------------------------------------
+   Sistema de diseño propio para el panel administrativo y el portal público.
+   Construido sobre Tailwind CSS 4 (configuración CSS-first con @theme).
+
+   Principios:
+   1. Identidad farmacéutica propia — verde botica + azul clínico. No es la
+      paleta por defecto de Tailwind.
+   2. Color en OKLCH — uniformidad perceptual: el paso 500 de cualquier escala
+      tiene el mismo peso visual que el 500 de otra.
+   3. Tokens de dominio — el vencimiento y el stock son conceptos del negocio,
+      no colores sueltos. Viven aquí como tokens semánticos (FEFO).
+   4. Superficies en capas — base / elevada / flotante, con modo oscuro real.
+   5. Sombras teñidas con el neutro de marca, nunca negro puro.
+
+   Uso: importar UNA sola vez, antes que cualquier otro CSS de la app.
+   ========================================================================== */
+
+@import "tailwindcss";
+
+/* Modo oscuro por clase en <html> — controlado por el composable useTheme. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================================
+   1. ESCALAS PRIMITIVAS
+   Valores crudos. No se usan directamente en componentes: para eso están los
+   tokens semánticos de la sección 2.
+   ========================================================================== */
+
+@theme {
+  /* --- Marca: Verde Botica ------------------------------------------------
+     Verde farmacéutico profundo. Transmite salud y confianza sin caer en el
+     verde brillante de "producto natural". El paso 700 es el color de marca. */
+  --color-botica-50: oklch(0.978 0.013 158);
+  --color-botica-100: oklch(0.950 0.028 158);
+  --color-botica-200: oklch(0.900 0.055 158);
+  --color-botica-300: oklch(0.825 0.085 157);
+  --color-botica-400: oklch(0.730 0.105 156);
+  --color-botica-500: oklch(0.630 0.110 156);
+  --color-botica-600: oklch(0.535 0.103 157);
+  --color-botica-700: oklch(0.450 0.090 158);
+  --color-botica-800: oklch(0.378 0.074 158);
+  --color-botica-900: oklch(0.318 0.060 159);
+  --color-botica-950: oklch(0.215 0.042 160);
+
+  /* --- Secundario: Azul Clínico -------------------------------------------
+     Para lo técnico y lo informativo: métricas, datos, estados del sistema.
+     Separa visualmente "acción de negocio" (verde) de "información" (azul). */
+  --color-clinico-50: oklch(0.975 0.012 255);
+  --color-clinico-100: oklch(0.945 0.028 255);
+  --color-clinico-200: oklch(0.892 0.056 256);
+  --color-clinico-300: oklch(0.812 0.089 257);
+  --color-clinico-400: oklch(0.706 0.120 258);
+  --color-clinico-500: oklch(0.598 0.140 258);
+  --color-clinico-600: oklch(0.505 0.135 259);
+  --color-clinico-700: oklch(0.425 0.113 259);
+  --color-clinico-800: oklch(0.360 0.092 259);
+  --color-clinico-900: oklch(0.310 0.074 260);
+  --color-clinico-950: oklch(0.212 0.052 261);
+
+  /* --- Acento: Ámbar ------------------------------------------------------
+     Reservado. Solo para lo que debe interrumpir la lectura: vencimientos
+     próximos, acciones destacadas puntuales. Si se usa en todos lados, deja
+     de funcionar. */
+  --color-ambar-50: oklch(0.985 0.018 85);
+  --color-ambar-100: oklch(0.962 0.045 85);
+  --color-ambar-200: oklch(0.920 0.090 83);
+  --color-ambar-300: oklch(0.872 0.125 80);
+  --color-ambar-400: oklch(0.808 0.150 76);
+  --color-ambar-500: oklch(0.750 0.158 70);
+  --color-ambar-600: oklch(0.660 0.150 62);
+  --color-ambar-700: oklch(0.552 0.128 55);
+  --color-ambar-800: oklch(0.458 0.102 52);
+  --color-ambar-900: oklch(0.392 0.082 52);
+  --color-ambar-950: oklch(0.262 0.058 52);
+
+  /* --- Neutros teñidos ----------------------------------------------------
+     Croma mínimo en el matiz del verde de marca. Un gris puro junto a la
+     marca se ve sucio; este ligerísimo tinte hace que todo sea familia. */
+  --color-neutro-0: oklch(1 0 0);
+  --color-neutro-50: oklch(0.985 0.002 160);
+  --color-neutro-100: oklch(0.968 0.004 160);
+  --color-neutro-200: oklch(0.928 0.006 160);
+  --color-neutro-300: oklch(0.872 0.008 162);
+  --color-neutro-400: oklch(0.712 0.010 163);
+  /* Paso intermedio para el texto terciario en modo oscuro.
+     ---------------------------------------------------------------------
+     0.630 es la luminosidad mínima que supera 4.5:1 sobre los dos fondos
+     oscuros contra los que aparece: 4.67:1 sobre la superficie elevada y
+     5.38:1 sobre la barra lateral. Se deja un escalón por encima del límite
+     exacto (0.624) para que un ajuste menor de las superficies no vuelva a
+     dejarlo por debajo.
+
+     El 0.619 anterior daba 4.49:1 sobre la superficie elevada: fallaba por
+     una centésima. Venía de una medición hecha con un cálculo de contraste
+     defectuoso, que interpretaba los componentes de oklch() como si fueran
+     RGB. Los valores de esta nota están medidos convirtiendo a sRGB con el
+     propio navegador. */
+  --color-neutro-450: oklch(0.630 0.011 163);
+  /* El texto terciario en modo CLARO. Con 0.565 se quedaba en 4.34:1 sobre la
+     superficie hundida y en 3.21:1 sobre la barra superior translúcida. Con
+     0.540 pasa sobre los tres fondos donde aparece: blanco (5.05:1),
+     superficie hundida (4.84:1) y barra superior (4.64:1). */
+  --color-neutro-500: oklch(0.540 0.011 163);
+  --color-neutro-600: oklch(0.452 0.011 164);
+  --color-neutro-700: oklch(0.372 0.010 164);
+  --color-neutro-800: oklch(0.272 0.009 165);
+  --color-neutro-900: oklch(0.208 0.008 165);
+  --color-neutro-950: oklch(0.145 0.007 166);
+
+  /* --- Estados del sistema ------------------------------------------------ */
+  --color-exito-50: oklch(0.972 0.020 150);
+  --color-exito-500: oklch(0.700 0.150 150);
+  --color-exito-600: oklch(0.605 0.145 150);
+  --color-exito-700: oklch(0.510 0.122 151);
+
+  --color-alerta-50: oklch(0.980 0.020 85);
+  --color-alerta-500: oklch(0.782 0.155 74);
+  --color-alerta-600: oklch(0.688 0.150 62);
+  /* 0.575 daba 4.33:1 sobre alerta-50, que es justo el fondo de las insignias
+     de stock bajo. Se baja a 0.560 para alcanzar 4.5:1 sobre ese fondo. */
+  --color-alerta-700: oklch(0.560 0.130 54);
+
+  --color-peligro-50: oklch(0.970 0.018 20);
+  --color-peligro-500: oklch(0.628 0.205 25);
+  --color-peligro-600: oklch(0.552 0.202 26);
+  --color-peligro-700: oklch(0.472 0.176 26);
+
+  --color-info-50: oklch(0.975 0.015 250);
+  --color-info-500: oklch(0.648 0.160 252);
+  --color-info-600: oklch(0.558 0.158 253);
+  --color-info-700: oklch(0.472 0.140 254);
+
+  /* --- Tipografía ---------------------------------------------------------
+     Inter para interfaz. La pila de respaldo es real, no decorativa: si Inter
+     no carga, Segoe UI Variable (Windows 11) y SF Pro (macOS) sostienen el
+     diseño sin que se note el salto. */
+  --font-sans: "Inter", "Inter Variable", ui-sans-serif, system-ui,
+    "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  --font-display: "Inter", "Inter Variable", ui-sans-serif, system-ui,
+    "Segoe UI Variable Display", "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", "Consolas",
+    "SF Mono", monospace;
+
+  /* Escala tipográfica — razón 1.2 (tercera menor), densa y ordenada para
+     paneles con mucha tabla. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 0.875rem;
+  --text-base--line-height: 1.375rem;
+  --text-md: 0.9375rem;
+  --text-md--line-height: 1.5rem;
+  --text-lg: 1.0625rem;
+  --text-lg--line-height: 1.625rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 2.5rem;
+
+  /* --- Radios -------------------------------------------------------------
+     Progresión coherente. El radio de un elemento anidado siempre es menor
+     que el de su contenedor, si no el borde se ve "pellizcado". */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.75rem;
+
+  /* --- Curvas y duraciones de animación -----------------------------------
+     Compartidas entre CSS y GSAP para que todo el sistema se mueva igual.
+     Ver motion.ts para los equivalentes en GSAP. */
+  --ease-salida: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-entrada: cubic-bezier(0.64, 0, 0.78, 0);
+  --ease-suave: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-resorte: cubic-bezier(0.34, 1.48, 0.64, 1);
+
+  --duracion-instante: 100ms;
+  --duracion-rapida: 180ms;
+  --duracion-normal: 260ms;
+  --duracion-pausada: 400ms;
+}
+
+/* ============================================================================
+   2. TOKENS SEMÁNTICOS
+   Esta es la capa que consumen los componentes. Cambian con el modo claro y
+   oscuro; los primitivos de arriba no cambian nunca.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* Superficies — de atrás hacia adelante */
+  --superficie-fondo: var(--color-neutro-100);
+  --superficie-base: var(--color-neutro-0);
+  --superficie-elevada: var(--color-neutro-0);
+  --superficie-flotante: var(--color-neutro-0);
+  --superficie-hundida: var(--color-neutro-50);
+  --superficie-interactiva: var(--color-neutro-100);
+  --superficie-interactiva-activa: var(--color-botica-50);
+
+  /* Texto */
+  --texto-primario: var(--color-neutro-900);
+  --texto-secundario: var(--color-neutro-600);
+  --texto-terciario: var(--color-neutro-500);
+  --texto-deshabilitado: var(--color-neutro-400);
+  --texto-sobre-marca: var(--color-neutro-0);
+  --texto-marca: var(--color-botica-700);
+
+  /* Bordes */
+  --borde-sutil: var(--color-neutro-200);
+  --borde-base: var(--color-neutro-300);
+  --borde-fuerte: var(--color-neutro-400);
+  --borde-marca: var(--color-botica-600);
+
+  /* Barra lateral — tiene su propia escala porque es una superficie oscura
+     incluso en modo claro; así el panel conserva jerarquía sin competir. */
+  --lateral-fondo: var(--color-botica-950);
+  --lateral-fondo-sup: var(--color-botica-900);
+  --lateral-texto: var(--color-botica-100);
+  --lateral-texto-tenue: color-mix(in oklab, var(--color-botica-200) 70%, transparent);
+  --lateral-activo-fondo: color-mix(in oklab, var(--color-botica-400) 16%, transparent);
+  --lateral-activo-texto: var(--color-neutro-0);
+  --lateral-hover: color-mix(in oklab, var(--color-botica-300) 10%, transparent);
+  --lateral-borde: color-mix(in oklab, var(--color-botica-300) 14%, transparent);
+  --lateral-indicador: var(--color-ambar-400);
+
+  /* Anillo de foco — accesibilidad, no decoración */
+  --anillo-foco: var(--color-botica-500);
+  --anillo-foco-contraste: var(--color-neutro-0);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --superficie-fondo: var(--color-neutro-950);
+  --superficie-base: var(--color-neutro-900);
+  --superficie-elevada: oklch(0.242 0.009 165);
+  --superficie-flotante: oklch(0.272 0.009 165);
+  --superficie-hundida: oklch(0.178 0.008 166);
+  --superficie-interactiva: oklch(0.272 0.009 165);
+  --superficie-interactiva-activa: color-mix(in oklab, var(--color-botica-500) 18%, transparent);
+
+  --texto-primario: var(--color-neutro-100);
+  --texto-secundario: var(--color-neutro-400);
+  /* Sube un paso respecto al modo claro: sobre fondo oscuro, el 500 no llega
+     al 4.5:1 exigido para texto. */
+  --texto-terciario: var(--color-neutro-450);
+  --texto-deshabilitado: var(--color-neutro-600);
+  --texto-sobre-marca: var(--color-neutro-0);
+  --texto-marca: var(--color-botica-300);
+
+  --borde-sutil: oklch(0.272 0.009 165);
+  --borde-base: oklch(0.328 0.010 165);
+  --borde-fuerte: oklch(0.410 0.011 164);
+  --borde-marca: var(--color-botica-500);
+
+  /* En oscuro la lateral se separa del fondo por elevación, no por color */
+  --lateral-fondo: oklch(0.178 0.010 166);
+  --lateral-fondo-sup: oklch(0.208 0.011 165);
+  --lateral-texto: var(--color-neutro-200);
+  /* Mismo motivo que el texto terciario: el 500 se queda en 4.15:1 sobre
+     este fondo. */
+  --lateral-texto-tenue: var(--color-neutro-450);
+  --lateral-activo-fondo: color-mix(in oklab, var(--color-botica-400) 18%, transparent);
+  --lateral-activo-texto: var(--color-neutro-0);
+  --lateral-hover: color-mix(in oklab, var(--color-neutro-0) 6%, transparent);
+  --lateral-borde: oklch(0.272 0.010 165);
+  --lateral-indicador: var(--color-ambar-400);
+
+  --anillo-foco: var(--color-botica-400);
+  --anillo-foco-contraste: var(--color-neutro-950);
+}
+
+/* Puente: expone los tokens semánticos como utilidades de Tailwind.
+   `inline` hace que la utilidad apunte a la variable viva, de modo que
+   responde al cambio de modo sin recompilar nada. */
+@theme inline {
+  --color-superficie-fondo: var(--superficie-fondo);
+  --color-superficie-base: var(--superficie-base);
+  --color-superficie-elevada: var(--superficie-elevada);
+  --color-superficie-flotante: var(--superficie-flotante);
+  --color-superficie-hundida: var(--superficie-hundida);
+  --color-superficie-interactiva: var(--superficie-interactiva);
+  --color-superficie-interactiva-activa: var(--superficie-interactiva-activa);
+
+  --color-texto-primario: var(--texto-primario);
+  --color-texto-secundario: var(--texto-secundario);
+  --color-texto-terciario: var(--texto-terciario);
+  --color-texto-deshabilitado: var(--texto-deshabilitado);
+  --color-texto-sobre-marca: var(--texto-sobre-marca);
+  --color-texto-marca: var(--texto-marca);
+
+  --color-borde-sutil: var(--borde-sutil);
+  --color-borde-base: var(--borde-base);
+  --color-borde-fuerte: var(--borde-fuerte);
+  --color-borde-marca: var(--borde-marca);
+
+  --color-lateral-fondo: var(--lateral-fondo);
+  --color-lateral-fondo-sup: var(--lateral-fondo-sup);
+  --color-lateral-texto: var(--lateral-texto);
+  --color-lateral-texto-tenue: var(--lateral-texto-tenue);
+  --color-lateral-activo-fondo: var(--lateral-activo-fondo);
+  --color-lateral-activo-texto: var(--lateral-activo-texto);
+  --color-lateral-hover: var(--lateral-hover);
+  --color-lateral-borde: var(--lateral-borde);
+  --color-lateral-indicador: var(--lateral-indicador);
+
+  --color-anillo-foco: var(--anillo-foco);
+}
+
+/* ============================================================================
+   3. TOKENS DE DOMINIO — FEFO Y STOCK
+   Lo que diferencia este sistema de una plantilla genérica. El vencimiento y
+   el stock son reglas del negocio farmacéutico, así que son tokens, no
+   decisiones sueltas de cada componente. Si mañana la botica cambia el umbral
+   de "crítico", se cambia aquí y cambia en todo el sistema.
+   ========================================================================== */
+
+@theme {
+  /* Vencimiento — ventanas FEFO de 30 / 60 / 90 días */
+  --color-venc-critico: oklch(0.628 0.205 25); /* <= 30 días */
+  --color-venc-critico-suave: oklch(0.958 0.028 22);
+  --color-venc-alto: oklch(0.688 0.150 48); /* <= 60 días */
+  --color-venc-alto-suave: oklch(0.968 0.030 60);
+  --color-venc-medio: oklch(0.782 0.155 74); /* <= 90 días */
+  --color-venc-medio-suave: oklch(0.975 0.030 82);
+  --color-venc-vigente: oklch(0.605 0.145 150); /* > 90 días */
+  --color-venc-vigente-suave: oklch(0.965 0.030 150);
+
+  /* Stock
+     Corregido tras verlo con datos reales: "crítico" estaba en naranja y
+     quedaba casi igual que "bajo", que es ámbar. En una botica, quedarse sin
+     un medicamento no es un aviso intermedio — tiene que leerse como alarma.
+     Ahora crítico es rojo y agotado un rojo más profundo, de modo que los
+     cuatro niveles se distinguen de un vistazo. */
+  --color-stock-agotado: oklch(0.472 0.176 26);
+  --color-stock-agotado-suave: oklch(0.950 0.032 22);
+  --color-stock-critico: oklch(0.590 0.205 25);
+  --color-stock-critico-suave: oklch(0.962 0.030 22);
+  --color-stock-bajo: oklch(0.760 0.160 72);
+  --color-stock-bajo-suave: oklch(0.972 0.038 78);
+  --color-stock-optimo: oklch(0.605 0.145 150);
+  --color-stock-optimo-suave: oklch(0.965 0.030 150);
+}
+
+/* ============================================================================
+   4. SOMBRAS
+   Multicapa y teñidas con el neutro de marca. Una sombra de negro puro sobre
+   un fondo teñido se ve como una mancha; ésta se integra.
+   ========================================================================== */
+
+@theme {
+  --shadow-xs: 0 1px 2px 0
+    color-mix(in oklab, var(--color-neutro-950) 5%, transparent);
+  --shadow-sm: 0 1px 3px 0
+      color-mix(in oklab, var(--color-neutro-950) 7%, transparent),
+    0 1px 2px -1px color-mix(in oklab, var(--color-neutro-950) 6%, transparent);
+  --shadow-md: 0 4px 6px -1px
+      color-mix(in oklab, var(--color-neutro-950) 8%, transparent),
+    0 2px 4px -2px color-mix(in oklab, var(--color-neutro-950) 6%, transparent);
+  --shadow-lg: 0 10px 15px -3px
+      color-mix(in oklab, var(--color-neutro-950) 9%, transparent),
+    0 4px 6px -4px color-mix(in oklab, var(--color-neutro-950) 7%, transparent);
+  --shadow-xl: 0 20px 25px -5px
+      color-mix(in oklab, var(--color-neutro-950) 10%, transparent),
+    0 8px 10px -6px color-mix(in oklab, var(--color-neutro-950) 8%, transparent);
+  --shadow-2xl: 0 25px 50px -12px
+    color-mix(in oklab, var(--color-neutro-950) 20%, transparent);
+
+  /* Realce de marca — para el elemento activo o el foco de una acción
+     primaria. Se usa con moderación. */
+  --shadow-marca: 0 6px 20px -6px
+      color-mix(in oklab, var(--color-botica-600) 45%, transparent),
+    0 2px 6px -2px color-mix(in oklab, var(--color-botica-700) 30%, transparent);
+  --shadow-lateral: 1px 0 0 0 var(--lateral-borde),
+    8px 0 24px -12px color-mix(in oklab, var(--color-neutro-950) 35%, transparent);
+}
+
+/* ============================================================================
+   5. BASE
+   Solo lo imprescindible. Todo lo demás se resuelve con utilidades.
+   ========================================================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--borde-sutil);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--superficie-fondo);
+    color: var(--texto-primario);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Cifras proporcionales por defecto; las tablas piden tabulares aparte. */
+    font-variant-numeric: proportional-nums;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.011em;
+    color: var(--texto-primario);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Foco visible y consistente en toda la app. Nunca se elimina: se rediseña. */
+  :focus-visible {
+    outline: 2px solid var(--anillo-foco);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  /* Respeta a quien pidió menos movimiento en su sistema operativo.
+     Se acorta a 0.01ms en lugar de anular: así el navegador sigue disparando
+     `animationend` y `transitionend`, y el código que espera esos eventos
+     para limpiar o desmontar no se queda colgado. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Barra de desplazamiento acorde al sistema, sin plugins. */
+  @supports (scrollbar-width: thin) {
+    .scroll-fino {
+      scrollbar-width: thin;
+      scrollbar-color: var(--borde-fuerte) transparent;
+    }
+  }
+}
+
+/* ============================================================================
+   6. UTILIDADES PROPIAS
+   Solo patrones que se repiten de verdad y que las utilidades de Tailwind no
+   expresan bien por sí solas.
+   ========================================================================== */
+
+@utility cifras-tabulares {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Superficie de tarjeta estándar del panel. */
+@utility panel {
+  background-color: var(--superficie-elevada);
+  border: 1px solid var(--borde-sutil);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Texto truncado a N líneas: .lineas-2, .lineas-3 … */
+@utility lineas-* {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: --value(integer);
+  overflow: hidden;
+}
+
+/* Anillo de foco aplicado a un contenedor cuando el hijo recibe foco. */
+@utility foco-dentro {
+  &:has(:focus-visible) {
+    outline: 2px solid var(--anillo-foco);
+    outline-offset: 2px;
+  }
+}
