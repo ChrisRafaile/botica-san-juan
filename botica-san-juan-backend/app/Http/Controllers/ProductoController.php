@@ -78,7 +78,30 @@ class ProductoController extends Controller
             }
         }
 
-        return $query->paginate(max(1, min($perPage, 100)));
+        $pagina = $query->paginate(max(1, min($perPage, 100)));
+
+        /* Stock realmente vendible, separado del contable.
+           `productos.stock` incluye lo vencido, porque fisicamente esta en el
+           anaquel; pero mostrarlo como disponible lleva a prometer lo que no
+           se puede entregar. Se calcula en una sola consulta agrupada para
+           los productos de esta pagina, no una por producto. */
+        $idsPagina = collect($pagina->items())->pluck('id');
+
+        $disponibles = \App\Models\Lote::query()
+            ->selectRaw('producto_id, SUM(cantidad_actual) AS total')
+            ->whereIn('producto_id', $idsPagina)
+            ->disponible()
+            ->groupBy('producto_id')
+            ->pluck('total', 'producto_id');
+
+        $pagina->getCollection()->transform(function ($producto) use ($disponibles) {
+            $producto->stock_disponible = (int) ($disponibles[$producto->id] ?? 0);
+            $producto->stock_no_vendible = max(0, (int) $producto->stock - $producto->stock_disponible);
+
+            return $producto;
+        });
+
+        return $pagina;
     }
 
     /**
