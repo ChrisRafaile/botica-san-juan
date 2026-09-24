@@ -38,7 +38,7 @@ import BoticaBadge from '../components/ui/BoticaBadge.vue'
 import BoticaEstadoVacio from '../components/ui/BoticaEstadoVacio.vue'
 
 const {
-  lineas, resultados, buscando, registrando, cliente, totales,
+  lineas, resultados, buscando, registrando, cliente, totales, carritoRecuperado,
   buscar, limpiarBusqueda, agregar, cambiarCantidad, quitar, vaciar,
   verificar, registrar,
 } = usePuntoVenta()
@@ -305,6 +305,36 @@ function manejarErrorDeVenta(error: unknown): void {
 
   notifyError('No se pudo registrar', respuesta?.data?.message ?? 'Error al guardar la venta.')
 }
+
+/* ---------------------------------------------------------------------------
+   Carrito recuperado
+   ---------------------------------------------------------------------------
+   Al abrir la pantalla con una venta a medias de antes, se avisa y se contrasta
+   contra el servidor. El stock pudo cambiar mientras la pantalla estaba
+   cerrada, así que restaurar sin verificar mostraría disponibilidades que ya no
+   son ciertas.
+*/
+onMounted(async () => {
+  if (!carritoRecuperado.value) return
+
+  try {
+    const { hayFaltantes } = await verificar()
+
+    notifySuccess(
+      'Venta recuperada',
+      hayFaltantes
+        ? 'Se recuperó la venta anterior, pero algún producto ya no tiene stock suficiente.'
+        : `Se recuperó la venta anterior: ${lineas.value.length} ${lineas.value.length === 1 ? 'línea' : 'líneas'}.`,
+    )
+  } catch {
+    notifyError(
+      'Venta recuperada sin verificar',
+      'No se pudo contrastar el stock. Revísalo antes de cobrar.',
+    )
+  } finally {
+    carritoRecuperado.value = false
+  }
+})
 
 /* ---------------------------------------------------------------------------
    Atajos de teclado

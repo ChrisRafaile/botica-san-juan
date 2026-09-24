@@ -28,6 +28,28 @@ if (import.meta.env.DEV) {
 /** Rutas publicas donde no se debe forzar el cierre de sesion. */
 const RUTAS_DE_AUTENTICACION = ['/login', '/register', '/forgot-password']
 
+/**
+ * Lleva al login sin recargar la pagina.
+ *
+ * El router se importa aqui dentro y no arriba a proposito: este modulo lo
+ * carga el propio router al arrancar, y una importacion normal cerraria el
+ * circulo dejando uno de los dos sin inicializar. Con la importacion diferida
+ * el router ya existe cuando hace falta, que es cuando caduca una sesion.
+ *
+ * Si por lo que sea no se pudiera cargar, se cae a la navegacion dura: perder
+ * el estado es malo, quedarse atrapado en una pantalla sin sesion es peor.
+ */
+async function redirigirALogin(rutaActual: string): Promise<void> {
+  const destino = { path: '/login', query: { redirect: rutaActual } }
+
+  try {
+    const { default: router } = await import('@/router')
+    await router.push(destino)
+  } catch {
+    window.location.href = `/login?redirect=${encodeURIComponent(rutaActual)}`
+  }
+}
+
 /** Extrae los mensajes de validacion de una respuesta 422 de Laravel. */
 function extraerErroresDeValidacion(datos: unknown): string[] {
   if (!datos || typeof datos !== 'object') return []
@@ -118,11 +140,19 @@ api.interceptors.response.use(
 
         if (!enPantallaDeAcceso) {
           localStorage.removeItem('auth_token')
+
+          /* El carrito del punto de venta NO se borra aqui a proposito: sobrevive
+             a la expiracion de sesion y se recupera al volver a entrar. En un
+             mostrador, perder una venta a medio armar con el cliente delante es
+             mucho peor que el trabajo de volver a iniciar sesion. */
           notificaciones.aviso(
             'Tu sesion expiro',
-            'Vuelve a iniciar sesion para continuar.',
+            'Vuelve a iniciar sesion. Si tenias una venta en curso, se recuperara.',
           )
-          window.location.href = `/login?redirect=${encodeURIComponent(rutaActual)}`
+
+          /* Se navega con el router y no con window.location: una recarga
+             completa tira todo el estado en memoria de la aplicacion. */
+          void redirigirALogin(rutaActual)
         }
         break
       }

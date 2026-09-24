@@ -17,7 +17,7 @@
  * suma encima.
  */
 
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import api from '@/services/api'
 
 /* --------------------------------------------------------------------------
@@ -104,17 +104,99 @@ export function daVuelto(medio: MedioPago): boolean {
 
 const TASA_IGV = 0.18
 
+/* --------------------------------------------------------------------------
+   Supervivencia del carrito
+   --------------------------------------------------------------------------
+   POR QUÉ HACE FALTA
+   El carrito vive en memoria, y en un mostrador eso es frágil: si se agota la
+   sesión, se recarga la página sin querer o el navegador se cierra, la venta a
+   medio armar desaparece con el cliente delante esperando. Volver a teclear
+   ocho productos es exactamente el tipo de fricción que hace que el vendedor
+   abandone el sistema y vuelva al de siempre.
+
+   POR QUÉ CADUCA
+   Un carrito de ayer no sirve: los precios pueden haber cambiado y el stock
+   seguro que sí. Restaurarlo sin más cobraría importes de otro día. Por eso se
+   descarta pasado un plazo corto y, aunque esté fresco, se marca como
+   recuperado para que la pantalla lo vuelva a verificar contra el servidor
+   antes de cobrar.
+*/
+const CLAVE_CARRITO = 'botica:pos:carrito'
+
+/** Un turno de mostrador. Pasado esto, el carrito ya no representa nada. */
+const VIGENCIA_CARRITO_MS = 8 * 60 * 60 * 1000
+
+interface CarritoGuardado {
+  guardadoEn: number
+  lineas: LineaVenta[]
+  cliente: { nombre: string; documento: string; tipo_documento: string }
+}
+
+function leerCarritoGuardado(): CarritoGuardado | null {
+  try {
+    const crudo = localStorage.getItem(CLAVE_CARRITO)
+    if (!crudo) return null
+
+    const datos = JSON.parse(crudo) as CarritoGuardado
+
+    if (!Array.isArray(datos?.lineas) || datos.lineas.length === 0) return null
+
+    if (Date.now() - (datos.guardadoEn ?? 0) > VIGENCIA_CARRITO_MS) {
+      localStorage.removeItem(CLAVE_CARRITO)
+      return null
+    }
+
+    return datos
+  } catch {
+    /* Almacenamiento bloqueado, ventana privada o dato corrupto: se sigue sin
+       carrito recuperado, que es peor que tenerlo pero mejor que no arrancar. */
+    return null
+  }
+}
+
 export function usePuntoVenta() {
-  const lineas = ref<LineaVenta[]>([])
+  const guardado = leerCarritoGuardado()
+
+  const lineas = ref<LineaVenta[]>(guardado?.lineas ?? [])
   const buscando = ref(false)
   const resultados = ref<ProductoPos[]>([])
   const registrando = ref(false)
 
+  /** Avisa a la pantalla de que estas líneas vienen de una sesión anterior. */
+  const carritoRecuperado = ref(guardado !== null)
+
   const cliente = ref({
-    nombre: '',
-    documento: '',
-    tipo_documento: 'sin_documento' as 'dni' | 'ruc' | 'ce' | 'sin_documento',
+    nombre: guardado?.cliente?.nombre ?? '',
+    documento: guardado?.cliente?.documento ?? '',
+    tipo_documento: (guardado?.cliente?.tipo_documento ?? 'sin_documento') as
+      'dni' | 'ruc' | 'ce' | 'sin_documento',
   })
+
+  /* Se guarda en cada cambio del carrito. Es barato —son unas pocas líneas— y
+     evita tener que decidir en qué momentos conviene guardar. */
+  watch(
+    [lineas, cliente],
+    () => {
+      try {
+        if (lineas.value.length === 0) {
+          localStorage.removeItem(CLAVE_CARRITO)
+          return
+        }
+
+        localStorage.setItem(
+          CLAVE_CARRITO,
+          JSON.stringify({
+            guardadoEn: Date.now(),
+            lineas: lineas.value,
+            cliente: cliente.value,
+          }),
+        )
+      } catch {
+        /* Que no se pueda guardar no debe impedir vender. */
+      }
+    },
+    { deep: true },
+  )
 
   let peticionBusqueda: AbortController | null = null
 
@@ -341,6 +423,7 @@ export function usePuntoVenta() {
     registrando,
     cliente,
     totales,
+    carritoRecuperado,
     buscar,
     limpiarBusqueda,
     agregar,
