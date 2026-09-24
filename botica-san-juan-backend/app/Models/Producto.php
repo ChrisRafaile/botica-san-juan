@@ -34,6 +34,9 @@ class Producto extends Model
         'principio_activo',
         'requiere_receta',
         'laboratorio_fabricante',
+        'afecto_igv',
+        'tipo_afectacion_igv',
+        'base_legal_exoneracion',
     ];
 
     protected $casts = [
@@ -47,7 +50,100 @@ class Producto extends Model
         'stock_reposicion' => 'integer',
         'venta_fraccionada' => 'boolean',
         'requiere_receta' => 'boolean',
+        'afecto_igv' => 'boolean',
     ];
+
+    /* ======================================================================
+       Afectación al IGV
+       ======================================================================
+       La presentación comercial —unidad, blíster o caja— NO interviene aquí.
+       Es el mismo medicamento: cambia cuánto se entrega y a qué precio, no si
+       la operación está gravada. El tratamiento tributario es del producto y
+       se aplica igual a las tres formas de venta.
+    */
+
+    /** Catálogo 07 de la SUNAT, reducido a lo que una botica necesita. */
+    public const GRAVADO   = '10';
+    public const EXONERADO = '20';
+    public const INAFECTO  = '30';
+
+    public const TIPOS_AFECTACION = [
+        self::GRAVADO   => 'Gravado',
+        self::EXONERADO => 'Exonerado',
+        self::INAFECTO  => 'Inafecto',
+    ];
+
+    /**
+     * Por qué un producto no paga IGV.
+     *
+     * Se guarda la base legal, no sólo el hecho, porque la lista de
+     * medicamentos exonerados la actualiza el MINSA cada año por Decreto
+     * Supremo: cuando salga la nueva, hay que saber qué productos revisar.
+     */
+    public const BASES_LEGALES = [
+        'apendice_i' => 'Apéndice I del TUO de la Ley del IGV (bienes exonerados)',
+        'ley_27450'  => 'Ley 27450 · medicamentos oncológicos y VIH/SIDA',
+        'ley_28553'  => 'Ley 28553 · medicamentos para diabetes',
+        'otra'       => 'Otra norma (detallar con el contador)',
+    ];
+
+    public function estaGravado(): bool
+    {
+        return $this->tipo_afectacion_igv === self::GRAVADO;
+    }
+
+    public function estaExonerado(): bool
+    {
+        return $this->tipo_afectacion_igv === self::EXONERADO;
+    }
+
+    public function esInafecto(): bool
+    {
+        return $this->tipo_afectacion_igv === self::INAFECTO;
+    }
+
+    public function etiquetaAfectacion(): string
+    {
+        return self::TIPOS_AFECTACION[$this->tipo_afectacion_igv] ?? 'Gravado';
+    }
+
+    public function scopeExonerados($query)
+    {
+        return $query->where('tipo_afectacion_igv', self::EXONERADO);
+    }
+
+    public function scopeGravados($query)
+    {
+        return $query->where('tipo_afectacion_igv', self::GRAVADO);
+    }
+
+    /**
+     * Mantiene `afecto_igv` como espejo de la afectación.
+     *
+     * La columna booleana sigue existiendo porque hay consultas y pantallas
+     * que la usan. Dejar que las dos se editen por separado sería pedir que se
+     * contradigan: aquí la fuente de verdad es `tipo_afectacion_igv` y la otra
+     * se deriva, nunca al revés.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (self $producto) {
+            $tipo = $producto->tipo_afectacion_igv ?? self::GRAVADO;
+
+            if (! array_key_exists($tipo, self::TIPOS_AFECTACION)) {
+                $tipo = self::GRAVADO;
+                $producto->tipo_afectacion_igv = $tipo;
+            }
+
+            $producto->afecto_igv = $tipo === self::GRAVADO;
+
+            /* Un producto gravado no arrastra base legal de exoneración: si
+               dejó de estar exonerado, el motivo ya no aplica. */
+            if ($tipo === self::GRAVADO) {
+                $producto->base_legal_exoneracion = null;
+            }
+        });
+    }
 
     public function categoria(): BelongsTo
     {
@@ -72,5 +168,20 @@ class Producto extends Model
     public function pedidoDetalles()
     {
         return $this->hasMany(PedidoDetalle::class, 'producto_id');
+    }
+
+    public function lotes()
+    {
+        return $this->hasMany(Lote::class, 'producto_id');
+    }
+
+    public function movimientos()
+    {
+        return $this->hasMany(MovimientoStock::class, 'producto_id');
+    }
+
+    public function incidencias()
+    {
+        return $this->hasMany(IncidenciaVenta::class, 'producto_id');
     }
 }
