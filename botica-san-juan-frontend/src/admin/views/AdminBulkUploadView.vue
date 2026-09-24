@@ -1,26 +1,26 @@
 <template>
-  <div class="min-h-screen bg-linear-to-br from-blue-50 via-white to-indigo-50">
+  <div class="min-h-screen bg-superficie-fondo">
     <!-- Header with enhanced design -->
-    <div class="bg-white shadow-lg border-b border-gray-100">
+    <div class="bg-superficie-elevada shadow-lg border-b border-borde-sutil">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-4">
-            <div class="p-3 bg-linear-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg">
+            <div class="p-3 bg-botica-700 rounded-xl shadow-lg">
               <Upload class="h-8 w-8 text-white" />
             </div>
             <div>
-              <h1 class="text-3xl font-bold bg-linear-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+              <h1 class="text-3xl font-bold bg-botica-700 bg-clip-text text-transparent">
                 Carga Masiva de Productos
               </h1>
-              <p class="text-gray-600 mt-1 flex items-center">
-                <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+              <p class="text-texto-secundario mt-1 flex items-center">
+                <span class="inline-block w-2 h-2 bg-exito-500 rounded-full mr-2 animate-pulse"></span>
                 Sube archivos CSV o Excel para gestionar tu inventario
               </p>
             </div>
           </div>
           <div class="flex items-center space-x-3">
             <button
-              class="px-6 py-3 bg-linear-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              class="px-6 py-3 bg-botica-700 text-white rounded-xl hover:bg-botica-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               @click="$router.back()"
             >
               <ArrowLeft class="w-5 h-5 inline mr-2" />
@@ -37,61 +37,61 @@
         v-if="parsedData.length > 0"
         class="grid grid-cols-1 md:grid-cols-4 gap-6"
       >
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 transform hover:scale-105 transition-all duration-200">
+        <div class="bg-superficie-elevada rounded-2xl shadow-lg border border-borde-sutil p-6 transform hover:scale-105 transition-all duration-200">
           <div class="flex items-center">
-            <div class="p-3 bg-blue-100 rounded-xl">
-              <Package class="h-6 w-6 text-blue-600" />
+            <div class="p-3 bg-botica-50 rounded-xl">
+              <Package class="h-6 w-6 text-texto-marca" />
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">
+              <p class="text-sm font-medium text-texto-secundario">
                 Total Productos
               </p>
-              <p class="text-2xl font-bold text-gray-900">
+              <p class="text-2xl font-bold text-texto-primario">
                 {{ parsedData.length }}
               </p>
             </div>
           </div>
         </div>
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 transform hover:scale-105 transition-all duration-200">
+        <div class="bg-superficie-elevada rounded-2xl shadow-lg border border-borde-sutil p-6 transform hover:scale-105 transition-all duration-200">
           <div class="flex items-center">
-            <div class="p-3 bg-green-100 rounded-xl">
-              <CheckCircle class="h-6 w-6 text-green-600" />
+            <div class="p-3 bg-exito-50 rounded-xl">
+              <CheckCircle class="h-6 w-6 text-exito-600" />
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">
+              <p class="text-sm font-medium text-texto-secundario">
                 Válidos
               </p>
-              <p class="text-2xl font-bold text-green-600">
+              <p class="text-2xl font-bold text-exito-600">
                 {{ parsedData.length - validationErrors.length }}
               </p>
             </div>
           </div>
         </div>
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 transform hover:scale-105 transition-all duration-200">
+        <div class="bg-superficie-elevada rounded-2xl shadow-lg border border-borde-sutil p-6 transform hover:scale-105 transition-all duration-200">
           <div class="flex items-center">
-            <div class="p-3 bg-red-100 rounded-xl">
-              <AlertTriangle class="h-6 w-6 text-red-600" />
+            <div class="p-3 bg-peligro-50 rounded-xl">
+              <AlertTriangle class="h-6 w-6 text-peligro-600" />
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">
+              <p class="text-sm font-medium text-texto-secundario">
                 Errores
               </p>
-              <p class="text-2xl font-bold text-red-600">
+              <p class="text-2xl font-bold text-peligro-600">
                 {{ validationErrors.length }}
               </p>
             </div>
           </div>
         </div>
-        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 transform hover:scale-105 transition-all duration-200">
+        <div class="bg-superficie-elevada rounded-2xl shadow-lg border border-borde-sutil p-6 transform hover:scale-105 transition-all duration-200">
           <div class="flex items-center">
-            <div class="p-3 bg-yellow-100 rounded-xl">
-              <Copy class="h-6 w-6 text-yellow-600" />
+            <div class="p-3 bg-alerta-50 rounded-xl">
+              <Copy class="h-6 w-6 text-alerta-600" />
             </div>
             <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600">
+              <p class="text-sm font-medium text-texto-secundario">
                 Duplicados
               </p>
-              <p class="text-2xl font-bold text-yellow-600">
+              <p class="text-2xl font-bold text-alerta-600">
                 {{ Object.keys(duplicates).length }}
               </p>
             </div>
@@ -100,8 +100,8 @@
       </div>
 
       <!-- Enhanced Upload Section -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <div class="bg-linear-to-r from-blue-600 to-indigo-600 px-6 py-4">
+      <div class="bg-superficie-elevada rounded-2xl shadow-xl border border-borde-sutil overflow-hidden">
+        <div class="bg-botica-700 px-6 py-4">
           <h2 class="text-xl font-semibold text-white flex items-center">
             <FileText class="w-6 h-6 mr-3" />
             Seleccionar Archivo
@@ -115,12 +115,8 @@
                 :class="{ 'scale-105': isDragOver }"
               >
                 <div
-                  class="mt-1 flex justify-center px-6 pt-8 pb-10 border-2 border-dashed rounded-2xl transition-all duration-300 group-hover:border-blue-400 group-hover:bg-blue-50/50"
-                  :class="{
-                    'bg-blue-50 border-blue-400 shadow-lg': isDragOver,
-                    'border-gray-300': !isDragOver && !file,
-                    'border-green-400 bg-green-50': file
-                  }"
+                  class="mt-1 flex justify-center px-6 pt-8 pb-10 border-2 border-dashed rounded-2xl transition-all duration-300 group-hover:border-botica-400 group-hover:bg-botica-50/50"
+                  :class="{ 'bg-botica-50 border-botica-400 shadow-lg': isDragOver, 'border-borde-base': !isDragOver && !file, 'border-exito-500 bg-exito-50': file }"
                   @dragover.prevent="onDragOver"
                   @dragleave.prevent="onDragLeave"
                   @drop.prevent="handleDrop"
@@ -129,11 +125,11 @@
                     <div class="mx-auto">
                       <Upload
                         v-if="!file"
-                        class="mx-auto h-16 w-16 text-gray-400 group-hover:text-blue-500 transition-colors duration-200"
+                        class="mx-auto h-16 w-16 text-texto-terciario group-hover:text-botica-500 transition-colors duration-200"
                       />
                       <CheckCircle
                         v-else
-                        class="mx-auto h-16 w-16 text-green-500 animate-bounce"
+                        class="mx-auto h-16 w-16 text-exito-500 animate-bounce"
                       />
                     </div>
                     <div class="flex flex-col items-center space-y-2">
@@ -141,17 +137,17 @@
                         <label
                           for="file-upload"
                           class="cursor-pointer"
-                          :class="file ? 'text-green-600' : 'text-blue-600 hover:text-blue-700'"
+                          :class="file ? 'text-exito-600' : 'text-texto-marca hover:text-texto-marca'"
                         >
                           <span
                             v-if="!file"
-                            class="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent font-semibold"
+                            class="bg-botica-700 bg-clip-text text-transparent font-semibold"
                           >
                             Haz clic para subir
                           </span>
                           <span
                             v-else
-                            class="text-green-600 font-semibold"
+                            class="text-exito-600 font-semibold"
                           >
                             Archivo seleccionado
                           </span>
@@ -159,11 +155,11 @@
                       </div>
                       <p
                         v-if="!file"
-                        class="text-gray-500 text-sm"
+                        class="text-texto-terciario text-sm"
                       >
                         o arrastra y suelta aquí
                       </p>
-                      <p class="text-xs text-gray-400">
+                      <p class="text-xs text-texto-terciario">
                         CSV, XLSX, XLS hasta 10MB
                       </p>
                     </div>
@@ -177,21 +173,21 @@
                     />
                     <div
                       v-if="file"
-                      class="flex items-center justify-center space-x-4 bg-white rounded-xl p-4 shadow-md border"
+                      class="flex items-center justify-center space-x-4 bg-superficie-elevada rounded-xl p-4 shadow-md border"
                     >
                       <div class="flex items-center space-x-3">
-                        <FileText class="h-8 w-8 text-blue-600" />
+                        <FileText class="h-8 w-8 text-texto-marca" />
                         <div class="text-left">
-                          <p class="text-sm font-medium text-gray-900">
+                          <p class="text-sm font-medium text-texto-primario">
                             {{ file.name }}
                           </p>
-                          <p class="text-xs text-gray-500">
+                          <p class="text-xs text-texto-terciario">
                             {{ formatFileSize(file.size) }}
                           </p>
                         </div>
                       </div>
                       <button
-                        class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                        class="p-2 text-peligro-600 hover:text-peligro-700 hover:bg-peligro-50 rounded-lg transition-colors duration-200"
                         @click.prevent="removeFile"
                       >
                         <X class="w-5 h-5" />
@@ -203,31 +199,31 @@
             </div>
 
             <!-- Enhanced Template Download -->
-            <div class="bg-linear-to-r from-indigo-50 to-blue-50 rounded-2xl p-6 border border-indigo-100">
+            <div class="bg-superficie-hundida rounded-2xl p-6 border border-borde-sutil">
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
-                  <div class="p-3 bg-indigo-100 rounded-xl">
-                    <Download class="h-6 w-6 text-indigo-600" />
+                  <div class="p-3 bg-botica-50 rounded-xl">
+                    <Download class="h-6 w-6 text-texto-marca" />
                   </div>
                   <div>
-                    <p class="text-lg font-semibold text-gray-900">
+                    <p class="text-lg font-semibold text-texto-primario">
                       ¿No tienes un archivo preparado?
                     </p>
-                    <p class="text-gray-600">
+                    <p class="text-texto-secundario">
                       Descarga nuestras plantillas de ejemplo con datos de muestra
                     </p>
                   </div>
                 </div>
                 <div class="flex space-x-3">
                   <button
-                    class="px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white text-sm rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center"
+                    class="px-6 py-3 bg-botica-700 text-white text-sm rounded-xl hover:bg-botica-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center"
                     @click="downloadTemplate('xlsx')"
                   >
                     <FileSpreadsheet class="w-4 h-4 mr-2" />
                     Excel (XLSX)
                   </button>
                   <button
-                    class="px-6 py-3 bg-linear-to-r from-green-600 to-emerald-600 text-white text-sm rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center"
+                    class="px-6 py-3 bg-botica-700 text-white text-sm rounded-xl hover:bg-botica-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center"
                     @click="downloadTemplate('csv')"
                   >
                     <FileText class="w-4 h-4 mr-2" />
@@ -243,9 +239,9 @@
       <!-- Enhanced Preview Section -->
       <div
         v-if="parsedData.length > 0"
-        class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+        class="bg-superficie-elevada rounded-2xl shadow-xl border border-borde-sutil overflow-hidden"
       >
-        <div class="bg-linear-to-r from-indigo-600 to-purple-600 px-6 py-4">
+        <div class="bg-botica-700 px-6 py-4">
           <h3 class="text-xl font-semibold text-white flex items-center">
             <Package class="w-6 h-6 mr-3" />
             Vista Previa de Productos ({{ filteredData.length }} de {{ parsedData.length }})
@@ -253,21 +249,21 @@
         </div>
 
         <!-- Search and Filter Bar -->
-        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <div class="px-6 py-4 bg-superficie-hundida border-b border-borde-sutil">
           <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div class="flex items-center space-x-4 flex-1">
               <div class="relative flex-1 max-w-md">
-                <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-texto-terciario h-5 w-5" />
                 <input
                   v-model="searchQuery"
                   type="text"
                   placeholder="Buscar productos..."
-                  class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full pl-10 pr-4 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent"
                 />
               </div>
               <select
                 v-model="selectedCategory"
-                class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="px-3 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent"
               >
                 <option value="">
                   Todas las categorías
@@ -282,7 +278,7 @@
               </select>
               <select
                 v-model="selectedLab"
-                class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                class="px-3 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent"
               >
                 <option value="">
                   Todos los laboratorios
@@ -298,7 +294,7 @@
             </div>
             <div class="flex items-center space-x-3">
               <div class="flex items-center space-x-2">
-                <label class="text-sm text-gray-600">Duplicados:</label>
+                <label class="text-sm text-texto-secundario">Duplicados:</label>
                 <select
                   v-model="duplicateStrategy"
                   class="form-input text-sm"
@@ -315,7 +311,7 @@
                 </select>
               </div>
               <button
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                class="px-4 py-2 bg-botica-700 text-white rounded-lg hover:bg-botica-800 transition-colors flex items-center"
                 @click="exportFilteredData"
               >
                 <Download class="w-4 h-4 mr-2" />
@@ -328,22 +324,22 @@
         <!-- Validation Errors Summary -->
         <div
           v-if="validationErrors.length > 0"
-          class="px-6 py-4 bg-red-50 border-b border-red-200"
+          class="px-6 py-4 bg-peligro-50 border-b border-peligro-500/30"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center">
-              <AlertTriangle class="w-6 h-6 text-red-500 mr-3" />
+              <AlertTriangle class="w-6 h-6 text-peligro-600 mr-3" />
               <div>
-                <h4 class="text-sm font-medium text-red-800">
+                <h4 class="text-sm font-medium text-peligro-700">
                   {{ validationErrors.length }} errores de validación encontrados
                 </h4>
-                <p class="text-sm text-red-600 mt-1">
+                <p class="text-sm text-peligro-600 mt-1">
                   Revisa las filas marcadas en rojo en la tabla
                 </p>
               </div>
             </div>
             <button
-              class="px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200"
+              class="px-3 py-1 bg-peligro-50 text-peligro-700 rounded text-sm hover:bg-peligro-50"
               @click="showErrorsModal = true"
             >
               Ver detalles
@@ -354,16 +350,16 @@
         <!-- Duplicates Notice -->
         <div
           v-if="Object.keys(duplicates).length > 0"
-          class="px-6 py-3 bg-yellow-50 border-b border-yellow-200"
+          class="px-6 py-3 bg-alerta-50 border-b border-alerta-50"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center">
-              <Copy class="w-5 h-5 text-yellow-600 mr-3" />
-              <div class="text-sm text-yellow-800 font-medium">
+              <Copy class="w-5 h-5 text-alerta-600 mr-3" />
+              <div class="text-sm text-alerta-700 font-medium">
                 {{ Object.keys(duplicates).length }} grupos de duplicados detectados
               </div>
             </div>
-            <div class="text-sm text-gray-600">
+            <div class="text-sm text-texto-secundario">
               Estrategia: <strong>{{ duplicateStrategy }}</strong>
             </div>
           </div>
@@ -371,19 +367,19 @@
 
         <!-- Enhanced Data Table -->
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
+          <table class="min-w-full divide-y divide-borde-sutil">
+            <thead class="bg-superficie-hundida">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                   <input
                     type="checkbox"
                     :checked="selectedRows.length === filteredData.length && filteredData.length > 0"
-                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    class="rounded border-borde-base text-texto-marca focus:ring-botica-500/20"
                     @change="toggleSelectAll"
                   />
                 </th>
                 <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider cursor-pointer hover:bg-superficie-interactiva"
                   @click="sortBy('nombre')"
                 >
                   Nombre
@@ -396,11 +392,11 @@
                     class="inline w-4 h-4"
                   />
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                   Concentración
                 </th>
                 <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider cursor-pointer hover:bg-superficie-interactiva"
                   @click="sortBy('laboratorio')"
                 >
                   Laboratorio
@@ -413,11 +409,11 @@
                     class="inline w-4 h-4"
                   />
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                   Presentación
                 </th>
                 <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider cursor-pointer hover:bg-superficie-interactiva"
                   @click="sortBy('categoria')"
                 >
                   Categoría
@@ -431,7 +427,7 @@
                   />
                 </th>
                 <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider cursor-pointer hover:bg-superficie-interactiva"
                   @click="sortBy('stock')"
                 >
                   Stock
@@ -445,7 +441,7 @@
                   />
                 </th>
                 <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider cursor-pointer hover:bg-superficie-interactiva"
                   @click="sortBy('precio')"
                 >
                   Precio
@@ -458,33 +454,30 @@
                     class="inline w-4 h-4"
                   />
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                   Estado
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-superficie-elevada divide-y divide-borde-sutil">
               <tr
                 v-for="(product, index) in paginatedData"
                 :key="getOriginalIndex(index)"
-                :class="{
-                  'bg-red-50': isRowInvalid(getOriginalIndex(index)),
-                  'bg-blue-50': selectedRows.includes(getOriginalIndex(index))
-                }"
-                class="hover:bg-gray-50 transition-colors"
+                :class="{ 'bg-peligro-50': isRowInvalid(getOriginalIndex(index)), 'bg-botica-50': selectedRows.includes(getOriginalIndex(index)) }"
+                class="hover:bg-superficie-hundida transition-colors"
               >
                 <td class="px-6 py-4 whitespace-nowrap">
                   <input
                     type="checkbox"
                     :checked="selectedRows.includes(getOriginalIndex(index))"
-                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    class="rounded border-borde-base text-texto-marca focus:ring-botica-500/20"
                     @change="toggleRowSelection(getOriginalIndex(index))"
                   />
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-texto-primario">
                   <div v-if="editingRow === getOriginalIndex(index)">
                     <input
                       v-model="editedRow.nombre"
@@ -493,25 +486,25 @@
                   </div>
                   <div
                     v-else
-                    class="cursor-pointer hover:text-blue-600"
+                    class="cursor-pointer hover:text-texto-marca"
                     @dblclick="startEditRow(getOriginalIndex(index))"
                   >
                     {{ product.nombre || '-' }}
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-texto-primario">
                   {{ product.concentracion || '-' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-texto-primario">
                   {{ product.laboratorio || '-' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-texto-primario">
                   {{ product.presentacion || '-' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-texto-primario">
                   {{ product.categoria || '-' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-texto-primario">
                   <div v-if="editingRow === getOriginalIndex(index)">
                     <input
                       v-model.number="editedRow.stock"
@@ -521,13 +514,13 @@
                   </div>
                   <div
                     v-else
-                    class="cursor-pointer hover:text-blue-600"
+                    class="cursor-pointer hover:text-texto-marca"
                     @dblclick="startEditRow(getOriginalIndex(index))"
                   >
                     {{ product.stock || 0 }}
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-texto-primario">
                   S/ {{ product.precio || '0.00' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -538,19 +531,19 @@
                     {{ getValidationText(product, getOriginalIndex(index)) }}
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-texto-primario">
                   <div
                     v-if="editingRow === getOriginalIndex(index)"
                     class="flex items-center space-x-2"
                   >
                     <button
-                      class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200"
+                      class="px-2 py-1 bg-exito-50 text-exito-700 rounded text-xs hover:bg-exito-50"
                       @click.prevent="saveEditedRow(getOriginalIndex(index))"
                     >
                       Guardar
                     </button>
                     <button
-                      class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200"
+                      class="px-2 py-1 bg-peligro-50 text-peligro-700 rounded text-xs hover:bg-peligro-50"
                       @click.prevent="cancelEditRow"
                     >
                       Cancelar
@@ -561,13 +554,13 @@
                     class="flex items-center space-x-2"
                   >
                     <button
-                      class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200"
+                      class="px-2 py-1 bg-superficie-interactiva text-texto-secundario rounded text-xs hover:bg-superficie-interactiva-activa"
                       @click.prevent="startEditRow(getOriginalIndex(index))"
                     >
                       Editar
                     </button>
                     <button
-                      class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs hover:bg-blue-200"
+                      class="px-2 py-1 bg-botica-50 text-texto-marca rounded text-xs hover:bg-botica-200"
                       @click.prevent="previewProduct(getOriginalIndex(index))"
                     >
                       Vista
@@ -580,14 +573,14 @@
         </div>
 
         <!-- Pagination -->
-        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+        <div class="px-6 py-4 bg-superficie-hundida border-t border-borde-sutil flex items-center justify-between">
           <div class="flex items-center space-x-2">
-            <span class="text-sm text-gray-700">
+            <span class="text-sm text-texto-secundario">
               Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} a {{ Math.min(currentPage * itemsPerPage, filteredData.length) }} de {{ filteredData.length }} productos
             </span>
             <select
               v-model="itemsPerPage"
-              class="text-sm border border-gray-300 rounded px-2 py-1"
+              class="text-sm border border-borde-base rounded px-2 py-1"
             >
               <option :value="10">
                 10 por página
@@ -606,17 +599,17 @@
           <div class="flex items-center space-x-2">
             <button
               :disabled="currentPage === 1"
-              class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50"
+              class="px-3 py-1 border border-borde-base rounded text-sm hover:bg-superficie-hundida disabled:opacity-50"
               @click="currentPage--"
             >
               Anterior
             </button>
-            <span class="text-sm text-gray-700">
+            <span class="text-sm text-texto-secundario">
               Página {{ currentPage }} de {{ totalPages }}
             </span>
             <button
               :disabled="currentPage === totalPages"
-              class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50 disabled:opacity-50"
+              class="px-3 py-1 border border-borde-base rounded text-sm hover:bg-superficie-hundida disabled:opacity-50"
               @click="currentPage++"
             >
               Siguiente
@@ -625,15 +618,15 @@
         </div>
 
         <!-- Action Bar -->
-        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+        <div class="px-6 py-4 bg-superficie-hundida border-t border-borde-sutil">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
-              <span class="text-sm text-gray-600">
+              <span class="text-sm text-texto-secundario">
                 {{ selectedRows.length }} productos seleccionados
               </span>
               <button
                 v-if="selectedRows.length > 0"
-                class="px-3 py-1 bg-red-100 text-red-700 rounded text-sm hover:bg-red-200"
+                class="px-3 py-1 bg-peligro-50 text-peligro-700 rounded text-sm hover:bg-peligro-50"
                 @click="deleteSelectedRows"
               >
                 Eliminar seleccionados
@@ -641,7 +634,7 @@
             </div>
             <div class="flex space-x-3">
               <button
-                class="px-6 py-3 bg-linear-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center disabled:opacity-50"
+                class="px-6 py-3 bg-botica-700 text-white rounded-xl hover:bg-botica-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center disabled:opacity-50"
                 :disabled="uploading || validationErrors.length > 0"
                 @click="uploadProducts"
               >
@@ -649,7 +642,7 @@
                 {{ uploading ? 'Subiendo...' : `Subir ${filteredData.length} Productos` }}
               </button>
               <button
-                class="px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center"
+                class="px-6 py-3 bg-botica-700 text-white rounded-xl hover:bg-botica-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center"
                 :disabled="uploading || filteredData.length === 0"
                 @click="confirmUpload = true"
               >
@@ -664,22 +657,22 @@
       <!-- Upload Progress -->
       <div
         v-if="uploading"
-        class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+        class="bg-superficie-elevada rounded-lg shadow-sm border border-borde-sutil p-6"
       >
         <div class="space-y-4">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">
+            <h3 class="text-lg font-medium text-texto-primario">
               Subiendo Productos
             </h3>
-            <span class="text-sm text-gray-500">{{ uploadProgress }}%</span>
+            <span class="text-sm text-texto-terciario">{{ uploadProgress }}%</span>
           </div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
+          <div class="w-full bg-superficie-interactiva-activa rounded-full h-2">
             <div
-              class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              class="bg-botica-700 h-2 rounded-full transition-all duration-300"
               :style="{ width: uploadProgress + '%' }"
             ></div>
           </div>
-          <p class="text-sm text-gray-600">
+          <p class="text-sm text-texto-secundario">
             {{ uploadedCount }} de {{ parsedData.length }} productos subidos
           </p>
         </div>
@@ -688,9 +681,9 @@
       <!-- Success/Error Messages -->
       <div
         v-if="uploadResults.success.length > 0 || uploadResults.errors.length > 0"
-        class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+        class="bg-superficie-elevada rounded-lg shadow-sm border border-borde-sutil p-6"
       >
-        <h3 class="text-lg font-medium text-gray-900 mb-4">
+        <h3 class="text-lg font-medium text-texto-primario mb-4">
           Resultados de la Carga
         </h3>
 
@@ -699,7 +692,7 @@
           v-if="uploadResults.success.length > 0"
           class="mb-4"
         >
-          <div class="flex items-center text-green-600 mb-2">
+          <div class="flex items-center text-exito-600 mb-2">
             <CheckCircle class="w-5 h-5 mr-2" />
             <span class="font-medium">{{ uploadResults.success.length }} productos creados exitosamente</span>
           </div>
@@ -707,7 +700,7 @@
 
         <!-- Errors -->
         <div v-if="uploadResults.errors.length > 0">
-          <div class="flex items-center text-red-600 mb-2">
+          <div class="flex items-center text-peligro-600 mb-2">
             <XCircle class="w-5 h-5 mr-2" />
             <span class="font-medium">{{ uploadResults.errors.length }} errores encontrados</span>
           </div>
@@ -715,7 +708,7 @@
             <div
               v-for="error in uploadResults.errors"
               :key="error.index"
-              class="text-sm text-red-700 py-1"
+              class="text-sm text-peligro-700 py-1"
             >
               Fila {{ error.index + 1 }}: {{ error.message }}
             </div>
@@ -727,24 +720,24 @@
     <!-- Confirm Upload Modal -->
     <div
       v-if="confirmUpload"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60"
     >
-      <div class="bg-white max-w-lg w-full rounded-lg p-6">
+      <div class="bg-superficie-elevada max-w-lg w-full rounded-lg p-6">
         <h3 class="text-lg font-medium mb-3">
           Confirmar carga
         </h3>
-        <p class="text-sm text-gray-700">
+        <p class="text-sm text-texto-secundario">
           Vas a subir {{ parsedData.length }} productos. ¿Deseas continuar?
         </p>
         <div class="mt-4 flex justify-end space-x-2">
           <button
-            class="px-4 py-2 rounded-lg bg-white border"
+            class="px-4 py-2 rounded-lg bg-superficie-elevada border"
             @click="confirmUpload = false"
           >
             Cancelar
           </button>
           <button
-            class="px-4 py-2 rounded-lg bg-blue-600 text-white"
+            class="px-4 py-2 rounded-lg bg-botica-700 text-white"
             @click="doUploadFromConfirm"
           >
             Sí, subir
@@ -755,13 +748,13 @@
     <!-- Mapping Modal -->
     <div
       v-if="showMappingModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60"
     >
-      <div class="bg-white max-w-2xl w-full rounded-lg p-6">
+      <div class="bg-superficie-elevada max-w-2xl w-full rounded-lg p-6">
         <h3 class="text-lg font-medium mb-3">
           Mapear columnas
         </h3>
-        <p class="text-sm text-gray-700">
+        <p class="text-sm text-texto-secundario">
           Relaciona las columnas del archivo con los campos esperados
         </p>
         <div class="mt-4 grid grid-cols-1 gap-3">
@@ -770,7 +763,7 @@
             :key="field"
             class="flex items-center justify-between"
           >
-            <div class="w-1/3 text-sm text-gray-700 font-medium">
+            <div class="w-1/3 text-sm text-texto-secundario font-medium">
               {{ field }}
             </div>
             <select
@@ -793,7 +786,7 @@
         <div class="mt-4 flex justify-between">
           <div>
             <button
-              class="px-3 py-1 bg-gray-100 rounded"
+              class="px-3 py-1 bg-superficie-interactiva rounded"
               @click.prevent="autoMapHeaders(csvHeaders)"
             >
               Auto map
@@ -801,13 +794,13 @@
           </div>
           <div class="space-x-2">
             <button
-              class="px-4 py-2 rounded bg-white border"
+              class="px-4 py-2 rounded bg-superficie-elevada border"
               @click.prevent="showMappingModal=false"
             >
               Cancelar
             </button>
             <button
-              class="px-4 py-2 rounded bg-blue-600 text-white"
+              class="px-4 py-2 rounded bg-botica-700 text-white"
               @click.prevent="() => { applyMapping(); showMappingModal=false }"
             >
               Aplicar y cerrar
@@ -819,16 +812,16 @@
     <!-- Errors Modal -->
     <div
       v-if="showErrorsModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60"
     >
-      <div class="bg-white max-w-4xl w-full rounded-lg p-6 max-h-[80vh] overflow-hidden">
+      <div class="bg-superficie-elevada max-w-4xl w-full rounded-lg p-6 max-h-[80vh] overflow-hidden">
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-medium flex items-center">
-            <AlertTriangle class="w-5 h-5 text-red-500 mr-2" />
+            <AlertTriangle class="w-5 h-5 text-peligro-600 mr-2" />
             Detalles de Errores de Validación
           </h3>
           <button
-            class="p-2 hover:bg-gray-100 rounded-lg"
+            class="p-2 hover:bg-superficie-interactiva rounded-lg"
             @click="showErrorsModal = false"
           >
             <X class="w-5 h-5" />
@@ -839,14 +832,14 @@
             <div
               v-for="error in validationErrors"
               :key="error.row"
-              class="flex items-start space-x-3 p-3 bg-red-50 rounded-lg"
+              class="flex items-start space-x-3 p-3 bg-peligro-50 rounded-lg"
             >
-              <AlertTriangle class="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
+              <AlertTriangle class="w-4 h-4 text-peligro-600 mt-0.5 shrink-0" />
               <div>
-                <p class="text-sm font-medium text-red-800">
+                <p class="text-sm font-medium text-peligro-700">
                   Fila {{ error.row }}
                 </p>
-                <p class="text-sm text-red-700">
+                <p class="text-sm text-peligro-700">
                   {{ error.message }}
                 </p>
               </div>
@@ -859,16 +852,16 @@
     <!-- Product Preview Modal -->
     <div
       v-if="previewProductData"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60"
     >
-      <div class="bg-white max-w-2xl w-full rounded-lg p-6">
+      <div class="bg-superficie-elevada max-w-2xl w-full rounded-lg p-6">
         <div class="flex items-center justify-between mb-6">
           <h3 class="text-xl font-semibold flex items-center">
-            <Package class="w-6 h-6 text-blue-600 mr-3" />
+            <Package class="w-6 h-6 text-texto-marca mr-3" />
             Vista Previa del Producto
           </h3>
           <button
-            class="p-2 hover:bg-gray-100 rounded-lg"
+            class="p-2 hover:bg-superficie-interactiva rounded-lg"
             @click="previewProductData = null"
           >
             <X class="w-5 h-5" />
@@ -877,52 +870,52 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700">Nombre</label>
-              <p class="mt-1 text-sm text-gray-900 bg-gray-50 p-2 rounded">
+              <label class="block text-sm font-medium text-texto-secundario">Nombre</label>
+              <p class="mt-1 text-sm text-texto-primario bg-superficie-hundida p-2 rounded">
                 {{ previewProductData.nombre || '-' }}
               </p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Concentración</label>
-              <p class="mt-1 text-sm text-gray-900 bg-gray-50 p-2 rounded">
+              <label class="block text-sm font-medium text-texto-secundario">Concentración</label>
+              <p class="mt-1 text-sm text-texto-primario bg-superficie-hundida p-2 rounded">
                 {{ previewProductData.concentracion || '-' }}
               </p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Laboratorio</label>
-              <p class="mt-1 text-sm text-gray-900 bg-gray-50 p-2 rounded">
+              <label class="block text-sm font-medium text-texto-secundario">Laboratorio</label>
+              <p class="mt-1 text-sm text-texto-primario bg-superficie-hundida p-2 rounded">
                 {{ previewProductData.laboratorio || '-' }}
               </p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Presentación</label>
-              <p class="mt-1 text-sm text-gray-900 bg-gray-50 p-2 rounded">
+              <label class="block text-sm font-medium text-texto-secundario">Presentación</label>
+              <p class="mt-1 text-sm text-texto-primario bg-superficie-hundida p-2 rounded">
                 {{ previewProductData.presentacion || '-' }}
               </p>
             </div>
           </div>
           <div class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700">Tipo</label>
-              <p class="mt-1 text-sm text-gray-900 bg-gray-50 p-2 rounded">
+              <label class="block text-sm font-medium text-texto-secundario">Tipo</label>
+              <p class="mt-1 text-sm text-texto-primario bg-superficie-hundida p-2 rounded">
                 {{ previewProductData.tipo || '-' }}
               </p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Categoría</label>
-              <p class="mt-1 text-sm text-gray-900 bg-gray-50 p-2 rounded">
+              <label class="block text-sm font-medium text-texto-secundario">Categoría</label>
+              <p class="mt-1 text-sm text-texto-primario bg-superficie-hundida p-2 rounded">
                 {{ previewProductData.categoria || '-' }}
               </p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Stock</label>
-              <p class="mt-1 text-sm text-gray-900 bg-gray-50 p-2 rounded">
+              <label class="block text-sm font-medium text-texto-secundario">Stock</label>
+              <p class="mt-1 text-sm text-texto-primario bg-superficie-hundida p-2 rounded">
                 {{ previewProductData.stock || 0 }}
               </p>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700">Precio</label>
-              <p class="mt-1 text-sm text-gray-900 bg-gray-50 p-2 rounded">
+              <label class="block text-sm font-medium text-texto-secundario">Precio</label>
+              <p class="mt-1 text-sm text-texto-primario bg-superficie-hundida p-2 rounded">
                 S/ {{ previewProductData.precio || '0.00' }}
               </p>
             </div>
@@ -930,7 +923,7 @@
         </div>
         <div class="mt-6 flex justify-end">
           <button
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            class="px-4 py-2 bg-botica-700 text-white rounded-lg hover:bg-botica-800"
             @click="previewProductData = null"
           >
             Cerrar
@@ -1638,8 +1631,8 @@ const uploadProducts = async () => {
 const getValidationStatus = (product: ProductData, index: number) => {
   const hasError = validationErrors.value.some(error => error.row === index + 1)
   return hasError
-    ? 'bg-red-100 text-red-800'
-    : 'bg-green-100 text-green-800'
+    ? 'bg-peligro-50 text-peligro-700'
+    : 'bg-exito-50 text-exito-700'
 }
 
 const getValidationText = (product: ProductData, index: number) => {

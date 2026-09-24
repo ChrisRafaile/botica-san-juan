@@ -10,7 +10,7 @@
     >
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 backdrop-blur-sm"
         @click="closeOnBackdrop"
       >
         <Transition
@@ -23,27 +23,27 @@
         >
           <div
             v-if="isOpen"
-            class="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden"
+            class="relative w-full max-w-md mx-4 bg-superficie-elevada rounded-2xl shadow-2xl overflow-hidden"
             @click.stop
           >
             <!-- Header -->
-            <div class="relative px-6 py-4 bg-linear-to-r from-blue-600 to-purple-600 text-white">
+            <div class="relative px-6 py-4 bg-botica-700 text-white">
               <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                  <div class="p-2 bg-white bg-opacity-20 rounded-lg">
+                  <div class="p-2 bg-superficie-elevada/20 rounded-lg">
                     <Tag class="w-6 h-6" />
                   </div>
                   <div>
                     <h3 class="text-lg font-semibold">
                       {{ isEditing ? 'Editar Categoría' : 'Nueva Categoría' }}
                     </h3>
-                    <p class="text-sm text-blue-100">
+                    <p class="text-sm text-botica-100">
                       {{ isEditing ? 'Modifica los detalles de la categoría' : 'Crea una nueva categoría para tus productos' }}
                     </p>
                   </div>
                 </div>
                 <button
-                  class="p-1 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+                  class="p-1 hover:bg-superficie-interactiva rounded-lg transition-colors"
                   @click="close"
                 >
                   <X class="w-5 h-5" />
@@ -58,20 +58,20 @@
             >
               <!-- Nombre -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-texto-secundario mb-2">
                   Nombre de la Categoría *
                 </label>
                 <input
                   v-model="form.name"
                   type="text"
                   required
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  class="w-full px-4 py-3 border border-borde-base rounded-xl focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all"
                   placeholder="Ej: Medicamentos, Suplementos, Higiene..."
-                  :class="{ 'border-red-300 focus:ring-red-500': errors.name }"
+                  :class="{ 'border-peligro-500 focus:ring-peligro-500': errors.name }"
                 />
                 <p
                   v-if="errors.name"
-                  class="mt-1 text-sm text-red-600"
+                  class="mt-1 text-sm text-peligro-600"
                 >
                   {{ errors.name }}
                 </p>
@@ -79,20 +79,20 @@
 
               <!-- Descripción -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
+                <label class="block text-sm font-medium text-texto-secundario mb-2">
                   Descripción
                 </label>
                 <textarea
                   v-model="form.description"
                   rows="3"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                  class="w-full px-4 py-3 border border-borde-base rounded-xl focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all resize-none"
                   placeholder="Describe brevemente esta categoría..."
                 ></textarea>
               </div>
 
               <!-- Color -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-3">
+                <label class="block text-sm font-medium text-texto-secundario mb-3">
                   Color de Identificación
                 </label>
                 <div class="grid grid-cols-6 gap-3">
@@ -101,10 +101,7 @@
                     :key="color.value"
                     type="button"
                     class="w-10 h-10 rounded-full border-2 transition-all hover:scale-110"
-                    :class="[
-                      form.color === color.value ? 'border-gray-800 scale-110' : 'border-gray-300',
-                      color.bgClass
-                    ]"
+                    :class="[ form.color === color.value ? 'border-neutro-800 scale-110' : 'border-borde-base', color.bgClass ]"
                     @click="form.color = color.value"
                   >
                     <span class="sr-only">{{ color.name }}</span>
@@ -117,16 +114,16 @@
                 <input
                   v-model="form.isActive"
                   type="checkbox"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                  class="w-4 h-4 text-texto-marca bg-superficie-interactiva border-borde-base rounded focus:ring-botica-500/20 focus:ring-2"
                 />
-                <label class="ml-2 text-sm font-medium text-gray-700">
+                <label class="ml-2 text-sm font-medium text-texto-secundario">
                   Categoría activa
                 </label>
               </div>
 
               <!-- Preview -->
-              <div class="bg-gray-50 rounded-xl p-4">
-                <h4 class="text-sm font-medium text-gray-700 mb-2">
+              <div class="bg-superficie-hundida rounded-xl p-4">
+                <h4 class="text-sm font-medium text-texto-secundario mb-2">
                   Vista Previa
                 </h4>
                 <div
@@ -142,7 +139,7 @@
               <div class="flex space-x-3 pt-4">
                 <button
                   type="button"
-                  class="flex-1 px-4 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors"
+                  class="flex-1 px-4 py-3 text-texto-secundario bg-superficie-interactiva hover:bg-superficie-interactiva-activa rounded-xl font-medium transition-colors"
                   @click="close"
                 >
                   Cancelar
@@ -150,7 +147,7 @@
                 <button
                   type="submit"
                   :disabled="loading"
-                  class="flex-1 px-4 py-3 bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="flex-1 px-4 py-3 bg-botica-700 hover:bg-botica-800 text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span
                     v-if="loading"
@@ -220,23 +217,23 @@ const form = ref<CategoryFormData>({
 })
 
 const colorOptions = [
-  { name: 'Azul', value: 'blue', bgClass: 'bg-blue-100 text-blue-800' },
-  { name: 'Verde', value: 'green', bgClass: 'bg-green-100 text-green-800' },
-  { name: 'Rojo', value: 'red', bgClass: 'bg-red-100 text-red-800' },
-  { name: 'Amarillo', value: 'yellow', bgClass: 'bg-yellow-100 text-yellow-800' },
-  { name: 'Morado', value: 'purple', bgClass: 'bg-purple-100 text-purple-800' },
-  { name: 'Rosa', value: 'pink', bgClass: 'bg-pink-100 text-pink-800' },
-  { name: 'Indigo', value: 'indigo', bgClass: 'bg-indigo-100 text-indigo-800' },
-  { name: 'Gris', value: 'gray', bgClass: 'bg-gray-100 text-gray-800' },
-  { name: 'Naranja', value: 'orange', bgClass: 'bg-orange-100 text-orange-800' },
-  { name: 'Teal', value: 'teal', bgClass: 'bg-teal-100 text-teal-800' },
-  { name: 'Cyan', value: 'cyan', bgClass: 'bg-cyan-100 text-cyan-800' },
-  { name: 'Lime', value: 'lime', bgClass: 'bg-lime-100 text-lime-800' }
+  { name: 'Azul', value: 'blue', bgClass: 'bg-botica-50 text-botica-800' },
+  { name: 'Verde', value: 'green', bgClass: 'bg-exito-50 text-exito-700' },
+  { name: 'Rojo', value: 'red', bgClass: 'bg-peligro-50 text-peligro-700' },
+  { name: 'Amarillo', value: 'yellow', bgClass: 'bg-alerta-50 text-alerta-700' },
+  { name: 'Morado', value: 'purple', bgClass: 'bg-botica-100 text-botica-800' },
+  { name: 'Rosa', value: 'pink', bgClass: 'bg-peligro-50 text-peligro-700' },
+  { name: 'Indigo', value: 'indigo', bgClass: 'bg-botica-50 text-botica-800' },
+  { name: 'Gris', value: 'gray', bgClass: 'bg-superficie-interactiva text-texto-primario' },
+  { name: 'Naranja', value: 'orange', bgClass: 'bg-alerta-50 text-alerta-700' },
+  { name: 'Teal', value: 'teal', bgClass: 'bg-botica-100 text-botica-800' },
+  { name: 'Cyan', value: 'cyan', bgClass: 'bg-botica-100 text-botica-800' },
+  { name: 'Lime', value: 'lime', bgClass: 'bg-exito-50 text-exito-700' }
 ]
 
 const getPreviewClasses = () => {
   const colorOption = colorOptions.find(c => c.value === form.value.color)
-  return colorOption ? colorOption.bgClass : 'bg-gray-100 text-gray-800'
+  return colorOption ? colorOption.bgClass : 'bg-superficie-interactiva text-texto-primario'
 }
 
 const close = () => {

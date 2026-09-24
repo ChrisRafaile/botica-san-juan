@@ -2,10 +2,10 @@
   <div class="p-4 sm:p-6 lg:p-8 space-y-6">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">
+        <h1 class="text-3xl font-bold text-texto-primario">
           {{ isInventoryRoute ? 'Reporte de Inventario' : 'Reportes y Estadísticas' }}
         </h1>
-        <p class="mt-2 text-gray-600">
+        <p class="mt-2 text-texto-secundario">
           {{ isInventoryRoute
             ? 'Vista analítica del stock actual, alertas y valoración aproximada de inventario.'
             : 'Analítica de ventas, pedidos y productos desde datos reales.' }}
@@ -13,13 +13,13 @@
       </div>
       <div class="flex flex-col sm:flex-row gap-3">
         <button
-          class="inline-flex items-center justify-center rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-4 py-3 text-white shadow-lg shadow-blue-600/20 transition hover:from-blue-700 hover:to-indigo-700"
+          class="inline-flex items-center justify-center rounded-xl bg-botica-700 px-4 py-3 text-white shadow-lg shadow-botica-700/20 transition hover:bg-botica-800"
           @click="exportCsv"
         >
           <Download class="mr-2 h-5 w-5" /> Exportar CSV
         </button>
         <button
-          class="inline-flex items-center justify-center rounded-xl bg-linear-to-r from-emerald-600 to-green-600 px-4 py-3 text-white shadow-lg shadow-emerald-600/20 transition hover:from-emerald-700 hover:to-green-700"
+          class="inline-flex items-center justify-center rounded-xl bg-botica-700 px-4 py-3 text-white shadow-lg shadow-botica-700/20 transition hover:bg-botica-800"
           @click="refreshReports"
         >
           <RefreshCw class="mr-2 h-5 w-5" /> Actualizar
@@ -27,34 +27,34 @@
       </div>
     </div>
 
-    <div class="rounded-2xl bg-white p-4 shadow-lg ring-1 ring-slate-200/80 sm:p-6">
+    <div class="rounded-2xl bg-superficie-elevada p-4 shadow-lg ring-1 ring-borde-sutil/80 sm:p-6">
       <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div class="rounded-2xl bg-linear-to-r from-blue-600 to-cyan-600 p-6 text-white">
-          <p class="text-sm text-blue-100">
+        <div class="rounded-2xl bg-botica-700 p-6 text-white">
+          <p class="text-sm text-botica-100">
             {{ isInventoryRoute ? 'Productos totales' : 'Ventas' }}
           </p>
           <p class="mt-2 text-3xl font-bold">
             {{ isInventoryRoute ? inventorySummary.totalProducts : `S/ ${summary.sales.toFixed(2)}` }}
           </p>
         </div>
-        <div class="rounded-2xl bg-linear-to-r from-violet-600 to-fuchsia-600 p-6 text-white">
-          <p class="text-sm text-violet-100">
+        <div class="rounded-2xl bg-botica-700 p-6 text-white">
+          <p class="text-sm text-botica-100">
             {{ isInventoryRoute ? 'Stock critico' : 'Pedidos' }}
           </p>
           <p class="mt-2 text-3xl font-bold">
             {{ isInventoryRoute ? inventorySummary.critical : summary.orders }}
           </p>
         </div>
-        <div class="rounded-2xl bg-linear-to-r from-emerald-600 to-green-600 p-6 text-white">
-          <p class="text-sm text-emerald-100">
+        <div class="rounded-2xl bg-botica-700 p-6 text-white">
+          <p class="text-sm text-botica-100">
             {{ isInventoryRoute ? 'Stock bajo' : 'Productos vendidos' }}
           </p>
           <p class="mt-2 text-3xl font-bold">
             {{ isInventoryRoute ? inventorySummary.low : summary.units }}
           </p>
         </div>
-        <div class="rounded-2xl bg-linear-to-r from-amber-500 to-orange-500 p-6 text-white">
-          <p class="text-sm text-amber-100">
+        <div class="rounded-2xl bg-alerta-700 p-6 text-white">
+          <p class="text-sm text-alerta-50">
             {{ isInventoryRoute ? 'Valor inventario' : 'Ticket promedio' }}
           </p>
           <p class="mt-2 text-3xl font-bold">
@@ -70,18 +70,18 @@
       v-if="!isInventoryRoute"
       class="grid grid-cols-1 gap-6 xl:grid-cols-2"
     >
-      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200/80">
+      <div class="rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-xl font-bold text-slate-900">
+            <h2 class="text-xl font-bold text-texto-primario">
               Filtros
             </h2>
-            <p class="text-sm text-slate-500">
+            <p class="text-sm text-texto-terciario">
               Ajusta el rango y recalcula los datos.
             </p>
           </div>
           <button
-            class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            class="rounded-xl border border-borde-sutil px-4 py-2 text-sm font-semibold text-texto-secundario transition hover:bg-superficie-hundida"
             @click="clearFilters"
           >
             Limpiar
@@ -90,10 +90,10 @@
 
         <div class="mt-6 grid gap-4 md:grid-cols-3">
           <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">Período</label>
+            <label class="mb-2 block text-sm font-medium text-texto-secundario">Período</label>
             <select
               v-model="period"
-              class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
             >
               <option value="month">
                 Este mes
@@ -107,31 +107,31 @@
             </select>
           </div>
           <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">Desde</label>
+            <label class="mb-2 block text-sm font-medium text-texto-secundario">Desde</label>
             <input
               v-model="fromDate"
               type="date"
-              class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
             />
           </div>
           <div>
-            <label class="mb-2 block text-sm font-medium text-slate-700">Hasta</label>
+            <label class="mb-2 block text-sm font-medium text-texto-secundario">Hasta</label>
             <input
               v-model="toDate"
               type="date"
-              class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
             />
           </div>
         </div>
       </div>
 
-      <div class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200/80">
-        <h2 class="text-xl font-bold text-slate-900">
+      <div class="rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
+        <h2 class="text-xl font-bold text-texto-primario">
           {{ isInventoryRoute ? 'Productos con menor stock' : 'Top productos' }}
         </h2>
         <div
           v-if="topProducts.length === 0"
-          class="py-10 text-center text-slate-500"
+          class="py-10 text-center text-texto-terciario"
         >
           No hay información suficiente.
         </div>
@@ -142,17 +142,17 @@
           <div
             v-for="item in topProducts"
             :key="item.nombre"
-            class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3"
+            class="flex items-center justify-between rounded-2xl bg-superficie-hundida px-4 py-3"
           >
             <div>
-              <p class="font-semibold text-slate-900">
+              <p class="font-semibold text-texto-primario">
                 {{ item.nombre }}
               </p>
-              <p class="text-sm text-slate-500">
+              <p class="text-sm text-texto-terciario">
                 {{ item.cantidad }} unidades
               </p>
             </div>
-            <span class="font-semibold text-emerald-600">S/ {{ item.total.toFixed(2) }}</span>
+            <span class="font-semibold text-exito-600">S/ {{ item.total.toFixed(2) }}</span>
           </div>
         </div>
       </div>
@@ -162,17 +162,17 @@
       v-if="isInventoryRoute"
       class="grid grid-cols-1 gap-6 xl:grid-cols-2"
     >
-      <section class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200/80">
+      <section class="rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
         <div class="flex items-start justify-between gap-4">
           <div>
-            <h2 class="text-xl font-bold text-slate-900">
+            <h2 class="text-xl font-bold text-texto-primario">
               Distribucion de stock
             </h2>
-            <p class="text-sm text-slate-500">
+            <p class="text-sm text-texto-terciario">
               Proporcion critico, bajo y normal en tiempo real.
             </p>
           </div>
-          <div class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+          <div class="rounded-full bg-superficie-interactiva px-3 py-1 text-xs font-semibold text-texto-secundario">
             {{ inventorySummary.totalProducts }} productos
           </div>
         </div>
@@ -185,20 +185,20 @@
             @mousemove="handleDonutHover"
             @mouseleave="clearDonutTooltip"
           >
-            <div class="absolute inset-5 rounded-full bg-white" />
+            <div class="absolute inset-5 rounded-full bg-superficie-elevada" />
             <div class="absolute inset-0 flex items-center justify-center">
               <div class="text-center">
-                <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p class="text-xs font-semibold uppercase tracking-wide text-texto-terciario">
                   Riesgo
                 </p>
-                <p class="text-2xl font-bold text-slate-900">
+                <p class="text-2xl font-bold text-texto-primario">
                   {{ riskRateLabel }}
                 </p>
               </div>
             </div>
             <div
               v-if="donutTooltip.visible"
-              class="pointer-events-none absolute z-10 rounded-lg bg-slate-900 px-3 py-2 text-xs text-white shadow-xl"
+              class="pointer-events-none absolute z-10 rounded-lg bg-neutro-900 px-3 py-2 text-xs text-white shadow-xl"
               :style="donutTooltipStyle"
             >
               <p class="font-semibold">
@@ -212,35 +212,35 @@
 
           <div class="w-full space-y-3 md:max-w-xs">
             <div
-              class="flex items-center justify-between rounded-xl bg-rose-50 px-4 py-3 transition-all duration-300"
-              :class="{ 'ring-2 ring-rose-300 scale-[1.02]': activeDonutSegment === 'critico' }"
+              class="flex items-center justify-between rounded-xl bg-peligro-50 px-4 py-3 transition-all duration-300"
+              :class="{ 'ring-2 ring-peligro-500 scale-[1.02]': activeDonutSegment === 'critico' }"
             >
-              <p class="text-sm font-medium text-rose-700">
+              <p class="text-sm font-medium text-peligro-700">
                 Critico
               </p>
-              <p class="text-lg font-bold text-rose-800">
+              <p class="text-lg font-bold text-peligro-700">
                 {{ inventorySummary.critical }}
               </p>
             </div>
             <div
-              class="flex items-center justify-between rounded-xl bg-amber-50 px-4 py-3 transition-all duration-300"
-              :class="{ 'ring-2 ring-amber-300 scale-[1.02]': activeDonutSegment === 'bajo' }"
+              class="flex items-center justify-between rounded-xl bg-alerta-50 px-4 py-3 transition-all duration-300"
+              :class="{ 'ring-2 ring-alerta-500 scale-[1.02]': activeDonutSegment === 'bajo' }"
             >
-              <p class="text-sm font-medium text-amber-700">
+              <p class="text-sm font-medium text-alerta-700">
                 Bajo
               </p>
-              <p class="text-lg font-bold text-amber-800">
+              <p class="text-lg font-bold text-alerta-700">
                 {{ inventorySummary.low }}
               </p>
             </div>
             <div
-              class="flex items-center justify-between rounded-xl bg-emerald-50 px-4 py-3 transition-all duration-300"
-              :class="{ 'ring-2 ring-emerald-300 scale-[1.02]': activeDonutSegment === 'normal' }"
+              class="flex items-center justify-between rounded-xl bg-exito-50 px-4 py-3 transition-all duration-300"
+              :class="{ 'ring-2 ring-exito-500 scale-[1.02]': activeDonutSegment === 'normal' }"
             >
-              <p class="text-sm font-medium text-emerald-700">
+              <p class="text-sm font-medium text-exito-700">
                 Normal
               </p>
-              <p class="text-lg font-bold text-emerald-800">
+              <p class="text-lg font-bold text-exito-700">
                 {{ inventorySummary.normal }}
               </p>
             </div>
@@ -248,13 +248,13 @@
         </div>
       </section>
 
-      <section class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200/80">
+      <section class="rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
         <div class="flex items-start justify-between gap-4">
           <div>
-            <h2 class="text-xl font-bold text-slate-900">
+            <h2 class="text-xl font-bold text-texto-primario">
               Tendencia de salida
             </h2>
-            <p class="text-sm text-slate-500">
+            <p class="text-sm text-texto-terciario">
               Unidades vendidas por dia (mes actual).
             </p>
           </div>
@@ -334,20 +334,20 @@
 
           <div
             v-if="trendTooltip.visible"
-            class="pointer-events-none mt-2 inline-flex rounded-lg bg-slate-900 px-3 py-2 text-xs text-white shadow-lg"
+            class="pointer-events-none mt-2 inline-flex rounded-lg bg-neutro-900 px-3 py-2 text-xs text-white shadow-lg"
           >
             {{ trendTooltip.label }}: {{ trendTooltip.value }} unidades
           </div>
 
-          <div class="mt-2 grid grid-cols-3 gap-2 text-xs text-slate-500">
+          <div class="mt-2 grid grid-cols-3 gap-2 text-xs text-texto-terciario">
             <div>
-              Min: <span class="font-semibold text-slate-700">{{ trendStats.min }}</span>
+              Min: <span class="font-semibold text-texto-secundario">{{ trendStats.min }}</span>
             </div>
             <div class="text-center">
-              Prom: <span class="font-semibold text-slate-700">{{ trendStats.avg }}</span>
+              Prom: <span class="font-semibold text-texto-secundario">{{ trendStats.avg }}</span>
             </div>
             <div class="text-right">
-              Max: <span class="font-semibold text-slate-700">{{ trendStats.max }}</span>
+              Max: <span class="font-semibold text-texto-secundario">{{ trendStats.max }}</span>
             </div>
           </div>
         </div>
@@ -356,51 +356,51 @@
 
     <div
       v-if="isInventoryRoute"
-      class="overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200/80"
+      class="overflow-hidden rounded-2xl bg-superficie-elevada shadow-lg ring-1 ring-borde-sutil/80"
     >
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
+        <table class="min-w-full divide-y divide-borde-sutil">
+          <thead class="bg-superficie-hundida">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Producto
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Categoria
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Stock
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Minimo
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Precio
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Estado
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100 bg-white">
+          <tbody class="divide-y divide-borde-sutil bg-superficie-elevada">
             <tr
               v-for="row in inventoryRows"
               :key="row.id"
-              class="hover:bg-slate-50"
+              class="hover:bg-superficie-hundida"
             >
-              <td class="px-6 py-4 text-sm font-semibold text-slate-900">
+              <td class="px-6 py-4 text-sm font-semibold text-texto-primario">
                 {{ row.nombre }}
               </td>
-              <td class="px-6 py-4 text-sm text-slate-600">
+              <td class="px-6 py-4 text-sm text-texto-secundario">
                 {{ row.categoria }}
               </td>
-              <td class="px-6 py-4 text-sm text-slate-700">
+              <td class="px-6 py-4 text-sm text-texto-secundario">
                 {{ row.stock }}
               </td>
-              <td class="px-6 py-4 text-sm text-slate-700">
+              <td class="px-6 py-4 text-sm text-texto-secundario">
                 {{ row.stock_minimo }}
               </td>
-              <td class="px-6 py-4 text-sm font-semibold text-slate-900">
+              <td class="px-6 py-4 text-sm font-semibold text-texto-primario">
                 S/ {{ row.precio.toFixed(2) }}
               </td>
               <td class="px-6 py-4">
@@ -417,51 +417,51 @@
       </div>
     </div>
 
-    <div class="overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200/80">
+    <div class="overflow-hidden rounded-2xl bg-superficie-elevada shadow-lg ring-1 ring-borde-sutil/80">
       <div
         v-if="loading"
-        class="flex items-center justify-center py-16 text-slate-600"
+        class="flex items-center justify-center py-16 text-texto-secundario"
       >
-        <div class="h-9 w-9 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+        <div class="h-9 w-9 animate-spin rounded-full border-4 border-borde-sutil border-t-blue-600" />
         <span class="ml-3">Cargando reportes...</span>
       </div>
       <div
         v-else-if="!isInventoryRoute"
         class="overflow-x-auto"
       >
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
+        <table class="min-w-full divide-y divide-borde-sutil">
+          <thead class="bg-superficie-hundida">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Fecha
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Pedidos
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Productos
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Ingresos
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100 bg-white">
+          <tbody class="divide-y divide-borde-sutil bg-superficie-elevada">
             <tr
               v-for="row in reportRows"
               :key="row.fecha"
-              class="hover:bg-slate-50"
+              class="hover:bg-superficie-hundida"
             >
-              <td class="px-6 py-4 text-sm font-medium text-slate-900">
+              <td class="px-6 py-4 text-sm font-medium text-texto-primario">
                 {{ formatDate(row.fecha) }}
               </td>
-              <td class="px-6 py-4 text-sm text-slate-600">
+              <td class="px-6 py-4 text-sm text-texto-secundario">
                 {{ row.pedidos }}
               </td>
-              <td class="px-6 py-4 text-sm text-slate-600">
+              <td class="px-6 py-4 text-sm text-texto-secundario">
                 {{ row.productos }}
               </td>
-              <td class="px-6 py-4 text-sm font-semibold text-emerald-600">
+              <td class="px-6 py-4 text-sm font-semibold text-exito-600">
                 S/ {{ row.ingresos.toFixed(2) }}
               </td>
             </tr>
@@ -470,7 +470,7 @@
       </div>
       <div
         v-else
-        class="px-6 py-10 text-center text-slate-500"
+        class="px-6 py-10 text-center text-texto-terciario"
       >
         El detalle de inventario se muestra en la tabla superior.
       </div>
@@ -639,7 +639,7 @@ const donutTooltipStyle = computed(() => ({
 
 const donutActiveClass = computed(() => {
   if (!activeDonutSegment.value) return 'shadow-none scale-100'
-  return 'shadow-xl shadow-slate-300/70 scale-[1.02]'
+  return 'shadow-xl shadow-neutro-300/70 scale-[1.02]'
 })
 
 const riskRateLabel = computed(() => {
@@ -699,12 +699,12 @@ const trendLabel = computed(() => {
 })
 
 const trendClass = computed(() => {
-  if (trendSeriesValues.value.length < 2) return 'bg-slate-100 text-slate-600'
+  if (trendSeriesValues.value.length < 2) return 'bg-superficie-interactiva text-texto-secundario'
   const first = trendSeriesValues.value[0] ?? 0
   const last = trendSeriesValues.value[trendSeriesValues.value.length - 1] ?? 0
-  if (last > first) return 'bg-rose-100 text-rose-700'
-  if (last < first) return 'bg-emerald-100 text-emerald-700'
-  return 'bg-slate-100 text-slate-700'
+  if (last > first) return 'bg-peligro-50 text-peligro-700'
+  if (last < first) return 'bg-exito-50 text-exito-700'
+  return 'bg-superficie-interactiva text-texto-secundario'
 })
 
 const trendLinePath = computed(() => {
@@ -816,9 +816,9 @@ const hideTrendTooltip = () => {
 }
 
 const stockStateClass = (estado: InventoryRow['estado']) => {
-  if (estado === 'critico') return 'bg-rose-100 text-rose-700'
-  if (estado === 'bajo') return 'bg-amber-100 text-amber-700'
-  return 'bg-emerald-100 text-emerald-700'
+  if (estado === 'critico') return 'bg-peligro-50 text-peligro-700'
+  if (estado === 'bajo') return 'bg-alerta-50 text-alerta-700'
+  return 'bg-exito-50 text-exito-700'
 }
 
 const resolveStockState = (item: InventoryItem): InventoryRow['estado'] => {

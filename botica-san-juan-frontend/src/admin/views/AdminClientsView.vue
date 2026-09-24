@@ -2,16 +2,16 @@
   <div class="space-y-6 p-4 sm:p-6 lg:p-8">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">
+        <h1 class="text-3xl font-bold text-texto-primario">
           Gestion de Usuarios
         </h1>
-        <p class="mt-2 text-gray-600">
+        <p class="mt-2 text-texto-secundario">
           Administra clientes y administradores desde el panel.
         </p>
       </div>
 
       <button
-        class="inline-flex items-center justify-center rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-4 py-3 text-white shadow-lg shadow-blue-600/20 transition hover:from-blue-700 hover:to-indigo-700"
+        class="inline-flex items-center justify-center rounded-xl bg-botica-700 px-4 py-3 text-white shadow-lg shadow-botica-700/20 transition hover:bg-botica-800"
         @click="openCreateModal"
       >
         <UserPlus class="mr-2 h-5 w-5" />
@@ -20,32 +20,32 @@
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <div class="rounded-2xl bg-linear-to-r from-slate-900 to-slate-700 p-6 text-white shadow-xl">
-        <p class="text-sm text-slate-200">
+      <div class="rounded-2xl bg-botica-700 p-6 text-white shadow-xl">
+        <p class="text-sm text-neutro-200">
           Total usuarios
         </p>
         <p class="mt-2 text-3xl font-bold">
           {{ totalItems }}
         </p>
       </div>
-      <div class="rounded-2xl bg-linear-to-r from-blue-600 to-cyan-600 p-6 text-white shadow-xl">
-        <p class="text-sm text-blue-100">
+      <div class="rounded-2xl bg-botica-700 p-6 text-white shadow-xl">
+        <p class="text-sm text-botica-100">
           Clientes (pagina)
         </p>
         <p class="mt-2 text-3xl font-bold">
           {{ clientsCount }}
         </p>
       </div>
-      <div class="rounded-2xl bg-linear-to-r from-purple-600 to-fuchsia-600 p-6 text-white shadow-xl">
-        <p class="text-sm text-purple-100">
+      <div class="rounded-2xl bg-botica-700 p-6 text-white shadow-xl">
+        <p class="text-sm text-botica-100">
           Administradores (pagina)
         </p>
         <p class="mt-2 text-3xl font-bold">
           {{ adminsCount }}
         </p>
       </div>
-      <div class="rounded-2xl bg-linear-to-r from-emerald-600 to-green-600 p-6 text-white shadow-xl">
-        <p class="text-sm text-emerald-100">
+      <div class="rounded-2xl bg-botica-700 p-6 text-white shadow-xl">
+        <p class="text-sm text-botica-100">
           Nuevos este mes (pagina)
         </p>
         <p class="mt-2 text-3xl font-bold">
@@ -54,21 +54,21 @@
       </div>
     </div>
 
-    <div class="rounded-2xl bg-white p-4 shadow-lg ring-1 ring-slate-200/80 sm:p-6">
+    <div class="rounded-2xl bg-superficie-elevada p-4 shadow-lg ring-1 ring-borde-sutil/80 sm:p-6">
       <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px_130px]">
         <div class="relative">
-          <Search class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+          <Search class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-texto-terciario" />
           <input
             v-model="searchQuery"
             type="search"
             placeholder="Buscar por nombre, DNI o email..."
-            class="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-4 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            class="w-full rounded-xl border border-borde-sutil py-3 pl-10 pr-4 text-texto-primario outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
           />
         </div>
 
         <select
           v-model="roleFilter"
-          class="rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+          class="rounded-xl border border-borde-sutil px-4 py-3 text-texto-primario outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
         >
           <option value="all">
             Todos los roles
@@ -83,7 +83,7 @@
 
         <select
           v-model.number="perPage"
-          class="rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+          class="rounded-xl border border-borde-sutil px-4 py-3 text-texto-primario outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
         >
           <option :value="10">
             10
@@ -98,12 +98,12 @@
       </div>
     </div>
 
-    <div class="overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200/80">
+    <div class="overflow-hidden rounded-2xl bg-superficie-elevada shadow-lg ring-1 ring-borde-sutil/80">
       <div
         v-if="loading"
-        class="flex items-center justify-center py-16 text-slate-600"
+        class="flex items-center justify-center py-16 text-texto-secundario"
       >
-        <div class="h-9 w-9 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+        <div class="h-9 w-9 animate-spin rounded-full border-4 border-borde-sutil border-t-blue-600" />
         <span class="ml-3">Cargando usuarios...</span>
       </div>
 
@@ -111,11 +111,11 @@
         v-else-if="users.length === 0"
         class="px-6 py-16 text-center"
       >
-        <Users class="mx-auto h-14 w-14 text-slate-300" />
-        <h2 class="mt-4 text-lg font-semibold text-slate-900">
+        <Users class="mx-auto h-14 w-14 text-texto-deshabilitado" />
+        <h2 class="mt-4 text-lg font-semibold text-texto-primario">
           No hay usuarios
         </h2>
-        <p class="mt-2 text-sm text-slate-500">
+        <p class="mt-2 text-sm text-texto-terciario">
           Ajusta los filtros o crea un nuevo usuario.
         </p>
       </div>
@@ -125,18 +125,18 @@
           <article
             v-for="user in users"
             :key="user.id"
-            class="rounded-2xl border border-slate-200 p-4"
+            class="rounded-2xl border border-borde-sutil p-4"
           >
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-center gap-3">
-                <div class="flex h-11 w-11 items-center justify-center rounded-full bg-linear-to-r from-blue-600 to-indigo-600 text-sm font-bold text-white">
+                <div class="flex h-11 w-11 items-center justify-center rounded-full bg-botica-700 text-sm font-bold text-white">
                   {{ initials(user.nombre) }}
                 </div>
                 <div>
-                  <p class="font-semibold text-slate-900">
+                  <p class="font-semibold text-texto-primario">
                     {{ user.nombre }}
                   </p>
-                  <p class="text-xs text-slate-500">
+                  <p class="text-xs text-texto-terciario">
                     DNI {{ user.dni }}
                   </p>
                 </div>
@@ -150,26 +150,26 @@
             </div>
 
             <div class="mt-3 space-y-1 text-sm">
-              <p class="text-slate-700">
+              <p class="text-texto-secundario">
                 {{ user.email }}
               </p>
-              <p class="text-slate-500">
+              <p class="text-texto-terciario">
                 {{ user.telefono || 'Sin telefono' }}
               </p>
-              <p class="text-xs text-slate-500">
+              <p class="text-xs text-texto-terciario">
                 Registro: {{ formatDate(user.created_at) }}
               </p>
             </div>
 
             <div class="mt-4 flex justify-end gap-2">
               <button
-                class="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50"
+                class="rounded-lg p-2 text-texto-marca transition hover:bg-botica-50"
                 @click="openEditModal(user)"
               >
                 <Edit class="h-4 w-4" />
               </button>
               <button
-                class="rounded-lg p-2 text-rose-600 transition hover:bg-rose-50"
+                class="rounded-lg p-2 text-peligro-600 transition hover:bg-peligro-50"
                 @click="askDelete(user)"
               >
                 <Trash2 class="h-4 w-4" />
@@ -179,52 +179,52 @@
         </div>
 
         <div class="hidden overflow-x-auto md:block">
-          <table class="min-w-full divide-y divide-slate-200">
-            <thead class="bg-slate-50">
+          <table class="min-w-full divide-y divide-borde-sutil">
+            <thead class="bg-superficie-hundida">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Usuario
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Contacto
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Rol
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Registro
                 </th>
-                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 bg-white">
+            <tbody class="divide-y divide-borde-sutil bg-superficie-elevada">
               <tr
                 v-for="user in users"
                 :key="user.id"
-                class="transition hover:bg-slate-50"
+                class="transition hover:bg-superficie-hundida"
               >
                 <td class="whitespace-nowrap px-6 py-4">
                   <div class="flex items-center gap-3">
-                    <div class="flex h-11 w-11 items-center justify-center rounded-full bg-linear-to-r from-blue-600 to-indigo-600 text-sm font-bold text-white">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-full bg-botica-700 text-sm font-bold text-white">
                       {{ initials(user.nombre) }}
                     </div>
                     <div>
-                      <p class="font-semibold text-slate-900">
+                      <p class="font-semibold text-texto-primario">
                         {{ user.nombre }}
                       </p>
-                      <p class="text-sm text-slate-500">
+                      <p class="text-sm text-texto-terciario">
                         DNI {{ user.dni }}
                       </p>
                     </div>
                   </div>
                 </td>
                 <td class="whitespace-nowrap px-6 py-4">
-                  <p class="text-sm font-medium text-slate-900">
+                  <p class="text-sm font-medium text-texto-primario">
                     {{ user.email }}
                   </p>
-                  <p class="text-sm text-slate-500">
+                  <p class="text-sm text-texto-terciario">
                     {{ user.telefono || 'Sin telefono' }}
                   </p>
                 </td>
@@ -236,19 +236,19 @@
                     {{ formatRole(user.rol) }}
                   </span>
                 </td>
-                <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                <td class="whitespace-nowrap px-6 py-4 text-sm text-texto-secundario">
                   {{ formatDate(user.created_at) }}
                 </td>
                 <td class="whitespace-nowrap px-6 py-4 text-right">
                   <div class="inline-flex items-center gap-2">
                     <button
-                      class="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50"
+                      class="rounded-lg p-2 text-texto-marca transition hover:bg-botica-50"
                       @click="openEditModal(user)"
                     >
                       <Edit class="h-4 w-4" />
                     </button>
                     <button
-                      class="rounded-lg p-2 text-rose-600 transition hover:bg-rose-50"
+                      class="rounded-lg p-2 text-peligro-600 transition hover:bg-peligro-50"
                       @click="askDelete(user)"
                     >
                       <Trash2 class="h-4 w-4" />
@@ -264,22 +264,22 @@
 
     <div
       v-if="totalPages > 1"
-      class="flex flex-col items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 shadow ring-1 ring-slate-200/80 sm:flex-row"
+      class="flex flex-col items-center justify-between gap-3 rounded-2xl bg-superficie-elevada px-4 py-3 shadow ring-1 ring-borde-sutil/80 sm:flex-row"
     >
-      <p class="text-sm text-slate-600">
+      <p class="text-sm text-texto-secundario">
         Mostrando {{ users.length }} de {{ totalItems }} usuarios
       </p>
       <div class="inline-flex items-center gap-2">
         <button
-          class="rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+          class="rounded-lg border border-borde-sutil px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="currentPage <= 1"
           @click="changePage(currentPage - 1)"
         >
           Anterior
         </button>
-        <span class="text-sm font-semibold text-slate-700">{{ currentPage }} / {{ totalPages }}</span>
+        <span class="text-sm font-semibold text-texto-secundario">{{ currentPage }} / {{ totalPages }}</span>
         <button
-          class="rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+          class="rounded-lg border border-borde-sutil px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="currentPage >= totalPages"
           @click="changePage(currentPage + 1)"
         >
@@ -299,15 +299,15 @@
       >
         <div
           v-if="showModal"
-          class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 py-6 backdrop-blur-sm"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 px-4 py-6 backdrop-blur-sm"
           @click.self="closeModal"
         >
-          <div class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
-            <div class="border-b border-slate-200 px-6 py-5">
-              <h2 class="text-2xl font-bold text-slate-900">
+          <div class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-superficie-elevada shadow-2xl ring-1 ring-neutro-950/5">
+            <div class="border-b border-borde-sutil px-6 py-5">
+              <h2 class="text-2xl font-bold text-texto-primario">
                 {{ isEditing ? 'Editar usuario' : 'Nuevo usuario' }}
               </h2>
-              <p class="mt-1 text-sm text-slate-500">
+              <p class="mt-1 text-sm text-texto-terciario">
                 Completa los datos del usuario y guarda los cambios.
               </p>
             </div>
@@ -318,43 +318,43 @@
             >
               <div class="grid gap-5 md:grid-cols-2">
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-slate-700">Nombre</label>
+                  <label class="mb-2 block text-sm font-medium text-texto-secundario">Nombre</label>
                   <input
                     v-model="form.nombre"
                     type="text"
-                    class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
                   />
                 </div>
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-slate-700">DNI</label>
+                  <label class="mb-2 block text-sm font-medium text-texto-secundario">DNI</label>
                   <input
                     v-model="form.dni"
                     type="text"
                     maxlength="8"
-                    class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
                   />
                 </div>
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-slate-700">Correo</label>
+                  <label class="mb-2 block text-sm font-medium text-texto-secundario">Correo</label>
                   <input
                     v-model="form.email"
                     type="email"
-                    class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
                   />
                 </div>
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-slate-700">Telefono</label>
+                  <label class="mb-2 block text-sm font-medium text-texto-secundario">Telefono</label>
                   <input
                     v-model="form.telefono"
                     type="text"
-                    class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
                   />
                 </div>
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-slate-700">Rol</label>
+                  <label class="mb-2 block text-sm font-medium text-texto-secundario">Rol</label>
                   <select
                     v-model="form.rol"
-                    class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
                   >
                     <option value="cliente">
                       Cliente
@@ -365,12 +365,12 @@
                   </select>
                 </div>
                 <div>
-                  <label class="mb-2 block text-sm font-medium text-slate-700">Contrasena {{ isEditing ? '(opcional)' : '' }}</label>
+                  <label class="mb-2 block text-sm font-medium text-texto-secundario">Contrasena {{ isEditing ? '(opcional)' : '' }}</label>
                   <input
                     v-model="form.password"
                     type="password"
                     :placeholder="isEditing ? 'Dejar vacio para conservar' : 'Minimo 8 caracteres'"
-                    class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+                    class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
                   />
                 </div>
               </div>
@@ -378,14 +378,14 @@
               <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
-                  class="rounded-xl border border-slate-200 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
+                  class="rounded-xl border border-borde-sutil px-5 py-3 font-semibold text-texto-secundario transition hover:bg-superficie-hundida"
                   @click="closeModal"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  class="inline-flex items-center justify-center rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-5 py-3 font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:from-blue-700 hover:to-indigo-700"
+                  class="inline-flex items-center justify-center rounded-xl bg-botica-700 px-5 py-3 font-semibold text-white shadow-lg shadow-botica-700/20 transition hover:bg-botica-800"
                 >
                   <Save class="mr-2 h-4 w-4" />
                   Guardar
@@ -485,8 +485,8 @@ const initials = (name: string) => name.split(' ').filter(Boolean).slice(0, 2).m
 const formatRole = (role?: string | null) => role === 'administrador' ? 'Administrador' : 'Cliente'
 
 const roleBadgeClass = (role?: string | null) => role === 'administrador'
-  ? 'bg-purple-100 text-purple-800'
-  : 'bg-blue-100 text-blue-800'
+  ? 'bg-botica-100 text-botica-800'
+  : 'bg-botica-50 text-botica-800'
 
 const loadUsers = async (page = currentPage.value) => {
   loading.value = true

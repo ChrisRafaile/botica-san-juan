@@ -1,57 +1,57 @@
 <template>
   <div class="space-y-6 p-4 sm:p-6 lg:p-8">
     <div class="flex flex-col gap-2">
-      <h1 class="text-3xl font-bold text-slate-900">
+      <h1 class="text-3xl font-bold text-texto-primario">
         Mi Perfil
       </h1>
-      <p class="text-slate-600">
+      <p class="text-texto-secundario">
         Actualiza tus datos personales del panel administrativo.
       </p>
     </div>
 
-    <section class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200/80">
+    <section class="rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
       <div class="grid gap-4 md:grid-cols-2">
         <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">Nombre</label>
+          <label class="mb-2 block text-sm font-medium text-texto-secundario">Nombre</label>
           <input
             v-model="form.nombre"
             type="text"
-            class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
           />
         </div>
 
         <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">DNI</label>
+          <label class="mb-2 block text-sm font-medium text-texto-secundario">DNI</label>
           <input
             v-model="form.dni"
             type="text"
             maxlength="8"
-            class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
           />
         </div>
 
         <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">Email</label>
+          <label class="mb-2 block text-sm font-medium text-texto-secundario">Email</label>
           <input
             v-model="form.email"
             type="email"
-            class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
           />
         </div>
 
         <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">Telefono</label>
+          <label class="mb-2 block text-sm font-medium text-texto-secundario">Telefono</label>
           <input
             v-model="form.telefono"
             type="text"
-            class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
           />
         </div>
       </div>
 
       <div class="mt-6 flex justify-end">
         <button
-          class="inline-flex items-center justify-center rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-4 py-3 text-white shadow-lg shadow-blue-600/20 transition hover:from-blue-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-70"
+          class="inline-flex items-center justify-center rounded-xl bg-botica-700 px-4 py-3 text-white shadow-lg shadow-botica-700/20 transition hover:bg-botica-800 disabled:cursor-not-allowed disabled:opacity-70"
           :disabled="saving"
           @click="saveProfile"
         >

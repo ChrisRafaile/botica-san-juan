@@ -2,15 +2,15 @@
   <div class="space-y-6 p-4 sm:p-6 lg:p-8">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">
+        <h1 class="text-3xl font-bold text-texto-primario">
           Gestion de Pedidos
         </h1>
-        <p class="mt-2 text-gray-600">
+        <p class="mt-2 text-texto-secundario">
           Supervisa el estado de cada orden y su detalle.
         </p>
       </div>
       <button
-        class="inline-flex items-center justify-center rounded-xl bg-linear-to-r from-violet-600 to-fuchsia-600 px-4 py-3 text-white shadow-lg shadow-violet-600/20 transition hover:from-violet-700 hover:to-fuchsia-700"
+        class="inline-flex items-center justify-center rounded-xl bg-botica-700 px-4 py-3 text-white shadow-lg shadow-botica-700/20 transition hover:bg-botica-800"
         @click="refreshOrders"
       >
         <RefreshCw class="mr-2 h-5 w-5" />
@@ -19,32 +19,32 @@
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <div class="rounded-2xl bg-linear-to-r from-slate-900 to-slate-700 p-6 text-white shadow-xl">
-        <p class="text-sm text-slate-200">
+      <div class="rounded-2xl bg-botica-700 p-6 text-white shadow-xl">
+        <p class="text-sm text-neutro-200">
           Total pedidos
         </p>
         <p class="mt-2 text-3xl font-bold">
           {{ totalItems }}
         </p>
       </div>
-      <div class="rounded-2xl bg-linear-to-r from-amber-500 to-orange-500 p-6 text-white shadow-xl">
-        <p class="text-sm text-amber-100">
+      <div class="rounded-2xl bg-alerta-700 p-6 text-white shadow-xl">
+        <p class="text-sm text-alerta-50">
           Pendientes (pagina)
         </p>
         <p class="mt-2 text-3xl font-bold">
           {{ pendingCount }}
         </p>
       </div>
-      <div class="rounded-2xl bg-linear-to-r from-blue-600 to-cyan-600 p-6 text-white shadow-xl">
-        <p class="text-sm text-blue-100">
+      <div class="rounded-2xl bg-botica-700 p-6 text-white shadow-xl">
+        <p class="text-sm text-botica-100">
           En proceso (pagina)
         </p>
         <p class="mt-2 text-3xl font-bold">
           {{ processingCount }}
         </p>
       </div>
-      <div class="rounded-2xl bg-linear-to-r from-emerald-600 to-green-600 p-6 text-white shadow-xl">
-        <p class="text-sm text-emerald-100">
+      <div class="rounded-2xl bg-botica-700 p-6 text-white shadow-xl">
+        <p class="text-sm text-botica-100">
           Entregados (pagina)
         </p>
         <p class="mt-2 text-3xl font-bold">
@@ -53,20 +53,20 @@
       </div>
     </div>
 
-    <div class="rounded-2xl bg-white p-4 shadow-lg ring-1 ring-slate-200/80 sm:p-6">
+    <div class="rounded-2xl bg-superficie-elevada p-4 shadow-lg ring-1 ring-borde-sutil/80 sm:p-6">
       <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px_220px_130px]">
         <div class="relative">
-          <Search class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+          <Search class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-texto-terciario" />
           <input
             v-model="searchQuery"
             type="search"
             placeholder="Buscar por cliente, pedido o producto..."
-            class="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-4 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+            class="w-full rounded-xl border border-borde-sutil py-3 pl-10 pr-4 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
           />
         </div>
         <select
           v-model="statusFilter"
-          class="rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+          class="rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
         >
           <option value="all">
             Todos los estados
@@ -90,11 +90,11 @@
         <input
           v-model="dateFilter"
           type="date"
-          class="rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+          class="rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
         />
         <select
           v-model.number="perPage"
-          class="rounded-xl border border-slate-200 px-4 py-3 text-slate-900 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+          class="rounded-xl border border-borde-sutil px-4 py-3 text-texto-primario outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
         >
           <option :value="10">
             10
@@ -109,12 +109,12 @@
       </div>
     </div>
 
-    <div class="overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200/80">
+    <div class="overflow-hidden rounded-2xl bg-superficie-elevada shadow-lg ring-1 ring-borde-sutil/80">
       <div
         v-if="loading"
-        class="flex items-center justify-center py-16 text-slate-600"
+        class="flex items-center justify-center py-16 text-texto-secundario"
       >
-        <div class="h-9 w-9 animate-spin rounded-full border-4 border-slate-200 border-t-violet-600" />
+        <div class="h-9 w-9 animate-spin rounded-full border-4 border-borde-sutil border-t-violet-600" />
         <span class="ml-3">Cargando pedidos...</span>
       </div>
 
@@ -122,11 +122,11 @@
         v-else-if="orders.length === 0"
         class="px-6 py-16 text-center"
       >
-        <ShoppingCart class="mx-auto h-14 w-14 text-slate-300" />
-        <h2 class="mt-4 text-lg font-semibold text-slate-900">
+        <ShoppingCart class="mx-auto h-14 w-14 text-texto-deshabilitado" />
+        <h2 class="mt-4 text-lg font-semibold text-texto-primario">
           No hay pedidos
         </h2>
-        <p class="mt-2 text-sm text-slate-500">
+        <p class="mt-2 text-sm text-texto-terciario">
           Prueba cambiando los filtros.
         </p>
       </div>
@@ -136,14 +136,14 @@
           <article
             v-for="order in orders"
             :key="order.id"
-            class="rounded-2xl border border-slate-200 p-4"
+            class="rounded-2xl border border-borde-sutil p-4"
           >
             <div class="flex items-start justify-between gap-3">
               <div>
-                <p class="font-semibold text-slate-900">
+                <p class="font-semibold text-texto-primario">
                   #{{ String(order.id).padStart(4, '0') }}
                 </p>
-                <p class="text-xs text-slate-500">
+                <p class="text-xs text-texto-terciario">
                   {{ formatDate(order.fecha_pedido) }}
                 </p>
               </div>
@@ -171,26 +171,26 @@
               </select>
             </div>
 
-            <div class="mt-3 space-y-1 text-sm text-slate-700">
+            <div class="mt-3 space-y-1 text-sm text-texto-secundario">
               <p>{{ order.usuario?.nombre || 'Sin cliente' }}</p>
-              <p class="text-slate-500">
+              <p class="text-texto-terciario">
                 {{ order.usuario?.email || 'Sin email' }}
               </p>
               <p>{{ order.pedidoDetalles?.length || 0 }} producto(s)</p>
-              <p class="font-semibold text-slate-900">
+              <p class="font-semibold text-texto-primario">
                 S/ {{ formatMoney(order.total) }}
               </p>
             </div>
 
             <div class="mt-4 flex justify-end gap-2">
               <button
-                class="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50"
+                class="rounded-lg p-2 text-texto-marca transition hover:bg-botica-50"
                 @click="openDetail(order)"
               >
                 <Eye class="h-4 w-4" />
               </button>
               <button
-                class="rounded-lg p-2 text-rose-600 transition hover:bg-rose-50"
+                class="rounded-lg p-2 text-peligro-600 transition hover:bg-peligro-50"
                 @click="askDelete(order)"
               >
                 <Trash2 class="h-4 w-4" />
@@ -200,60 +200,60 @@
         </div>
 
         <div class="hidden overflow-x-auto md:block">
-          <table class="min-w-full divide-y divide-slate-200">
-            <thead class="bg-slate-50">
+          <table class="min-w-full divide-y divide-borde-sutil">
+            <thead class="bg-superficie-hundida">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Pedido
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Cliente
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Productos
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Total
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Estado
                 </th>
-                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 bg-white">
+            <tbody class="divide-y divide-borde-sutil bg-superficie-elevada">
               <tr
                 v-for="order in orders"
                 :key="order.id"
-                class="transition hover:bg-slate-50"
+                class="transition hover:bg-superficie-hundida"
               >
                 <td class="whitespace-nowrap px-6 py-4">
-                  <p class="font-semibold text-slate-900">
+                  <p class="font-semibold text-texto-primario">
                     #{{ String(order.id).padStart(4, '0') }}
                   </p>
-                  <p class="text-sm text-slate-500">
+                  <p class="text-sm text-texto-terciario">
                     {{ formatDate(order.fecha_pedido) }}
                   </p>
                 </td>
                 <td class="whitespace-nowrap px-6 py-4">
-                  <p class="font-medium text-slate-900">
+                  <p class="font-medium text-texto-primario">
                     {{ order.usuario?.nombre || 'Sin cliente' }}
                   </p>
-                  <p class="text-sm text-slate-500">
+                  <p class="text-sm text-texto-terciario">
                     {{ order.usuario?.email || 'Sin email' }}
                   </p>
                 </td>
                 <td class="px-6 py-4">
-                  <p class="text-sm font-medium text-slate-900">
+                  <p class="text-sm font-medium text-texto-primario">
                     {{ order.pedidoDetalles?.length || 0 }} producto(s)
                   </p>
-                  <p class="max-w-md truncate text-sm text-slate-500">
+                  <p class="max-w-md truncate text-sm text-texto-terciario">
                     {{ productsSummary(order) }}
                   </p>
                 </td>
-                <td class="whitespace-nowrap px-6 py-4 font-semibold text-slate-900">
+                <td class="whitespace-nowrap px-6 py-4 font-semibold text-texto-primario">
                   S/ {{ formatMoney(order.total) }}
                 </td>
                 <td class="whitespace-nowrap px-6 py-4">
@@ -283,13 +283,13 @@
                 <td class="whitespace-nowrap px-6 py-4 text-right">
                   <div class="inline-flex items-center gap-2">
                     <button
-                      class="rounded-lg p-2 text-blue-600 transition hover:bg-blue-50"
+                      class="rounded-lg p-2 text-texto-marca transition hover:bg-botica-50"
                       @click="openDetail(order)"
                     >
                       <Eye class="h-4 w-4" />
                     </button>
                     <button
-                      class="rounded-lg p-2 text-rose-600 transition hover:bg-rose-50"
+                      class="rounded-lg p-2 text-peligro-600 transition hover:bg-peligro-50"
                       @click="askDelete(order)"
                     >
                       <Trash2 class="h-4 w-4" />
@@ -305,22 +305,22 @@
 
     <div
       v-if="totalPages > 1"
-      class="flex flex-col items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 shadow ring-1 ring-slate-200/80 sm:flex-row"
+      class="flex flex-col items-center justify-between gap-3 rounded-2xl bg-superficie-elevada px-4 py-3 shadow ring-1 ring-borde-sutil/80 sm:flex-row"
     >
-      <p class="text-sm text-slate-600">
+      <p class="text-sm text-texto-secundario">
         Mostrando {{ orders.length }} de {{ totalItems }} pedidos
       </p>
       <div class="inline-flex items-center gap-2">
         <button
-          class="rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+          class="rounded-lg border border-borde-sutil px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="currentPage <= 1"
           @click="changePage(currentPage - 1)"
         >
           Anterior
         </button>
-        <span class="text-sm font-semibold text-slate-700">{{ currentPage }} / {{ totalPages }}</span>
+        <span class="text-sm font-semibold text-texto-secundario">{{ currentPage }} / {{ totalPages }}</span>
         <button
-          class="rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+          class="rounded-lg border border-borde-sutil px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="currentPage >= totalPages"
           @click="changePage(currentPage + 1)"
         >
@@ -340,66 +340,66 @@
       >
         <div
           v-if="detailOrder"
-          class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 py-6 backdrop-blur-sm"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 px-4 py-6 backdrop-blur-sm"
           @click.self="detailOrder = null"
         >
-          <div class="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white shadow-2xl ring-1 ring-black/5">
-            <div class="border-b border-slate-200 px-6 py-5">
-              <h2 class="text-2xl font-bold text-slate-900">
+          <div class="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-superficie-elevada shadow-2xl ring-1 ring-neutro-950/5">
+            <div class="border-b border-borde-sutil px-6 py-5">
+              <h2 class="text-2xl font-bold text-texto-primario">
                 Detalle del pedido #{{ String(detailOrder.id).padStart(4, '0') }}
               </h2>
-              <p class="mt-1 text-sm text-slate-500">
+              <p class="mt-1 text-sm text-texto-terciario">
                 {{ detailOrder.usuario?.nombre }} · {{ formatDate(detailOrder.fecha_pedido) }}
               </p>
             </div>
 
             <div class="space-y-6 px-6 py-6">
               <div class="grid gap-4 sm:grid-cols-3">
-                <div class="rounded-2xl bg-slate-50 p-4">
-                  <p class="text-xs uppercase tracking-wider text-slate-500">
+                <div class="rounded-2xl bg-superficie-hundida p-4">
+                  <p class="text-xs uppercase tracking-wider text-texto-terciario">
                     Total
                   </p>
-                  <p class="mt-2 text-xl font-bold text-slate-900">
+                  <p class="mt-2 text-xl font-bold text-texto-primario">
                     S/ {{ formatMoney(detailOrder.total) }}
                   </p>
                 </div>
-                <div class="rounded-2xl bg-slate-50 p-4">
-                  <p class="text-xs uppercase tracking-wider text-slate-500">
+                <div class="rounded-2xl bg-superficie-hundida p-4">
+                  <p class="text-xs uppercase tracking-wider text-texto-terciario">
                     Estado
                   </p>
-                  <p class="mt-2 text-xl font-bold text-slate-900">
+                  <p class="mt-2 text-xl font-bold text-texto-primario">
                     {{ detailOrder.estado }}
                   </p>
                 </div>
-                <div class="rounded-2xl bg-slate-50 p-4">
-                  <p class="text-xs uppercase tracking-wider text-slate-500">
+                <div class="rounded-2xl bg-superficie-hundida p-4">
+                  <p class="text-xs uppercase tracking-wider text-texto-terciario">
                     Items
                   </p>
-                  <p class="mt-2 text-xl font-bold text-slate-900">
+                  <p class="mt-2 text-xl font-bold text-texto-primario">
                     {{ detailOrder.pedidoDetalles?.length || 0 }}
                   </p>
                 </div>
               </div>
 
               <div>
-                <h3 class="mb-3 text-lg font-semibold text-slate-900">
+                <h3 class="mb-3 text-lg font-semibold text-texto-primario">
                   Productos
                 </h3>
                 <div class="space-y-3">
                   <div
                     v-for="item in detailOrder.pedidoDetalles || []"
                     :key="item.id"
-                    class="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3"
+                    class="flex items-center justify-between rounded-2xl border border-borde-sutil px-4 py-3"
                   >
                     <div>
-                      <p class="font-medium text-slate-900">
+                      <p class="font-medium text-texto-primario">
                         {{ item.producto?.nombre || 'Producto' }}
                       </p>
-                      <p class="text-sm text-slate-500">
+                      <p class="text-sm text-texto-terciario">
                         Cantidad: {{ item.cantidad }}
                       </p>
                     </div>
-                    <p class="font-semibold text-slate-900">
+                    <p class="font-semibold text-texto-primario">
                       S/ {{ formatMoney(item.subtotal) }}
                     </p>
                   </div>
@@ -408,7 +408,7 @@
 
               <div class="flex justify-end">
                 <button
-                  class="rounded-xl border border-slate-200 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
+                  class="rounded-xl border border-borde-sutil px-5 py-3 font-semibold text-texto-secundario transition hover:bg-superficie-hundida"
                   @click="detailOrder = null"
                 >
                   Cerrar
@@ -493,17 +493,17 @@ const productsSummary = (order: OrderRecord) => (order.pedidoDetalles || []).map
 const statusSelectClass = (status: string) => {
   switch (status) {
     case 'pendiente':
-      return 'bg-amber-100 text-amber-800 border-amber-200'
+      return 'bg-alerta-50 text-alerta-700 border-alerta-50'
     case 'procesando':
-      return 'bg-blue-100 text-blue-800 border-blue-200'
+      return 'bg-botica-50 text-botica-800 border-botica-200'
     case 'enviado':
-      return 'bg-orange-100 text-orange-800 border-orange-200'
+      return 'bg-alerta-50 text-alerta-700 border-alerta-50'
     case 'entregado':
-      return 'bg-emerald-100 text-emerald-800 border-emerald-200'
+      return 'bg-exito-50 text-exito-700 border-exito-50'
     case 'cancelado':
-      return 'bg-rose-100 text-rose-800 border-rose-200'
+      return 'bg-peligro-50 text-peligro-700 border-peligro-500/30'
     default:
-      return 'bg-slate-100 text-slate-800 border-slate-200'
+      return 'bg-superficie-interactiva text-texto-primario border-borde-sutil'
   }
 }
 

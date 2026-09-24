@@ -2,15 +2,15 @@
   <div class="space-y-6 p-4 sm:p-6 lg:p-8">
     <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-slate-900">
+        <h1 class="text-3xl font-bold text-texto-primario">
           {{ pageTitle }}
         </h1>
-        <p class="text-slate-600">
+        <p class="text-texto-secundario">
           {{ pageDescription }}
         </p>
       </div>
       <button
-        class="inline-flex items-center rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 px-4 py-2.5 text-white shadow-lg shadow-blue-600/20 transition hover:from-cyan-700 hover:to-blue-700"
+        class="inline-flex items-center rounded-xl bg-botica-700 px-4 py-2.5 text-white shadow-lg shadow-botica-700/20 transition hover:bg-botica-800"
         @click="openPrimaryForm"
       >
         <Plus class="mr-2 h-4 w-4" />
@@ -19,32 +19,32 @@
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="rounded-2xl bg-cyan-600 p-5 text-white">
-        <p class="text-sm text-cyan-100">
+      <div class="rounded-2xl bg-botica-600 p-5 text-white">
+        <p class="text-sm text-botica-100">
           Proveedores activos
         </p>
         <p class="mt-2 text-3xl font-bold">
           {{ activeSuppliers }}
         </p>
       </div>
-      <div class="rounded-2xl bg-blue-600 p-5 text-white">
-        <p class="text-sm text-blue-100">
+      <div class="rounded-2xl bg-botica-700 p-5 text-white">
+        <p class="text-sm text-botica-100">
           Compras registradas
         </p>
         <p class="mt-2 text-3xl font-bold">
           {{ purchases.length }}
         </p>
       </div>
-      <div class="rounded-2xl bg-emerald-600 p-5 text-white">
-        <p class="text-sm text-emerald-100">
+      <div class="rounded-2xl bg-exito-700 p-5 text-white">
+        <p class="text-sm text-botica-100">
           Registros DIGEMID
         </p>
         <p class="mt-2 text-3xl font-bold">
           {{ digemidRecords.length }}
         </p>
       </div>
-      <div class="rounded-2xl bg-amber-500 p-5 text-white">
-        <p class="text-sm text-amber-100">
+      <div class="rounded-2xl bg-alerta-700 p-5 text-white">
+        <p class="text-sm text-alerta-50">
           Alertas DIGEMID
         </p>
         <p class="mt-2 text-3xl font-bold">
@@ -53,19 +53,19 @@
       </div>
     </div>
 
-    <div class="rounded-2xl bg-white p-4 shadow ring-1 ring-slate-200/80 sm:p-6">
+    <div class="rounded-2xl bg-superficie-elevada p-4 shadow ring-1 ring-borde-sutil/80 sm:p-6">
       <div class="grid gap-4 md:grid-cols-3">
         <input
           v-model="search"
           type="search"
           :placeholder="searchPlaceholder"
-          class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+          class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
         />
 
         <select
           v-if="isPurchasesRoute"
           v-model="purchaseStatusFilter"
-          class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+          class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
         >
           <option value="all">
             Todos los estados
@@ -87,7 +87,7 @@
         <select
           v-if="isDigemidRoute"
           v-model="digemidActiveFilter"
-          class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+          class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
         >
           <option value="all">
             Estado (todos)
@@ -113,12 +113,12 @@
           @change="onImportFileSelected"
         />
         <button
-          class="rounded-xl bg-emerald-600 px-4 py-2 text-white transition hover:bg-emerald-700"
+          class="rounded-xl bg-exito-700 px-4 py-2 text-white transition hover:bg-exito-700"
           @click="digemidImportInput?.click()"
         >
           Importar CSV/XLSX
         </button>
-        <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+        <label class="inline-flex items-center gap-2 text-sm text-texto-secundario">
           <input
             v-model="overwriteImport"
             type="checkbox"
@@ -127,7 +127,7 @@
           Sobrescribir códigos existentes
         </label>
         <button
-          class="rounded-xl bg-slate-800 px-4 py-2 text-white transition hover:bg-slate-900"
+          class="rounded-xl bg-neutro-800 px-4 py-2 text-white transition hover:bg-neutro-900"
           @click="loadDigemidAlerts"
         >
           Actualizar alertas
@@ -137,83 +137,83 @@
 
     <div
       v-if="error"
-      class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"
+      class="rounded-xl border border-peligro-500/30 bg-peligro-50 p-4 text-sm text-peligro-700"
     >
       {{ error }}
     </div>
 
     <div
       v-if="loading"
-      class="rounded-2xl bg-white p-10 text-center text-slate-600 shadow ring-1 ring-slate-200/80"
+      class="rounded-2xl bg-superficie-elevada p-10 text-center text-texto-secundario shadow ring-1 ring-borde-sutil/80"
     >
       Cargando informacion...
     </div>
 
     <div
       v-else-if="isSuppliersRoute"
-      class="overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200/80"
+      class="overflow-hidden rounded-2xl bg-superficie-elevada shadow-lg ring-1 ring-borde-sutil/80"
     >
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
+        <table class="min-w-full divide-y divide-borde-sutil">
+          <thead class="bg-superficie-hundida">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Proveedor
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Contacto
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Credito
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Estado
               </th>
-              <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Acciones
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
+          <tbody class="divide-y divide-borde-sutil">
             <tr
               v-for="supplier in filteredSuppliers"
               :key="supplier.id"
-              class="hover:bg-slate-50"
+              class="hover:bg-superficie-hundida"
             >
               <td class="px-6 py-4">
-                <p class="font-semibold text-slate-900">
+                <p class="font-semibold text-texto-primario">
                   {{ supplier.nombre }}
                 </p>
-                <p class="text-xs text-slate-500">
+                <p class="text-xs text-texto-terciario">
                   RUC: {{ supplier.ruc || 'No registrado' }}
                 </p>
               </td>
-              <td class="px-6 py-4 text-sm text-slate-700">
+              <td class="px-6 py-4 text-sm text-texto-secundario">
                 <p>{{ supplier.contacto || 'Sin contacto' }}</p>
-                <p class="text-xs text-slate-500">
+                <p class="text-xs text-texto-terciario">
                   {{ supplier.telefono || 'Sin telefono' }}
                 </p>
               </td>
-              <td class="px-6 py-4 text-sm text-slate-700">
+              <td class="px-6 py-4 text-sm text-texto-secundario">
                 {{ supplier.dias_credito }} dias
               </td>
               <td class="px-6 py-4">
                 <span
                   class="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase"
-                  :class="supplier.activo ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'"
+                  :class="supplier.activo ? 'bg-exito-50 text-exito-700' : 'bg-superficie-interactiva text-texto-secundario'"
                 >
                   {{ supplier.activo ? 'activo' : 'inactivo' }}
                 </span>
               </td>
               <td class="px-6 py-4 text-right">
                 <button
-                  class="rounded-lg p-2 text-blue-700 transition hover:bg-blue-50"
+                  class="rounded-lg p-2 text-texto-marca transition hover:bg-botica-50"
                   @click="openSupplierForm(supplier)"
                 >
                   <Pencil class="h-4 w-4" />
                 </button>
                 <button
-                  class="rounded-lg p-2 text-rose-700 transition hover:bg-rose-50"
+                  class="rounded-lg p-2 text-peligro-700 transition hover:bg-peligro-50"
                   @click="deleteSupplier(supplier)"
                 >
                   <Trash2 class="h-4 w-4" />
@@ -223,7 +223,7 @@
             <tr v-if="filteredSuppliers.length === 0">
               <td
                 colspan="5"
-                class="px-6 py-8 text-center text-slate-500"
+                class="px-6 py-8 text-center text-texto-terciario"
               >
                 No hay proveedores con esos filtros.
               </td>
@@ -235,45 +235,45 @@
 
     <div
       v-else-if="isPurchasesRoute"
-      class="overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200/80"
+      class="overflow-hidden rounded-2xl bg-superficie-elevada shadow-lg ring-1 ring-borde-sutil/80"
     >
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
+        <table class="min-w-full divide-y divide-borde-sutil">
+          <thead class="bg-superficie-hundida">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Compra
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Proveedor
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Fecha
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Estado
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Total
               </th>
-              <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Acciones
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
+          <tbody class="divide-y divide-borde-sutil">
             <tr
               v-for="purchase in filteredPurchases"
               :key="purchase.id"
-              class="hover:bg-slate-50"
+              class="hover:bg-superficie-hundida"
             >
-              <td class="px-6 py-4 text-sm font-semibold text-slate-900">
+              <td class="px-6 py-4 text-sm font-semibold text-texto-primario">
                 {{ purchase.numero_compra }}
               </td>
-              <td class="px-6 py-4 text-sm text-slate-700">
+              <td class="px-6 py-4 text-sm text-texto-secundario">
                 {{ purchase.proveedor?.nombre || 'Sin proveedor' }}
               </td>
-              <td class="px-6 py-4 text-sm text-slate-700">
+              <td class="px-6 py-4 text-sm text-texto-secundario">
                 {{ formatDate(purchase.fecha_compra) }}
               </td>
               <td class="px-6 py-4">
@@ -284,18 +284,18 @@
                   {{ purchase.estado }}
                 </span>
               </td>
-              <td class="px-6 py-4 text-sm font-semibold text-slate-900">
+              <td class="px-6 py-4 text-sm font-semibold text-texto-primario">
                 S/ {{ Number(purchase.total || 0).toFixed(2) }}
               </td>
               <td class="px-6 py-4 text-right">
                 <button
-                  class="rounded-lg p-2 text-blue-700 transition hover:bg-blue-50"
+                  class="rounded-lg p-2 text-texto-marca transition hover:bg-botica-50"
                   @click="openPurchaseForm(purchase)"
                 >
                   <Pencil class="h-4 w-4" />
                 </button>
                 <button
-                  class="rounded-lg p-2 text-rose-700 transition hover:bg-rose-50"
+                  class="rounded-lg p-2 text-peligro-700 transition hover:bg-peligro-50"
                   @click="deletePurchase(purchase)"
                 >
                   <Trash2 class="h-4 w-4" />
@@ -305,7 +305,7 @@
             <tr v-if="filteredPurchases.length === 0">
               <td
                 colspan="6"
-                class="px-6 py-8 text-center text-slate-500"
+                class="px-6 py-8 text-center text-texto-terciario"
               >
                 No hay compras con esos filtros.
               </td>
@@ -319,59 +319,59 @@
       v-else
       class="space-y-4"
     >
-      <div class="overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200/80">
+      <div class="overflow-hidden rounded-2xl bg-superficie-elevada shadow-lg ring-1 ring-borde-sutil/80">
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-slate-200">
-            <thead class="bg-slate-50">
+          <table class="min-w-full divide-y divide-borde-sutil">
+            <thead class="bg-superficie-hundida">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Código DIGEMID
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Producto
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Precio Máximo
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Estado
                 </th>
-                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody class="divide-y divide-borde-sutil">
               <tr
                 v-for="record in filteredDigemidRecords"
                 :key="record.id"
-                class="hover:bg-slate-50"
+                class="hover:bg-superficie-hundida"
               >
-                <td class="px-6 py-4 text-sm font-semibold text-slate-900">
+                <td class="px-6 py-4 text-sm font-semibold text-texto-primario">
                   {{ record.codigo_digemid }}
                 </td>
                 <td class="px-6 py-4">
-                  <p class="text-sm font-medium text-slate-900">
+                  <p class="text-sm font-medium text-texto-primario">
                     {{ record.nombre_producto }}
                   </p>
-                  <p class="text-xs text-slate-500">
+                  <p class="text-xs text-texto-terciario">
                     {{ record.principio_activo || 'Sin principio activo' }}
                   </p>
                 </td>
-                <td class="px-6 py-4 text-sm text-slate-700">
+                <td class="px-6 py-4 text-sm text-texto-secundario">
                   {{ record.precio_maximo_regulado ? `S/ ${Number(record.precio_maximo_regulado).toFixed(2)}` : 'No definido' }}
                 </td>
                 <td class="px-6 py-4">
                   <span
                     class="inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase"
-                    :class="record.activo ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'"
+                    :class="record.activo ? 'bg-exito-50 text-exito-700' : 'bg-superficie-interactiva text-texto-secundario'"
                   >
                     {{ record.activo ? 'activo' : 'inactivo' }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right">
                   <button
-                    class="rounded-lg p-2 text-blue-700 transition hover:bg-blue-50"
+                    class="rounded-lg p-2 text-texto-marca transition hover:bg-botica-50"
                     @click="openDigemidForm(record)"
                   >
                     <Pencil class="h-4 w-4" />
@@ -381,7 +381,7 @@
               <tr v-if="filteredDigemidRecords.length === 0">
                 <td
                   colspan="5"
-                  class="px-6 py-8 text-center text-slate-500"
+                  class="px-6 py-8 text-center text-texto-terciario"
                 >
                   No hay registros DIGEMID con esos filtros.
                 </td>
@@ -391,7 +391,7 @@
         </div>
       </div>
 
-      <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <div class="rounded-2xl border border-alerta-50 bg-alerta-50 p-4 text-sm text-alerta-700">
         <p class="font-semibold">
           Alertas de cumplimiento DIGEMID
         </p>
@@ -401,13 +401,13 @@
       </div>
 
       <div class="grid gap-4 xl:grid-cols-2">
-        <div class="rounded-2xl bg-white p-4 shadow ring-1 ring-slate-200/80">
-          <h3 class="text-sm font-semibold text-slate-900">
+        <div class="rounded-2xl bg-superficie-elevada p-4 shadow ring-1 ring-borde-sutil/80">
+          <h3 class="text-sm font-semibold text-texto-primario">
             Productos sin codigo DIGEMID
           </h3>
           <div class="mt-3 max-h-56 overflow-auto">
             <table class="min-w-full text-sm">
-              <thead class="text-slate-500">
+              <thead class="text-texto-terciario">
                 <tr>
                   <th class="py-1 text-left">
                     Producto
@@ -421,19 +421,19 @@
                 <tr
                   v-for="item in digemidAlerts.alerts.missing_code"
                   :key="`missing-${item.id}`"
-                  class="border-t border-slate-100"
+                  class="border-t border-borde-sutil"
                 >
-                  <td class="py-2 pr-2 text-slate-700">
+                  <td class="py-2 pr-2 text-texto-secundario">
                     {{ item.nombre }}
                   </td>
-                  <td class="py-2 text-right font-medium text-slate-900">
+                  <td class="py-2 text-right font-medium text-texto-primario">
                     S/ {{ Number(item.precio || 0).toFixed(2) }}
                   </td>
                 </tr>
                 <tr v-if="digemidAlerts.alerts.missing_code.length === 0">
                   <td
                     colspan="2"
-                    class="py-3 text-slate-500"
+                    class="py-3 text-texto-terciario"
                   >
                     Sin observaciones.
                   </td>
@@ -443,13 +443,13 @@
           </div>
         </div>
 
-        <div class="rounded-2xl bg-white p-4 shadow ring-1 ring-slate-200/80">
-          <h3 class="text-sm font-semibold text-slate-900">
+        <div class="rounded-2xl bg-superficie-elevada p-4 shadow ring-1 ring-borde-sutil/80">
+          <h3 class="text-sm font-semibold text-texto-primario">
             Codigo DIGEMID no encontrado
           </h3>
           <div class="mt-3 max-h-56 overflow-auto">
             <table class="min-w-full text-sm">
-              <thead class="text-slate-500">
+              <thead class="text-texto-terciario">
                 <tr>
                   <th class="py-1 text-left">
                     Producto
@@ -463,19 +463,19 @@
                 <tr
                   v-for="item in digemidAlerts.alerts.code_not_found"
                   :key="`notfound-${item.id}`"
-                  class="border-t border-slate-100"
+                  class="border-t border-borde-sutil"
                 >
-                  <td class="py-2 pr-2 text-slate-700">
+                  <td class="py-2 pr-2 text-texto-secundario">
                     {{ item.nombre }}
                   </td>
-                  <td class="py-2 font-medium text-slate-900">
+                  <td class="py-2 font-medium text-texto-primario">
                     {{ item.codigo_digemid || '-' }}
                   </td>
                 </tr>
                 <tr v-if="digemidAlerts.alerts.code_not_found.length === 0">
                   <td
                     colspan="2"
-                    class="py-3 text-slate-500"
+                    class="py-3 text-texto-terciario"
                   >
                     Sin observaciones.
                   </td>
@@ -485,13 +485,13 @@
           </div>
         </div>
 
-        <div class="rounded-2xl bg-white p-4 shadow ring-1 ring-slate-200/80">
-          <h3 class="text-sm font-semibold text-slate-900">
+        <div class="rounded-2xl bg-superficie-elevada p-4 shadow ring-1 ring-borde-sutil/80">
+          <h3 class="text-sm font-semibold text-texto-primario">
             Precio regulado excedido
           </h3>
           <div class="mt-3 max-h-56 overflow-auto">
             <table class="min-w-full text-sm">
-              <thead class="text-slate-500">
+              <thead class="text-texto-terciario">
                 <tr>
                   <th class="py-1 text-left">
                     Producto
@@ -505,19 +505,19 @@
                 <tr
                   v-for="item in digemidAlerts.alerts.price_exceeded"
                   :key="`price-${item.id}`"
-                  class="border-t border-slate-100"
+                  class="border-t border-borde-sutil"
                 >
-                  <td class="py-2 pr-2 text-slate-700">
+                  <td class="py-2 pr-2 text-texto-secundario">
                     {{ item.nombre }}
                   </td>
-                  <td class="py-2 text-right font-medium text-rose-700">
+                  <td class="py-2 text-right font-medium text-peligro-700">
                     S/ {{ Number(item.precio || 0).toFixed(2) }} / S/ {{ Number(item.precio_maximo_regulado || 0).toFixed(2) }}
                   </td>
                 </tr>
                 <tr v-if="digemidAlerts.alerts.price_exceeded.length === 0">
                   <td
                     colspan="2"
-                    class="py-3 text-slate-500"
+                    class="py-3 text-texto-terciario"
                   >
                     Sin observaciones.
                   </td>
@@ -527,13 +527,13 @@
           </div>
         </div>
 
-        <div class="rounded-2xl bg-white p-4 shadow ring-1 ring-slate-200/80">
-          <h3 class="text-sm font-semibold text-slate-900">
+        <div class="rounded-2xl bg-superficie-elevada p-4 shadow ring-1 ring-borde-sutil/80">
+          <h3 class="text-sm font-semibold text-texto-primario">
             Campos regulatorios incompletos
           </h3>
           <div class="mt-3 max-h-56 overflow-auto">
             <table class="min-w-full text-sm">
-              <thead class="text-slate-500">
+              <thead class="text-texto-terciario">
                 <tr>
                   <th class="py-1 text-left">
                     Producto
@@ -547,19 +547,19 @@
                 <tr
                   v-for="item in digemidAlerts.alerts.missing_fields"
                   :key="`fields-${item.id}`"
-                  class="border-t border-slate-100"
+                  class="border-t border-borde-sutil"
                 >
-                  <td class="py-2 pr-2 text-slate-700">
+                  <td class="py-2 pr-2 text-texto-secundario">
                     {{ item.nombre }}
                   </td>
-                  <td class="py-2 font-medium text-amber-700">
+                  <td class="py-2 font-medium text-alerta-700">
                     {{ missingFieldLabel(item) }}
                   </td>
                 </tr>
                 <tr v-if="digemidAlerts.alerts.missing_fields.length === 0">
                   <td
                     colspan="2"
-                    class="py-3 text-slate-500"
+                    class="py-3 text-texto-terciario"
                   >
                     Sin observaciones.
                   </td>
@@ -573,11 +573,11 @@
 
     <div
       v-if="isSupplierFormOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 p-4"
       @click.self="closeSupplierForm"
     >
-      <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl">
-        <h2 class="text-xl font-semibold text-slate-900">
+      <div class="w-full max-w-xl rounded-2xl bg-superficie-elevada p-6 shadow-2xl">
+        <h2 class="text-xl font-semibold text-texto-primario">
           {{ supplierForm.id ? 'Editar proveedor' : 'Nuevo proveedor' }}
         </h2>
         <div class="mt-4 grid gap-4 md:grid-cols-2">
@@ -585,31 +585,31 @@
             v-model="supplierForm.nombre"
             type="text"
             placeholder="Nombre o razon social"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <input
             v-model="supplierForm.ruc"
             type="text"
             placeholder="RUC (11 digitos)"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <input
             v-model="supplierForm.contacto"
             type="text"
             placeholder="Contacto"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <input
             v-model="supplierForm.telefono"
             type="text"
             placeholder="Telefono"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <input
             v-model="supplierForm.email"
             type="email"
             placeholder="Email"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <input
             v-model.number="supplierForm.dias_credito"
@@ -617,16 +617,16 @@
             min="0"
             max="90"
             placeholder="Dias de credito"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <input
             v-model="supplierForm.direccion"
             type="text"
             placeholder="Direccion"
-            class="md:col-span-2 rounded-xl border border-slate-200 px-4 py-2.5"
+            class="md:col-span-2 rounded-xl border border-borde-sutil px-4 py-2.5"
           />
         </div>
-        <label class="mt-4 inline-flex items-center gap-2 text-sm text-slate-700">
+        <label class="mt-4 inline-flex items-center gap-2 text-sm text-texto-secundario">
           <input
             v-model="supplierForm.activo"
             type="checkbox"
@@ -636,13 +636,13 @@
         </label>
         <div class="mt-6 flex justify-end gap-2">
           <button
-            class="rounded-xl bg-slate-100 px-4 py-2 text-slate-700"
+            class="rounded-xl bg-superficie-interactiva px-4 py-2 text-texto-secundario"
             @click="closeSupplierForm"
           >
             Cancelar
           </button>
           <button
-            class="rounded-xl bg-blue-600 px-4 py-2 text-white"
+            class="rounded-xl bg-botica-700 px-4 py-2 text-white"
             @click="saveSupplier"
           >
             Guardar
@@ -653,17 +653,17 @@
 
     <div
       v-if="isPurchaseFormOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 p-4"
       @click.self="closePurchaseForm"
     >
-      <div class="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl">
-        <h2 class="text-xl font-semibold text-slate-900">
+      <div class="w-full max-w-xl rounded-2xl bg-superficie-elevada p-6 shadow-2xl">
+        <h2 class="text-xl font-semibold text-texto-primario">
           {{ purchaseForm.id ? 'Editar compra' : 'Nueva compra' }}
         </h2>
         <div class="mt-4 grid gap-4 md:grid-cols-2">
           <select
             v-model.number="purchaseForm.proveedor_id"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           >
             <option :value="0">
               Selecciona proveedor
@@ -680,16 +680,16 @@
             v-model="purchaseForm.numero_compra"
             type="text"
             placeholder="Numero compra"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <input
             v-model="purchaseForm.fecha_compra"
             type="date"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <select
             v-model="purchaseForm.estado"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           >
             <option value="borrador">
               Borrador
@@ -710,24 +710,24 @@
             min="0"
             step="0.01"
             placeholder="Total"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <textarea
             v-model="purchaseForm.observaciones"
             rows="3"
             placeholder="Observaciones"
-            class="md:col-span-2 rounded-xl border border-slate-200 px-4 py-2.5"
+            class="md:col-span-2 rounded-xl border border-borde-sutil px-4 py-2.5"
           />
         </div>
         <div class="mt-6 flex justify-end gap-2">
           <button
-            class="rounded-xl bg-slate-100 px-4 py-2 text-slate-700"
+            class="rounded-xl bg-superficie-interactiva px-4 py-2 text-texto-secundario"
             @click="closePurchaseForm"
           >
             Cancelar
           </button>
           <button
-            class="rounded-xl bg-blue-600 px-4 py-2 text-white"
+            class="rounded-xl bg-botica-700 px-4 py-2 text-white"
             @click="savePurchase"
           >
             Guardar
@@ -738,11 +738,11 @@
 
     <div
       v-if="isDigemidFormOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 p-4"
       @click.self="closeDigemidForm"
     >
-      <div class="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl">
-        <h2 class="text-xl font-semibold text-slate-900">
+      <div class="w-full max-w-2xl rounded-2xl bg-superficie-elevada p-6 shadow-2xl">
+        <h2 class="text-xl font-semibold text-texto-primario">
           {{ digemidForm.id ? 'Editar registro DIGEMID' : 'Nuevo registro DIGEMID' }}
         </h2>
         <div class="mt-4 grid gap-4 md:grid-cols-2">
@@ -750,25 +750,25 @@
             v-model="digemidForm.codigo_digemid"
             type="text"
             placeholder="Codigo DIGEMID"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <input
             v-model="digemidForm.nombre_producto"
             type="text"
             placeholder="Nombre producto"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <input
             v-model="digemidForm.principio_activo"
             type="text"
             placeholder="Principio activo"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <input
             v-model="digemidForm.laboratorio_fabricante"
             type="text"
             placeholder="Laboratorio fabricante"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
           <input
             v-model.number="digemidForm.precio_maximo_regulado"
@@ -776,11 +776,11 @@
             min="0"
             step="0.01"
             placeholder="Precio maximo regulado"
-            class="rounded-xl border border-slate-200 px-4 py-2.5"
+            class="rounded-xl border border-borde-sutil px-4 py-2.5"
           />
         </div>
         <div class="mt-4 flex flex-wrap gap-4">
-          <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+          <label class="inline-flex items-center gap-2 text-sm text-texto-secundario">
             <input
               v-model="digemidForm.requiere_receta"
               type="checkbox"
@@ -788,7 +788,7 @@
             />
             Requiere receta
           </label>
-          <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+          <label class="inline-flex items-center gap-2 text-sm text-texto-secundario">
             <input
               v-model="digemidForm.activo"
               type="checkbox"
@@ -799,13 +799,13 @@
         </div>
         <div class="mt-6 flex justify-end gap-2">
           <button
-            class="rounded-xl bg-slate-100 px-4 py-2 text-slate-700"
+            class="rounded-xl bg-superficie-interactiva px-4 py-2 text-texto-secundario"
             @click="closeDigemidForm"
           >
             Cancelar
           </button>
           <button
-            class="rounded-xl bg-blue-600 px-4 py-2 text-white"
+            class="rounded-xl bg-botica-700 px-4 py-2 text-white"
             @click="saveDigemidRecord"
           >
             Guardar
@@ -814,7 +814,7 @@
       </div>
     </div>
 
-    <div class="rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm text-cyan-900">
+    <div class="rounded-2xl border border-botica-200 bg-botica-50 p-4 text-sm text-botica-900">
       Este modulo ya permite importar catalogo DIGEMID local, validar precio regulado y revisar alertas de cumplimiento.
     </div>
   </div>
@@ -1039,10 +1039,10 @@ const formatDate = (dateValue: string) => {
 }
 
 const purchaseStatusClass = (status: Purchase['estado']) => {
-  if (status === 'recibida') return 'bg-emerald-100 text-emerald-800'
-  if (status === 'emitida') return 'bg-blue-100 text-blue-800'
-  if (status === 'anulada') return 'bg-rose-100 text-rose-800'
-  return 'bg-amber-100 text-amber-800'
+  if (status === 'recibida') return 'bg-exito-50 text-exito-700'
+  if (status === 'emitida') return 'bg-botica-50 text-botica-800'
+  if (status === 'anulada') return 'bg-peligro-50 text-peligro-700'
+  return 'bg-alerta-50 text-alerta-700'
 }
 
 const missingFieldLabel = (item: DigemidAlertItem) => {

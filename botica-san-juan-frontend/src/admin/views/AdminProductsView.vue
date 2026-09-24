@@ -2,16 +2,16 @@
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h1 class="text-3xl font-bold text-gray-800 mb-2">
+        <h1 class="text-3xl font-bold text-texto-primario mb-2">
           {{ pageTitle }}
         </h1>
-        <p class="text-gray-600">
+        <p class="text-texto-secundario">
           {{ pageDescription }}
         </p>
       </div>
       <div class="flex gap-3">
         <button
-          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold flex items-center space-x-2 transition-colors"
+          class="bg-exito-700 hover:bg-exito-700 text-white px-4 py-2 rounded-lg font-semibold flex items-center space-x-2 transition-colors"
           :class="{ 'hidden': route.path === '/admin/products/add' }"
           @click="$router.push('/admin/products/bulk-upload')"
         >
@@ -19,7 +19,7 @@
           <span>Carga Masiva</span>
         </button>
         <button
-          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold flex items-center space-x-2 transition-colors"
+          class="bg-botica-700 hover:bg-botica-800 text-white px-4 py-2 rounded-lg font-semibold flex items-center space-x-2 transition-colors"
           :class="{ 'hidden': route.path === '/admin/products/add' || isCategoryRoute || isSubcategoryRoute }"
           @click="openCreateModal"
         >
@@ -32,7 +32,7 @@
     <!-- Filtros y búsqueda -->
     <div
       v-if="!isCategoryRoute && !isSubcategoryRoute"
-      class="bg-white rounded-xl shadow-lg p-6 mb-6"
+      class="bg-superficie-elevada rounded-xl shadow-lg p-6 mb-6"
     >
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="md:col-span-2">
@@ -40,14 +40,14 @@
             v-model="filters.search"
             type="text"
             placeholder="Buscar por nombre, laboratorio..."
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-4 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent"
             @input="debouncedSearch"
           />
         </div>
         <div>
           <select
             v-model="filters.categoria_id"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-4 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent"
             @change="fetchProducts()"
           >
             <option :value="''">
@@ -65,7 +65,7 @@
         <div>
           <select
             v-model="filters.stock_status"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            class="w-full px-4 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent"
             @change="fetchProducts()"
           >
             <option value="">
@@ -89,10 +89,10 @@
         v-if="hasActiveFilters"
         class="flex flex-wrap gap-2 mt-4"
       >
-        <span class="text-sm text-gray-600">Filtros activos:</span>
+        <span class="text-sm text-texto-secundario">Filtros activos:</span>
         <button
           v-if="filters.search"
-          class="inline-flex items-center px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
+          class="inline-flex items-center px-2 py-1 text-xs bg-botica-50 text-botica-800 rounded-full"
           @click="clearFilter('search')"
         >
           Búsqueda: {{ filters.search }}
@@ -100,7 +100,7 @@
         </button>
         <button
           v-if="filters.categoria_id"
-          class="inline-flex items-center px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full"
+          class="inline-flex items-center px-2 py-1 text-xs bg-exito-50 text-exito-700 rounded-full"
           @click="clearFilter('categoria_id')"
         >
           Categoría: {{ selectedCategoryName }}
@@ -108,14 +108,14 @@
         </button>
         <button
           v-if="filters.stock_status"
-          class="inline-flex items-center px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full"
+          class="inline-flex items-center px-2 py-1 text-xs bg-alerta-50 text-alerta-700 rounded-full"
           @click="clearFilter('stock_status')"
         >
           Estado: {{ filters.stock_status }}
           <X class="w-3 h-3 ml-1" />
         </button>
         <button
-          class="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200"
+          class="inline-flex items-center px-2 py-1 text-xs bg-superficie-interactiva text-texto-primario rounded-full hover:bg-superficie-interactiva-activa"
           @click="clearAllFilters"
         >
           Limpiar todos
@@ -128,76 +128,76 @@
       v-if="!isCategoryRoute && !isSubcategoryRoute"
       class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6"
     >
-      <div class="bg-white rounded-xl shadow-lg p-6">
+      <div class="bg-superficie-elevada rounded-xl shadow-lg p-6">
         <div class="flex items-center">
-          <div class="p-3 bg-blue-100 rounded-lg">
-            <Package class="w-6 h-6 text-blue-600" />
+          <div class="p-3 bg-botica-50 rounded-lg">
+            <Package class="w-6 h-6 text-texto-marca" />
           </div>
           <div class="ml-4">
             <p
-              class="text-sm font-medium text-gray-600"
+              class="text-sm font-medium text-texto-secundario"
             >
               Total Productos
             </p>
             <p
-              class="text-2xl font-bold text-gray-900"
+              class="text-2xl font-bold text-texto-primario"
             >
               {{ stats.total }}
             </p>
           </div>
         </div>
       </div>
-      <div class="bg-white rounded-xl shadow-lg p-6">
+      <div class="bg-superficie-elevada rounded-xl shadow-lg p-6">
         <div class="flex items-center">
-          <div class="p-3 bg-green-100 rounded-lg">
-            <CheckCircle class="w-6 h-6 text-green-600" />
+          <div class="p-3 bg-exito-50 rounded-lg">
+            <CheckCircle class="w-6 h-6 text-exito-600" />
           </div>
           <div class="ml-4">
             <p
-              class="text-sm font-medium text-gray-600"
+              class="text-sm font-medium text-texto-secundario"
             >
               En Stock
             </p>
             <p
-              class="text-2xl font-bold text-gray-900"
+              class="text-2xl font-bold text-texto-primario"
             >
               {{ stats.inStock }}
             </p>
           </div>
         </div>
       </div>
-      <div class="bg-white rounded-xl shadow-lg p-6">
+      <div class="bg-superficie-elevada rounded-xl shadow-lg p-6">
         <div class="flex items-center">
-          <div class="p-3 bg-yellow-100 rounded-lg">
-            <AlertTriangle class="w-6 h-6 text-yellow-600" />
+          <div class="p-3 bg-alerta-50 rounded-lg">
+            <AlertTriangle class="w-6 h-6 text-alerta-600" />
           </div>
           <div class="ml-4">
             <p
-              class="text-sm font-medium text-gray-600"
+              class="text-sm font-medium text-texto-secundario"
             >
               Stock Bajo
             </p>
             <p
-              class="text-2xl font-bold text-gray-900"
+              class="text-2xl font-bold text-texto-primario"
             >
               {{ stats.lowStock }}
             </p>
           </div>
         </div>
       </div>
-      <div class="bg-white rounded-xl shadow-lg p-6">
+      <div class="bg-superficie-elevada rounded-xl shadow-lg p-6">
         <div class="flex items-center">
-          <div class="p-3 bg-red-100 rounded-lg">
-            <XCircle class="w-6 h-6 text-red-600" />
+          <div class="p-3 bg-peligro-50 rounded-lg">
+            <XCircle class="w-6 h-6 text-peligro-600" />
           </div>
           <div class="ml-4">
             <p
-              class="text-sm font-medium text-gray-600"
+              class="text-sm font-medium text-texto-secundario"
             >
               Agotados
             </p>
             <p
-              class="text-2xl font-bold text-gray-900"
+              class="text-2xl font-bold text-texto-primario"
             >
               {{ stats.outOfStock }}
             </p>
@@ -209,11 +209,11 @@
     <!-- Mensaje de error -->
     <div
       v-if="error"
-      class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 flex items-center justify-between"
+      class="bg-peligro-50 border border-peligro-500 text-peligro-700 px-4 py-3 rounded mb-6 flex items-center justify-between"
     >
       <span>{{ error }}</span>
       <button
-        class="text-red-700 hover:text-red-900"
+        class="text-peligro-700 hover:text-peligro-700"
         @click="error = ''"
       >
         <X class="w-4 h-4" />
@@ -245,7 +245,7 @@
     <!-- Tabla de productos -->
     <div
       v-if="!isCategoryRoute && !isSubcategoryRoute"
-      class="bg-white rounded-xl shadow-lg overflow-hidden"
+      class="bg-superficie-elevada rounded-xl shadow-lg overflow-hidden"
     >
       <div class="overflow-x-auto">
         <!-- Loading state -->
@@ -254,16 +254,16 @@
           class="px-6 py-8 text-center"
         >
           <div class="inline-flex items-center">
-            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-botica-600 mr-2"></div>
             Cargando productos...
           </div>
         </div>
 
         <div
           v-else-if="products.length === 0"
-          class="px-6 py-8 text-center text-gray-500"
+          class="px-6 py-8 text-center text-texto-terciario"
         >
-          <Package class="w-12 h-12 mx-auto mb-4 text-gray-300" />
+          <Package class="w-12 h-12 mx-auto mb-4 text-texto-deshabilitado" />
           <p class="text-lg font-medium">
             No hay productos disponibles
           </p>
@@ -276,39 +276,39 @@
           v-else
           class="w-full"
         >
-          <thead class="bg-gray-50">
+          <thead class="bg-superficie-hundida">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                 Producto
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                 Laboratorio
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                 Categoría
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                 Precio
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                 Stock
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                 Estado
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                 Unidades multiples
               </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-texto-terciario uppercase tracking-wider">
                 Acciones
               </th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="bg-superficie-elevada divide-y divide-borde-sutil">
             <tr
               v-for="product in products"
               :key="product.id"
-              class="hover:bg-gray-50"
+              class="hover:bg-superficie-hundida"
             >
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
@@ -321,40 +321,36 @@
                     />
                     <div
                       v-else
-                      class="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center"
+                      class="h-10 w-10 rounded-lg bg-botica-50 flex items-center justify-center"
                     >
-                      <Pill class="w-5 h-5 text-blue-600" />
+                      <Pill class="w-5 h-5 text-texto-marca" />
                     </div>
                   </div>
                   <div class="ml-4">
-                    <div class="text-sm font-medium text-gray-900">
+                    <div class="text-sm font-medium text-texto-primario">
                       {{ product.nombre }}
                     </div>
-                    <div class="text-sm text-gray-500">
+                    <div class="text-sm text-texto-terciario">
                       {{ product.concentracion }}
                     </div>
                   </div>
                 </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-texto-primario">
                 {{ product.laboratorio }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-exito-50 text-exito-700">
                   {{ product.categoria?.nombre || product.tipo || 'Sin categoría' }}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-texto-primario">
                 S/ {{ product.precio }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                  :class="{
-                    'bg-green-100 text-green-800': product.stock > 10,
-                    'bg-yellow-100 text-yellow-800': product.stock > 0 && product.stock <= 10,
-                    'bg-red-100 text-red-800': product.stock === 0
-                  }"
+                  :class="{ 'bg-exito-50 text-exito-700': product.stock > 10, 'bg-alerta-50 text-alerta-700': product.stock > 0 && product.stock <= 10, 'bg-peligro-50 text-peligro-700': product.stock === 0 }"
                 >
                   {{ product.stock }} unidades
                 </span>
@@ -362,10 +358,7 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                  :class="{
-                    'bg-green-100 text-green-800': getEstado(product.stock) === 'activo',
-                    'bg-gray-100 text-gray-800': getEstado(product.stock) === 'agotado'
-                  }"
+                  :class="{ 'bg-exito-50 text-exito-700': getEstado(product.stock) === 'activo', 'bg-superficie-interactiva text-texto-primario': getEstado(product.stock) === 'agotado' }"
                 >
                   {{ getEstado(product.stock) }}
                 </span>
@@ -373,7 +366,7 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                  :class="product.venta_fraccionada ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-100 text-slate-700'"
+                  :class="product.venta_fraccionada ? 'bg-botica-50 text-botica-800' : 'bg-superficie-interactiva text-texto-secundario'"
                 >
                   {{ product.venta_fraccionada ? 'Fraccionada' : 'Simple' }}
                 </span>
@@ -381,21 +374,21 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex space-x-2">
                   <button
-                    class="text-blue-600 hover:text-blue-900 p-1 rounded"
+                    class="text-texto-marca hover:text-botica-900 p-1 rounded"
                     title="Editar"
                     @click="openEditModal(product)"
                   >
                     <Edit class="w-4 h-4" />
                   </button>
                   <button
-                    class="text-purple-600 hover:text-purple-900 p-1 rounded"
+                    class="text-botica-600 hover:text-botica-900 p-1 rounded"
                     title="Ver detalles"
                     @click="viewProduct(product)"
                   >
                     <Eye class="w-4 h-4" />
                   </button>
                   <button
-                    class="text-red-600 hover:text-red-900 p-1 rounded"
+                    class="text-peligro-600 hover:text-peligro-700 p-1 rounded"
                     title="Eliminar"
                     @click="confirmDelete(product)"
                   >
@@ -411,19 +404,19 @@
       <!-- Paginación -->
       <div
         v-if="pagination.total > 0"
-        class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
+        class="bg-superficie-elevada px-4 py-3 flex items-center justify-between border-t border-borde-sutil sm:px-6"
       >
         <div class="flex-1 flex justify-between sm:hidden">
           <button
             :disabled="!pagination.prev_page_url"
-            class="relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-texto-secundario bg-superficie-elevada border border-borde-base hover:bg-superficie-hundida disabled:opacity-50 disabled:cursor-not-allowed"
             @click="changePage(pagination.current_page - 1)"
           >
             Anterior
           </button>
           <button
             :disabled="!pagination.next_page_url"
-            class="ml-3 relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="ml-3 relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-texto-secundario bg-superficie-elevada border border-borde-base hover:bg-superficie-hundida disabled:opacity-50 disabled:cursor-not-allowed"
             @click="changePage(pagination.current_page + 1)"
           >
             Siguiente
@@ -431,7 +424,7 @@
         </div>
         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
-            <p class="text-sm text-gray-700">
+            <p class="text-sm text-texto-secundario">
               Mostrando
               <span class="font-medium">{{ pagination.from || 0 }}</span>
               a
@@ -445,7 +438,7 @@
             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
               <button
                 :disabled="!pagination.prev_page_url"
-                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-borde-base bg-superficie-elevada text-sm font-medium text-texto-terciario hover:bg-superficie-hundida disabled:opacity-50 disabled:cursor-not-allowed"
                 @click="changePage(pagination.current_page - 1)"
               >
                 <ChevronLeft class="w-5 h-5" />
@@ -457,17 +450,15 @@
               >
                 <button
                   v-if="typeof page === 'number'"
-                  class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium hover:bg-gray-50"
-                  :class="{
-                    'bg-blue-50 border-blue-500 text-blue-600': page === pagination.current_page
-                  }"
+                  class="relative inline-flex items-center px-4 py-2 border border-borde-base bg-superficie-elevada text-sm font-medium hover:bg-superficie-hundida"
+                  :class="{ 'bg-botica-50 border-borde-marca text-texto-marca': page === pagination.current_page }"
                   @click="changePage(page)"
                 >
                   {{ page }}
                 </button>
                 <span
                   v-else
-                  class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
+                  class="relative inline-flex items-center px-4 py-2 border border-borde-base bg-superficie-elevada text-sm font-medium text-texto-secundario"
                 >
                   {{ page }}
                 </span>
@@ -475,7 +466,7 @@
 
               <button
                 :disabled="!pagination.next_page_url"
-                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-borde-base bg-superficie-elevada text-sm font-medium text-texto-terciario hover:bg-superficie-hundida disabled:opacity-50 disabled:cursor-not-allowed"
                 @click="changePage(pagination.current_page + 1)"
               >
                 <ChevronRight class="w-5 h-5" />
@@ -518,30 +509,30 @@
     <!-- Modal de confirmación de eliminación -->
     <div
       v-if="deleteModal.show"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 backdrop-blur-sm"
       @click.self="deleteModal.show = false"
     >
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6">
+      <div class="bg-superficie-elevada rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6">
         <div class="text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-            <AlertTriangle class="h-6 w-6 text-red-600" />
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-peligro-50 mb-4">
+            <AlertTriangle class="h-6 w-6 text-peligro-600" />
           </div>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">
+          <h3 class="text-lg font-medium text-texto-primario mb-2">
             Eliminar Producto
           </h3>
-          <p class="text-sm text-gray-500 mb-6">
+          <p class="text-sm text-texto-terciario mb-6">
             ¿Estás seguro de que quieres eliminar "{{ deleteModal.product?.nombre }}"?
             Esta acción no se puede deshacer.
           </p>
           <div class="flex gap-3">
             <button
-              class="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              class="flex-1 px-4 py-2 text-texto-secundario bg-superficie-interactiva rounded-lg hover:bg-superficie-interactiva-activa transition-colors"
               @click="deleteModal.show = false"
             >
               Cancelar
             </button>
             <button
-              class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              class="flex-1 px-4 py-2 bg-peligro-600 text-white rounded-lg hover:bg-peligro-700 transition-colors"
               @click="deleteProduct"
             >
               Eliminar

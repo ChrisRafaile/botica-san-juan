@@ -2,10 +2,10 @@
   <div class="space-y-6 p-4 sm:p-6 lg:p-8">
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-slate-900">
+        <h1 class="text-3xl font-bold text-texto-primario">
           {{ isSunatView ? 'SUNAT Electronica' : 'Facturacion Electronica' }}
         </h1>
-        <p class="mt-2 text-slate-600">
+        <p class="mt-2 text-texto-secundario">
           {{ isSunatView
             ? 'Panel exclusivo de estados, ticket y envio SUNAT.'
             : 'Gestion de boletas y facturas con estado de envio a SUNAT.' }}
@@ -14,14 +14,14 @@
       <div class="flex flex-wrap items-center gap-2">
         <button
           v-if="!isSunatView"
-          class="inline-flex items-center rounded-xl bg-slate-800 px-4 py-3 text-white transition hover:bg-slate-900"
+          class="inline-flex items-center rounded-xl bg-neutro-800 px-4 py-3 text-white transition hover:bg-neutro-900"
           @click="generateDocuments"
         >
           <FilePlus2 class="mr-2 h-4 w-4" />
           Generar desde pedidos
         </button>
         <button
-          class="inline-flex items-center rounded-xl bg-linear-to-r from-cyan-600 to-blue-600 px-4 py-3 text-white shadow-lg shadow-blue-600/20 transition hover:from-cyan-700 hover:to-blue-700"
+          class="inline-flex items-center rounded-xl bg-botica-700 px-4 py-3 text-white shadow-lg shadow-botica-700/20 transition hover:bg-botica-800"
           @click="loadDocuments"
         >
           <RefreshCw class="mr-2 h-4 w-4" />
@@ -31,32 +31,32 @@
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="rounded-2xl bg-blue-600 p-5 text-white">
-        <p class="text-sm text-blue-100">
+      <div class="rounded-2xl bg-botica-700 p-5 text-white">
+        <p class="text-sm text-botica-100">
           Total documentos
         </p>
         <p class="mt-2 text-3xl font-bold">
           {{ docs.length }}
         </p>
       </div>
-      <div class="rounded-2xl bg-emerald-600 p-5 text-white">
-        <p class="text-sm text-emerald-100">
+      <div class="rounded-2xl bg-exito-700 p-5 text-white">
+        <p class="text-sm text-botica-100">
           Aceptadas SUNAT
         </p>
         <p class="mt-2 text-3xl font-bold">
           {{ acceptedCount }}
         </p>
       </div>
-      <div class="rounded-2xl bg-amber-500 p-5 text-white">
-        <p class="text-sm text-amber-100">
+      <div class="rounded-2xl bg-alerta-700 p-5 text-white">
+        <p class="text-sm text-alerta-50">
           Pendientes
         </p>
         <p class="mt-2 text-3xl font-bold">
           {{ pendingCount }}
         </p>
       </div>
-      <div class="rounded-2xl bg-rose-600 p-5 text-white">
-        <p class="text-sm text-rose-100">
+      <div class="rounded-2xl bg-peligro-600 p-5 text-white">
+        <p class="text-sm text-peligro-50">
           Rechazadas
         </p>
         <p class="mt-2 text-3xl font-bold">
@@ -65,17 +65,17 @@
       </div>
     </div>
 
-    <div class="rounded-2xl bg-white p-4 shadow ring-1 ring-slate-200/80 sm:p-6">
+    <div class="rounded-2xl bg-superficie-elevada p-4 shadow ring-1 ring-borde-sutil/80 sm:p-6">
       <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px_200px]">
         <input
           v-model="search"
           type="search"
           placeholder="Buscar por numero, cliente o pedido..."
-          class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+          class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
         />
         <select
           v-model="docTypeFilter"
-          class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+          class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
         >
           <option value="all">
             Todos los tipos
@@ -89,7 +89,7 @@
         </select>
         <select
           v-model="statusFilter"
-          class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+          class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
         >
           <option value="all">
             Todos los estados
@@ -107,17 +107,17 @@
       </div>
     </div>
 
-    <div class="overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200/80">
+    <div class="overflow-hidden rounded-2xl bg-superficie-elevada shadow-lg ring-1 ring-borde-sutil/80">
       <div
         v-if="loading"
-        class="py-16 text-center text-slate-600"
+        class="py-16 text-center text-texto-secundario"
       >
         Cargando documentos...
       </div>
 
       <div
         v-else-if="filteredDocs.length === 0"
-        class="py-16 text-center text-slate-500"
+        class="py-16 text-center text-texto-terciario"
       >
         No hay documentos para los filtros seleccionados.
       </div>
@@ -126,65 +126,65 @@
         v-else
         class="overflow-x-auto"
       >
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
+        <table class="min-w-full divide-y divide-borde-sutil">
+          <thead class="bg-superficie-hundida">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Documento
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Pedido
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Cliente
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Monto
               </th>
-              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 SUNAT
               </th>
-              <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th class="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-texto-terciario">
                 Acciones
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-100">
+          <tbody class="divide-y divide-borde-sutil">
             <tr
               v-for="doc in filteredDocs"
               :key="doc.id"
-              class="hover:bg-slate-50"
+              class="hover:bg-superficie-hundida"
             >
               <td class="px-6 py-4">
-                <p class="font-semibold text-slate-900">
+                <p class="font-semibold text-texto-primario">
                   {{ doc.number }}
                 </p>
-                <p class="text-xs text-slate-500 uppercase">
+                <p class="text-xs text-texto-terciario uppercase">
                   {{ doc.type }}
                 </p>
                 <p
                   v-if="doc.sunatTicket"
-                  class="text-xs text-slate-500"
+                  class="text-xs text-texto-terciario"
                 >
                   Ticket: {{ doc.sunatTicket }}
                 </p>
               </td>
-              <td class="px-6 py-4 text-sm text-slate-700">
+              <td class="px-6 py-4 text-sm text-texto-secundario">
                 #{{ doc.orderId }}
               </td>
               <td class="px-6 py-4">
-                <p class="text-sm font-medium text-slate-900">
+                <p class="text-sm font-medium text-texto-primario">
                   {{ doc.customerName }}
                 </p>
-                <p class="text-xs text-slate-500">
+                <p class="text-xs text-texto-terciario">
                   {{ doc.customerDoc }}
                 </p>
               </td>
-              <td class="px-6 py-4 text-sm font-semibold text-slate-900">
+              <td class="px-6 py-4 text-sm font-semibold text-texto-primario">
                 S/ {{ doc.total.toFixed(2) }}
                 <p
                   class="text-xs font-medium"
-                  :class="doc.commissionStatus === 'liquidada' ? 'text-emerald-700' : 'text-amber-700'"
+                  :class="doc.commissionStatus === 'liquidada' ? 'text-exito-700' : 'text-alerta-700'"
                 >
                   Comision: S/ {{ (doc.commissionAmount || 0).toFixed(2) }} · {{ doc.commissionStatus || 'sin_comision' }}
                 </p>
@@ -200,20 +200,20 @@
               <td class="px-6 py-4 text-right">
                 <div class="inline-flex items-center gap-2">
                   <button
-                    class="rounded-lg p-2 text-cyan-700 transition hover:bg-cyan-50 disabled:cursor-not-allowed disabled:opacity-40"
+                    class="rounded-lg p-2 text-botica-700 transition hover:bg-botica-50 disabled:cursor-not-allowed disabled:opacity-40"
                     :disabled="doc.sunatStatus === 'aceptada'"
                     @click="sendToSunat(doc.id)"
                   >
                     <Send class="h-4 w-4" />
                   </button>
                   <button
-                    class="rounded-lg p-2 text-blue-700 transition hover:bg-blue-50"
+                    class="rounded-lg p-2 text-texto-marca transition hover:bg-botica-50"
                     @click="downloadXml(doc.id)"
                   >
                     <FileDown class="h-4 w-4" />
                   </button>
                   <button
-                    class="rounded-lg p-2 text-slate-700 transition hover:bg-slate-100"
+                    class="rounded-lg p-2 text-texto-secundario transition hover:bg-superficie-interactiva"
                     title="Descargar PDF"
                     @click="downloadPdf(doc.id)"
                   >
@@ -221,7 +221,7 @@
                   </button>
                   <button
                     v-if="!isSunatView"
-                    class="rounded-lg p-2 text-violet-700 transition hover:bg-violet-50"
+                    class="rounded-lg p-2 text-botica-700 transition hover:bg-botica-50"
                     title="Registrar comision"
                     @click="registerCommission(doc)"
                   >
@@ -237,14 +237,14 @@
 
     <div
       v-if="!isSunatView"
-      class="rounded-2xl bg-white p-6 shadow ring-1 ring-slate-200/80"
+      class="rounded-2xl bg-superficie-elevada p-6 shadow ring-1 ring-borde-sutil/80"
     >
       <div class="mb-4 flex items-center justify-between">
-        <h2 class="text-lg font-bold text-slate-900">
+        <h2 class="text-lg font-bold text-texto-primario">
           Comisiones registradas
         </h2>
         <button
-          class="inline-flex items-center rounded-lg bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200"
+          class="inline-flex items-center rounded-lg bg-superficie-interactiva px-3 py-2 text-sm font-medium text-texto-secundario hover:bg-superficie-interactiva-activa"
           @click="loadCommissions"
         >
           <RefreshCw class="mr-2 h-4 w-4" /> Recargar
@@ -253,7 +253,7 @@
 
       <div
         v-if="commissions.length === 0"
-        class="text-sm text-slate-500"
+        class="text-sm text-texto-terciario"
       >
         Sin comisiones por ahora.
       </div>
@@ -265,23 +265,23 @@
         <div
           v-for="commission in commissions"
           :key="commission.id"
-          class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 px-4 py-3"
+          class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-borde-sutil px-4 py-3"
         >
           <div>
-            <p class="text-sm font-semibold text-slate-900">
+            <p class="text-sm font-semibold text-texto-primario">
               {{ commission.agente_nombre }} · {{ commission.tipo_agente }}
             </p>
-            <p class="text-xs text-slate-500">
+            <p class="text-xs text-texto-terciario">
               Documento {{ commission.comprobante_number }} · {{ commission.porcentaje.toFixed(2) }}%
             </p>
           </div>
           <div class="flex items-center gap-3">
-            <p class="text-sm font-semibold text-slate-900">
+            <p class="text-sm font-semibold text-texto-primario">
               S/ {{ commission.monto.toFixed(2) }}
             </p>
             <button
               class="rounded-lg px-3 py-1 text-xs font-semibold"
-              :class="commission.estado === 'liquidada' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800 hover:bg-amber-200'"
+              :class="commission.estado === 'liquidada' ? 'bg-exito-50 text-exito-700' : 'bg-alerta-50 text-alerta-700 hover:bg-alerta-50'"
               :disabled="commission.estado === 'liquidada'"
               @click="liquidateCommission(commission.id)"
             >
@@ -292,7 +292,7 @@
       </div>
     </div>
 
-    <div class="rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm text-cyan-900">
+    <div class="rounded-2xl border border-botica-200 bg-botica-50 p-4 text-sm text-botica-900">
       {{ isSunatView
         ? 'Vista SUNAT: enfoca estados, envio y XML de comprobantes electronicos.'
         : 'Fase 3 activa: facturacion conectada a API real del backend para generar comprobantes desde pedidos, enviar a SUNAT (simulado con trazabilidad) y descargar XML.' }}
@@ -378,9 +378,9 @@ const filteredDocs = computed(() => {
 })
 
 const statusClass = (status: BillingDoc['sunatStatus']) => {
-  if (status === 'aceptada') return 'bg-emerald-100 text-emerald-800'
-  if (status === 'rechazada') return 'bg-rose-100 text-rose-800'
-  return 'bg-amber-100 text-amber-800'
+  if (status === 'aceptada') return 'bg-exito-50 text-exito-700'
+  if (status === 'rechazada') return 'bg-peligro-50 text-peligro-700'
+  return 'bg-alerta-50 text-alerta-700'
 }
 
 const loadDocuments = async () => {
