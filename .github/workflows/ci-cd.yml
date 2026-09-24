@@ -73,15 +73,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # pnpm se instala antes que Node: así setup-node encuentra el gestor y
+      # puede cachear su almacén de paquetes.
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
-          cache-dependency-path: botica-san-juan-frontend/package-lock.json
+          cache: pnpm
+          cache-dependency-path: botica-san-juan-frontend/pnpm-lock.yaml
 
+      # --frozen-lockfile falla si package.json y el lockfile no concuerdan,
+      # en lugar de resolver versiones nuevas en silencio. Es el equivalente
+      # de "npm ci" y lo que garantiza builds reproducibles.
       - name: Install frontend dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Type check and build frontend
-        run: npm run build
+        run: pnpm run build

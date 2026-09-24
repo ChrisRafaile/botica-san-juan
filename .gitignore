@@ -78,7 +78,16 @@ desktop.ini
 /src/
 /vendor/
 
-# El frontend usa npm; se evita mezclar gestores de paquetes
-pnpm-lock.yaml
+# El frontend usa pnpm. Su lockfile SÍ se versiona: es lo que garantiza que
+# el equipo y el CI instalen exactamente las mismas versiones.
+# Se ignoran los de los demás gestores para no mezclarlos.
+package-lock.json
 yarn.lock
 
+
+# Volcados de base de datos. Nunca al repositorio: contienen datos reales de la
+# botica (clientes, ventas) y el esquema incluye columnas sensibles como
+# card_number y los tokens de recuperacion de contrasena.
+infra/backup/salida/
+*.dump
+*.sql.gz
