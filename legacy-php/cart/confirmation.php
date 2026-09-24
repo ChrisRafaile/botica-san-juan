@@ -11,15 +11,17 @@ include '../php/config.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $usuario_id = $_SESSION['usuario_id'];
     $address = $_POST['address'];
-    $card_number = $_POST['card_number'];
-    $expiry_date = $_POST['expiry_date'];
-    $cvv = $_POST['cvv'];
+    // RETIRADO. Este bloque capturaba numero de tarjeta, fecha de expiracion
+    // y codigo de verificacion, y los insertaba en texto claro en 'pedidos'.
+    // Almacenar el CVV esta prohibido por PCI-DSS bajo cualquier circunstancia.
+    // El cobro se resuelve ahora contra la pasarela de pagos desde el backend
+    // Laravel; el sistema solo conserva la referencia opaca del pago.
     $total = isset($_SESSION['total']) ? $_SESSION['total'] : 0; // Obtiene el total desde la sesión
 
     // Crea el pedido en la base de datos
-    $sql = "INSERT INTO pedidos (usuario_id, total, address, card_number, expiry_date, cvv) VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO pedidos (usuario_id, total, address) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("idssss", $usuario_id, $total, $address, $card_number, $expiry_date, $cvv);
+    $stmt->bind_param("ids", $usuario_id, $total, $address);
     $stmt->execute();
     $pedido_id = $stmt->insert_id;
     $stmt->close();
