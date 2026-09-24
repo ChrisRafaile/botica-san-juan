@@ -10,6 +10,8 @@ use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\ConteoController;
+use App\Http\Controllers\PosController;
 use App\Http\Controllers\PedidoDetalleController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
@@ -56,6 +58,34 @@ Route::get('/health/db', function () {
 });
 
 // Public routes (no authentication required)
+
+/*
+| Latido del servicio.
+|
+| Existe para que el panel sepa si el sistema responde, no para adornar. En un
+| mostrador importa de verdad: si la API se cae a media mañana, el vendedor
+| tiene que enterarse en ese momento y no cuando intente cobrar y se le quede
+| la venta a medias.
+|
+| Va sin autenticación a propósito —un chequeo de vida que exige sesión no
+| sirve cuando lo que falla es la sesión— y no expone nada: sólo confirma que
+| el proceso está en pie y que la base responde.
+*/
+Route::get('/salud', function () {
+    $baseViva = true;
+
+    try {
+        DB::connection()->getPdo();
+    } catch (\Throwable) {
+        $baseViva = false;
+    }
+
+    return response()->json([
+        'ok'   => $baseViva,
+        'base' => $baseViva,
+        'hora' => now()->toIso8601String(),
+    ], $baseViva ? 200 : 503);
+})->middleware('throttle:api');
 
 // Authentication routes
 Route::post('/login', [UsuarioController::class, 'login'])->middleware('throttle:login');
@@ -168,4 +198,55 @@ Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->
     Route::post('facturacion/documentos/{id}/enviar-sunat-async', [FacturacionController::class, 'encolarEnvioSunat']);
     Route::post('facturacion/documentos/{id}/comision', [ComisionController::class, 'registrar']);
     Route::post('facturacion/comisiones/{id}/liquidar', [ComisionController::class, 'liquidar']);
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Punto de venta (mostrador)
+|--------------------------------------------------------------------------
+|
+| Requieren sesion: toda venta queda atribuida a quien la registro, y todo
+| ajuste de stock a quien lo hizo. Sin usuario identificado no hay
+| responsabilidad posible sobre el inventario.
+|
+| El ajuste de lote pasa ademas por 'audit.critical' porque modifica
+| inventario fuera del flujo normal de venta o compra.
+*/
+Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('pos')->group(function () {
+    Route::get('/productos', [PosController::class, 'buscarProductos']);
+    Route::get('/productos/{producto}/lotes', [PosController::class, 'lotesDeProducto']);
+    Route::post('/verificar', [PosController::class, 'verificar']);
+    Route::post('/ventas', [PosController::class, 'registrarVenta']);
+    Route::get('/ventas/{pedido}', [PosController::class, 'verVenta']);
+});
+
+Route::middleware(['auth:sanctum', 'throttle:api', 'audit.critical'])->prefix('pos')->group(function () {
+    Route::post('/lotes/{lote}/ajustar', [PosController::class, 'ajustarLote']);
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Conteo fisico por ciclos
+|--------------------------------------------------------------------------
+|
+| Contar no altera nada: se anota lo que hay en el anaquel y punto. Por eso
+| abrir una sesion y registrar lineas van con el resto de rutas de sesion.
+|
+| Cerrar es otra cosa: aplica ajustes de stock sobre el inventario real, igual
+| que el ajuste manual de lote, asi que pasa por 'audit.critical'. Anular
+| tambien, porque descarta trabajo ya hecho y conviene saber quien lo descarto.
+*/
+Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('conteos')->group(function () {
+    Route::get('/', [ConteoController::class, 'index']);
+    Route::get('/abierto', [ConteoController::class, 'abierto']);
+    Route::post('/', [ConteoController::class, 'store']);
+    Route::get('/{conteo}', [ConteoController::class, 'show']);
+    Route::put('/{conteo}/detalles/{detalle}', [ConteoController::class, 'registrar']);
+});
+
+Route::middleware(['auth:sanctum', 'throttle:api', 'audit.critical'])->prefix('conteos')->group(function () {
+    Route::post('/{conteo}/cerrar', [ConteoController::class, 'cerrar']);
+    Route::post('/{conteo}/anular', [ConteoController::class, 'anular']);
 });
