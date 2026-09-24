@@ -1,0 +1,46 @@
+# Normalización de fin de línea
+# -----------------------------------------------------------------------------
+# Sin este archivo, Git guarda lo que le llega del sistema. En Windows los
+# editores escriben CRLF y en el repositorio quedaban archivos con final de
+# línea mezclado: bastaba abrir un archivo para que apareciera como modificado
+# entero, y un cambio de una línea se veía como un cambio de doscientas. Eso
+# hace ilegible cualquier revisión de código.
+#
+# `text=auto` deja que Git normalice a LF al guardar y devuelva el final de
+# línea del sistema al trabajar. El repositorio queda uniforme sin que nadie
+# tenga que configurar su editor.
+
+* text=auto eol=lf
+
+# Scripts de Windows: PowerShell y CMD necesitan CRLF para ejecutarse bien.
+*.ps1   text eol=crlf
+*.psm1  text eol=crlf
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+
+# Scripts de shell: siempre LF, o el intérprete falla con un error confuso
+# sobre un comando que sí existe.
+*.sh    text eol=lf
+
+# Binarios: nunca tocar. Normalizarlos los corrompe.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.ico   binary
+*.pdf   binary
+*.docx  binary
+*.xlsx  binary
+*.pptx  binary
+*.zip   binary
+*.dump  binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+
+# Archivos generados: se marcan para que GitHub los pliegue en las revisiones
+# y no cuenten como código escrito a mano en las estadísticas del repositorio.
+pnpm-lock.yaml      linguist-generated=true -diff
+composer.lock       linguist-generated=true -diff
+public/build/**     linguist-generated=true
