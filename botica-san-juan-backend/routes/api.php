@@ -7,6 +7,7 @@ use App\Http\Controllers\ComisionController;
 use App\Http\Controllers\FacturacionController;
 use App\Http\Controllers\DigemidCatalogoController;
 use App\Http\Controllers\ContactoController;
+use App\Http\Controllers\ReporteContableController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\PedidoController;
@@ -99,6 +100,11 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::apiResource('pedido-detalles', PedidoDetalleController::class);
     Route::apiResource('contacto', ContactoController::class);
     Route::get('reportes/ventas', [ReporteController::class, 'ventas']);
+
+    // Registro de ventas para el contador. Reemplaza el Excel que hoy se llena
+    // a mano cada noche y se envia por correo.
+    Route::get('reportes/registro-ventas', [ReporteContableController::class, 'index']);
+    Route::get('reportes/registro-ventas/csv', [ReporteContableController::class, 'csv']);
     Route::get('reportes/gerencial', [ReporteController::class, 'gerencial']);
 
     // Confirmacion de venta: crea el pedido, su detalle y descuenta el stock
@@ -250,3 +256,4 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'audit.critical'])->prefix('c
     Route::post('/{conteo}/cerrar', [ConteoController::class, 'cerrar']);
     Route::post('/{conteo}/anular', [ConteoController::class, 'anular']);
 });
+

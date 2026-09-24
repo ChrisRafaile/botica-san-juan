@@ -81,8 +81,17 @@ class Producto extends Model
      * Supremo: cuando salga la nueva, hay que saber qué productos revisar.
      */
     public const BASES_LEGALES = [
-        'apendice_i' => 'Apéndice I del TUO de la Ley del IGV (bienes exonerados)',
-        'ley_27450'  => 'Ley 27450 · medicamentos oncológicos y VIH/SIDA',
+        /* Verificado contra el texto oficial del TUO (sunat.gob.pe, literal A
+           del Apéndice I): NO contiene ni una sola partida del capítulo 30,
+           el de productos farmacéuticos. Son productos agrícolas frescos,
+           fertilizantes, lana, algodón, oro y algunos vehículos. Para una
+           botica sólo aplicaría si vendiera alimentos frescos. */
+        'apendice_i' => 'Apéndice I del TUO de la Ley del IGV · bienes exonerados, sin medicamentos',
+
+        /* Aquí es donde está la exoneración de medicamentos. La relación de
+           principios activos la aprueba el MINSA por Decreto Supremo y se
+           actualiza cada año, por eso hay que anotar cuál aplica. */
+        'ley_27450'  => 'Ley 27450 · medicamentos oncológicos y para VIH/SIDA',
         'ley_28553'  => 'Ley 28553 · medicamentos para diabetes',
         'otra'       => 'Otra norma (detallar con el contador)',
     ];
