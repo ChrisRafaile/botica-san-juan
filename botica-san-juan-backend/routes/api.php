@@ -17,6 +17,7 @@ use App\Http\Controllers\PedidoDetalleController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\SubcategoriaController;
+use App\Http\Controllers\TableroController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -99,6 +100,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::apiResource('pedidos', PedidoController::class);
     Route::apiResource('pedido-detalles', PedidoDetalleController::class);
     Route::apiResource('contacto', ContactoController::class);
+    // Tablero: todas las cifras se calculan en la base, no en el navegador.
+    Route::get('tablero', [TableroController::class, 'index']);
+
     Route::get('reportes/ventas', [ReporteController::class, 'ventas']);
 
     // Registro de ventas para el contador. Reemplaza el Excel que hoy se llena
