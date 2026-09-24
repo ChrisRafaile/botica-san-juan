@@ -18,6 +18,10 @@ class PedidoDetalle extends Model
         'precio_unitario',
         'precio',
         'subtotal',
+        /* Foto del tratamiento tributario al vender. No se recalcula nunca:
+           una boleta ya emitida no cambia porque cambie la lista de
+           exonerados. */
+        'tipo_afectacion_igv',
     ];
 
     protected $casts = [
@@ -38,5 +42,11 @@ class PedidoDetalle extends Model
     public function producto()
     {
         return $this->belongsTo(Producto::class, 'producto_id');
+    }
+
+    /** De que lotes salio esta linea. Base de la trazabilidad sanitaria. */
+    public function lotesAsignados()
+    {
+        return $this->hasMany(PedidoDetalleLote::class, 'pedido_detalle_id');
     }
 }
