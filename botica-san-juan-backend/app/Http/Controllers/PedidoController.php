@@ -3,11 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pedido;
+use App\Services\ResumenPedidosService;
 use App\Services\VentaService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PedidoController extends Controller
 {
+    /**
+     * Cifras de cabecera de la pantalla de pedidos.
+     *
+     * Van aparte del listado porque hablan del catálogo entero y el listado
+     * viene paginado. Contar sobre la página y presentarlo como total es el
+     * error que ya se corrigió en tablero y en productos.
+     */
+    public function resumen(ResumenPedidosService $resumen)
+    {
+        return response()->json(['data' => $resumen->resumen()]);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -18,6 +32,13 @@ class PedidoController extends Controller
 
         if ($request->filled('status') && $request->input('status') !== 'all') {
             $query->where('estado', $request->input('status'));
+        }
+
+        /* El pedido del portal y la venta de mostrador conviven en esta tabla
+           pero son dos trabajos distintos, así que la pantalla los pide por
+           separado en vez de mezclarlos en una sola lista. */
+        if (in_array($request->input('origen'), [Pedido::ORIGEN_WEB, Pedido::ORIGEN_POS], true)) {
+            $query->where('origen', $request->input('origen'));
         }
 
         if ($request->filled('date')) {
@@ -117,14 +138,20 @@ class PedidoController extends Controller
     {
         $pedido = Pedido::findOrFail($id);
 
-        $request->validate([
+        $datos = $request->validate([
             'usuario_id' => 'sometimes|required|exists:usuarios,id',
             'fecha_pedido' => 'sometimes|required|date',
             'total' => 'sometimes|required|numeric|min:0',
-            'estado' => 'sometimes|required|string|max:50',
+            /* Antes era `string|max:50`, y por eso el frontend podía guardar
+               'procesando' o 'entregado' sin que nada protestara: estados que
+               no significan nada para el resto del sistema. */
+            'estado' => ['sometimes', 'required', Rule::in(Pedido::ESTADOS)],
         ]);
 
-        $pedido->update($request->all());
+        /* `$request->all()` dejaba escribir cualquier columna del `fillable`,
+           incluidos los importes fiscales de una venta ya emitida. Solo se
+           guarda lo que se validó. */
+        $pedido->update($datos);
 
         return response()->json($pedido);
     }
@@ -135,6 +162,32 @@ class PedidoController extends Controller
     public function destroy(string $id)
     {
         $pedido = Pedido::findOrFail($id);
+
+        /* Una venta cerrada no se borra: se anula.
+           ----------------------------------------------------------------
+           El boton de la papelera en la pantalla de pedidos llamaba aqui sin
+           ninguna comprobacion. Bastaba un clic para que desapareciera una
+           venta de mostrador que ya movio stock, ya cobro y —si tiene
+           comprobante— ya figura en el registro de ventas del contador. La
+           fila se iba de la base y el sistema quedaba descuadrado contra la
+           caja y contra SUNAT, sin rastro de que algo hubiera existido.
+
+           Borrar esta permitido solo mientras el pedido siga siendo una
+           intencion: un encargo del portal que nadie atendio todavia. */
+        if ($pedido->estado === Pedido::ESTADO_COMPLETADO) {
+            return response()->json([
+                'message' => 'Una venta completada no se elimina: debe anularse para que quede el rastro.',
+                'motivo'  => 'venta_cerrada',
+            ], 422);
+        }
+
+        if ($pedido->comprobanteElectronico()->exists()) {
+            return response()->json([
+                'message' => 'El pedido tiene un comprobante emitido y no puede eliminarse.',
+                'motivo'  => 'comprobante_emitido',
+            ], 422);
+        }
+
         $pedido->delete();
 
         return response()->json(['message' => 'Pedido deleted successfully']);
