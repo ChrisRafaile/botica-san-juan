@@ -24,6 +24,7 @@ import gsap from 'gsap'
 import { useAdminMenu, type ElementoMenu } from '../composables/useAdminMenu'
 import { useEstadoConexion } from '../composables/useEstadoConexion'
 import BoticaAvatar from './ui/BoticaAvatar.vue'
+import { urlDeMedia } from '@/utils/media'
 import { EASE, DUR, duracion } from '../../utils/motion'
 
 const props = defineProps<{
@@ -67,20 +68,14 @@ const claseLatido = computed(() => {
  * La foto puede venir en dos campos según por dónde se haya subido.
  *
  * Se prefiere `foto_perfil`, que es el que usa la pantalla de perfil, y se cae
- * a `foto` para las cuentas antiguas. Una ruta relativa se resuelve contra el
- * servidor de la API, no contra el del frontend: en desarrollo son dos
- * orígenes distintos y sin esto la imagen no cargaría.
+ * a `foto` para las cuentas antiguas. La resolución de la ruta vive en
+ * `utils/media` porque el mismo problema aparece con cada imagen que sirve la
+ * API: una ruta relativa se resolvería contra el frontend y no contra el
+ * backend, que en desarrollo son orígenes distintos.
  */
-const fotoPerfil = computed(() => {
-  const ruta = props.usuario?.foto_perfil || props.usuario?.foto
-
-  if (!ruta) return null
-  if (/^(https?:|data:|blob:)/.test(ruta)) return ruta
-
-  const base = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/api\/?$/, '')
-
-  return `${base}/storage/${ruta.replace(/^\/?storage\//, '')}`
-})
+const fotoPerfil = computed(
+  () => urlDeMedia(props.usuario?.foto_perfil || props.usuario?.foto),
+)
 
 /** Estado colapsado, sincronizado con el layout mediante v-model. */
 const colapsada = defineModel<boolean>('colapsada', { default: false })

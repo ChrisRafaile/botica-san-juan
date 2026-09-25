@@ -32,6 +32,10 @@ use Illuminate\Support\Facades\DB;
  */
 class TableroController extends Controller
 {
+    public function __construct(private readonly \App\Services\ResumenInventarioService $resumen)
+    {
+    }
+
     public function index(): JsonResponse
     {
         $hoy   = Carbon::today();
@@ -115,40 +119,16 @@ class TableroController extends Controller
         ];
     }
 
-    /** Qué hay que reponer, según el mínimo configurado de cada producto. */
+    /**
+     * Qué hay que reponer.
+     *
+     * Delega en ResumenInventarioService para que el tablero y la pantalla de
+     * productos no puedan contradecirse: la misma pregunta se responde en un
+     * solo sitio.
+     */
     private function reposicion(): array
     {
-        /* El stock vendible sale de los lotes, no de productos.stock, que
-           incluye lo vencido: reponer según una cifra que cuenta unidades que
-           no se pueden vender llevaría a comprar de menos. */
-        $vendible = DB::table('lotes')
-            ->selectRaw('producto_id, COALESCE(SUM(cantidad_actual), 0) AS disponible')
-            ->where('cantidad_actual', '>', 0)
-            ->where('estado', 'activo')
-            ->where(function ($q) {
-                $q->whereNull('fecha_vencimiento')->orWhere('fecha_vencimiento', '>', Carbon::today());
-            })
-            ->groupBy('producto_id');
-
-        $fila = DB::query()
-            ->fromSub(
-                Producto::query()
-                    ->leftJoinSub($vendible, 'v', 'v.producto_id', '=', 'productos.id')
-                    ->selectRaw('COALESCE(v.disponible, 0) AS disponible, productos.stock_minimo, productos.stock_reposicion'),
-                'p'
-            )
-            ->selectRaw('
-                COUNT(*) FILTER (WHERE disponible <= 0) AS agotados,
-                COUNT(*) FILTER (WHERE disponible > 0 AND disponible <= COALESCE(stock_minimo, 5)) AS criticos,
-                COUNT(*) FILTER (WHERE disponible > COALESCE(stock_minimo, 5) AND disponible <= COALESCE(stock_reposicion, 10)) AS bajos
-            ')
-            ->first();
-
-        return [
-            'agotados' => (int) $fila->agotados,
-            'criticos' => (int) $fila->criticos,
-            'bajos'    => (int) $fila->bajos,
-        ];
+        return $this->resumen->porEstadoDeStock();
     }
 
     private function catalogo(): array

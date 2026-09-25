@@ -32,7 +32,7 @@
     <!-- Filtros y búsqueda -->
     <div
       v-if="!isCategoryRoute && !isSubcategoryRoute"
-      class="bg-superficie-elevada rounded-xl shadow-lg p-6 mb-6"
+      class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-5 mb-6"
     >
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="md:col-span-2">
@@ -72,10 +72,10 @@
               Todos los estados
             </option>
             <option value="in_stock">
-              En Stock
+              Con stock suficiente
             </option>
             <option value="low_stock">
-              Stock Bajo
+              Por reponer
             </option>
             <option value="out_of_stock">
               Agotado
@@ -128,7 +128,7 @@
       v-if="!isCategoryRoute && !isSubcategoryRoute"
       class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6"
     >
-      <div class="bg-superficie-elevada rounded-xl shadow-lg p-6">
+      <div class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-5">
         <div class="flex items-center">
           <div class="p-3 bg-botica-50 rounded-lg">
             <Package class="w-6 h-6 text-texto-marca" />
@@ -137,17 +137,17 @@
             <p
               class="text-sm font-medium text-texto-secundario"
             >
-              Total Productos
+              Productos en catálogo
             </p>
             <p
               class="text-2xl font-bold text-texto-primario"
             >
-              {{ stats.total }}
+              {{ stats.total.toLocaleString('es-PE') }}
             </p>
           </div>
         </div>
       </div>
-      <div class="bg-superficie-elevada rounded-xl shadow-lg p-6">
+      <div class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-5">
         <div class="flex items-center">
           <div class="p-3 bg-exito-50 rounded-lg">
             <CheckCircle class="w-6 h-6 text-exito-600" />
@@ -156,17 +156,17 @@
             <p
               class="text-sm font-medium text-texto-secundario"
             >
-              En Stock
+              Con stock suficiente
             </p>
             <p
               class="text-2xl font-bold text-texto-primario"
             >
-              {{ stats.inStock }}
+              {{ stats.inStock.toLocaleString('es-PE') }}
             </p>
           </div>
         </div>
       </div>
-      <div class="bg-superficie-elevada rounded-xl shadow-lg p-6">
+      <div class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-5">
         <div class="flex items-center">
           <div class="p-3 bg-alerta-50 rounded-lg">
             <AlertTriangle class="w-6 h-6 text-alerta-600" />
@@ -175,17 +175,17 @@
             <p
               class="text-sm font-medium text-texto-secundario"
             >
-              Stock Bajo
+              Por reponer
             </p>
             <p
               class="text-2xl font-bold text-texto-primario"
             >
-              {{ stats.lowStock }}
+              {{ stats.lowStock.toLocaleString('es-PE') }}
             </p>
           </div>
         </div>
       </div>
-      <div class="bg-superficie-elevada rounded-xl shadow-lg p-6">
+      <div class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-5">
         <div class="flex items-center">
           <div class="p-3 bg-peligro-50 rounded-lg">
             <XCircle class="w-6 h-6 text-peligro-600" />
@@ -194,17 +194,29 @@
             <p
               class="text-sm font-medium text-texto-secundario"
             >
-              Agotados
+              Sin stock vendible
             </p>
             <p
               class="text-2xl font-bold text-texto-primario"
             >
-              {{ stats.outOfStock }}
+              {{ stats.outOfStock.toLocaleString('es-PE') }}
             </p>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Cuando casi todo el catálogo cae en alerta, el problema es el umbral y
+         no el inventario. Decirlo evita que alguien compre de más creyendo que
+         le falta media botica. -->
+    <p
+      v-if="umbralesSospechosos"
+      class="mb-6 rounded-xl bg-alerta-50 px-4 py-3 text-sm leading-relaxed text-alerta-700 dark:bg-alerta-500/10 dark:text-alerta-500"
+    >
+      La mayoría del catálogo aparece por reponer. Eso suele significar que el
+      stock mínimo por defecto no encaja con este inventario: conviene fijar el
+      mínimo real de cada producto antes de usar esta cifra para comprar.
+    </p>
 
     <!-- Mensaje de error -->
     <div
@@ -312,15 +324,20 @@
             >
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
-                  <div class="shrink-0 h-10 w-10">
+                  <!-- El icono va debajo y la imagen encima: si el archivo no
+                       carga, se oculta y queda el icono, sin el recuadro roto
+                       que el navegador dibuja por defecto. -->
+                  <div class="shrink-0 h-10 w-10 relative">
                     <img
-                      v-if="product.imagen"
-                      :src="product.imagen"
-                      alt="Producto"
-                      class="h-10 w-10 rounded-lg object-cover"
+                      v-if="urlDeMedia(product.imagen)"
+                      :src="urlDeMedia(product.imagen)!"
+                      :alt="product.nombre"
+                      class="absolute inset-0 h-10 w-10 rounded-lg object-cover"
+                      loading="lazy"
+                      decoding="async"
+                      @error="ocultarSiFalla"
                     />
                     <div
-                      v-else
                       class="h-10 w-10 rounded-lg bg-botica-50 flex items-center justify-center"
                     >
                       <Pill class="w-5 h-5 text-texto-marca" />
@@ -568,6 +585,7 @@ import CategoryModal from '@/admin/components/CategoryModal.vue'
 import CategoryManager from '@/admin/components/CategoryManager.vue'
 import SubcategoryManager from '@/admin/components/SubcategoryManager.vue'
 import SubcategoryModal from '@/admin/components/SubcategoryModal.vue'
+import { urlDeMedia, ocultarSiFalla } from '@/utils/media'
 
 // Get router instance
 const router = useRouter()
@@ -812,12 +830,39 @@ const fetchProducts = async (page = 1) => {
   }
 }
 
-// Calcular estadísticas
+/**
+ * Trae el resumen del catálogo entero desde el servidor.
+ *
+ * Antes se calculaba aquí, sobre `products`, que es sólo la página cargada: con
+ * 3361 productos y diez por página, la tarjeta "En stock" mostraba 2. Además
+ * miraba `p.stock`, que incluye unidades vencidas, y usaba un umbral fijo de 10
+ * en lugar del mínimo configurado de cada producto — diez unidades son muchas
+ * para un antibiótico caro y pocas para el paracetamol.
+ */
+const umbralesSospechosos = ref(false)
+
+const cargarResumen = async () => {
+  try {
+    const { data } = await api.get<{
+      data: { total: number; agotados: number; criticos: number; bajos: number; normales: number }
+      umbrales_sospechosos: boolean
+    }>('/productos/resumen')
+
+    stats.total = data.data.total
+    stats.inStock = data.data.normales
+    stats.lowStock = data.data.criticos + data.data.bajos
+    stats.outOfStock = data.data.agotados
+    umbralesSospechosos.value = data.umbrales_sospechosos
+  } catch {
+    /* Si el resumen falla, el listado sigue siendo utilizable: se deja el
+       total que ya trae la paginación y se omiten las demás cifras antes que
+       mostrar números calculados sobre una página suelta. */
+    stats.total = pagination.total
+  }
+}
+
 const calculateStats = () => {
-  stats.total = pagination.total
-  stats.inStock = products.value.filter(p => p.stock > 10).length
-  stats.lowStock = products.value.filter(p => p.stock > 0 && p.stock <= 10).length
-  stats.outOfStock = products.value.filter(p => p.stock === 0).length
+  void cargarResumen()
 }
 
 // Función para determinar el estado basado en el stock

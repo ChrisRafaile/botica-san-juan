@@ -149,6 +149,10 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
 Route::middleware('throttle:api')->group(function () {
     // Read-only catalog and reporting endpoints
+    //
+    // El resumen va ANTES del apiResource: si fuera despues, la ruta
+    // productos/{producto} capturaria "resumen" como si fuera un id.
+    Route::get('productos/resumen', [ProductoController::class, 'resumen']);
     Route::apiResource('productos', ProductoController::class)->only(['index', 'show']);
     Route::apiResource('categorias', CategoriaController::class)->only(['index', 'show']);
     Route::apiResource('subcategorias', SubcategoriaController::class)->only(['index', 'show']);

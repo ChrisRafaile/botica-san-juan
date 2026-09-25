@@ -10,6 +10,25 @@ use Illuminate\Validation\ValidationException;
 class ProductoController extends Controller
 {
     /**
+     * Cuántos productos hay en cada estado de stock, sobre TODO el catálogo.
+     *
+     * GET /api/productos/resumen
+     *
+     * Existe porque la pantalla lo calculaba sobre la página que tenía cargada:
+     * con 3361 productos y diez por página, mostraba "2 en stock". Un resumen
+     * del catálogo se cuenta en la base, no sobre lo que cabe en pantalla.
+     */
+    public function resumen(\App\Services\ResumenInventarioService $inventario)
+    {
+        $resumen = $inventario->porEstadoDeStock();
+
+        return response()->json([
+            'data'                 => $resumen,
+            'umbrales_sospechosos' => $inventario->umbralesSonSospechosos($resumen),
+        ]);
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
