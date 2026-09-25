@@ -28,3 +28,7 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# Capturas generadas por scripts/capturar-evidencias.mjs.
+# Son evidencia del informe, no codigo: viven en la carpeta del curso.
+capturas/

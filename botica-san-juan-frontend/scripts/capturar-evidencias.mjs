@@ -77,6 +77,27 @@ const PANTALLAS = [
   { id: '13_conteo', ruta: '/admin/inventory/conteo', titulo: 'Conteo físico por ciclos', esperar: 2500 },
   { id: '14_productos', ruta: '/admin/products', titulo: 'Catálogo de productos', esperar: 3000 },
   { id: '15_tablero', ruta: '/admin/home', titulo: 'Tablero', esperar: 3000 },
+  { id: '16_pedidos_portal', ruta: '/admin/orders', titulo: 'Pedidos del portal web', esperar: 3000 },
+  { id: '17_pedidos_mostrador', ruta: '/admin/orders', titulo: 'Ventas de mostrador', esperar: 3000,
+    guion: async (cdp) => {
+      /* Se pulsa la pestaña de mostrador por su texto, no por posición: si
+         mañana se añade otra pestaña, la captura sigue apuntando a la
+         correcta en vez de fotografiar en silencio la equivocada. */
+      const cambiado = await evaluar(cdp, `
+        (() => {
+          const b = [...document.querySelectorAll('[role="tab"]')]
+            .find(x => x.textContent.trim() === 'Mostrador');
+          if (b) b.click();
+          return !!b;
+        })()
+      `)
+
+      if (!cambiado) throw new Error('no se encontró la pestaña "Mostrador"')
+
+      await esperarA(cdp, `
+        document.querySelector('[role="tab"][aria-selected="true"]')?.textContent.trim() === 'Mostrador'
+      `)
+    } },
 ]
 
 /* -------------------------------------------------------------------------- */
