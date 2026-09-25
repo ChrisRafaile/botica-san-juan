@@ -97,6 +97,10 @@ Route::post('/logout', [UsuarioController::class, 'logout'])->middleware(['auth:
 // API Routes for resources (protected)
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::apiResource('carrito', CarritoController::class);
+
+    // Mismo motivo que en productos/resumen: si fuera despues del apiResource,
+    // la ruta pedidos/{pedido} capturaria "resumen" como si fuera un id.
+    Route::get('pedidos/resumen', [PedidoController::class, 'resumen']);
     Route::apiResource('pedidos', PedidoController::class);
     Route::apiResource('pedido-detalles', PedidoDetalleController::class);
     Route::apiResource('contacto', ContactoController::class);
