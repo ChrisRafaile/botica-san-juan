@@ -8,14 +8,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class HandleCors
 {
+    /**
+     * La lista sale de config/cors.php y no de env().
+     *
+     * Con `config:cache` —que el arranque de produccion ejecuta— Laravel deja
+     * de cargar el .env, asi que env() devolvia null aqui y la lista quedaba
+     * vacia. La API seguia respondiendo bien a curl y el navegador bloqueaba
+     * cada respuesta sin registrar ningun error del lado del servidor.
+     */
     private function allowedOrigins(): array
     {
-        $raw = (string) env('CORS_ALLOWED_ORIGINS', 'http://localhost:5173');
-
-        return array_values(array_filter(array_map(
-            static fn (string $origin) => trim($origin),
-            explode(',', $raw)
-        )));
+        return (array) config('cors.allowed_origins', []);
     }
 
     private function resolveOrigin(Request $request): ?string
@@ -35,6 +38,24 @@ class HandleCors
     }
 
     /**
+     * Cabeceras que van tanto en la respuesta al preflight como en la real.
+     *
+     * Estaban escritas dos veces con contenidos distintos: el preflight
+     * anunciaba unos metodos y la respuesta real otros, que es justo la clase
+     * de discrepancia que rompe una peticion PATCH sin explicar por que.
+     *
+     * @return array<string, string>
+     */
+    private function cabecerasComunes(): array
+    {
+        return [
+            'Access-Control-Allow-Methods'     => implode(', ', (array) config('cors.allowed_methods', [])),
+            'Access-Control-Allow-Headers'     => implode(', ', (array) config('cors.allowed_headers', [])),
+            'Access-Control-Allow-Credentials' => config('cors.supports_credentials') ? 'true' : 'false',
+        ];
+    }
+
+    /**
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
@@ -45,11 +66,7 @@ class HandleCors
 
         // Handle preflight OPTIONS requests
         if ($request->getMethod() === 'OPTIONS') {
-            $response = response('', 200)->withHeaders([
-                'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN',
-                'Access-Control-Allow-Credentials' => 'true'
-            ]);
+            $response = response('', 200)->withHeaders($this->cabecerasComunes());
 
             if ($allowedOrigin !== null) {
                 $response->headers->set('Access-Control-Allow-Origin', $allowedOrigin);
@@ -65,9 +82,9 @@ class HandleCors
             $response->headers->set('Vary', 'Origin');
         }
 
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN');
-        $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        foreach ($this->cabecerasComunes() as $nombre => $valor) {
+            $response->headers->set($nombre, $valor);
+        }
 
         return $response;
     }

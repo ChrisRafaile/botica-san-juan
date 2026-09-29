@@ -12,7 +12,7 @@
         <div
           v-for="toast in toasts"
           :key="toast.id"
-          class="pointer-events-auto rounded-2xl border bg-white p-4 shadow-xl ring-1"
+          class="pointer-events-auto rounded-2xl border bg-superficie-elevada p-4 shadow-xl ring-1"
           :class="toastClass(toast.type)"
         >
           <div class="flex items-start justify-between gap-3">
@@ -28,7 +28,7 @@
               </p>
             </div>
             <button
-              class="rounded-md p-1 opacity-60 transition hover:bg-black/5 hover:opacity-100"
+              class="rounded-md p-1 opacity-60 transition hover:bg-neutro-950/5 hover:opacity-100"
               @click="removeToast(toast.id)"
             >
               <X class="h-4 w-4" />
@@ -49,11 +49,11 @@ const { toasts, removeToast } = useAdminToast()
 const toastClass = (type: AdminToastType) => {
   switch (type) {
     case 'success':
-      return 'border-emerald-200 text-emerald-900 ring-emerald-100'
+      return 'border-exito-50 text-exito-700 ring-exito-50'
     case 'error':
-      return 'border-rose-200 text-rose-900 ring-rose-100'
+      return 'border-peligro-500/30 text-peligro-700 ring-peligro-50'
     default:
-      return 'border-blue-200 text-blue-900 ring-blue-100'
+      return 'border-botica-200 text-botica-900 ring-botica-500/20'
   }
 }
 </script>

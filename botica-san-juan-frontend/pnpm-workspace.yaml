@@ -1,0 +1,11 @@
+# Configuración de pnpm · Botica San Juan (frontend)
+#
+# Desde pnpm 10 los scripts de instalación de las dependencias están
+# bloqueados por defecto: una dependencia comprometida ya no puede ejecutar
+# código en el equipo con sólo instalarla. Aquí se declaran, una por una, las
+# excepciones legítimas.
+#
+# esbuild: Vite lo usa como transpilador. Su script de instalación enlaza el
+# binario nativo del sistema operativo correspondiente.
+allowBuilds:
+  esbuild: true

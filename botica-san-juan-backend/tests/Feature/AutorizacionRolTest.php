@@ -31,6 +31,63 @@ class AutorizacionRolTest extends TestCase
     }
 
     /**
+     * Lecturas de gestion que tambien son solo del personal de la botica.
+     *
+     * Estaban abiertas a cualquier usuario autenticado. Un cliente registrado
+     * podia consultar la venta del dia, el listado completo de pedidos con
+     * nombres y documentos de otros clientes, los proveedores y las compras.
+     * No era una mutacion, asi que el control por rol no las cubria.
+     */
+    public static function lecturasDeGestion(): array
+    {
+        return [
+            'tablero'             => ['get', '/api/tablero'],
+            'listado de pedidos'  => ['get', '/api/pedidos'],
+            'resumen de pedidos'  => ['get', '/api/pedidos/resumen'],
+            'resumen de stock'    => ['get', '/api/productos/resumen'],
+            'reporte gerencial'   => ['get', '/api/reportes/gerencial'],
+            'registro de ventas'  => ['get', '/api/reportes/registro-ventas'],
+            'proveedores'         => ['get', '/api/proveedores'],
+            'busqueda del punto de venta' => ['get', '/api/pos/productos?q=a'],
+        ];
+    }
+
+    /**
+     * @dataProvider lecturasDeGestion
+     */
+    public function test_con_rol_cliente_las_lecturas_de_gestion_devuelven_403(string $metodo, string $ruta): void
+    {
+        $token = $this->crearCliente()->createToken('prueba')->plainTextToken;
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->json($metodo, $ruta)
+            ->assertStatus(403);
+    }
+
+    public function test_un_cliente_no_puede_leer_los_pedidos_de_otro(): void
+    {
+        $propio = $this->crearCliente();
+        /* Correo y DNI distintos: el ayudante usa valores fijos y crear dos
+           clientes seguidos chocaba contra el indice unico. */
+        $ajeno = $this->crearCliente([
+            'email' => 'otro.cliente@boticasanjuan.pe',
+            'dni'   => '87654321',
+        ]);
+
+        $token = $propio->createToken('prueba')->plainTextToken;
+
+        /* El identificador viaja en la direccion. Antes bastaba con cambiarlo
+           para leer el historial de compras de cualquier otra persona. */
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson("/api/pedidos/usuario/{$ajeno->id}")
+            ->assertStatus(403);
+
+        $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson("/api/pedidos/usuario/{$propio->id}")
+            ->assertStatus(200);
+    }
+
+    /**
      * @dataProvider rutasAdministrativas
      */
     public function test_sin_token_las_rutas_administrativas_devuelven_401(string $metodo, string $ruta): void

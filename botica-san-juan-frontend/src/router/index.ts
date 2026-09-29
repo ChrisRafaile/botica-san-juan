@@ -29,15 +29,18 @@ const router = createRouter({
       name: 'coverage',
       component: () => import('../client/CoverageView.vue'),
     },
+    /* Acceso y registro comparten pantalla: AuthView desliza un panel entre
+       los dos formularios segun la ruta activa. Se mantienen las dos rutas
+       para que los enlaces externos y el boton atras sigan funcionando. */
     {
       path: '/login',
       name: 'login',
-      component: () => import('../auth/LoginView.vue'),
+      component: () => import('../auth/AuthView.vue'),
     },
     {
       path: '/register',
       name: 'register',
-      component: () => import('../auth/RegisterView.vue'),
+      component: () => import('../auth/AuthView.vue'),
     },
     {
       path: '/forgot-password',
@@ -48,6 +51,46 @@ const router = createRouter({
       path: '/logout',
       name: 'logout',
       component: () => import('../auth/LogoutView.vue'),
+    },
+    // Checkout. Las pantallas de resultado no deciden nada por si mismas:
+    // cada una consulta al backend el estado real del pago y, si no coincide
+    // con la ruta, redirige a la que corresponde. Navegar a mano a
+    // /checkout/exitoso no convierte un pedido en pagado.
+    {
+      path: '/checkout/pago',
+      name: 'checkout-pago',
+      component: () => import('../client/checkout/CheckoutPagoView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/checkout/procesando',
+      name: 'checkout-procesando',
+      component: () => import('../client/checkout/CheckoutProcesandoView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/checkout/exitoso',
+      name: 'checkout-exitoso',
+      component: () => import('../client/checkout/CheckoutResultadoView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/checkout/error',
+      name: 'checkout-error',
+      component: () => import('../client/checkout/CheckoutResultadoView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/checkout/cancelado',
+      name: 'checkout-cancelado',
+      component: () => import('../client/checkout/CheckoutResultadoView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/checkout/pendiente',
+      name: 'checkout-pendiente',
+      component: () => import('../client/checkout/CheckoutResultadoView.vue'),
+      meta: { requiresAuth: true },
     },
     {
       path: '/client/home',
@@ -63,6 +106,13 @@ const router = createRouter({
         {
           path: '',
           redirect: '/admin/home'
+        },
+        {
+          // Punto de venta de mostrador. Es la pantalla mas usada del sistema:
+          // se abre al empezar el turno y se cierra al terminarlo.
+          path: 'pos',
+          name: 'admin-pos',
+          component: () => import('../admin/views/AdminPosView.vue')
         },
         {
           path: 'home',
@@ -163,6 +213,13 @@ const router = createRouter({
           path: 'inventory/alerts',
           name: 'admin-inventory-alerts',
           component: () => import('../admin/views/AdminInventoryView.vue'),
+        },
+        {
+          // Conteo fisico por ciclos. Es lo que va poblando los lotes y las
+          // fechas de vencimiento reales que hoy le faltan al FEFO.
+          path: 'inventory/conteo',
+          name: 'admin-inventory-conteo',
+          component: () => import('../admin/views/AdminConteoView.vue'),
         },
         {
           path: 'profile',

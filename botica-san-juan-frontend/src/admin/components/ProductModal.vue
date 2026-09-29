@@ -6,7 +6,7 @@
     >
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 backdrop-blur-sm"
         @click.self="closeModal"
       >
         <Transition
@@ -19,23 +19,23 @@
         >
           <div
             v-if="isOpen"
-            class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden"
+            class="bg-superficie-elevada rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden"
           >
             <!-- Header -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between p-6 border-b border-borde-sutil">
               <div>
-                <h2 class="text-2xl font-bold text-gray-900">
+                <h2 class="text-2xl font-bold text-texto-primario">
                   {{ props.readonly ? 'Detalles del Producto' : (isEditing ? 'Editar Producto' : 'Nuevo Producto') }}
                 </h2>
-                <p class="text-gray-600 mt-1">
+                <p class="text-texto-secundario mt-1">
                   {{ props.readonly ? 'Información completa del producto' : (isEditing ? 'Modifica la información del producto' : 'Agrega un nuevo producto al catálogo') }}
                 </p>
               </div>
               <button
-                class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                class="p-2 hover:bg-superficie-interactiva rounded-lg transition-colors"
                 @click="closeModal"
               >
-                <X class="w-6 h-6 text-gray-500" />
+                <X class="w-6 h-6 text-texto-terciario" />
               </button>
             </div>
 
@@ -49,7 +49,7 @@
                 <div class="space-y-6">
                   <!-- Nombre -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Nombre del Producto *
                     </label>
                     <input
@@ -57,12 +57,12 @@
                       type="text"
                       required
                       :disabled="props.readonly"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                       placeholder="Ej: Paracetamol 500mg"
                     />
                     <p
                       v-if="errors.nombre"
-                      class="mt-1 text-sm text-red-600"
+                      class="mt-1 text-sm text-peligro-600"
                     >
                       {{ errors.nombre }}
                     </p>
@@ -70,21 +70,21 @@
 
                   <!-- Concentración -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Concentración
                     </label>
                     <input
                       v-model="form.concentracion"
                       type="text"
                       :disabled="props.readonly"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                       placeholder="Ej: 500mg"
                     />
                   </div>
 
                   <!-- Laboratorio -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Laboratorio *
                     </label>
                     <input
@@ -92,12 +92,12 @@
                       type="text"
                       required
                       :disabled="props.readonly"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                       placeholder="Ej: Pfizer"
                     />
                     <p
                       v-if="errors.laboratorio"
-                      class="mt-1 text-sm text-red-600"
+                      class="mt-1 text-sm text-peligro-600"
                     >
                       {{ errors.laboratorio }}
                     </p>
@@ -105,7 +105,7 @@
 
                   <!-- Presentación -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Presentación *
                     </label>
                     <input
@@ -113,12 +113,12 @@
                       type="text"
                       required
                       :disabled="props.readonly"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                       placeholder="Ej: Tabletas"
                     />
                     <p
                       v-if="errors.presentacion"
-                      class="mt-1 text-sm text-red-600"
+                      class="mt-1 text-sm text-peligro-600"
                     >
                       {{ errors.presentacion }}
                     </p>
@@ -126,13 +126,13 @@
 
                   <!-- Tipo -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Categoría
                     </label>
                     <select
                       v-model="form.categoria_id"
                       :disabled="props.readonly"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                     >
                       <option value="">
                         Sin categoría
@@ -148,13 +148,13 @@
                   </div>
 
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Subcategoría
                     </label>
                     <select
                       v-model="form.subcategoria_id"
                       :disabled="props.readonly || !form.categoria_id"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                     >
                       <option value="">
                         {{ form.categoria_id ? 'Sin subcategoría' : 'Primero selecciona una categoría' }}
@@ -171,14 +171,14 @@
 
                   <!-- Tipo -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Tipo de Producto *
                     </label>
                     <select
                       v-model="form.tipo"
                       required
                       :disabled="props.readonly"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                     >
                       <option value="">
                         Seleccionar tipo
@@ -201,7 +201,7 @@
                     </select>
                     <p
                       v-if="errors.tipo"
-                      class="mt-1 text-sm text-red-600"
+                      class="mt-1 text-sm text-peligro-600"
                     >
                       {{ errors.tipo }}
                     </p>
@@ -212,7 +212,7 @@
                 <div class="space-y-6">
                   <!-- Precio -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Precio (S/) *
                     </label>
                     <input
@@ -222,30 +222,30 @@
                       min="0"
                       required
                       :disabled="props.readonly"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                       placeholder="0.00"
                     />
                     <p
                       v-if="errors.precio"
-                      class="mt-1 text-sm text-red-600"
+                      class="mt-1 text-sm text-peligro-600"
                     >
                       {{ errors.precio }}
                     </p>
                   </div>
 
-                  <div class="rounded-lg border border-gray-200 p-4 space-y-3">
-                    <p class="text-sm font-semibold text-gray-800">
+                  <div class="rounded-lg border border-borde-sutil p-4 space-y-3">
+                    <p class="text-sm font-semibold text-texto-primario">
                       Unidades Multiples (Fase 4)
                     </p>
 
                     <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-2">
+                      <label class="block text-sm font-medium text-texto-secundario mb-2">
                         Unidad Base
                       </label>
                       <select
                         v-model="form.unidad_base"
                         :disabled="props.readonly"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                       >
                         <option value="unidad">
                           Unidad
@@ -259,7 +259,7 @@
                       </select>
                     </div>
 
-                    <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+                    <label class="inline-flex items-center gap-2 text-sm text-texto-secundario">
                       <input
                         v-model="form.venta_fraccionada"
                         type="checkbox"
@@ -274,7 +274,7 @@
                       class="grid grid-cols-1 md:grid-cols-2 gap-3"
                     >
                       <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <label class="block text-sm font-medium text-texto-secundario mb-2">
                           Unidades por blister
                         </label>
                         <input
@@ -282,12 +282,12 @@
                           type="number"
                           min="1"
                           :disabled="props.readonly"
-                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                         />
                       </div>
 
                       <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <label class="block text-sm font-medium text-texto-secundario mb-2">
                           Blisters por caja
                         </label>
                         <input
@@ -295,12 +295,12 @@
                           type="number"
                           min="1"
                           :disabled="props.readonly"
-                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                         />
                       </div>
 
                       <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <label class="block text-sm font-medium text-texto-secundario mb-2">
                           Precio por blister (S/)
                         </label>
                         <input
@@ -309,12 +309,12 @@
                           step="0.01"
                           min="0"
                           :disabled="props.readonly"
-                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                         />
                       </div>
 
                       <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <label class="block text-sm font-medium text-texto-secundario mb-2">
                           Precio por caja (S/)
                         </label>
                         <input
@@ -323,53 +323,53 @@
                           step="0.01"
                           min="0"
                           :disabled="props.readonly"
-                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                          class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                         />
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Código DIGEMID
                     </label>
                     <input
                       v-model="form.codigo_digemid"
                       type="text"
                       :disabled="props.readonly"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                       placeholder="Código regulatorio"
                     />
                   </div>
 
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Principio Activo
                     </label>
                     <input
                       v-model="form.principio_activo"
                       type="text"
                       :disabled="props.readonly"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                       placeholder="Ej: Paracetamol"
                     />
                   </div>
 
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Laboratorio Fabricante
                     </label>
                     <input
                       v-model="form.laboratorio_fabricante"
                       type="text"
                       :disabled="props.readonly"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                       placeholder="Laboratorio fabricante"
                     />
                   </div>
 
                   <div>
-                    <label class="inline-flex items-center gap-2 text-sm text-gray-700 mt-2">
+                    <label class="inline-flex items-center gap-2 text-sm text-texto-secundario mt-2">
                       <input
                         v-model="form.requiere_receta"
                         type="checkbox"
@@ -382,7 +382,7 @@
 
                   <!-- Stock -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Stock *
                     </label>
                     <input
@@ -391,12 +391,12 @@
                       min="0"
                       required
                       :disabled="props.readonly"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                       placeholder="0"
                     />
                     <p
                       v-if="errors.stock"
-                      class="mt-1 text-sm text-red-600"
+                      class="mt-1 text-sm text-peligro-600"
                     >
                       {{ errors.stock }}
                     </p>
@@ -404,7 +404,7 @@
 
                   <!-- Imagen -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Imagen del Producto
                     </label>
                     <div class="space-y-3">
@@ -416,11 +416,11 @@
                         <img
                           :src="currentImage"
                           alt="Producto"
-                          class="w-full h-32 object-cover rounded-lg border border-gray-200"
+                          class="w-full h-32 object-cover rounded-lg border border-borde-sutil"
                         />
                         <button
                           type="button"
-                          class="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition-colors"
+                          class="absolute top-2 right-2 bg-peligro-500 text-white p-1 rounded-full hover:bg-peligro-600 transition-colors"
                           @click="removeImage"
                         >
                           <X class="w-4 h-4" />
@@ -429,7 +429,7 @@
 
                       <!-- Botones de carga de imagen -->
                       <div class="flex gap-2">
-                        <div class="flex-1 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors">
+                        <div class="flex-1 border-2 border-dashed border-borde-base rounded-lg p-4 text-center hover:border-botica-400 transition-colors">
                           <input
                             ref="fileInput"
                             type="file"
@@ -442,15 +442,15 @@
                             :class="{ 'cursor-not-allowed opacity-50': props.readonly }"
                             @click="props.readonly ? null : fileInput?.click()"
                           >
-                            <Upload class="w-6 h-6 text-gray-400 mx-auto mb-2" />
-                            <p class="text-xs text-gray-600">
+                            <Upload class="w-6 h-6 text-texto-terciario mx-auto mb-2" />
+                            <p class="text-xs text-texto-secundario">
                               Subir archivo
                             </p>
                           </div>
                         </div>
                         <button
                           type="button"
-                          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          class="px-4 py-2 bg-exito-700 text-white rounded-lg hover:bg-exito-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                           :disabled="props.readonly"
                           @click="props.readonly ? null : openPhotoCapture()"
                         >
@@ -458,7 +458,7 @@
                           Tomar Foto
                         </button>
                       </div>
-                      <p class="text-xs text-gray-500">
+                      <p class="text-xs text-texto-terciario">
                         PNG, JPG hasta 5MB
                       </p>
                     </div>
@@ -466,14 +466,14 @@
 
                   <!-- Información adicional -->
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-texto-secundario mb-2">
                       Información Adicional
                     </label>
                     <textarea
                       v-model="form.adicional"
                       rows="3"
                       :disabled="props.readonly"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      class="w-full px-4 py-3 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500/20 focus:border-transparent transition-all resize-none disabled:bg-superficie-interactiva disabled:cursor-not-allowed"
                       placeholder="Información adicional del producto..."
                     ></textarea>
                   </div>
@@ -485,25 +485,25 @@
                 v-if="loading"
                 class="flex items-center justify-center py-8"
               >
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                <span class="ml-3 text-gray-600">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-botica-600"></div>
+                <span class="ml-3 text-texto-secundario">
                   {{ isEditing ? 'Actualizando producto...' : 'Creando producto...' }}
                 </span>
               </div>
             </form>
 
             <!-- Footer -->
-            <div class="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+            <div class="flex items-center justify-end gap-3 p-6 border-t border-borde-sutil bg-superficie-hundida">
               <button
                 type="button"
-                class="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                class="px-6 py-2 text-texto-secundario bg-superficie-elevada border border-borde-base rounded-lg hover:bg-superficie-hundida transition-colors font-medium"
                 @click="closeModal"
               >
                 {{ props.readonly ? 'Cerrar' : 'Cancelar' }}
               </button>
               <button
                 v-if="!props.readonly"
-                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
+                class="px-6 py-2 bg-botica-700 text-white rounded-lg hover:bg-botica-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
                 :disabled="loading || !isFormValid"
                 @click="handleSubmit"
               >
@@ -530,7 +530,7 @@
     >
       <div
         v-if="showPhotoCapture"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 backdrop-blur-sm"
         @click.self="showPhotoCapture = false"
       >
         <Transition
@@ -543,17 +543,17 @@
         >
           <div
             v-if="showPhotoCapture"
-            class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 p-6"
+            class="bg-superficie-elevada rounded-2xl shadow-2xl max-w-lg w-full mx-4 p-6"
           >
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-semibold text-gray-900">
+              <h3 class="text-lg font-semibold text-texto-primario">
                 Tomar Foto
               </h3>
               <button
-                class="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                class="p-1 hover:bg-superficie-interactiva rounded-lg transition-colors"
                 @click="showPhotoCapture = false"
               >
-                <X class="w-5 h-5 text-gray-500" />
+                <X class="w-5 h-5 text-texto-terciario" />
               </button>
             </div>
             <PhotoCapture

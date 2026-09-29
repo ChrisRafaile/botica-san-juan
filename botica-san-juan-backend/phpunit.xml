@@ -22,8 +22,22 @@
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
-        <env name="DB_DATABASE" value=":memory:"/>
+        <!--
+            Las pruebas corren sobre PostgreSQL, el mismo motor que produccion.
+
+            Estaban sobre SQLite en memoria, que arranca mas rapido pero no
+            entiende GREATEST, FILTER (WHERE ...) ni ILIKE, que es SQL que el
+            codigo usa de verdad. El resultado era que cinco pruebas del
+            checkout llevaban rotas desde que se introdujo el inventario por
+            lotes, y la suite no podia detectarlo porque fallaba antes, en el
+            propio motor.
+
+            La base botica_san_juan_test se crea una vez:
+                createdb botica_san_juan_test
+            El resto de la conexion (host, usuario, contrasena) sale del .env.
+        -->
+        <env name="DB_CONNECTION" value="pgsql"/>
+        <env name="DB_DATABASE" value="botica_san_juan_test"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>

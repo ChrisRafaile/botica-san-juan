@@ -1,242 +1,231 @@
-<template>
-  <div class="admin-layout">
-    <!-- Sidebar -->
-    <AdminSidebar
-      v-model:collapsed="sidebarCollapsed"
-      :menu-items="menuItems"
-      :active-route="activeRoute"
-      :user="user"
-      @navigate="handleNavigate"
-    />
-
-    <!-- Main Content -->
-    <div
-      class="main-content"
-      :class="{ 'sidebar-collapsed': sidebarCollapsed }"
-    >
-      <!-- Header -->
-      <AdminHeader
-        :user="user"
-        :sidebar-collapsed="sidebarCollapsed"
-        @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
-        @navigate-profile="goToProfile"
-        @navigate-settings="goToSettings"
-        @logout="handleLogout"
-      />
-
-      <!-- Page Content -->
-      <div class="page-content">
-        <router-view />
-      </div>
-    </div>
-
-    <!-- Overlay for mobile -->
-    <div
-      v-if="!sidebarCollapsed && isMobile"
-      class="sidebar-overlay"
-      @click="sidebarCollapsed = true"
-    />
-
-    <AdminToastStack />
-  </div>
-</template>
-
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+/**
+ * AdminLayout · Botica San Juan
+ * ---------------------------------------------------------------------------
+ * Estructura del panel administrativo.
+ *
+ * Diferencias con la versión anterior:
+ *
+ * - La barra lateral ya no se posiciona con `position: fixed` + márgenes
+ *   calculados a mano. Ahora es una rejilla de dos columnas, así que el
+ *   contenido nunca queda por debajo de la lateral ni se desalinea al
+ *   colapsar.
+ * - En móvil la lateral es un cajón superpuesto con foco atrapado y cierre
+ *   con Escape, no una barra que empuja el contenido fuera de la pantalla.
+ * - El estado colapsado se recuerda entre sesiones.
+ * - La detección de tamaño se hace una sola vez aquí, con matchMedia en lugar
+ *   de escuchar cada evento `resize`; antes se duplicaba en el layout y en la
+ *   propia lateral.
+ * - Enlace para saltar al contenido: el primer tabulador de la página permite
+ *   esquivar toda la navegación.
+ */
+
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import AdminSidebar from '../components/AdminSidebar.vue'
-import AdminHeader from '../components/AdminHeader.vue'
+import AdminTopbar from '../components/AdminTopbar.vue'
 import AdminToastStack from '../components/AdminToastStack.vue'
+/* Estilos heredados de las vistas del panel (.btn-primary, .admin-theme…).
+   Se conserva la importación para no romper las 12 vistas existentes mientras
+   se migran progresivamente a los tokens del design system. */
 import '../../styles/admin.css'
+/* Puente transitorio que adapta al modo oscuro las vistas que aún usan
+   colores fijos. Se retira cuando todas estén migradas a los tokens. */
+
+const CLAVE_LATERAL = 'botica:lateral-colapsada'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
-const sidebarCollapsed = ref(false)
-const isMobile = ref(false)
+const usuario = computed(() => authStore.user)
+const rutaActual = computed(() => route.path)
 
-const user = computed(() => authStore.user)
-const activeRoute = computed(() => route.path)
+const colapsada = ref(false)
+const esEscritorio = ref(true)
+/** En móvil la lateral se superpone; este estado controla su visibilidad. */
+const cajonAbierto = ref(false)
 
-const menuItems = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: 'LayoutDashboard',
-    route: '/admin/home',
-    color: 'from-blue-500 to-cyan-500'
-  },
-  {
-    id: 'products',
-    label: 'Productos',
-    icon: 'Package',
-    route: '/admin/products',
-    color: 'from-emerald-500 to-teal-500',
-    children: [
-      { id: 'products-list', label: 'Ver Productos', route: '/admin/products' },
-      { id: 'products-add', label: 'Agregar Producto', route: '/admin/products/add' },
-      { id: 'products-categories', label: 'Categorías', route: '/admin/products/categories' },
-      { id: 'products-subcategories', label: 'Subcategorías', route: '/admin/products/subcategories' }
-    ]
-  },
-  {
-    id: 'clients',
-    label: 'Clientes',
-    icon: 'Users',
-    route: '/admin/clients',
-    color: 'from-purple-500 to-pink-500',
-    children: [
-      { id: 'clients-list', label: 'Ver Clientes', route: '/admin/clients' },
-      { id: 'clients-add', label: 'Agregar Cliente', route: '/admin/clients/add' }
-    ]
-  },
-  {
-    id: 'inventory',
-    label: 'Inventario',
-    icon: 'Package',
-    route: '/admin/inventory',
-    color: 'from-amber-500 to-yellow-500',
-    children: [
-      { id: 'inventory-list', label: 'Ver Inventario', route: '/admin/inventory' },
-      { id: 'inventory-stock', label: 'Control de Stock', route: '/admin/inventory/stock' },
-      { id: 'inventory-alerts', label: 'Alertas', route: '/admin/inventory/alerts' }
-    ]
-  },
-  {
-    id: 'billing',
-    label: 'Facturación',
-    icon: 'ReceiptText',
-    route: '/admin/billing',
-    color: 'from-cyan-500 to-blue-500',
-    children: [
-      { id: 'billing-main', label: 'Panel Facturación', route: '/admin/billing' },
-      { id: 'billing-sunat', label: 'SUNAT Electrónica', route: '/admin/billing/sunat' }
-    ]
-  },
-  {
-    id: 'supply',
-    label: 'Abastecimiento',
-    icon: 'ShoppingCart',
-    route: '/admin/supply/suppliers',
-    color: 'from-teal-500 to-cyan-500',
-    children: [
-      { id: 'supply-suppliers', label: 'Proveedores', route: '/admin/supply/suppliers' },
-      { id: 'supply-purchases', label: 'Compras', route: '/admin/supply/purchases' },
-      { id: 'supply-digemid', label: 'DIGEMID', route: '/admin/supply/digemid' }
-    ]
-  },
-  {
-    id: 'reports',
-    label: 'Reportes',
-    icon: 'BarChart3',
-    route: '/admin/reports',
-    color: 'from-indigo-500 to-purple-500',
-    children: [
-      { id: 'reports-sales', label: 'Ventas', route: '/admin/reports/sales' },
-      { id: 'reports-inventory', label: 'Inventario', route: '/admin/reports/inventory' }
-    ]
-  },
-  {
-    id: 'settings',
-    label: 'Configuración',
-    icon: 'Settings',
-    route: '/admin/settings',
-    color: 'from-gray-500 to-slate-500'
-  }
-]
+let consultaEscritorio: MediaQueryList | null = null
 
-const handleNavigate = (route: string) => {
-  router.push(route)
-  if (isMobile.value) {
-    sidebarCollapsed.value = true
+function leerEstadoGuardado(): boolean {
+  try {
+    return localStorage.getItem(CLAVE_LATERAL) === '1'
+  } catch {
+    return false
   }
 }
 
-const handleLogout = () => {
-  router.push('/logout')
+function guardarEstado(valor: boolean): void {
+  try {
+    localStorage.setItem(CLAVE_LATERAL, valor ? '1' : '0')
+  } catch {
+    /* Sin persistencia; el estado vive sólo durante esta sesión. */
+  }
 }
 
-const goToProfile = () => {
-  router.push('/admin/profile')
+function alternarLateral(): void {
+  if (esEscritorio.value) {
+    colapsada.value = !colapsada.value
+    guardarEstado(colapsada.value)
+  } else {
+    cajonAbierto.value = !cajonAbierto.value
+  }
 }
 
-const goToSettings = () => {
-  router.push('/admin/settings')
+function alCambiarAncho(evento: MediaQueryListEvent | MediaQueryList): void {
+  esEscritorio.value = evento.matches
+  if (evento.matches) cajonAbierto.value = false
 }
 
-const checkMobile = () => {
-  isMobile.value = window.innerWidth < 768
+function alPulsarTecla(evento: KeyboardEvent): void {
+  if (evento.key === 'Escape' && cajonAbierto.value) {
+    cajonAbierto.value = false
+  }
 }
+
+/* Al navegar en móvil se cierra el cajón: dejarlo abierto tapando la vista
+   recién cargada es el error clásico de los paneles responsive. */
+watch(rutaActual, () => {
+  if (!esEscritorio.value) cajonAbierto.value = false
+})
+
+/* Bloquea el desplazamiento del fondo mientras el cajón está abierto. */
+watch(cajonAbierto, (abierto) => {
+  document.body.style.overflow = abierto ? 'hidden' : ''
+})
 
 onMounted(() => {
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
+  colapsada.value = leerEstadoGuardado()
+  consultaEscritorio = window.matchMedia('(min-width: 1024px)')
+  alCambiarAncho(consultaEscritorio)
+  consultaEscritorio.addEventListener('change', alCambiarAncho)
+  document.addEventListener('keydown', alPulsarTecla)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile)
+  consultaEscritorio?.removeEventListener('change', alCambiarAncho)
+  document.removeEventListener('keydown', alPulsarTecla)
+  document.body.style.overflow = ''
 })
+
+function irPerfil() {
+  router.push('/admin/profile')
+}
+
+function irAjustes() {
+  router.push('/admin/settings')
+}
+
+function cerrarSesion() {
+  router.push('/logout')
+}
 </script>
 
-<style scoped>
-.admin-layout {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
-  display: flex;
-}
+<template>
+  <!-- data-admin acota el puente de compatibilidad del modo oscuro a esta
+       zona: el portal público no se ve afectado. -->
+  <div
+    data-admin
+    class="min-h-dvh bg-superficie-fondo"
+  >
+    <!-- Salto al contenido: visible sólo al recibir foco con el tabulador -->
+    <a
+      href="#contenido-principal"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-botica-700 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
+    >
+      Saltar al contenido
+    </a>
 
-/* CSS Variables para el layout */
-.admin-layout {
-  --admin-sidebar-width: 280px;
-  --admin-sidebar-collapsed-width: 80px;
-}
+    <div class="flex min-h-dvh">
+      <!-- Lateral en escritorio: columna de la rejilla -->
+      <div
+        v-if="esEscritorio"
+        class="sticky top-0 h-dvh shrink-0"
+      >
+        <AdminSidebar
+          v-model:colapsada="colapsada"
+          :ruta-activa="rutaActual"
+          :usuario="usuario"
+        />
+      </div>
 
-/* Main Content */
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  transition: all 0.3s ease-in-out;
-  margin-left: var(--admin-sidebar-width);
-}
+      <!-- Lateral en móvil: cajón superpuesto -->
+      <Teleport to="body">
+        <Transition
+          enter-active-class="transition-opacity duration-200"
+          enter-from-class="opacity-0"
+          leave-active-class="transition-opacity duration-150"
+          leave-to-class="opacity-0"
+        >
+          <div
+            v-if="cajonAbierto && !esEscritorio"
+            class="fixed inset-0 z-40 bg-neutro-950/50 backdrop-blur-[2px] lg:hidden"
+            aria-hidden="true"
+            @click="cajonAbierto = false"
+          />
+        </Transition>
 
-.main-content.sidebar-collapsed {
-  margin-left: var(--admin-sidebar-collapsed-width);
-}
+        <Transition
+          enter-active-class="transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+          enter-from-class="-translate-x-full"
+          leave-active-class="transition-transform duration-200 ease-in"
+          leave-to-class="-translate-x-full"
+        >
+          <div
+            v-if="cajonAbierto && !esEscritorio"
+            class="fixed inset-y-0 left-0 z-50 lg:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navegación del panel"
+          >
+            <AdminSidebar
+              :colapsada="false"
+              :ruta-activa="rutaActual"
+              :usuario="usuario"
+            />
+          </div>
+        </Transition>
+      </Teleport>
 
-/* Page Content */
-.page-content {
-  flex: 1;
-  padding: 1.5rem;
-  overflow: auto;
-}
+      <!-- Columna de contenido -->
+      <div class="flex min-w-0 flex-1 flex-col">
+        <AdminTopbar
+          :ruta-actual="rutaActual"
+          :colapsada="colapsada"
+          :usuario="usuario"
+          @alternar-lateral="alternarLateral"
+          @ir-perfil="irPerfil"
+          @ir-ajustes="irAjustes"
+          @cerrar-sesion="cerrarSesion"
+        />
 
-/* Sidebar Overlay */
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 10;
-  display: none;
-}
+        <main
+          id="contenido-principal"
+          class="flex-1 px-4 py-5 sm:px-6 sm:py-6"
+          tabindex="-1"
+        >
+          <!-- La clave por ruta fuerza el remontaje, de modo que la animación
+               de entrada se reproduce en cada cambio de vista. -->
+          <RouterView v-slot="{ Component }">
+            <Transition
+              mode="out-in"
+              enter-active-class="transition duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"
+              enter-from-class="opacity-0 translate-y-1"
+              leave-active-class="transition duration-100 ease-in"
+              leave-to-class="opacity-0"
+            >
+              <component
+                :is="Component"
+                :key="rutaActual"
+              />
+            </Transition>
+          </RouterView>
+        </main>
+      </div>
+    </div>
 
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-  .main-content {
-    margin-left: 0;
-  }
-
-  .main-content.sidebar-collapsed {
-    margin-left: 0;
-  }
-
-  .sidebar-overlay {
-    display: block;
-  }
-}
-</style>
+    <AdminToastStack />
+  </div>
+</template>

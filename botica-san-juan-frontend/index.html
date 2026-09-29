@@ -4,7 +4,40 @@
     <meta charset="UTF-8">
     <link rel="icon" href="/src/assets/images/favicon.SanJuan.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema web de gestión y control para la Botica San Juan: catálogo con lotes y vencimientos, punto de venta y facturación electrónica.">
+    <meta name="color-scheme" content="light dark">
     <title>Botica San Juan - Tu Farmacia de Confianza</title>
+
+    <!--
+      Tema inicial, aplicado antes de que el navegador pinte el primer
+      fotograma. Sin esto, quien usa el modo oscuro ve un destello blanco en
+      cada recarga, porque Vue monta después del primer pintado.
+      Debe permanecer en línea y síncrono: moverlo a un módulo lo retrasaría
+      y el parpadeo volvería. Equivalente a SCRIPT_ANTI_PARPADEO en
+      src/composables/useTheme.ts.
+    -->
+    <script>
+      (function () {
+        try {
+          var p = localStorage.getItem('botica:tema');
+          var m = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var d = p === 'oscuro' || ((!p || p === 'sistema') && m);
+          document.documentElement.classList.toggle('dark', d);
+          document.documentElement.style.colorScheme = d ? 'dark' : 'light';
+        } catch (e) {
+          /* Almacenamiento bloqueado: se continúa en modo claro. */
+        }
+      })();
+    </script>
+
+    <!-- Tipografía de interfaz. La pila de respaldo del design system sostiene
+         el diseño si la fuente no llega a cargar. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    >
   </head>
   <body>
     <div id="app"></div>

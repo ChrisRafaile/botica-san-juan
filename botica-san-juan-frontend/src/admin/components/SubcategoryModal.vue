@@ -2,15 +2,15 @@
   <Teleport to="body">
     <div
       v-if="isOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm px-4"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 backdrop-blur-sm px-4"
       @click.self="emit('close')"
     >
-      <div class="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden">
-        <div class="px-6 py-4 bg-linear-to-r from-indigo-600 to-blue-600 text-white">
+      <div class="w-full max-w-md rounded-2xl bg-superficie-elevada shadow-2xl overflow-hidden">
+        <div class="px-6 py-4 bg-botica-700 text-white">
           <h3 class="text-lg font-semibold">
             {{ isEditing ? 'Editar Subcategoria' : 'Nueva Subcategoria' }}
           </h3>
-          <p class="text-sm text-indigo-100">
+          <p class="text-sm text-botica-100">
             Define una subcategoria asociada a su categoria principal.
           </p>
         </div>
@@ -20,10 +20,10 @@
           @submit.prevent="handleSubmit"
         >
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Categoria *</label>
+            <label class="block text-sm font-medium text-texto-secundario mb-2">Categoria *</label>
             <select
               v-model.number="form.categoryId"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full rounded-lg border border-borde-base px-4 py-2 focus:ring-2 focus:ring-botica-500/20 focus:border-transparent"
             >
               <option :value="0">
                 Selecciona una categoria
@@ -38,42 +38,42 @@
             </select>
             <p
               v-if="errors.categoryId"
-              class="text-xs text-red-600 mt-1"
+              class="text-xs text-peligro-600 mt-1"
             >
               {{ errors.categoryId }}
             </p>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Nombre *</label>
+            <label class="block text-sm font-medium text-texto-secundario mb-2">Nombre *</label>
             <input
               v-model="form.name"
               type="text"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full rounded-lg border border-borde-base px-4 py-2 focus:ring-2 focus:ring-botica-500/20 focus:border-transparent"
               placeholder="Ej: Antiinflamatorios"
             />
             <p
               v-if="errors.name"
-              class="text-xs text-red-600 mt-1"
+              class="text-xs text-peligro-600 mt-1"
             >
               {{ errors.name }}
             </p>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Descripcion</label>
+            <label class="block text-sm font-medium text-texto-secundario mb-2">Descripcion</label>
             <textarea
               v-model="form.description"
               rows="3"
-              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full rounded-lg border border-borde-base px-4 py-2 focus:ring-2 focus:ring-botica-500/20 focus:border-transparent"
             />
           </div>
 
-          <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+          <label class="inline-flex items-center gap-2 text-sm text-texto-secundario">
             <input
               v-model="form.isActive"
               type="checkbox"
-              class="rounded border-gray-300"
+              class="rounded border-borde-base"
             />
             Subcategoria activa
           </label>
@@ -81,14 +81,14 @@
           <div class="flex items-center justify-end gap-3 pt-2">
             <button
               type="button"
-              class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+              class="px-4 py-2 rounded-lg border border-borde-base text-texto-secundario hover:bg-superficie-hundida"
               @click="emit('close')"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+              class="px-4 py-2 rounded-lg bg-botica-600 text-white hover:bg-botica-700"
             >
               {{ isEditing ? 'Actualizar' : 'Crear' }}
             </button>

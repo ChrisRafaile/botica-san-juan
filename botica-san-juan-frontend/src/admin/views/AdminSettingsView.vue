@@ -2,15 +2,15 @@
   <div class="p-4 sm:p-6 lg:p-8 space-y-6">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">
+        <h1 class="text-3xl font-bold text-texto-primario">
           Configuración del Sistema
         </h1>
-        <p class="mt-2 text-gray-600">
+        <p class="mt-2 text-texto-secundario">
           Ajustes globales del panel administrativo.
         </p>
       </div>
       <button
-        class="inline-flex items-center justify-center rounded-xl bg-linear-to-r from-emerald-600 to-green-600 px-4 py-3 text-white shadow-lg shadow-emerald-600/20 transition hover:from-emerald-700 hover:to-green-700"
+        class="inline-flex items-center justify-center rounded-xl bg-botica-700 px-4 py-3 text-white shadow-lg shadow-botica-700/20 transition hover:bg-botica-800"
         @click="saveSettings"
       >
         <Save class="mr-2 h-5 w-5" /> Guardar cambios
@@ -18,39 +18,39 @@
     </div>
 
     <div class="grid gap-6 xl:grid-cols-2">
-      <section class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200/80">
-        <h2 class="mb-4 flex items-center text-xl font-bold text-slate-900">
-          <Settings class="mr-2 h-6 w-6 text-blue-600" /> General
+      <section class="rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
+        <h2 class="mb-4 flex items-center text-xl font-bold text-texto-primario">
+          <Settings class="mr-2 h-6 w-6 text-texto-marca" /> General
         </h2>
         <div class="grid gap-4 sm:grid-cols-2">
           <div
             v-for="field in generalFields"
             :key="field.key"
           >
-            <label class="mb-2 block text-sm font-medium text-slate-700">{{ field.label }}</label>
+            <label class="mb-2 block text-sm font-medium text-texto-secundario">{{ field.label }}</label>
             <input
               v-model="settings[field.key]"
               :type="field.type"
-              class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
             />
           </div>
         </div>
       </section>
 
-      <section class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200/80">
-        <h2 class="mb-4 flex items-center text-xl font-bold text-slate-900">
-          <DollarSign class="mr-2 h-6 w-6 text-emerald-600" /> Ventas
+      <section class="rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
+        <h2 class="mb-4 flex items-center text-xl font-bold text-texto-primario">
+          <DollarSign class="mr-2 h-6 w-6 text-exito-600" /> Ventas
         </h2>
         <div class="grid gap-4 sm:grid-cols-2">
           <div
             v-for="field in salesFields"
             :key="field.key"
           >
-            <label class="mb-2 block text-sm font-medium text-slate-700">{{ field.label }}</label>
+            <label class="mb-2 block text-sm font-medium text-texto-secundario">{{ field.label }}</label>
             <input
               v-model="settings[field.key]"
               :type="field.type"
-              class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+              class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-exito-500 focus:ring-4 focus:ring-exito-50"
             />
           </div>
         </div>
@@ -58,40 +58,40 @@
     </div>
 
     <div class="grid gap-6 xl:grid-cols-2">
-      <section class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200/80">
-        <h2 class="mb-4 flex items-center text-xl font-bold text-slate-900">
-          <Package class="mr-2 h-6 w-6 text-violet-600" /> Inventario
+      <section class="rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
+        <h2 class="mb-4 flex items-center text-xl font-bold text-texto-primario">
+          <Package class="mr-2 h-6 w-6 text-botica-600" /> Inventario
         </h2>
         <div class="grid gap-4 sm:grid-cols-2">
           <div
             v-for="field in inventoryFields"
             :key="field.key"
           >
-            <label class="mb-2 block text-sm font-medium text-slate-700">{{ field.label }}</label>
+            <label class="mb-2 block text-sm font-medium text-texto-secundario">{{ field.label }}</label>
             <input
               v-model="settings[field.key]"
               :type="field.type"
-              class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+              class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-borde-marca focus:ring-4 focus:ring-botica-500/20"
             />
           </div>
         </div>
       </section>
 
-      <section class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200/80">
-        <h2 class="mb-4 flex items-center text-xl font-bold text-slate-900">
-          <Monitor class="mr-2 h-6 w-6 text-orange-600" /> Sistema
+      <section class="rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
+        <h2 class="mb-4 flex items-center text-xl font-bold text-texto-primario">
+          <Monitor class="mr-2 h-6 w-6 text-alerta-600" /> Sistema
         </h2>
         <div class="space-y-4">
           <div
             v-for="option in systemOptions"
             :key="option.key"
-            class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-4"
+            class="flex items-center justify-between rounded-2xl bg-superficie-hundida px-4 py-4"
           >
             <div>
-              <p class="font-semibold text-slate-900">
+              <p class="font-semibold text-texto-primario">
                 {{ option.label }}
               </p>
-              <p class="text-sm text-slate-500">
+              <p class="text-sm text-texto-terciario">
                 {{ option.description }}
               </p>
             </div>
@@ -101,27 +101,27 @@
                 type="checkbox"
                 class="sr-only peer"
               />
-              <div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-600 peer-checked:after:translate-x-full"></div>
+              <div class="peer h-6 w-11 rounded-full bg-superficie-interactiva-activa after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-superficie-elevada after:transition-all after:content-[''] peer-checked:bg-alerta-600 peer-checked:after:translate-x-full"></div>
             </label>
           </div>
         </div>
       </section>
     </div>
 
-    <section class="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-slate-200/80">
-      <h2 class="mb-4 flex items-center text-xl font-bold text-slate-900">
-        <Users class="mr-2 h-6 w-6 text-indigo-600" /> Usuarios
+    <section class="rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
+      <h2 class="mb-4 flex items-center text-xl font-bold text-texto-primario">
+        <Users class="mr-2 h-6 w-6 text-texto-marca" /> Usuarios
       </h2>
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div
           v-for="field in userFields"
           :key="field.key"
         >
-          <label class="mb-2 block text-sm font-medium text-slate-700">{{ field.label }}</label>
+          <label class="mb-2 block text-sm font-medium text-texto-secundario">{{ field.label }}</label>
           <input
             v-model="settings[field.key]"
             :type="field.type"
-            class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+            class="w-full rounded-xl border border-borde-sutil px-4 py-3 outline-none transition focus:border-botica-500 focus:ring-4 focus:ring-botica-100"
           />
         </div>
       </div>

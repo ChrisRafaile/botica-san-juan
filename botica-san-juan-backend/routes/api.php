@@ -7,13 +7,17 @@ use App\Http\Controllers\ComisionController;
 use App\Http\Controllers\FacturacionController;
 use App\Http\Controllers\DigemidCatalogoController;
 use App\Http\Controllers\ContactoController;
+use App\Http\Controllers\ReporteContableController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\ConteoController;
+use App\Http\Controllers\PosController;
 use App\Http\Controllers\PedidoDetalleController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\SubcategoriaController;
+use App\Http\Controllers\TableroController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -57,6 +61,34 @@ Route::get('/health/db', function () {
 
 // Public routes (no authentication required)
 
+/*
+| Latido del servicio.
+|
+| Existe para que el panel sepa si el sistema responde, no para adornar. En un
+| mostrador importa de verdad: si la API se cae a media mañana, el vendedor
+| tiene que enterarse en ese momento y no cuando intente cobrar y se le quede
+| la venta a medias.
+|
+| Va sin autenticación a propósito —un chequeo de vida que exige sesión no
+| sirve cuando lo que falla es la sesión— y no expone nada: sólo confirma que
+| el proceso está en pie y que la base responde.
+*/
+Route::get('/salud', function () {
+    $baseViva = true;
+
+    try {
+        DB::connection()->getPdo();
+    } catch (\Throwable) {
+        $baseViva = false;
+    }
+
+    return response()->json([
+        'ok'   => $baseViva,
+        'base' => $baseViva,
+        'hora' => now()->toIso8601String(),
+    ], $baseViva ? 200 : 503);
+})->middleware('throttle:api');
+
 // Authentication routes
 Route::post('/login', [UsuarioController::class, 'login'])->middleware('throttle:login');
 Route::post('/register', [UsuarioController::class, 'register'])->middleware('throttle:register');
@@ -65,11 +97,23 @@ Route::post('/logout', [UsuarioController::class, 'logout'])->middleware(['auth:
 // API Routes for resources (protected)
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::apiResource('carrito', CarritoController::class);
-    Route::apiResource('pedidos', PedidoController::class);
-    Route::apiResource('pedido-detalles', PedidoDetalleController::class);
+
+    // Mismo motivo que en productos/resumen: si fuera despues del apiResource,
+    // la ruta pedidos/{pedido} capturaria "resumen" como si fuera un id.
+    Route::get('pedidos/resumen', [PedidoController::class, 'resumen'])->middleware('admin');
+    Route::apiResource('pedidos', PedidoController::class)->middleware('admin');
+    Route::apiResource('pedido-detalles', PedidoDetalleController::class)->middleware('admin');
     Route::apiResource('contacto', ContactoController::class);
-    Route::get('reportes/ventas', [ReporteController::class, 'ventas']);
-    Route::get('reportes/gerencial', [ReporteController::class, 'gerencial']);
+    // Tablero: todas las cifras se calculan en la base, no en el navegador.
+    Route::get('tablero', [TableroController::class, 'index'])->middleware('admin');
+
+    Route::get('reportes/ventas', [ReporteController::class, 'ventas'])->middleware('admin');
+
+    // Registro de ventas para el contador. Reemplaza el Excel que hoy se llena
+    // a mano cada noche y se envia por correo.
+    Route::get('reportes/registro-ventas', [ReporteContableController::class, 'index'])->middleware('admin');
+    Route::get('reportes/registro-ventas/csv', [ReporteContableController::class, 'csv'])->middleware('admin');
+    Route::get('reportes/gerencial', [ReporteController::class, 'gerencial'])->middleware('admin');
 
     // Confirmacion de venta: crea el pedido, su detalle y descuenta el stock
     // dentro de una unica transaccion (RF-07 / RNF-05).
@@ -101,19 +145,23 @@ Route::post(
 // Documentos tributarios: exponen nombre y documento de identidad del cliente,
 // de modo que su lectura exige identidad. Antes eran de acceso anonimo.
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
-    Route::get('facturacion/documentos', [FacturacionController::class, 'index']);
+    Route::get('facturacion/documentos', [FacturacionController::class, 'index'])->middleware('admin');
     Route::get('facturacion/documentos/{id}/xml', [FacturacionController::class, 'descargarXml']);
     Route::get('facturacion/documentos/{id}/pdf', [FacturacionController::class, 'descargarPdf']);
-    Route::get('facturacion/comisiones', [ComisionController::class, 'index']);
+    Route::get('facturacion/comisiones', [ComisionController::class, 'index'])->middleware('admin');
 });
 
 Route::middleware('throttle:api')->group(function () {
     // Read-only catalog and reporting endpoints
+    //
+    // El resumen va ANTES del apiResource: si fuera despues, la ruta
+    // productos/{producto} capturaria "resumen" como si fuera un id.
+    Route::get('productos/resumen', [ProductoController::class, 'resumen'])->middleware(['auth:sanctum', 'admin']);
     Route::apiResource('productos', ProductoController::class)->only(['index', 'show']);
     Route::apiResource('categorias', CategoriaController::class)->only(['index', 'show']);
     Route::apiResource('subcategorias', SubcategoriaController::class)->only(['index', 'show']);
-    Route::apiResource('proveedores', ProveedorController::class)->only(['index', 'show']);
-    Route::apiResource('compras', CompraController::class)->only(['index', 'show']);
+    Route::apiResource('proveedores', ProveedorController::class)->only(['index', 'show'])->middleware(['auth:sanctum', 'admin']);
+    Route::apiResource('compras', CompraController::class)->only(['index', 'show'])->middleware(['auth:sanctum', 'admin']);
     Route::get('digemid-catalogo/alertas-cumplimiento', [DigemidCatalogoController::class, 'alertasCumplimiento']);
     Route::apiResource('digemid-catalogo', DigemidCatalogoController::class)->only(['index', 'show']);
 
@@ -169,3 +217,55 @@ Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->
     Route::post('facturacion/documentos/{id}/comision', [ComisionController::class, 'registrar']);
     Route::post('facturacion/comisiones/{id}/liquidar', [ComisionController::class, 'liquidar']);
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| Punto de venta (mostrador)
+|--------------------------------------------------------------------------
+|
+| Requieren sesion: toda venta queda atribuida a quien la registro, y todo
+| ajuste de stock a quien lo hizo. Sin usuario identificado no hay
+| responsabilidad posible sobre el inventario.
+|
+| El ajuste de lote pasa ademas por 'audit.critical' porque modifica
+| inventario fuera del flujo normal de venta o compra.
+*/
+Route::middleware(['auth:sanctum', 'admin', 'throttle:api'])->prefix('pos')->group(function () {
+    Route::get('/productos', [PosController::class, 'buscarProductos']);
+    Route::get('/productos/{producto}/lotes', [PosController::class, 'lotesDeProducto']);
+    Route::post('/verificar', [PosController::class, 'verificar']);
+    Route::post('/ventas', [PosController::class, 'registrarVenta']);
+    Route::get('/ventas/{pedido}', [PosController::class, 'verVenta']);
+});
+
+Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->prefix('pos')->group(function () {
+    Route::post('/lotes/{lote}/ajustar', [PosController::class, 'ajustarLote']);
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Conteo fisico por ciclos
+|--------------------------------------------------------------------------
+|
+| Contar no altera nada: se anota lo que hay en el anaquel y punto. Por eso
+| abrir una sesion y registrar lineas van con el resto de rutas de sesion.
+|
+| Cerrar es otra cosa: aplica ajustes de stock sobre el inventario real, igual
+| que el ajuste manual de lote, asi que pasa por 'audit.critical'. Anular
+| tambien, porque descarta trabajo ya hecho y conviene saber quien lo descarto.
+*/
+Route::middleware(['auth:sanctum', 'admin', 'throttle:api'])->prefix('conteos')->group(function () {
+    Route::get('/', [ConteoController::class, 'index']);
+    Route::get('/abierto', [ConteoController::class, 'abierto']);
+    Route::post('/', [ConteoController::class, 'store']);
+    Route::get('/{conteo}', [ConteoController::class, 'show']);
+    Route::put('/{conteo}/detalles/{detalle}', [ConteoController::class, 'registrar']);
+});
+
+Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->prefix('conteos')->group(function () {
+    Route::post('/{conteo}/cerrar', [ConteoController::class, 'cerrar']);
+    Route::post('/{conteo}/anular', [ConteoController::class, 'anular']);
+});
+

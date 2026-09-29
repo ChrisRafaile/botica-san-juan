@@ -140,13 +140,21 @@ class PagoService
         $eventoId = $this->idDeEvento($datos, $respuestaCruda);
 
         // 2. Idempotencia estructural: el UNIQUE decide, no una comprobacion.
+        //
+        //    El insert va dentro de su propia transaccion anidada, que Laravel
+        //    implementa como SAVEPOINT. Sin eso, en PostgreSQL una violacion
+        //    de unicidad aborta la transaccion ENTERA y toda consulta
+        //    posterior falla con 25P02, aunque la excepcion se haya atrapado.
+        //    SQLite es mas permisivo y no lo manifestaba, asi que el fallo
+        //    solo habria aparecido en produccion, y solo con notificaciones
+        //    repetidas de la pasarela --que es justo cuando menos conviene.
         try {
-            $evento = PagoEvento::create([
+            $evento = DB::transaction(fn () => PagoEvento::create([
                 'evento_id' => $eventoId,
                 'tipo' => (string) ($datos['eventType'] ?? 'orderStatus'),
                 'estado_reportado' => $estadoProveedor,
                 'payload' => $this->sanear($datos),
-            ]);
+            ]));
         } catch (UniqueConstraintViolationException $e) {
             Log::info('pagos.ipn.duplicado', ['evento_id' => $eventoId]);
 

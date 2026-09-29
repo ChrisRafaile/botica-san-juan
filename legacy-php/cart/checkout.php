@@ -89,19 +89,13 @@ $total = isset($_SESSION['total']) ? $_SESSION['total'] : 0; // Obtiene el total
         <form action="confirmation.php" method="POST">
             <label for="address">Dirección de envío:</label>
             <input type="text" id="address" name="address" required>
-
-            <label for="card_number">Número de tarjeta:</label>
-            <input type="text" id="card_number" name="card_number" required oninput="detectCardType(this.value)">
-
-            <div class="card-type">
-                <img id="card_type_image" src="" alt="Card Type">
-            </div>
-
-            <label for="cvv">CVV:</label>
-            <input type="text" id="cvv" name="cvv" required>
-
-            <label for="expiry_date">Fecha de expiración (MM/AA):</label>
-            <input type="month" id="expiry_date" name="expiry_date" required>
+            <!-- RETIRADO. Estos campos capturaban numero de tarjeta, CVV y
+                 fecha de expiracion en el propio formulario del comercio. En
+                 la arquitectura actual esos datos se ingresan directamente en
+                 el formulario de la pasarela y nunca llegan a este sistema. -->
+            <p class="aviso-pago">
+              El pago se completa en el entorno seguro de la pasarela.
+            </p>
 
             <div class="total-amount">Total a pagar: S/<?php echo number_format($total, 2); ?></div>
 

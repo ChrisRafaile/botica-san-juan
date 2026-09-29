@@ -10,6 +10,25 @@ use Illuminate\Validation\ValidationException;
 class ProductoController extends Controller
 {
     /**
+     * Cuántos productos hay en cada estado de stock, sobre TODO el catálogo.
+     *
+     * GET /api/productos/resumen
+     *
+     * Existe porque la pantalla lo calculaba sobre la página que tenía cargada:
+     * con 3361 productos y diez por página, mostraba "2 en stock". Un resumen
+     * del catálogo se cuenta en la base, no sobre lo que cabe en pantalla.
+     */
+    public function resumen(\App\Services\ResumenInventarioService $inventario)
+    {
+        $resumen = $inventario->porEstadoDeStock();
+
+        return response()->json([
+            'data'                 => $resumen,
+            'umbrales_sospechosos' => $inventario->umbralesSonSospechosos($resumen),
+        ]);
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -78,7 +97,30 @@ class ProductoController extends Controller
             }
         }
 
-        return $query->paginate(max(1, min($perPage, 100)));
+        $pagina = $query->paginate(max(1, min($perPage, 100)));
+
+        /* Stock realmente vendible, separado del contable.
+           `productos.stock` incluye lo vencido, porque fisicamente esta en el
+           anaquel; pero mostrarlo como disponible lleva a prometer lo que no
+           se puede entregar. Se calcula en una sola consulta agrupada para
+           los productos de esta pagina, no una por producto. */
+        $idsPagina = collect($pagina->items())->pluck('id');
+
+        $disponibles = \App\Models\Lote::query()
+            ->selectRaw('producto_id, SUM(cantidad_actual) AS total')
+            ->whereIn('producto_id', $idsPagina)
+            ->disponible()
+            ->groupBy('producto_id')
+            ->pluck('total', 'producto_id');
+
+        $pagina->getCollection()->transform(function ($producto) use ($disponibles) {
+            $producto->stock_disponible = (int) ($disponibles[$producto->id] ?? 0);
+            $producto->stock_no_vendible = max(0, (int) $producto->stock - $producto->stock_disponible);
+
+            return $producto;
+        });
+
+        return $pagina;
     }
 
     /**

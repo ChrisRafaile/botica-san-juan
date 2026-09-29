@@ -22,7 +22,7 @@
             </h3>
             <div class="space-y-4">
               <div class="flex items-start">
-                <div class="bg-white bg-opacity-20 rounded-full w-10 h-10 flex items-center justify-center mr-4 mt-1 shrink-0">
+                <div class="bg-white/20 rounded-full w-10 h-10 flex items-center justify-center mr-4 mt-1 shrink-0">
                   <span class="font-bold text-lg">1</span>
                 </div>
                 <div>
@@ -35,7 +35,7 @@
                 </div>
               </div>
               <div class="flex items-start">
-                <div class="bg-white bg-opacity-20 rounded-full w-10 h-10 flex items-center justify-center mr-4 mt-1 shrink-0">
+                <div class="bg-white/20 rounded-full w-10 h-10 flex items-center justify-center mr-4 mt-1 shrink-0">
                   <span class="font-bold text-lg">2</span>
                 </div>
                 <div>
@@ -48,7 +48,7 @@
                 </div>
               </div>
               <div class="flex items-start">
-                <div class="bg-white bg-opacity-20 rounded-full w-10 h-10 flex items-center justify-center mr-4 mt-1 shrink-0">
+                <div class="bg-white/20 rounded-full w-10 h-10 flex items-center justify-center mr-4 mt-1 shrink-0">
                   <span class="font-bold text-lg">3</span>
                 </div>
                 <div>
