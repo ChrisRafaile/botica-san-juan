@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\VentaSinStockException;
 use App\Models\Categoria;
 use App\Models\Producto;
 use App\Models\Subcategoria;
+use App\Models\Lote;
+use App\Models\Pedido;
 use App\Services\VentaService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**
@@ -33,10 +35,27 @@ class ConfirmacionVentaTest extends TestCase
             'descripcion' => 'Subcategoria de prueba',
         ]);
 
-        return Producto::create($this->datosProducto($categoria->id, $subcategoria->id, [
+        $producto = Producto::create($this->datosProducto($categoria->id, $subcategoria->id, [
             'stock' => $stock,
             'precio' => $precio,
         ]));
+
+        /* La venta ya no lee `productos.stock`: recorre los lotes por FEFO.
+           Esa columna quedo como espejo para las consultas rapidas, pero la
+           fuente de verdad es `lotes.cantidad_actual`. Sin este lote, el
+           servicio no encuentra existencias y rechaza la venta, que es
+           exactamente lo que estos casos empezaron a devolver en cuanto se
+           introdujo el inventario por lotes. */
+        Lote::create([
+            'producto_id'       => $producto->id,
+            'codigo_lote'       => 'PRUEBA-' . $producto->id,
+            'cantidad_inicial'  => $stock,
+            'cantidad_actual'   => $stock,
+            'fecha_vencimiento' => null,
+            'estado'            => 'activo',
+        ]);
+
+        return $producto;
     }
 
     /**
@@ -124,13 +143,17 @@ class ConfirmacionVentaTest extends TestCase
         $cliente = $this->crearCliente();
 
         try {
-            app(VentaService::class)->confirmar((int) $cliente->id, [
+            app(VentaService::class)->registrar(origen: Pedido::ORIGEN_WEB, usuarioClienteId: (int) $cliente->id, items: [
                 ['producto_id' => $disponible->id, 'cantidad' => 1],
                 ['producto_id' => $agotado->id, 'cantidad' => 1],
             ]);
             $this->fail('La venta debio rechazarse por stock insuficiente.');
-        } catch (ValidationException $e) {
-            // Comportamiento esperado.
+        } catch (VentaSinStockException $e) {
+            /* Comportamiento esperado. Antes se esperaba ValidationException,
+               que es un error de FORMATO de la peticion. Aqui la peticion es
+               impecable: lo que falta es mercancia, y eso es una regla de
+               negocio. El tipo propio deja que el controlador responda 422 con
+               un mensaje util en vez de una lista de campos invalidos. */
         }
 
         $this->assertSame(10, (int) $disponible->fresh()->stock);
@@ -143,7 +166,7 @@ class ConfirmacionVentaTest extends TestCase
         $producto = $this->crearProducto(stock: 5, precio: 2.00);
         $cliente = $this->crearCliente();
 
-        $pedido = app(VentaService::class)->confirmar((int) $cliente->id, [
+        $pedido = app(VentaService::class)->registrar(origen: Pedido::ORIGEN_WEB, usuarioClienteId: (int) $cliente->id, items: [
             ['producto_id' => $producto->id, 'cantidad' => 2],
             ['producto_id' => $producto->id, 'cantidad' => 2],
         ]);
