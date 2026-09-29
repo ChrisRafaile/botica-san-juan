@@ -29,15 +29,18 @@ const router = createRouter({
       name: 'coverage',
       component: () => import('../client/CoverageView.vue'),
     },
+    /* Acceso y registro comparten pantalla: AuthView desliza un panel entre
+       los dos formularios segun la ruta activa. Se mantienen las dos rutas
+       para que los enlaces externos y el boton atras sigan funcionando. */
     {
       path: '/login',
       name: 'login',
-      component: () => import('../auth/LoginView.vue'),
+      component: () => import('../auth/AuthView.vue'),
     },
     {
       path: '/register',
       name: 'register',
-      component: () => import('../auth/RegisterView.vue'),
+      component: () => import('../auth/AuthView.vue'),
     },
     {
       path: '/forgot-password',
