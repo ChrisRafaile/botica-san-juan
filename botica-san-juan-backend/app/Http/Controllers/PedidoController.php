@@ -72,8 +72,27 @@ class PedidoController extends Controller
     /**
      * Get orders for a specific user.
      */
-    public function getByUser($usuarioId)
+    /**
+     * Pedidos de un usuario.
+     *
+     * FALLO CORREGIDO: la ruta devolvia los pedidos de CUALQUIER usuario con
+     * solo cambiar el identificador de la direccion. Un cliente autenticado
+     * podia recorrer el historial de compras de los demas —nombre, documento,
+     * productos y montos— sin mas que ir sumando uno al id.
+     *
+     * Ahora cada quien solo ve lo suyo; el administrador si puede consultar el
+     * de cualquiera, porque atiende en mostrador y necesita hacerlo.
+     */
+    public function getByUser(Request $request, $usuarioId)
     {
+        $solicitante = $request->user();
+
+        if ((int) $solicitante->id !== (int) $usuarioId && $solicitante->rol !== 'administrador') {
+            return response()->json([
+                'message' => 'No puedes consultar los pedidos de otro usuario.',
+            ], 403);
+        }
+
         return Pedido::with(['pedidoDetalles.producto'])->where('usuario_id', $usuarioId)->get();
     }
 

@@ -100,20 +100,20 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     // Mismo motivo que en productos/resumen: si fuera despues del apiResource,
     // la ruta pedidos/{pedido} capturaria "resumen" como si fuera un id.
-    Route::get('pedidos/resumen', [PedidoController::class, 'resumen']);
-    Route::apiResource('pedidos', PedidoController::class);
-    Route::apiResource('pedido-detalles', PedidoDetalleController::class);
+    Route::get('pedidos/resumen', [PedidoController::class, 'resumen'])->middleware('admin');
+    Route::apiResource('pedidos', PedidoController::class)->middleware('admin');
+    Route::apiResource('pedido-detalles', PedidoDetalleController::class)->middleware('admin');
     Route::apiResource('contacto', ContactoController::class);
     // Tablero: todas las cifras se calculan en la base, no en el navegador.
-    Route::get('tablero', [TableroController::class, 'index']);
+    Route::get('tablero', [TableroController::class, 'index'])->middleware('admin');
 
-    Route::get('reportes/ventas', [ReporteController::class, 'ventas']);
+    Route::get('reportes/ventas', [ReporteController::class, 'ventas'])->middleware('admin');
 
     // Registro de ventas para el contador. Reemplaza el Excel que hoy se llena
     // a mano cada noche y se envia por correo.
-    Route::get('reportes/registro-ventas', [ReporteContableController::class, 'index']);
-    Route::get('reportes/registro-ventas/csv', [ReporteContableController::class, 'csv']);
-    Route::get('reportes/gerencial', [ReporteController::class, 'gerencial']);
+    Route::get('reportes/registro-ventas', [ReporteContableController::class, 'index'])->middleware('admin');
+    Route::get('reportes/registro-ventas/csv', [ReporteContableController::class, 'csv'])->middleware('admin');
+    Route::get('reportes/gerencial', [ReporteController::class, 'gerencial'])->middleware('admin');
 
     // Confirmacion de venta: crea el pedido, su detalle y descuenta el stock
     // dentro de una unica transaccion (RF-07 / RNF-05).
@@ -145,10 +145,10 @@ Route::post(
 // Documentos tributarios: exponen nombre y documento de identidad del cliente,
 // de modo que su lectura exige identidad. Antes eran de acceso anonimo.
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
-    Route::get('facturacion/documentos', [FacturacionController::class, 'index']);
+    Route::get('facturacion/documentos', [FacturacionController::class, 'index'])->middleware('admin');
     Route::get('facturacion/documentos/{id}/xml', [FacturacionController::class, 'descargarXml']);
     Route::get('facturacion/documentos/{id}/pdf', [FacturacionController::class, 'descargarPdf']);
-    Route::get('facturacion/comisiones', [ComisionController::class, 'index']);
+    Route::get('facturacion/comisiones', [ComisionController::class, 'index'])->middleware('admin');
 });
 
 Route::middleware('throttle:api')->group(function () {
@@ -156,12 +156,12 @@ Route::middleware('throttle:api')->group(function () {
     //
     // El resumen va ANTES del apiResource: si fuera despues, la ruta
     // productos/{producto} capturaria "resumen" como si fuera un id.
-    Route::get('productos/resumen', [ProductoController::class, 'resumen']);
+    Route::get('productos/resumen', [ProductoController::class, 'resumen'])->middleware(['auth:sanctum', 'admin']);
     Route::apiResource('productos', ProductoController::class)->only(['index', 'show']);
     Route::apiResource('categorias', CategoriaController::class)->only(['index', 'show']);
     Route::apiResource('subcategorias', SubcategoriaController::class)->only(['index', 'show']);
-    Route::apiResource('proveedores', ProveedorController::class)->only(['index', 'show']);
-    Route::apiResource('compras', CompraController::class)->only(['index', 'show']);
+    Route::apiResource('proveedores', ProveedorController::class)->only(['index', 'show'])->middleware(['auth:sanctum', 'admin']);
+    Route::apiResource('compras', CompraController::class)->only(['index', 'show'])->middleware(['auth:sanctum', 'admin']);
     Route::get('digemid-catalogo/alertas-cumplimiento', [DigemidCatalogoController::class, 'alertasCumplimiento']);
     Route::apiResource('digemid-catalogo', DigemidCatalogoController::class)->only(['index', 'show']);
 
@@ -231,7 +231,7 @@ Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->
 | El ajuste de lote pasa ademas por 'audit.critical' porque modifica
 | inventario fuera del flujo normal de venta o compra.
 */
-Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('pos')->group(function () {
+Route::middleware(['auth:sanctum', 'admin', 'throttle:api'])->prefix('pos')->group(function () {
     Route::get('/productos', [PosController::class, 'buscarProductos']);
     Route::get('/productos/{producto}/lotes', [PosController::class, 'lotesDeProducto']);
     Route::post('/verificar', [PosController::class, 'verificar']);
@@ -239,7 +239,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('pos')->group(functi
     Route::get('/ventas/{pedido}', [PosController::class, 'verVenta']);
 });
 
-Route::middleware(['auth:sanctum', 'throttle:api', 'audit.critical'])->prefix('pos')->group(function () {
+Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->prefix('pos')->group(function () {
     Route::post('/lotes/{lote}/ajustar', [PosController::class, 'ajustarLote']);
 });
 
@@ -256,7 +256,7 @@ Route::middleware(['auth:sanctum', 'throttle:api', 'audit.critical'])->prefix('p
 | que el ajuste manual de lote, asi que pasa por 'audit.critical'. Anular
 | tambien, porque descarta trabajo ya hecho y conviene saber quien lo descarto.
 */
-Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('conteos')->group(function () {
+Route::middleware(['auth:sanctum', 'admin', 'throttle:api'])->prefix('conteos')->group(function () {
     Route::get('/', [ConteoController::class, 'index']);
     Route::get('/abierto', [ConteoController::class, 'abierto']);
     Route::post('/', [ConteoController::class, 'store']);
@@ -264,7 +264,7 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('conteos')->group(fu
     Route::put('/{conteo}/detalles/{detalle}', [ConteoController::class, 'registrar']);
 });
 
-Route::middleware(['auth:sanctum', 'throttle:api', 'audit.critical'])->prefix('conteos')->group(function () {
+Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->prefix('conteos')->group(function () {
     Route::post('/{conteo}/cerrar', [ConteoController::class, 'cerrar']);
     Route::post('/{conteo}/anular', [ConteoController::class, 'anular']);
 });
