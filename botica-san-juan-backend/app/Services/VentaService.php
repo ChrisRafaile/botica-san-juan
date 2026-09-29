@@ -109,26 +109,37 @@ class VentaService
         ?int $vendedorId = null,
         ?int $usuarioClienteId = null,
         array $pagos = [],
+        string $origen = Pedido::ORIGEN_POS,
     ): Pedido {
         if ($items === []) {
             throw new RuntimeException('No se puede registrar una venta sin productos.');
         }
 
-        return DB::transaction(function () use ($items, $datosCliente, $vendedorId, $usuarioClienteId, $pagos) {
+        return DB::transaction(function () use ($items, $datosCliente, $vendedorId, $usuarioClienteId, $pagos, $origen) {
 
             $tasaIgv = (float) config('inventario.tasa_igv', 0.18);
 
+            $esMostrador = $origen === Pedido::ORIGEN_POS;
+
             $pedido = Pedido::create([
                 'usuario_id'             => $usuarioClienteId,
-                'origen'                 => 'pos',
+                'origen'                 => $origen,
                 'vendedor_id'            => $vendedorId,
                 'cliente_nombre'         => $datosCliente['cliente_nombre'] ?? null,
                 'cliente_documento'      => $datosCliente['cliente_documento'] ?? null,
                 'cliente_tipo_documento' => $datosCliente['cliente_tipo_documento'] ?? 'sin_documento',
                 'fecha'                  => now(),
                 'fecha_pedido'           => now(),
-                'estado'                 => 'completado',
-                'estado_pago'            => 'pagado',
+                /* El canal decide el ciclo de vida, no la funcion.
+                   La venta de mostrador nace cerrada: el cliente ya se llevo
+                   el producto y ya pago. El encargo del portal nace abierto:
+                   alguien pidio algo que todavia hay que preparar, y darlo
+                   por cobrado lo metaria en la caja del dia sin que hubiera
+                   entrado un sol. */
+                'estado'                 => $esMostrador
+                    ? Pedido::ESTADO_COMPLETADO
+                    : Pedido::ESTADO_PENDIENTE,
+                'estado_pago'            => $esMostrador ? 'pagado' : 'pendiente',
                 'moneda'                 => 'PEN',
                 'observacion'            => $datosCliente['observacion'] ?? null,
                 'total'                  => 0,
@@ -150,7 +161,10 @@ class VentaService
                     throw new RuntimeException("Producto {$item['producto_id']} no existe.");
                 }
 
-                $unidadVenta = $item['unidad_venta'];
+                /* El punto de venta siempre declara la presentacion; el
+                   portal web vende por unidad y no la envia. Sin este
+                   respaldo la clave ausente tumbaba el checkout entero. */
+                $unidadVenta = $item['unidad_venta'] ?? 'unidad';
                 $cantidadPedida = max(0, (int) $item['cantidad']);
 
                 if ($cantidadPedida === 0) {
@@ -159,6 +173,29 @@ class VentaService
 
                 $factor          = $this->inventario->factorUnidades($producto, $unidadVenta);
                 $unidadesPedidas = $factor * $cantidadPedida;
+
+                /* La entrega parcial es una regla de MOSTRADOR, no del portal.
+                   ------------------------------------------------------------
+                   En el mostrador tiene sentido: el boticario le dice al
+                   cliente que solo quedan siete de los diez que pidio, el
+                   cliente acepta y se lleva siete. Hay una conversacion.
+
+                   Por la web no hay nadie con quien hablar: aplicar la misma
+                   regla significaria cobrarle a alguien siete unidades cuando
+                   encargo diez, sin preguntarle. El encargo se rechaza entero
+                   y el cliente decide. */
+                if (! $esMostrador) {
+                    $disponible = $this->inventario->disponible((int) $producto->id);
+
+                    if ($disponible < $unidadesPedidas) {
+                        throw new VentaSinStockException(sprintf(
+                            'No hay stock suficiente de %s: se pidieron %d unidades y hay %d.',
+                            $producto->nombre,
+                            $unidadesPedidas,
+                            $disponible,
+                        ));
+                    }
+                }
 
                 /* Descuenta lo que haya, siguiendo FEFO. Devuelve cuánto pudo
                    entregar y cuánto faltó. */
@@ -278,7 +315,13 @@ class VentaService
                impuesto que extraer, su precio ya es el importe final. */
             $total = round($baseGravada + $baseExonerada + $baseInafecta, 2);
 
-            $medioResumen = $this->registrarPagos($pedido, $pagos, $total);
+            /* Un encargo del portal todavia no se ha cobrado: registrar
+               ahi un pago en efectivo por el total lo daria por cobrado y
+               cuadraria la caja del dia contra dinero que no entro. El cobro
+               llega despues, por la pasarela o al recoger en mostrador. */
+            $medioResumen = $esMostrador
+                ? $this->registrarPagos($pedido, $pagos, $total)
+                : null;
 
             $pedido->update([
                 'subtotal_gravado'   => $baseGravadaSinIgv,

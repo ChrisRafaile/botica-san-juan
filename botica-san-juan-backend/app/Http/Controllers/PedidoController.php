@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\VentaSinStockException;
 use App\Models\Pedido;
 use App\Services\ResumenPedidosService;
 use App\Services\VentaService;
@@ -93,14 +94,34 @@ class PedidoController extends Controller
             'direccion' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $pedido = $ventas->confirmar(
-            (int) $request->user()->id,
-            $validado['items'],
-            $validado['direccion'] ?? null
-        );
+        /* Este endpoint llamaba a VentaService::confirmar(), un metodo que
+           dejo de existir cuando el servicio se unifico para el punto de
+           venta. Desde entonces el checkout del portal respondia 500: la
+           suite de pruebas lo senalaba, pero nadie ejecutaba la suite.
+
+           Se pasa el origen explicitamente. Sin ese argumento el pedido
+           nacería como venta de mostrador —completado y pagado— y un encargo
+           web sin cobrar entraria en la caja del dia. */
+        try {
+            $pedido = $ventas->registrar(
+                items: $validado['items'],
+                datosCliente: ['observacion' => $validado['direccion'] ?? null],
+                usuarioClienteId: (int) $request->user()->id,
+                origen: Pedido::ORIGEN_WEB,
+            );
+        } catch (VentaSinStockException $e) {
+            /* Falta de stock no es un fallo del sistema: es informacion que el
+               cliente necesita para ajustar su pedido. Sin este bloque salia
+               como 500 y el portal mostraba "error del servidor" cuando lo
+               unico que pasaba es que no habia suficientes unidades. */
+            return response()->json([
+                'message'   => $e->getMessage(),
+                'sin_stock' => true,
+            ], 422);
+        }
 
         return response()->json([
-            'message' => 'Venta confirmada y stock actualizado.',
+            'message' => 'Pedido registrado. Queda pendiente de preparacion.',
             'pedido' => $pedido,
         ], 201);
     }
