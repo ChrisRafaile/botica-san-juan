@@ -341,13 +341,19 @@
                 <div class="mx-auto flex size-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20">
                   <Pill class="size-8" />
                 </div>
-                <p class="mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-botica-200">
+                <p class="mt-6 text-sm font-semibold uppercase tracking-[0.2em] text-white/75">
                   Botica San Juan
                 </p>
-                <h2 class="mt-3 text-3xl font-bold leading-tight">
+                <!--
+                  El color va explícito y no heredado: el sistema de diseño
+                  fija `h1..h6 { color: var(--texto-primario) }` de forma
+                  global, que sobre este fondo verde oscuro dejaba el título
+                  en verde oscuro sobre verde oscuro, prácticamente ilegible.
+                -->
+                <h2 class="mt-3 text-3xl font-bold leading-tight text-white">
                   {{ esRegistro ? '¿Ya tienes cuenta?' : '¿Primera vez aquí?' }}
                 </h2>
-                <p class="mx-auto mt-4 max-w-xs text-sm leading-relaxed text-botica-100">
+                <p class="mx-auto mt-4 max-w-xs text-sm leading-relaxed text-white/85">
                   {{ esRegistro
                     ? 'Entra con tu DNI para ver tus pedidos y tu historial de compras.'
                     : 'Crea tu cuenta para comprar en línea y seguir cada pedido desde aquí.' }}

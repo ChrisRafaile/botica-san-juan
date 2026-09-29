@@ -78,6 +78,8 @@ const PANTALLAS = [
   { id: '14_productos', ruta: '/admin/products', titulo: 'Catálogo de productos', esperar: 3000 },
   { id: '15_tablero', ruta: '/admin/home', titulo: 'Tablero', esperar: 3000 },
   { id: '16_pedidos_portal', ruta: '/admin/orders', titulo: 'Pedidos del portal web', esperar: 3000 },
+  { id: '18_acceso', ruta: '/login', titulo: 'Acceso: panel a la derecha', esperar: 2000 },
+  { id: '19_registro', ruta: '/register', titulo: 'Registro: panel deslizado a la izquierda', esperar: 2500 },
   { id: '17_pedidos_mostrador', ruta: '/admin/orders', titulo: 'Ventas de mostrador', esperar: 3000,
     guion: async (cdp) => {
       /* Se pulsa la pestaña de mostrador por su texto, no por posición: si
