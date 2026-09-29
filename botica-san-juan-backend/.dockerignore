@@ -1,0 +1,32 @@
+# Lo que NO debe entrar en la imagen.
+# El motivo no es solo el tamano: .env lleva credenciales reales y meterlo en
+# una capa de Docker las deja ahi para siempre, aunque despues se borre el
+# archivo en una capa posterior.
+.env
+.env.*
+!.env.example
+
+.git
+.gitignore
+.github
+
+vendor/
+node_modules/
+
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/app/public/*
+
+tests/
+phpunit.xml
+.phpunit.result.cache
+
+# Volcados de base de datos: nunca en la imagen.
+*.dump
+*.sql
+infra/backup/salida/
+
+README.md
+*.md
