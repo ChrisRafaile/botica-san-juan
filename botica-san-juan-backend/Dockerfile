@@ -55,9 +55,20 @@ COPY . .
 RUN composer dump-autoload --no-dev --optimize --classmap-authoritative \
     && php artisan package:discover --ansi
 
-# Laravel escribe cache, vistas compiladas y logs aqui. Sin estos permisos la
-# aplicacion responde 500 en la primera peticion, sin dejar rastro util.
-RUN chmod -R 775 storage bootstrap/cache
+# Laravel escribe cache, vistas compiladas y logs aqui.
+#
+# Hay que CREAR los directorios, no solo darles permiso: su contenido esta en
+# .gitignore y ademas en .dockerignore, asi que no llegan con el codigo. Si
+# faltan, `view:cache` muere con "View path not found" en el arranque, que es
+# un mensaje que no apunta a la causa real.
+RUN mkdir -p \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs \
+        storage/app/public \
+        bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
