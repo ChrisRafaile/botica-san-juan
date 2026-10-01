@@ -29,7 +29,7 @@ services:
     runtime: docker
     plan: free
     region: oregon
-    branch: develop
+    branch: main
     rootDir: botica-san-juan-backend
     dockerfilePath: ./Dockerfile
     # Comprobacion de vida sin autenticacion: una comprobacion que exige
