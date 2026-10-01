@@ -10,7 +10,7 @@ es también la evidencia del punto 20 de la guía del APF2.
 | Capa | Servicio | Por qué |
 |---|---|---|
 | Base de datos | Neon · PostgreSQL 16 gestionado | Mismo motor que en desarrollo. Reanuda solo tras inactividad, así que un enlace revisado semanas después sigue respondiendo. Copias de seguridad y restauración a un punto en el tiempo incluidas. |
-| API | Railway · contenedor Docker | Laravel necesita un proceso persistente: colas, comandos programados y conexiones de base reutilizadas. Un entorno sin servidor obligaría a rediseñar esas tres cosas. |
+| API | Render · contenedor Docker | Laravel necesita un proceso persistente: colas, comandos programados y conexiones de base reutilizadas. Un entorno sin servidor obligaría a rediseñar esas tres cosas. |
 | Front-End | Vercel · sitio estático | El build de Vite produce archivos estáticos. Una red de distribución los sirve desde el nodo más cercano, que es lo que corresponde. |
 
 Separar API y Front-End en dos proveedores no es un capricho: tienen
@@ -23,11 +23,27 @@ la API quiere estar cerca de la base de datos y no replicarse.
 
 | Componente | Estado | Comprobación |
 |---|---|---|
-| Base de datos | **Operativa** | 3 361 productos, 3 363 lotes, 17 086 unidades, 41 migraciones aplicadas |
-| Esquema | **Aplicado** | `php artisan migrate:status` sin pendientes |
-| Datos de demostración | **Cargados** | Catálogo real; dos cuentas ficticias |
-| API | Imagen lista, pendiente de conectar | `Dockerfile`, `docker/entrypoint.sh`, `railway.json` |
-| Front-End | Compilado, pendiente de publicar | `pnpm build` sin errores |
+| Base de datos | **Operativa** | Neon · 3 361 productos, 3 363 lotes, 17 086 unidades, 41 migraciones |
+| API | **Desplegada** | `GET /api/salud` → `{"ok":true,"base":true}` en botica-san-juan-api.onrender.com |
+| Front-End | **Desplegado** | botica-san-juan.vercel.app responde 200 sin exigir autenticación |
+| Cuentas de demostración | **Creadas** | El arranque las siembra: `Cuenta lista: 10000001` y `10000002` |
+| Control de acceso | **Verificado** | `/api/productos` → 200; `/api/tablero` y `/api/pedidos` → 401 sin token |
+
+### Cuatro fallos que solo aparecieron al desplegar
+
+Ninguno daba síntoma en desarrollo. Se dejan anotados porque el mensaje de
+error no apuntaba a la causa en ninguno de los cuatro casos.
+
+| # | Síntoma | Causa real |
+|---|---|---|
+| 1 | `composer: not found` al construir | La imagen `dunglas/frankenphp` no trae Composer. Se copia el binario de la imagen oficial. |
+| 2 | «Falta la configuración de base de datos» con la base bien puesta | El arranque exigía `DB_HOST`, pero `config/database.php` lee `DB_URL`, que es la que declara el blueprint. |
+| 3 | `View path not found` al cachear vistas | `storage/framework/views` no existe: su contenido está en `.gitignore` **y** en `.dockerignore`. Hay que crearlo con `mkdir -p`. |
+| 4 | `frankenphp: Operation not permitted` | El binario trae `CAP_NET_BIND_SERVICE` y Render no ejecuta binarios con capacidades. Aquí sobra: escucha en un puerto alto. Se retira con `setcap -r`. |
+
+El primero se encontró reproduciendo la construcción en local con
+`docker build`, que dio el error exacto en segundos en lugar de esperar al
+panel. Los otros tres, leyendo el registro de despliegue.
 
 ---
 
