@@ -95,7 +95,11 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => 'prefer',
+            /* Neon exige conexion cifrada. 'prefer' la negocia si el servidor
+               la ofrece, pero se deja configurable para poder exigirla con
+               DB_SSLMODE=require y que una base mal configurada falle en vez
+               de caer en claro sin avisar. */
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
 
         'sqlsrv' => [

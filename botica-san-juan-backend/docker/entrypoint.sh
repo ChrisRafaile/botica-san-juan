@@ -21,8 +21,11 @@ if [ -z "$APP_KEY" ]; then
     exit 1
 fi
 
-if [ -z "$DB_HOST" ] && [ -z "$DATABASE_URL" ]; then
-    echo "!!! Falta la configuracion de base de datos (DB_HOST o DATABASE_URL)."
+# DB_URL es la que usa config/database.php para la conexion pgsql; DB_HOST es
+# la alternativa por partes. Se aceptan ambas, y DATABASE_URL porque algunos
+# proveedores la inyectan con ese nombre.
+if [ -z "$DB_URL" ] && [ -z "$DB_HOST" ] && [ -z "$DATABASE_URL" ]; then
+    echo "!!! Falta la configuracion de base de datos (DB_URL, DB_HOST o DATABASE_URL)."
     exit 1
 fi
 

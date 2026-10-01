@@ -29,6 +29,11 @@ RUN install-php-extensions \
         zip \
         gd
 
+# La imagen de FrankenPHP NO trae Composer. Se copia el binario de la imagen
+# oficial en lugar de descargar el instalador, que obligaria a verificar el
+# hash a mano en cada construccion.
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 WORKDIR /app
 
 # Las dependencias se instalan ANTES de copiar el codigo para que el cache de
@@ -57,7 +62,8 @@ RUN chmod -R 775 storage bootstrap/cache
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
 
-# Railway inyecta PORT; 8080 solo sirve cuando se prueba el contenedor a mano.
+# Render inyecta PORT en tiempo de ejecucion; 8080 solo sirve cuando se prueba
+# el contenedor a mano con `docker run`.
 ENV PORT=8080
 EXPOSE 8080
 
