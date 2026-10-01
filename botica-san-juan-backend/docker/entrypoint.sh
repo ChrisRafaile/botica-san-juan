@@ -46,6 +46,23 @@ echo "==> Aplicando migraciones"
 php artisan migrate --force
 
 # ---------------------------------------------------------------------------
+# Cuentas de demostracion
+# ---------------------------------------------------------------------------
+# Se siembran en CADA arranque, no solo en el primero, porque el seeder usa
+# updateOrCreate: no duplica cuentas y permite rotar la contrasena cambiando
+# la variable de entorno y volviendo a desplegar, sin tocar la base a mano.
+#
+# Si no hay contrasenas declaradas no se siembra nada y se dice por que. Lo
+# que no se hace nunca es inventar una clave por defecto: seria un
+# administrador con credencial conocida en una URL publica.
+if [ -n "$DEMO_ADMIN_PASSWORD" ] || [ -n "$DEMO_CLIENTE_PASSWORD" ]; then
+    echo "==> Sembrando cuentas de demostracion"
+    php artisan db:seed --class=UsuariosDemostracionSeeder --force
+else
+    echo "==> Sin DEMO_ADMIN_PASSWORD ni DEMO_CLIENTE_PASSWORD: no se crean cuentas de demostracion"
+fi
+
+# ---------------------------------------------------------------------------
 # Servidor
 # ---------------------------------------------------------------------------
 # `php-server` monta la configuracion de Caddy equivalente a un `try_files`

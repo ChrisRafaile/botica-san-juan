@@ -27,25 +27,14 @@ class UsuariosDemostracionSeeder extends Seeder
 {
     public function run(): void
     {
-        $cuentas = [
-            [
-                'dni'    => '10000001',
-                'nombre' => 'Administrador de demostracion',
-                'email'  => 'admin.demo@boticasanjuan.test',
-                'rol'    => 'administrador',
-                'clave'  => env('DEMO_ADMIN_PASSWORD'),
-            ],
-            [
-                'dni'    => '10000002',
-                'nombre' => 'Cliente de demostracion',
-                'email'  => 'cliente.demo@boticasanjuan.test',
-                'rol'    => 'cliente',
-                'clave'  => env('DEMO_CLIENTE_PASSWORD'),
-            ],
-        ];
+        /* Las cuentas se declaran en config/demostracion.php y no con env()
+           aqui: en produccion el arranque cachea la configuracion y a partir
+           de ahi env() deja de leer el .env. Ese mismo descuido ya rompio la
+           configuracion de CORS una vez. */
+        $cuentas = array_values(config('demostracion.cuentas', []));
 
         foreach ($cuentas as $cuenta) {
-            if (blank($cuenta['clave'])) {
+            if (blank($cuenta['password'])) {
                 $this->command->warn(
                     "Se omite {$cuenta['dni']}: falta su contrasena en las variables de entorno."
                 );
@@ -62,7 +51,7 @@ class UsuariosDemostracionSeeder extends Seeder
                     'nombre'   => $cuenta['nombre'],
                     'email'    => $cuenta['email'],
                     'rol'      => $cuenta['rol'],
-                    'password' => $cuenta['clave'],
+                    'password' => $cuenta['password'],
                 ]
             );
 

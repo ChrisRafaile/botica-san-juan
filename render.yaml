@@ -66,7 +66,9 @@ services:
         sync: false             # la URL que Render asigne a este servicio
       - key: CORS_ALLOWED_ORIGINS
         sync: false             # la URL del front en Vercel, exacta y sin barra final
-      - key: SEED_ADMIN_PASSWORD
+      # Los nombres los fija config/demostracion.php, que es de donde los lee
+      # el seeder. Si no coinciden, el arranque omite las cuentas en silencio.
+      - key: DEMO_ADMIN_PASSWORD
         sync: false             # cuenta de demostracion, DNI 10000001
-      - key: SEED_CLIENTE_PASSWORD
+      - key: DEMO_CLIENTE_PASSWORD
         sync: false             # cuenta de demostracion, DNI 10000002
