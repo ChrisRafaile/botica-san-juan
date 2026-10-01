@@ -73,6 +73,16 @@ RUN mkdir -p \
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
 RUN chmod +x /usr/local/bin/entrypoint
 
+# La imagen de FrankenPHP marca su binario con CAP_NET_BIND_SERVICE para poder
+# escuchar en los puertos 80 y 443 sin ser root. Render ejecuta los
+# contenedores con privilegios restringidos y se niega a lanzar un binario con
+# capacidades: el arranque muere con "frankenphp: Operation not permitted",
+# que no menciona ni capacidades ni permisos de puerto.
+#
+# Aqui esa capacidad sobra, porque el servicio escucha en el puerto alto que
+# inyecta la plataforma. Se retira y el binario queda como uno normal.
+RUN setcap -r /usr/local/bin/frankenphp 2>/dev/null || true
+
 # Render inyecta PORT en tiempo de ejecucion; 8080 solo sirve cuando se prueba
 # el contenedor a mano con `docker run`.
 ENV PORT=8080
