@@ -68,22 +68,43 @@ export interface OpcionesListado {
 const POR_PAGINA_POR_DEFECTO = 48
 
 /**
+ * Los decimales llegan como CADENA, no como numero.
+ *
+ * Laravel serializa las columnas decimal como string para no perder
+ * precision por el camino: `precio` viaja como "12.50". La vista hacia
+ * `producto.precio.toFixed(2)` y eso lanza "toFixed is not a function",
+ * que en Vue rompe el render entero y deja la pantalla EN BLANCO, sin
+ * ningun mensaje que relacione el fallo con el precio.
+ *
+ * Se convierten aqui, en el borde del sistema, y no en cada plantilla que
+ * los use: si cada vista lo arregla por su cuenta, alguna se olvidara.
+ */
+function normalizar(p: Product): Product {
+  return {
+    ...p,
+    precio: Number(p.precio ?? 0),
+    stock: Number(p.stock ?? 0),
+  }
+}
+
+/**
  * Acepta las dos formas: el paginador y el arreglo pelado. Asi sigue
  * funcionando si algun endpoint devuelve una lista simple.
  */
 function abrirPaginador(cuerpo: unknown): ListadoProductos {
   if (Array.isArray(cuerpo)) {
+    const items = (cuerpo as Product[]).map(normalizar)
     return {
-      items: cuerpo as Product[],
-      total: cuerpo.length,
+      items,
+      total: items.length,
       pagina: 1,
-      porPagina: cuerpo.length,
+      porPagina: items.length,
       ultimaPagina: 1,
     }
   }
 
   const p = cuerpo as Partial<RespuestaPaginada<Product>>
-  const items = Array.isArray(p?.data) ? p.data : []
+  const items = (Array.isArray(p?.data) ? p.data : []).map(normalizar)
 
   return {
     items,
@@ -122,7 +143,7 @@ class ProductsService {
   async getProductById(id: number): Promise<Product> {
     const respuesta = await api.get(`/productos/${id}`)
     const cuerpo = respuesta.data as Product | { data: Product }
-    return (cuerpo as { data?: Product }).data ?? (cuerpo as Product)
+    return normalizar((cuerpo as { data?: Product }).data ?? (cuerpo as Product))
   }
 
   async searchProducts(query: string): Promise<Product[]> {
