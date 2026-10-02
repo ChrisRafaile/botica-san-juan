@@ -13,24 +13,34 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = userData
   }
 
+  /**
+   * SE RETIRARON LOS REGISTROS DE DEPURACION DE ESTA FUNCION
+   *
+   * Imprimian por consola la respuesta completa del servidor y el objeto de
+   * usuario. La respuesta completa INCLUYE EL TOKEN DE SESION: quedaba escrito
+   * en claro en la consola del navegador en cada inicio de sesion, en
+   * produccion igual que en desarrollo. Quien tenga ese token no necesita la
+   * contrasena para actuar como esa persona hasta que caduque.
+   *
+   * El objeto de usuario llevaba ademas nombre, DNI, correo y telefono.
+   *
+   * El token sigue guardandose en localStorage, que es donde el interceptor lo
+   * busca; lo que se elimina es publicarlo por consola. Si hace falta seguir
+   * el flujo, el resultado de la funcion y el estado del store ya lo dicen sin
+   * sacar credenciales por ningun lado.
+   */
   const login = async (dni: string, password: string) => {
     try {
       isLoading.value = true
-      console.log('🔐 Auth store: Starting login process')
       const response = await authService.login({ dni, password })
-      console.log('🔐 Auth store: Login response received', response)
 
       // Guardar token en localStorage
       localStorage.setItem('auth_token', response.token)
-      console.log('💾 Auth store: Token saved to localStorage')
-
       setUser(response.user)
-      console.log('👤 Auth store: User set in store', user.value)
 
-      console.log('✅ Auth store: Login successful')
       return { success: true }
     } catch (error) {
-      console.error('❌ Auth store: Login error:', error)
+      console.error('❌ Error al iniciar sesión:', error)
       return {
         success: false,
         message: error instanceof Error ? error.message : 'Error al iniciar sesión'

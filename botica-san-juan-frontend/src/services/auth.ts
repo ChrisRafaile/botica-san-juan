@@ -49,31 +49,39 @@ interface ApiError {
 class AuthService {
   // Login user
   async login(credentials: LoginRequest): Promise<AuthResponse> {
-    logger.info('🔐 Intentando login', { dni: credentials.dni })
+    /**
+     * QUE NO SE REGISTRA AQUI, Y POR QUE
+     *
+     * Estas lineas escribian el DNI en la consola del navegador en cada
+     * intento de acceso —en el mensaje de entrada, en el de depuracion y otra
+     * vez en el de error— ademas del nombre de la persona al entrar. El DNI es
+     * un documento de identidad: no es un identificador tecnico cualquiera.
+     *
+     * Y no se quedaba en desarrollo. El `logger` llama a `console.log` sin
+     * condicion; la bandera `import.meta.env.DEV` solo guarda un bloque vacio.
+     * Asi que en produccion cualquiera con la consola abierta, y cualquier
+     * extension o herramienta de errores que capture la consola, veia el DNI
+     * de quien acababa de entrar.
+     *
+     * Se registra el hecho, no a la persona: que hubo un intento, si salio
+     * bien y con que rol. Eso es lo que sirve para depurar; la identidad no
+     * aporta nada que justifique publicarla.
+     */
+    logger.info('🔐 Intentando iniciar sesión')
 
     try {
-      logger.debug('📡 Enviando petición de login a API', {
-        url: api.defaults.baseURL + '/login',
-        credentials: { ...credentials, password: '[REDACTED]' }
-      })
-      // Additional debug to print actual baseURL
-       
-      console.log('[DEV] auth.ts: api.defaults.baseURL =', api.defaults.baseURL)
-
       const response: AxiosResponse<AuthResponse> = await api.post('/login', credentials);
 
-      logger.info('✅ Login exitoso', {
+      logger.info('✅ Inicio de sesión correcto', {
         userId: response.data.user.id,
-        userName: response.data.user.nombre,
         userRole: response.data.user.rol
       })
 
       return response.data;
     } catch (error: unknown) {
-      logger.error('❌ Error en login', {
-        error: error,
-        credentials: { ...credentials, password: '[REDACTED]' }
-      })
+      /* El error va sin credenciales: incluirlas volvia a sacar el DNI por
+         consola justo en el caso en que mas se mira, el que falla. */
+      logger.error('❌ Error al iniciar sesión', { error })
 
       const err = error as ApiError;
       const errorMessage = err.response?.data?.message || 'Error al iniciar sesión'

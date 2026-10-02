@@ -14,6 +14,16 @@ use Illuminate\Support\Facades\RateLimiter;
 class UsuarioController extends Controller
 {
     /**
+     * Hash de un valor aleatorio que no es la contrasena de nadie.
+     *
+     * Solo existe para gastar el mismo tiempo de bcrypt cuando el DNI no esta
+     * registrado. Esta escrito como constante y no generado al vuelo porque
+     * generarlo costaria otro bcrypt en cada peticion, y porque su coste debe
+     * coincidir exactamente con `hashing.bcrypt.rounds` (hoy, 12).
+     */
+    private const HASH_SENUELO = '$2y$12$2StWjKxxbrQN/Pu6VHAaje/PTnZvOiATvletKJ0GTUQfItqqbGI0G';
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -170,6 +180,32 @@ class UsuarioController extends Controller
         }
 
         $usuario = Usuario::where('dni', $validated['dni'])->first();
+
+        /**
+         * CANAL LATERAL POR TIEMPOS: POR QUE SE COMPRUEBA UN HASH SENUELO
+         *
+         * El mensaje de error ya es el mismo exista o no el DNI, que es lo
+         * primero que se mira al revisar enumeracion de usuarios. Pero el
+         * RELOJ contaba lo que el mensaje callaba: si el DNI no estaba
+         * registrado se devolvia sin llegar a ejecutar bcrypt, y bcrypt con
+         * coste 12 tarda del orden de 150 ms. Medido contra este mismo
+         * endpoint: ~445 ms con un DNI registrado y clave incorrecta, frente
+         * a ~285 ms con un DNI inexistente. Esa diferencia es estable y se
+         * mide desde fuera sin ninguna credencial.
+         *
+         * En una botica eso no es un detalle teorico: permite recorrer
+         * numeros de DNI y averiguar quien es cliente, que es justamente el
+         * dato que esta pantalla no debe revelar.
+         *
+         * Comprobando la contrasena contra un hash senuelo cuando no hay
+         * usuario, ambos caminos pagan el mismo coste y los tiempos dejan de
+         * distinguirse. El senuelo es un bcrypt real del mismo coste que el
+         * configurado; si se cambia `hashing.bcrypt.rounds`, hay que
+         * regenerarlo o volvera a aparecer la diferencia.
+         */
+        if (!$usuario) {
+            Hash::check($validated['password'], self::HASH_SENUELO);
+        }
 
         if (!$usuario || !Hash::check($validated['password'], $usuario->password)) {
             $attempts = RateLimiter::attempts($throttleKey) + 1;
