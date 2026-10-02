@@ -3,6 +3,22 @@ import { ref, computed } from 'vue'
 import productsService from '@/services/products'
 import type { Product } from '@/services/products'
 
+/**
+ * Catalogo del portal publico.
+ *
+ * LOS FILTROS SE RESUELVEN EN EL SERVIDOR
+ *
+ * La version anterior cargaba una pagina y filtraba sobre ella en el
+ * navegador. Con 3 361 productos en el catalogo eso significa que buscar
+ * "paracetamol" solo lo encontraba si ya estaba entre los que se habian
+ * descargado, y que el desplegable de tipos solo ofrecia los tipos presentes
+ * en esa pagina. Es el mismo error que ya aparecio en el tablero y en la
+ * pantalla de inventario del administrador: contar o filtrar sobre lo
+ * cargado en vez de preguntarle a quien tiene todos los datos.
+ *
+ * `total` guarda cuantos productos hay DE VERDAD, para que la pantalla pueda
+ * decir "48 de 3 361" en lugar de dar a entender que eso es todo el catalogo.
+ */
 export const useProductsStore = defineStore('products', () => {
   const products = ref<Product[]>([])
   const filteredProducts = ref<Product[]>([])
@@ -11,64 +27,62 @@ export const useProductsStore = defineStore('products', () => {
   const searchQuery = ref('')
   const selectedCategory = ref<string>('')
 
+  /** Total real del catalogo segun el servidor, no el de la pagina cargada. */
+  const total = ref(0)
+  /** Cuantos coinciden con el filtro actual, tambien segun el servidor. */
+  const totalFiltrado = ref(0)
+
   const categories = computed(() => {
-    const uniqueCategories = new Set(products.value.map(product => product.tipo).filter(Boolean))
-    return Array.from(uniqueCategories)
+    const unicas = new Set(products.value.map(p => p.tipo).filter(Boolean))
+    return Array.from(unicas).sort()
   })
 
-  const loadProducts = async () => {
+  /** Hay mas resultados de los que se estan mostrando. */
+  const hayMasResultados = computed(() => filteredProducts.value.length < totalFiltrado.value)
+
+  async function consultar(opciones: { busqueda?: string; tipo?: string }) {
+    isLoading.value = true
+    error.value = null
     try {
-      isLoading.value = true
-      error.value = null
-      const allProducts = await productsService.getAllProducts()
-      products.value = allProducts
-      filteredProducts.value = allProducts
+      const { items, total: cuantos } = await productsService.listar(opciones)
+      filteredProducts.value = items
+      totalFiltrado.value = cuantos
+      return items
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error loading products'
-      console.error('Error loading products:', err)
+      error.value = err instanceof Error ? err.message : 'No se pudo cargar el catálogo'
+      console.error('Error al consultar el catálogo:', err)
+      filteredProducts.value = []
+      totalFiltrado.value = 0
+      return []
     } finally {
       isLoading.value = false
     }
+  }
+
+  const loadProducts = async () => {
+    const items = await consultar({})
+    products.value = items
+    total.value = totalFiltrado.value
   }
 
   const searchProducts = async (query: string) => {
-    try {
-      isLoading.value = true
-      error.value = null
-      searchQuery.value = query
-
-      if (query.trim()) {
-        const results = await productsService.searchProducts(query)
-        filteredProducts.value = results
-      } else {
-        filteredProducts.value = products.value
-      }
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error searching products'
-      console.error('Error searching products:', err)
-    } finally {
-      isLoading.value = false
-    }
+    searchQuery.value = query
+    await consultar({ busqueda: query, tipo: selectedCategory.value })
   }
 
-  const filterByCategory = (category: string) => {
+  const filterByCategory = async (category: string) => {
     selectedCategory.value = category
-
-    if (category) {
-      filteredProducts.value = products.value.filter(product => product.tipo === category)
-    } else {
-      filteredProducts.value = products.value
-    }
+    await consultar({ busqueda: searchQuery.value, tipo: category })
   }
 
   const getProductById = (id: number) => {
-    return products.value.find(product => product.id === id)
+    return products.value.find(p => p.id === id)
   }
 
-  const clearFilters = () => {
+  const clearFilters = async () => {
     searchQuery.value = ''
     selectedCategory.value = ''
-    filteredProducts.value = products.value
+    await loadProducts()
   }
 
   return {
@@ -79,10 +93,13 @@ export const useProductsStore = defineStore('products', () => {
     searchQuery,
     selectedCategory,
     categories,
+    total,
+    totalFiltrado,
+    hayMasResultados,
     loadProducts,
     searchProducts,
     filterByCategory,
     getProductById,
-    clearFilters
+    clearFilters,
   }
 })

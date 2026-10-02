@@ -1,7 +1,27 @@
 import api from './api'
-import type { AxiosResponse } from 'axios'
 
-// Product interface based on PHP backend structure
+/**
+ * Catalogo de productos del portal publico.
+ *
+ * FALLO CORREGIDO: EL PAGINADOR LLEGABA SIN ABRIR
+ *
+ * `GET /api/productos` no devuelve un arreglo, devuelve el paginador de
+ * Laravel: { current_page, data: [...], total, per_page, ... }. Los metodos
+ * de aqui estaban tipados como `Product[]` y hacian `return response.data`,
+ * asi que entregaban el OBJETO del paginador donde el resto del codigo
+ * esperaba una lista. La pantalla de productos acababa mostrando "No se
+ * encontraron productos" con 3 361 productos en la base.
+ *
+ * El tipo mentia y TypeScript no podia avisar: `AxiosResponse<Product[]>` era
+ * una afirmacion nuestra sobre la respuesta, no una comprobacion.
+ *
+ * DE PASO: LA BUSQUEDA SE HACE EN EL SERVIDOR
+ *
+ * La vista filtraba en el navegador sobre los 10 productos de la primera
+ * pagina, de modo que buscar solo encontraba algo si ya estaba a la vista.
+ * El controlador acepta `q`, `tipo` y `per_page`, asi que se le pide a el.
+ */
+
 export interface Product {
   id: number
   nombre: string
@@ -15,60 +35,110 @@ export interface Product {
   imagen: string
 }
 
+/** Lo que de verdad devuelve el servidor en los listados. */
+interface RespuestaPaginada<T> {
+  data: T[]
+  total: number
+  current_page: number
+  per_page: number
+  last_page: number
+}
+
+/** Resultado de un listado, con el total REAL del catalogo. */
+export interface ListadoProductos {
+  items: Product[]
+  total: number
+  pagina: number
+  porPagina: number
+  ultimaPagina: number
+}
+
+export interface OpcionesListado {
+  busqueda?: string
+  tipo?: string
+  laboratorio?: string
+  pagina?: number
+  porPagina?: number
+}
+
+/**
+ * Un grid de catalogo con 10 elementos se ve roto; con 3 361 se queda sin
+ * memoria el navegador. 48 llena la rejilla y mantiene la respuesta corta.
+ */
+const POR_PAGINA_POR_DEFECTO = 48
+
+/**
+ * Acepta las dos formas: el paginador y el arreglo pelado. Asi sigue
+ * funcionando si algun endpoint devuelve una lista simple.
+ */
+function abrirPaginador(cuerpo: unknown): ListadoProductos {
+  if (Array.isArray(cuerpo)) {
+    return {
+      items: cuerpo as Product[],
+      total: cuerpo.length,
+      pagina: 1,
+      porPagina: cuerpo.length,
+      ultimaPagina: 1,
+    }
+  }
+
+  const p = cuerpo as Partial<RespuestaPaginada<Product>>
+  const items = Array.isArray(p?.data) ? p.data : []
+
+  return {
+    items,
+    total: typeof p?.total === 'number' ? p.total : items.length,
+    pagina: typeof p?.current_page === 'number' ? p.current_page : 1,
+    porPagina: typeof p?.per_page === 'number' ? p.per_page : items.length,
+    ultimaPagina: typeof p?.last_page === 'number' ? p.last_page : 1,
+  }
+}
+
 class ProductsService {
-  // Get all products
+  /** Listado con filtros resueltos en el servidor. */
+  async listar(opciones: OpcionesListado = {}): Promise<ListadoProductos> {
+    const params: Record<string, string | number> = {
+      per_page: opciones.porPagina ?? POR_PAGINA_POR_DEFECTO,
+      page: opciones.pagina ?? 1,
+    }
+
+    const busqueda = opciones.busqueda?.trim()
+    if (busqueda) params.q = busqueda
+    if (opciones.tipo) params.tipo = opciones.tipo
+    /* `laboratorio` NO se envia: el controlador no lo contempla y mandarlo
+       daria la impresion de que filtra cuando el servidor lo ignora. Ese
+       filtro se resuelve en la vista sobre la pagina cargada, con sus
+       limitaciones, hasta que exista en la API. */
+
+    const respuesta = await api.get('/productos', { params })
+    return abrirPaginador(respuesta.data)
+  }
+
   async getAllProducts(): Promise<Product[]> {
-    try {
-      const response: AxiosResponse<Product[]> = await api.get('/productos')
-      return response.data
-    } catch (error) {
-      console.error('Error fetching products:', error)
-      throw error
-    }
+    const { items } = await this.listar()
+    return items
   }
 
-  // Get product by ID
   async getProductById(id: number): Promise<Product> {
-    try {
-      const response: AxiosResponse<Product> = await api.get(`/productos/${id}`)
-      return response.data
-    } catch (error) {
-      console.error('Error fetching product:', error)
-      throw error
-    }
+    const respuesta = await api.get(`/productos/${id}`)
+    const cuerpo = respuesta.data as Product | { data: Product }
+    return (cuerpo as { data?: Product }).data ?? (cuerpo as Product)
   }
 
-  // Search products by query
   async searchProducts(query: string): Promise<Product[]> {
-    try {
-      const response: AxiosResponse<Product[]> = await api.get(`/productos?search=${encodeURIComponent(query)}`)
-      return response.data
-    } catch (error) {
-      console.error('Error searching products:', error)
-      throw error
-    }
+    const { items } = await this.listar({ busqueda: query })
+    return items
   }
 
-  // Filter products by type
   async getProductsByType(type: string): Promise<Product[]> {
-    try {
-      const response: AxiosResponse<Product[]> = await api.get(`/productos?tipo=${encodeURIComponent(type)}`)
-      return response.data
-    } catch (error) {
-      console.error('Error filtering products:', error)
-      throw error
-    }
+    const { items } = await this.listar({ tipo: type })
+    return items
   }
 
-  // Get products by laboratory
+  /** Filtra sobre la pagina cargada: la API todavia no acepta este criterio. */
   async getProductsByLaboratory(laboratory: string): Promise<Product[]> {
-    try {
-      const response: AxiosResponse<Product[]> = await api.get(`/productos?laboratorio=${encodeURIComponent(laboratory)}`)
-      return response.data
-    } catch (error) {
-      console.error('Error filtering products by laboratory:', error)
-      throw error
-    }
+    const { items } = await this.listar()
+    return items.filter(p => p.laboratorio === laboratory)
   }
 }
 

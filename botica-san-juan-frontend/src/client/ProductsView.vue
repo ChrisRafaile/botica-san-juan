@@ -91,6 +91,21 @@
 
     <!-- Products Grid -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Cuantos se muestran de cuantos hay. Sin esto, ver 48 tarjetas da a
+           entender que el catalogo tiene 48 productos y no 3 361. -->
+      <p
+        v-if="!productsStore.isLoading && filteredProducts.length"
+        class="mb-5 text-sm text-gray-600"
+      >
+        Mostrando <strong class="text-gray-900">{{ filteredProducts.length }}</strong>
+        de <strong class="text-gray-900">{{ productsStore.totalFiltrado.toLocaleString('es-PE') }}</strong>
+        {{ productsStore.totalFiltrado === 1 ? 'producto' : 'productos' }}
+        <template v-if="productsStore.searchQuery"> que coinciden con la búsqueda</template>.
+        <span v-if="productsStore.hayMasResultados">
+          Afina la búsqueda para encontrar lo que necesitas.
+        </span>
+      </p>
+
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <div
           v-for="product in filteredProducts"
@@ -166,7 +181,10 @@
         class="text-center py-12"
       >
         <PackageIcon class="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <h3 class="text-lg font-medium text-gray-900 mb-2">
+        <h3 v-if="productsStore.error" class="text-lg font-medium text-gray-900 mb-2">
+          No se pudo cargar el catálogo
+        </h3>
+        <h3 v-else class="text-lg font-medium text-gray-900 mb-2">
           No se encontraron productos
         </h3>
         <p class="text-gray-600">
@@ -216,11 +234,11 @@ const laboratorios = computed(() => {
 })
 
 const filteredProducts = computed(() => {
+  /* El tipo y la busqueda ya los resolvio el SERVIDOR: volver a filtrarlos
+     aqui los aplicaria dos veces. Solo queda el laboratorio, que la API aun
+     no admite como criterio y por eso se filtra sobre lo cargado. */
   let filtered = productsStore.filteredProducts.filter(product => {
-    const matchesTipo = !selectedTipo.value || product.tipo === selectedTipo.value
-    const matchesLaboratorio = !selectedLaboratorio.value || product.laboratorio === selectedLaboratorio.value
-
-    return matchesTipo && matchesLaboratorio
+    return !selectedLaboratorio.value || product.laboratorio === selectedLaboratorio.value
   })
 
   // Sort
