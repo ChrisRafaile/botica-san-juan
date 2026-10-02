@@ -1,63 +1,63 @@
 <template>
-  <div class="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100">
+  <div class="min-h-screen bg-linear-to-br from-clinico-50 to-clinico-100">
     <div class="container mx-auto px-4 py-8">
       <div class="max-w-4xl mx-auto">
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+        <div class="bg-superficie-elevada/80 backdrop-blur-sm rounded-2xl shadow-xl p-8">
           <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 mb-4">
+            <h1 class="text-4xl font-bold text-texto-primario mb-4">
               ¡Bienvenido, {{ user?.nombre }}!
             </h1>
-            <p class="text-lg text-gray-600">
+            <p class="text-lg text-texto-secundario">
               Panel de Cliente - Botica San Juan
             </p>
           </div>
 
           <div class="grid md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-linear-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl">
+            <div class="bg-linear-to-r from-clinico-500 to-clinico-600 text-white p-6 rounded-xl">
               <h3 class="text-xl font-semibold mb-2">
                 Mis Compras
               </h3>
-              <p class="text-blue-100">
+              <p class="text-clinico-100">
                 Revisa tu historial de pedidos
               </p>
             </div>
 
-            <div class="bg-linear-to-r from-green-500 to-green-600 text-white p-6 rounded-xl">
+            <div class="bg-linear-to-r from-botica-500 to-botica-600 text-white p-6 rounded-xl">
               <h3 class="text-xl font-semibold mb-2">
                 Carrito de Compras
               </h3>
-              <p class="text-green-100">
+              <p class="text-botica-100">
                 Productos en tu carrito
               </p>
             </div>
           </div>
 
-          <div class="bg-gray-50 rounded-xl p-6">
-            <h3 class="text-2xl font-bold text-gray-800 mb-4">
+          <div class="bg-superficie-hundida rounded-xl p-6">
+            <h3 class="text-2xl font-bold text-texto-primario mb-4">
               Productos Disponibles
             </h3>
             <div class="grid md:grid-cols-3 gap-4">
-              <div class="bg-white p-4 rounded-lg shadow-sm">
-                <h4 class="font-semibold text-gray-800">
+              <div class="bg-superficie-elevada p-4 rounded-lg shadow-sm">
+                <h4 class="font-semibold text-texto-primario">
                   Medicamentos
                 </h4>
-                <p class="text-gray-600 text-sm">
+                <p class="text-texto-secundario text-sm">
                   Amplia variedad de medicamentos
                 </p>
               </div>
-              <div class="bg-white p-4 rounded-lg shadow-sm">
-                <h4 class="font-semibold text-gray-800">
+              <div class="bg-superficie-elevada p-4 rounded-lg shadow-sm">
+                <h4 class="font-semibold text-texto-primario">
                   Cuidado Personal
                 </h4>
-                <p class="text-gray-600 text-sm">
+                <p class="text-texto-secundario text-sm">
                   Productos para el cuidado personal
                 </p>
               </div>
-              <div class="bg-white p-4 rounded-lg shadow-sm">
-                <h4 class="font-semibold text-gray-800">
+              <div class="bg-superficie-elevada p-4 rounded-lg shadow-sm">
+                <h4 class="font-semibold text-texto-primario">
                   Suplementos
                 </h4>
-                <p class="text-gray-600 text-sm">
+                <p class="text-texto-secundario text-sm">
                   Vitaminas y suplementos nutricionales
                 </p>
               </div>
@@ -66,7 +66,7 @@
 
           <div class="mt-8 text-center">
             <button
-              class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              class="bg-peligro-500 hover:bg-peligro-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
               @click="logout"
             >
               Cerrar Sesión

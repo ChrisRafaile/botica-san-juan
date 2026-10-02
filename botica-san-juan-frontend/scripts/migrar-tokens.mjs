@@ -4,6 +4,7 @@
  *   node scripts/migrar-tokens.mjs --dry     → informe, no escribe nada
  *   node scripts/migrar-tokens.mjs           → aplica
  *   node scripts/migrar-tokens.mjs src/admin/views/AdminHomeView.vue
+ *   node scripts/migrar-tokens.mjs --portal src/components/*.vue
  *
  * POR QUÉ UN SCRIPT Y NO A MANO
  * Son más de mil sustituciones repartidas en once archivos. A mano se cometen
@@ -114,10 +115,89 @@ const MAPA = {
   'bg-green-600': 'bg-exito-600',
 }
 
+/* --------------------------------------------------------------------------
+   Tabla del portal público  (--portal)
+   --------------------------------------------------------------------------
+   Esta segunda tabla SÍ contiene decisiones de diseño, no equivalencias, y por
+   eso vive aparte y detrás de una bandera: el admin ya está migrado y
+   verificado, y no se toca al volver a pasar el script.
+
+   LA DECISIÓN
+   El portal estaba escrito contra una paleta `primary`/`secondary` declarada en
+   `tailwind.config.js`. Tailwind 4 con `@import "tailwindcss"` y `@theme` NO
+   carga ese archivo salvo que se le indique con `@config`, y no se le indica:
+   las 91 clases `primary-*`/`secondary-*` del portal no generaban NINGÚN
+   estilo. No es una preferencia estética, era una avería invisible —el CTA sin
+   degradado, el footer sin color al pasar el ratón— porque una clase que no
+   existe no da error, simplemente no pinta.
+
+   Se resuelve hacia los colores que ya tiene el producto: `botica` (el verde de
+   marca, el mismo del panel) como acento principal y `clinico` (el azul) como
+   secundario. Así el portal y el administrador dejan de parecer dos productos.
+   El resto de la variedad decorativa —índigo, violeta, púrpura— se recoge en
+   `clinico`, y los verdes y ámbares en `botica` y `ambar`, que es toda la
+   variedad que el sistema define a propósito.
+*/
+const MAPA_PORTAL = {}
+
+/* Las escalas completas se generan: escribir 11 pasos a mano por familia
+   invita a erratas, y la correspondencia es uno a uno por número. */
+const PASOS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
+const PREFIJOS = ['bg', 'text', 'border', 'ring', 'from', 'via', 'to', 'divide', 'placeholder', 'outline', 'shadow', 'decoration', 'fill', 'stroke', 'accent', 'caret']
+
+const FAMILIAS = {
+  /* La paleta muerta, hacia los colores reales del producto. */
+  primary: 'botica',
+  secondary: 'clinico',
+  /* El azul del portal es exactamente el papel del azul clínico. */
+  blue: 'clinico',
+  sky: 'clinico',
+  cyan: 'clinico',
+  /* Variedad decorativa que el sistema no define: se recoge en el secundario. */
+  indigo: 'clinico',
+  violet: 'clinico',
+  purple: 'clinico',
+  fuchsia: 'clinico',
+  /* Verdes decorativos al verde de marca (los semánticos ya los cogió MAPA). */
+  green: 'botica',
+  emerald: 'botica',
+  teal: 'botica',
+  lime: 'botica',
+  /* Amarillos y naranjas al ámbar del sistema. */
+  yellow: 'ambar',
+  amber: 'ambar',
+  orange: 'ambar',
+  /* `accent` era la tercera familia de la paleta muerta, un amarillo
+     (#facc15). Mismo caso que primary/secondary: 34 clases que no pintaban
+     nada. Su equivalente real en el sistema es `ambar`. */
+  accent: 'ambar',
+}
+
+for (const [origen, destino] of Object.entries(FAMILIAS)) {
+  for (const prefijo of PREFIJOS) {
+    for (const paso of PASOS) {
+      MAPA_PORTAL[`${prefijo}-${origen}-${paso}`] = `${prefijo}-${destino}-${paso}`
+    }
+  }
+}
+
+/* Grises que faltaban en la tabla base, vistos al migrar el portal. */
+Object.assign(MAPA_PORTAL, {
+  'border-gray-100': 'border-borde-sutil',
+  'border-slate-100': 'border-borde-sutil',
+  'placeholder-gray-500': 'placeholder-texto-terciario',
+  'placeholder-slate-500': 'placeholder-texto-terciario',
+  'placeholder-gray-400': 'placeholder-texto-terciario',
+  'placeholder-slate-400': 'placeholder-texto-terciario',
+})
+
 /* Clases que se dejan a propósito para revisión humana. */
 const REVISAR = /\b(from|via|to)-(blue|indigo|violet|purple|fuchsia|cyan|sky|emerald|green)-[0-9]+\b/
 
-const claves = Object.keys(MAPA).sort((a, b) => b.length - a.length)
+const esPortal = argv.includes('--portal')
+const TABLA = esPortal ? { ...MAPA, ...MAPA_PORTAL } : MAPA
+
+const claves = Object.keys(TABLA).sort((a, b) => b.length - a.length)
 
 const soloInforme = argv.includes('--dry')
 const rutasPedidas = argv.slice(2).filter((a) => !a.startsWith('--'))
@@ -142,7 +222,7 @@ for (const ruta of archivos) {
     const encontrados = texto.match(patron)
 
     if (encontrados) {
-      texto = texto.replace(patron, MAPA[clave])
+      texto = texto.replace(patron, TABLA[clave])
       cambiosArchivo += encontrados.length
     }
   }

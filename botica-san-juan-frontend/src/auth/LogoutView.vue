@@ -1,16 +1,16 @@
 <template>
-  <div class="min-h-screen bg-linear-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
+  <div class="min-h-screen bg-linear-to-br from-clinico-900 via-clinico-900 to-botica-900 flex items-center justify-center p-4">
     <div class="max-w-md w-full">
       <!-- Main logout card -->
       <div
         ref="logoutCard"
-        class="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 text-center"
+        class="bg-superficie-elevada/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 text-center"
       >
         <!-- Logout icon with animation -->
         <div class="mb-6">
           <div
             ref="iconContainer"
-            class="w-20 h-20 mx-auto bg-linear-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg"
+            class="w-20 h-20 mx-auto bg-linear-to-r from-peligro-500 to-peligro-600 rounded-full flex items-center justify-center shadow-lg"
           >
             <svg
               class="w-10 h-10 text-white"
@@ -49,10 +49,10 @@
 
         <!-- Progress bar -->
         <div class="mb-6">
-          <div class="w-full bg-white/20 rounded-full h-2">
+          <div class="w-full bg-superficie-elevada/20 rounded-full h-2">
             <div
               ref="progressBar"
-              class="bg-linear-to-r from-blue-400 to-purple-500 h-2 rounded-full transition-all duration-1000 ease-linear"
+              class="bg-linear-to-r from-clinico-400 to-clinico-500 h-2 rounded-full transition-all duration-1000 ease-linear"
               :style="{ width: progressWidth }"
             ></div>
           </div>
@@ -64,7 +64,7 @@
             v-for="dot in 3"
             :key="dot"
             ref="dots"
-            class="w-3 h-3 bg-white rounded-full animate-pulse"
+            class="w-3 h-3 bg-superficie-elevada rounded-full animate-pulse"
             :style="{ animationDelay: `${dot * 0.2}s` }"
           ></div>
         </div>
@@ -80,7 +80,7 @@
         <div
           v-for="particle in particles"
           :key="particle.id"
-          class="absolute w-2 h-2 bg-white/20 rounded-full"
+          class="absolute w-2 h-2 bg-superficie-elevada/20 rounded-full"
           :style="{
             left: particle.x + '%',
             top: particle.y + '%',

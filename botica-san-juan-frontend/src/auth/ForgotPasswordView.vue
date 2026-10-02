@@ -1,16 +1,16 @@
 <template>
-  <div class="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+  <div class="min-h-screen bg-linear-to-br from-clinico-50 to-clinico-100 flex items-center justify-center p-4">
     <div class="max-w-md w-full">
       <!-- Forgot Password Card -->
       <div
         ref="forgotCard"
-        class="bg-white rounded-3xl shadow-xl border border-gray-200 p-8"
+        class="bg-superficie-elevada rounded-3xl shadow-xl border border-borde-sutil p-8"
       >
         <!-- Back to Login -->
         <div class="mb-6">
           <router-link
             to="/login"
-            class="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+            class="inline-flex items-center text-texto-secundario hover:text-texto-primario transition-colors"
           >
             <svg
               class="w-5 h-5 mr-2"
@@ -31,9 +31,9 @@
 
         <!-- Icon -->
         <div class="text-center mb-6">
-          <div class="w-16 h-16 mx-auto bg-blue-100 rounded-full flex items-center justify-center">
+          <div class="w-16 h-16 mx-auto bg-clinico-100 rounded-full flex items-center justify-center">
             <svg
-              class="w-8 h-8 text-blue-600"
+              class="w-8 h-8 text-clinico-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -49,12 +49,12 @@
         </div>
 
         <!-- Title -->
-        <h1 class="text-2xl font-bold text-gray-900 text-center mb-2">
+        <h1 class="text-2xl font-bold text-texto-primario text-center mb-2">
           ¿Olvidaste tu contraseña?
         </h1>
 
         <!-- Description -->
-        <p class="text-gray-600 text-center mb-8">
+        <p class="text-texto-secundario text-center mb-8">
           Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
         </p>
 
@@ -67,7 +67,7 @@
           <div>
             <label
               for="email"
-              class="block text-sm font-medium text-gray-700 mb-2"
+              class="block text-sm font-medium text-texto-secundario mb-2"
             >
               Correo electrónico
             </label>
@@ -77,12 +77,12 @@
                 v-model="email"
                 type="email"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                class="w-full px-4 py-3 border border-borde-base rounded-xl focus:ring-2 focus:ring-clinico-500 focus:border-transparent transition-all"
                 placeholder="tu@email.com"
               />
               <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
                 <svg
-                  class="w-5 h-5 text-gray-400"
+                  class="w-5 h-5 text-texto-terciario"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -102,7 +102,7 @@
           <button
             type="submit"
             :disabled="isLoading"
-            class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-4 rounded-xl transition-colors duration-200 flex items-center justify-center"
+            class="w-full bg-clinico-600 hover:bg-clinico-700 disabled:bg-clinico-400 text-white font-medium py-3 px-4 rounded-xl transition-colors duration-200 flex items-center justify-center"
           >
             <span
               v-if="isLoading"
@@ -135,11 +135,11 @@
         <!-- Success Message -->
         <div
           v-if="successMessage"
-          class="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl"
+          class="mt-6 p-4 bg-botica-50 border border-botica-200 rounded-xl"
         >
           <div class="flex items-center">
             <svg
-              class="w-5 h-5 text-green-600 mr-2"
+              class="w-5 h-5 text-botica-600 mr-2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -151,7 +151,7 @@
                 d="M5 13l4 4L19 7"
               />
             </svg>
-            <p class="text-green-800 text-sm">
+            <p class="text-botica-800 text-sm">
               {{ successMessage }}
             </p>
           </div>
@@ -160,11 +160,11 @@
         <!-- Error Message -->
         <div
           v-if="errorMessage"
-          class="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl"
+          class="mt-6 p-4 bg-peligro-50 border border-peligro-500/30 rounded-xl"
         >
           <div class="flex items-center">
             <svg
-              class="w-5 h-5 text-red-600 mr-2"
+              class="w-5 h-5 text-peligro-600 mr-2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -176,7 +176,7 @@
                 d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <p class="text-red-800 text-sm">
+            <p class="text-peligro-700 text-sm">
               {{ errorMessage }}
             </p>
           </div>

@@ -1,7 +1,7 @@
 <template>
   <div
     id="app"
-    class="min-h-screen bg-gray-50"
+    class="min-h-screen bg-superficie-fondo"
   >
     <!-- Main Content - RouterView handles all page content including headers -->
     <RouterView />

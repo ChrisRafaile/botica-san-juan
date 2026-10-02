@@ -1,12 +1,12 @@
 <template>
-  <section class="py-20 bg-gray-50">
+  <section class="py-20 bg-superficie-hundida">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Section Header -->
       <div class="text-center mb-16 testimonials-header">
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        <h2 class="text-3xl md:text-4xl font-bold text-texto-primario mb-4">
           Lo que dicen nuestros clientes
         </h2>
-        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        <p class="text-xl text-texto-secundario max-w-3xl mx-auto">
           Miles de personas confían en nosotros para cuidar su salud.
           Estas son algunas de sus experiencias.
         </p>
@@ -17,7 +17,7 @@
         <!-- Testimonial 1: Maria Lopez -->
         <div class="card testimonial-card">
           <div class="flex items-center mb-4">
-            <div class="flex text-yellow-400">
+            <div class="flex text-ambar-400">
               <StarIcon class="w-5 h-5 fill-current" />
               <StarIcon class="w-5 h-5 fill-current" />
               <StarIcon class="w-5 h-5 fill-current" />
@@ -25,13 +25,13 @@
               <StarIcon class="w-5 h-5 fill-current" />
             </div>
           </div>
-          <blockquote class="text-gray-700 mb-6 italic">
+          <blockquote class="text-texto-secundario mb-6 italic">
             "Botica San Juan ha sido mi farmacia de confianza por años.
             Siempre encuentro todo lo que necesito y el servicio es excepcional.
             Los recomiendo ampliamente."
           </blockquote>
           <div class="flex items-center">
-            <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mr-4 overflow-hidden">
+            <div class="w-12 h-12 bg-botica-100 rounded-full flex items-center justify-center mr-4 overflow-hidden">
               <img
                 src="@/assets/images/maria lopez.webp"
                 alt="María López"
@@ -39,10 +39,10 @@
               />
             </div>
             <div>
-              <div class="font-semibold text-gray-900">
+              <div class="font-semibold text-texto-primario">
                 María López
               </div>
-              <div class="text-sm text-gray-600">
+              <div class="text-sm text-texto-secundario">
                 Cliente fiel desde 2018
               </div>
             </div>
@@ -52,7 +52,7 @@
         <!-- Testimonial 2: Carlos Fernandez -->
         <div class="card testimonial-card">
           <div class="flex items-center mb-4">
-            <div class="flex text-yellow-400">
+            <div class="flex text-ambar-400">
               <StarIcon class="w-5 h-5 fill-current" />
               <StarIcon class="w-5 h-5 fill-current" />
               <StarIcon class="w-5 h-5 fill-current" />
@@ -60,13 +60,13 @@
               <StarIcon class="w-5 h-5 fill-current" />
             </div>
           </div>
-          <blockquote class="text-gray-700 mb-6 italic">
+          <blockquote class="text-texto-secundario mb-6 italic">
             "El servicio de delivery es muy rápido y confiable. He recibido
             mis medicamentos en perfectas condiciones. Excelente atención
             al cliente."
           </blockquote>
           <div class="flex items-center">
-            <div class="w-12 h-12 bg-secondary-100 rounded-full flex items-center justify-center mr-4 overflow-hidden">
+            <div class="w-12 h-12 bg-clinico-100 rounded-full flex items-center justify-center mr-4 overflow-hidden">
               <img
                 src="@/assets/images/carlos.webp"
                 alt="Carlos Fernández"
@@ -74,10 +74,10 @@
               />
             </div>
             <div>
-              <div class="font-semibold text-gray-900">
+              <div class="font-semibold text-texto-primario">
                 Carlos Fernández
               </div>
-              <div class="text-sm text-gray-600">
+              <div class="text-sm text-texto-secundario">
                 Cliente recurrente
               </div>
             </div>
@@ -87,7 +87,7 @@
         <!-- Testimonial 3: Luis Sanchez -->
         <div class="card testimonial-card">
           <div class="flex items-center mb-4">
-            <div class="flex text-yellow-400">
+            <div class="flex text-ambar-400">
               <StarIcon class="w-5 h-5 fill-current" />
               <StarIcon class="w-5 h-5 fill-current" />
               <StarIcon class="w-5 h-5 fill-current" />
@@ -95,13 +95,13 @@
               <StarIcon class="w-5 h-5 fill-current" />
             </div>
           </div>
-          <blockquote class="text-gray-700 mb-6 italic">
+          <blockquote class="text-texto-secundario mb-6 italic">
             "Los precios son muy competitivos y siempre tienen los medicamentos
             que necesito. El programa Agora es una gran ventaja para ahorrar
             en mis compras."
           </blockquote>
           <div class="flex items-center">
-            <div class="w-12 h-12 bg-accent-100 rounded-full flex items-center justify-center mr-4 overflow-hidden">
+            <div class="w-12 h-12 bg-ambar-100 rounded-full flex items-center justify-center mr-4 overflow-hidden">
               <img
                 src="@/assets/images/luis.webp"
                 alt="Luis Sánchez"
@@ -109,10 +109,10 @@
               />
             </div>
             <div>
-              <div class="font-semibold text-gray-900">
+              <div class="font-semibold text-texto-primario">
                 Luis Sánchez
               </div>
-              <div class="text-sm text-gray-600">
+              <div class="text-sm text-texto-secundario">
                 Miembro Agora
               </div>
             </div>
@@ -122,7 +122,7 @@
         <!-- Testimonial 4 -->
         <div class="card testimonial-card">
           <div class="flex items-center mb-4">
-            <div class="flex text-yellow-400">
+            <div class="flex text-ambar-400">
               <StarIcon class="w-5 h-5 fill-current" />
               <StarIcon class="w-5 h-5 fill-current" />
               <StarIcon class="w-5 h-5 fill-current" />
@@ -130,20 +130,20 @@
               <StarIcon class="w-5 h-5 fill-current" />
             </div>
           </div>
-          <blockquote class="text-gray-700 mb-6 italic">
+          <blockquote class="text-texto-secundario mb-6 italic">
             "En una emergencia médica, llamé a las 2 AM y me atendieron
             inmediatamente. El delivery llegó en menos de una hora.
             Servicio excepcional."
           </blockquote>
           <div class="flex items-center">
-            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
-              <UserIcon class="w-6 h-6 text-green-600" />
+            <div class="w-12 h-12 bg-botica-100 rounded-full flex items-center justify-center mr-4">
+              <UserIcon class="w-6 h-6 text-botica-600" />
             </div>
             <div>
-              <div class="font-semibold text-gray-900">
+              <div class="font-semibold text-texto-primario">
                 Roberto Sánchez
               </div>
-              <div class="text-sm text-gray-600">
+              <div class="text-sm text-texto-secundario">
                 Cliente de emergencia
               </div>
             </div>
@@ -153,7 +153,7 @@
         <!-- Testimonial 5 -->
         <div class="card testimonial-card">
           <div class="flex items-center mb-4">
-            <div class="flex text-yellow-400">
+            <div class="flex text-ambar-400">
               <StarIcon class="w-5 h-5 fill-current" />
               <StarIcon class="w-5 h-5 fill-current" />
               <StarIcon class="w-5 h-5 fill-current" />
@@ -161,20 +161,20 @@
               <StarIcon class="w-5 h-5 fill-current" />
             </div>
           </div>
-          <blockquote class="text-gray-700 mb-6 italic">
+          <blockquote class="text-texto-secundario mb-6 italic">
             "Como adulto mayor, aprecio mucho el servicio a domicilio.
             Los chicos son muy cuidadosos y respetuosos. Me siento seguro
             comprando aquí."
           </blockquote>
           <div class="flex items-center">
-            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-              <UserIcon class="w-6 h-6 text-blue-600" />
+            <div class="w-12 h-12 bg-clinico-100 rounded-full flex items-center justify-center mr-4">
+              <UserIcon class="w-6 h-6 text-clinico-600" />
             </div>
             <div>
-              <div class="font-semibold text-gray-900">
+              <div class="font-semibold text-texto-primario">
                 Doña Carmen
               </div>
-              <div class="text-sm text-gray-600">
+              <div class="text-sm text-texto-secundario">
                 Cliente senior
               </div>
             </div>
@@ -184,7 +184,7 @@
         <!-- Testimonial 6 -->
         <div class="card testimonial-card">
           <div class="flex items-center mb-4">
-            <div class="flex text-yellow-400">
+            <div class="flex text-ambar-400">
               <StarIcon class="w-5 h-5 fill-current" />
               <StarIcon class="w-5 h-5 fill-current" />
               <StarIcon class="w-5 h-5 fill-current" />
@@ -192,20 +192,20 @@
               <StarIcon class="w-5 h-5 fill-current" />
             </div>
           </div>
-          <blockquote class="text-gray-700 mb-6 italic">
+          <blockquote class="text-texto-secundario mb-6 italic">
             "Excelente atención en línea. Pude consultar sobre un medicamento
             por WhatsApp y me respondieron rápidamente con toda la información
             que necesitaba."
           </blockquote>
           <div class="flex items-center">
-            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
-              <UserIcon class="w-6 h-6 text-purple-600" />
+            <div class="w-12 h-12 bg-clinico-100 rounded-full flex items-center justify-center mr-4">
+              <UserIcon class="w-6 h-6 text-clinico-600" />
             </div>
             <div>
-              <div class="font-semibold text-gray-900">
+              <div class="font-semibold text-texto-primario">
                 Luis Martínez
               </div>
-              <div class="text-sm text-gray-600">
+              <div class="text-sm text-texto-secundario">
                 Cliente digital
               </div>
             </div>
@@ -215,20 +215,20 @@
 
       <!-- Trust Indicators -->
       <div class="text-center">
-        <div class="bg-white rounded-2xl p-8 shadow-lg trust-indicators">
-          <h3 class="text-2xl font-bold text-gray-900 mb-6">
+        <div class="bg-superficie-elevada rounded-2xl p-8 shadow-lg trust-indicators">
+          <h3 class="text-2xl font-bold text-texto-primario mb-6">
             Confianza que se traduce en resultados
           </h3>
           <div class="grid md:grid-cols-4 gap-8">
             <div class="text-center trust-stat">
-              <div class="text-3xl font-bold text-primary mb-2">
+              <div class="text-3xl font-bold text-botica-600 mb-2">
                 4.8/5
               </div>
-              <div class="text-sm text-gray-600">
+              <div class="text-sm text-texto-secundario">
                 Calificación promedio
               </div>
               <div class="flex justify-center mt-2">
-                <div class="flex text-yellow-400">
+                <div class="flex text-ambar-400">
                   <StarIcon class="w-4 h-4 fill-current" />
                   <StarIcon class="w-4 h-4 fill-current" />
                   <StarIcon class="w-4 h-4 fill-current" />
@@ -238,26 +238,26 @@
               </div>
             </div>
             <div class="text-center trust-stat">
-              <div class="text-3xl font-bold text-secondary-600 mb-2">
+              <div class="text-3xl font-bold text-clinico-600 mb-2">
                 95%
               </div>
-              <div class="text-sm text-gray-600">
+              <div class="text-sm text-texto-secundario">
                 Satisfacción del cliente
               </div>
             </div>
             <div class="text-center trust-stat">
-              <div class="text-3xl font-bold text-accent-600 mb-2">
+              <div class="text-3xl font-bold text-ambar-600 mb-2">
                 2h
               </div>
-              <div class="text-sm text-gray-600">
+              <div class="text-sm text-texto-secundario">
                 Tiempo de respuesta
               </div>
             </div>
             <div class="text-center trust-stat">
-              <div class="text-3xl font-bold text-green-600 mb-2">
+              <div class="text-3xl font-bold text-botica-600 mb-2">
                 5K+
               </div>
-              <div class="text-sm text-gray-600">
+              <div class="text-sm text-texto-secundario">
                 Pedidos entregados
               </div>
             </div>
@@ -272,8 +272,12 @@
 import { onMounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { StarIcon, UserIcon } from 'lucide-vue-next'
+import { prefiereMenosMovimiento } from '@/utils/motion'
 
 onMounted(async () => {
+  /* Si la persona pidió reducir el movimiento, no se anima: el contenido ya
+     está en su estado final y visible, que es justamente lo que se quiere. */
+  if (prefiereMenosMovimiento()) return
   await nextTick()
 
   // Increased delay to ensure DOM and assets are fully rendered

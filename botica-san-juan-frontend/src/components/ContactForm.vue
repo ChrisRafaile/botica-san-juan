@@ -1,25 +1,25 @@
 <template>
-  <section class="py-20 bg-gray-50">
+  <section class="py-20 bg-superficie-hundida">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Section Header -->
       <div class="text-center mb-16">
-        <div class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-6">
+        <div class="inline-flex items-center px-4 py-2 bg-clinico-100 text-clinico-800 rounded-full text-sm font-medium mb-6">
           <SendIcon class="w-4 h-4 mr-2" />
           Envíanos un mensaje
         </div>
 
-        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+        <h2 class="text-3xl md:text-4xl font-bold text-texto-primario mb-6">
           ¿Cómo podemos
-          <span class="text-blue-600">ayudarte</span>?
+          <span class="text-clinico-600">ayudarte</span>?
         </h2>
 
-        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        <p class="text-xl text-texto-secundario max-w-2xl mx-auto">
           Completa el formulario y nuestro equipo de profesionales te contactará lo antes posible.
         </p>
       </div>
 
       <!-- Contact Form -->
-      <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+      <div class="bg-superficie-elevada rounded-3xl shadow-xl p-8 md:p-12">
         <form
           class="space-y-8"
           @submit.prevent="handleSubmit"
@@ -29,18 +29,18 @@
             <div class="form-group">
               <label
                 for="name"
-                class="block text-sm font-semibold text-gray-700 mb-3"
+                class="block text-sm font-semibold text-texto-secundario mb-3"
               >
                 Nombre completo *
               </label>
               <div class="relative">
-                <UserIcon class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <UserIcon class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-texto-terciario" />
                 <input
                   id="name"
                   v-model="form.name"
                   type="text"
                   required
-                  class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 text-gray-900 placeholder-gray-500"
+                  class="w-full pl-12 pr-4 py-4 border-2 border-borde-sutil rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario"
                   placeholder="Ingresa tu nombre completo"
                 />
               </div>
@@ -49,18 +49,18 @@
             <div class="form-group">
               <label
                 for="email"
-                class="block text-sm font-semibold text-gray-700 mb-3"
+                class="block text-sm font-semibold text-texto-secundario mb-3"
               >
                 Correo electrónico *
               </label>
               <div class="relative">
-                <MailIcon class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <MailIcon class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-texto-terciario" />
                 <input
                   id="email"
                   v-model="form.email"
                   type="email"
                   required
-                  class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 text-gray-900 placeholder-gray-500"
+                  class="w-full pl-12 pr-4 py-4 border-2 border-borde-sutil rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario"
                   placeholder="Ingresa tu correo electrónico"
                 />
               </div>
@@ -72,18 +72,18 @@
             <div class="form-group">
               <label
                 for="phone"
-                class="block text-sm font-semibold text-gray-700 mb-3"
+                class="block text-sm font-semibold text-texto-secundario mb-3"
               >
                 Teléfono *
               </label>
               <div class="relative">
-                <PhoneIcon class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <PhoneIcon class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-texto-terciario" />
                 <input
                   id="phone"
                   v-model="form.phone"
                   type="tel"
                   required
-                  class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 text-gray-900 placeholder-gray-500"
+                  class="w-full pl-12 pr-4 py-4 border-2 border-borde-sutil rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario"
                   placeholder="999-999-999"
                 />
               </div>
@@ -92,17 +92,17 @@
             <div class="form-group">
               <label
                 for="reason"
-                class="block text-sm font-semibold text-gray-700 mb-3"
+                class="block text-sm font-semibold text-texto-secundario mb-3"
               >
                 Motivo de consulta *
               </label>
               <div class="relative">
-                <MessageSquareIcon class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                <MessageSquareIcon class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-texto-terciario z-10" />
                 <select
                   id="reason"
                   v-model="form.reason"
                   required
-                  class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 text-gray-900 appearance-none bg-white"
+                  class="w-full pl-12 pr-4 py-4 border-2 border-borde-sutil rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario appearance-none bg-superficie-elevada"
                 >
                   <option value="">
                     Selecciona un motivo
@@ -123,7 +123,7 @@
                     Otro
                   </option>
                 </select>
-                <ChevronDownIcon class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                <ChevronDownIcon class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-texto-terciario pointer-events-none" />
               </div>
             </div>
           </div>
@@ -132,18 +132,18 @@
           <div class="form-group">
             <label
               for="message"
-              class="block text-sm font-semibold text-gray-700 mb-3"
+              class="block text-sm font-semibold text-texto-secundario mb-3"
             >
               Mensaje *
             </label>
             <div class="relative">
-              <MessageSquareIcon class="absolute left-4 top-4 w-5 h-5 text-gray-400" />
+              <MessageSquareIcon class="absolute left-4 top-4 w-5 h-5 text-texto-terciario" />
               <textarea
                 id="message"
                 v-model="form.message"
                 required
                 rows="6"
-                class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 text-gray-900 placeholder-gray-500 resize-vertical"
+                class="w-full pl-12 pr-4 py-4 border-2 border-borde-sutil rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario resize-vertical"
                 placeholder="Describe tu consulta o mensaje..."
               />
             </div>
@@ -154,7 +154,7 @@
             <button
               type="submit"
               :disabled="isSubmitting"
-              class="inline-flex items-center px-12 py-4 bg-linear-to-r from-blue-600 to-blue-700 text-white font-bold text-lg rounded-xl hover:from-blue-700 hover:to-blue-800 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              class="inline-flex items-center px-12 py-4 bg-linear-to-r from-clinico-600 to-clinico-700 text-white font-bold text-lg rounded-xl hover:from-clinico-700 hover:to-clinico-800 focus:ring-4 focus:ring-clinico-500/20 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               <SendIcon
                 v-if="!isSubmitting"
@@ -172,17 +172,17 @@
         <!-- Success Message -->
         <div
           v-if="submitSuccess"
-          class="mt-8 p-6 bg-green-50 border-2 border-green-200 rounded-xl animate-fade-in"
+          class="mt-8 p-6 bg-botica-50 border-2 border-botica-200 rounded-xl animate-fade-in"
         >
           <div class="flex items-center">
-            <CheckCircleIcon class="w-6 h-6 text-green-600 mr-3 shrink-0" />
+            <CheckCircleIcon class="w-6 h-6 text-botica-600 mr-3 shrink-0" />
 
             <div>
-              <h3 class="font-semibold text-green-800 mb-1">
+              <h3 class="font-semibold text-botica-800 mb-1">
                 ¡Mensaje enviado exitosamente!
               </h3>
 
-              <p class="text-green-700">
+              <p class="text-botica-700">
                 Te responderemos lo antes posible. Gracias por contactarnos.
               </p>
             </div>
@@ -192,17 +192,17 @@
         <!-- Error Message -->
         <div
           v-if="submitError"
-          class="mt-8 p-6 bg-red-50 border-2 border-red-200 rounded-xl animate-fade-in"
+          class="mt-8 p-6 bg-peligro-50 border-2 border-peligro-500/30 rounded-xl animate-fade-in"
         >
           <div class="flex items-center">
-            <AlertCircleIcon class="w-6 h-6 text-red-600 mr-3 shrink-0" />
+            <AlertCircleIcon class="w-6 h-6 text-peligro-600 mr-3 shrink-0" />
 
             <div>
-              <h3 class="font-semibold text-red-800 mb-1">
+              <h3 class="font-semibold text-peligro-700 mb-1">
                 Error al enviar el mensaje
               </h3>
 
-              <p class="text-red-700">
+              <p class="text-peligro-700">
                 {{ submitError }}
               </p>
             </div>
@@ -229,6 +229,7 @@ import {
   MessageSquareIcon,
   ChevronDownIcon
 } from 'lucide-vue-next'
+import { prefiereMenosMovimiento } from '@/utils/motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -292,6 +293,9 @@ const handleSubmit = async () => {
 }
 
 onMounted(() => {
+  /* Si la persona pidió reducir el movimiento, no se anima: el contenido ya
+     está en su estado final y visible, que es justamente lo que se quiere. */
+  if (prefiereMenosMovimiento()) return
   // Animate form elements with stagger
   gsap.from('.form-group', {
     duration: 0.8,

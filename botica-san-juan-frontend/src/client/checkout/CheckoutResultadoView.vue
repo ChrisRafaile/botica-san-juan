@@ -1,14 +1,14 @@
 <template>
   <main
-    class="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-12"
+    class="min-h-screen bg-linear-to-br from-clinico-50 to-clinico-100 flex items-center justify-center px-4 py-12"
   >
     <section
-      class="w-full max-w-xl bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-10"
+      class="w-full max-w-xl bg-superficie-elevada/90 backdrop-blur-sm rounded-2xl shadow-xl p-10"
       aria-labelledby="titulo-resultado"
     >
       <div
         v-if="cargando"
-        class="text-center text-gray-500"
+        class="text-center text-texto-terciario"
         aria-live="polite"
       >
         Verificando el estado de tu pedido…
@@ -50,41 +50,41 @@
 
           <h1
             id="titulo-resultado"
-            class="text-2xl font-bold text-gray-800 mb-2"
+            class="text-2xl font-bold text-texto-primario mb-2"
             aria-live="polite"
           >
             {{ aspecto.titulo }}
           </h1>
-          <p class="text-gray-600">
+          <p class="text-texto-secundario">
             {{ aspecto.detalle }}
           </p>
         </div>
 
         <dl
           v-if="pago"
-          class="mt-8 divide-y divide-gray-100 rounded-xl border border-gray-100 bg-gray-50/60"
+          class="mt-8 divide-y divide-borde-sutil rounded-xl border border-borde-sutil bg-superficie-hundida/60"
         >
           <div class="flex justify-between px-5 py-3">
-            <dt class="text-sm text-gray-500">
+            <dt class="text-sm text-texto-terciario">
               Pedido
             </dt>
-            <dd class="text-sm font-semibold text-gray-800">
+            <dd class="text-sm font-semibold text-texto-primario">
               #{{ pedidoId }}
             </dd>
           </div>
           <div class="flex justify-between px-5 py-3">
-            <dt class="text-sm text-gray-500">
+            <dt class="text-sm text-texto-terciario">
               Referencia
             </dt>
-            <dd class="text-sm font-mono text-gray-800">
+            <dd class="text-sm font-mono text-texto-primario">
               {{ pago.referencia }}
             </dd>
           </div>
           <div class="flex justify-between px-5 py-3">
-            <dt class="text-sm text-gray-500">
+            <dt class="text-sm text-texto-terciario">
               Total
             </dt>
-            <dd class="text-sm font-semibold text-gray-800">
+            <dd class="text-sm font-semibold text-texto-primario">
               {{ formatearMonto(pago.monto, pago.moneda) }}
             </dd>
           </div>
@@ -92,10 +92,10 @@
             v-if="visual === 'PAYMENT_SUCCESS'"
             class="flex justify-between px-5 py-3"
           >
-            <dt class="text-sm text-gray-500">
+            <dt class="text-sm text-texto-terciario">
               Medio de pago
             </dt>
-            <dd class="text-sm text-gray-800">
+            <dd class="text-sm text-texto-primario">
               {{ describirMedio(pago) }}
             </dd>
           </div>
@@ -103,10 +103,10 @@
             v-if="pago.pagado_en"
             class="flex justify-between px-5 py-3"
           >
-            <dt class="text-sm text-gray-500">
+            <dt class="text-sm text-texto-terciario">
               Fecha
             </dt>
-            <dd class="text-sm text-gray-800">
+            <dd class="text-sm text-texto-primario">
               {{ pago.pagado_en }}
             </dd>
           </div>
@@ -116,7 +116,7 @@
           <RouterLink
             v-if="visual === 'PAYMENT_SUCCESS'"
             to="/client/home"
-            class="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-6 py-3 text-center font-medium text-white shadow-lg shadow-blue-600/20 transition hover:from-blue-700 hover:to-indigo-700"
+            class="rounded-xl bg-linear-to-r from-clinico-600 to-clinico-600 px-6 py-3 text-center font-medium text-white shadow-lg shadow-clinico-600/20 transition hover:from-clinico-700 hover:to-clinico-700"
           >
             Ver mi pedido
           </RouterLink>
@@ -124,7 +124,7 @@
           <button
             v-if="visual === 'PAYMENT_ERROR' || visual === 'PAYMENT_CANCELLED'"
             type="button"
-            class="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-6 py-3 font-medium text-white shadow-lg shadow-blue-600/20 transition hover:from-blue-700 hover:to-indigo-700"
+            class="rounded-xl bg-linear-to-r from-clinico-600 to-clinico-600 px-6 py-3 font-medium text-white shadow-lg shadow-clinico-600/20 transition hover:from-clinico-700 hover:to-clinico-700"
             @click="reintentar"
           >
             Intentar nuevamente
@@ -132,7 +132,7 @@
 
           <RouterLink
             to="/"
-            class="rounded-xl border border-gray-200 bg-white px-6 py-3 text-center font-medium text-gray-700 transition hover:bg-gray-50"
+            class="rounded-xl border border-borde-sutil bg-superficie-elevada px-6 py-3 text-center font-medium text-texto-secundario transition hover:bg-superficie-hundida"
           >
             Continuar comprando
           </RouterLink>
@@ -173,38 +173,38 @@ const ASPECTOS: Record<EstadoVisual, { titulo: string; detalle: string; fondoIco
   PAYMENT_SUCCESS: {
     titulo: '¡Compra realizada con éxito!',
     detalle: 'Recibirás tu comprobante electrónico en unos minutos.',
-    fondoIcono: 'bg-emerald-50',
-    colorIcono: 'text-emerald-600',
+    fondoIcono: 'bg-botica-50',
+    colorIcono: 'text-botica-600',
   },
   PAYMENT_ERROR: {
     titulo: 'El pago no pudo completarse',
     detalle: 'Tu banco o proveedor de pagos rechazó la transacción. No se realizó ningún cargo.',
-    fondoIcono: 'bg-red-50',
-    colorIcono: 'text-red-600',
+    fondoIcono: 'bg-peligro-50',
+    colorIcono: 'text-peligro-600',
   },
   PAYMENT_CANCELLED: {
     titulo: 'Cancelaste el pago',
     detalle: 'Tu pedido sigue guardado. Puedes retomarlo cuando quieras.',
-    fondoIcono: 'bg-amber-50',
-    colorIcono: 'text-amber-600',
+    fondoIcono: 'bg-ambar-50',
+    colorIcono: 'text-ambar-600',
   },
   PAYMENT_PENDING: {
     titulo: 'Tu pago está pendiente',
     detalle: 'Algunos medios de pago requieren que completes una operación adicional. Te avisaremos al confirmarse.',
-    fondoIcono: 'bg-amber-50',
-    colorIcono: 'text-amber-600',
+    fondoIcono: 'bg-ambar-50',
+    colorIcono: 'text-ambar-600',
   },
   PAYMENT_PROCESSING: {
     titulo: 'Seguimos verificando tu pago',
     detalle: 'Aún no tenemos una respuesta definitiva del proveedor.',
-    fondoIcono: 'bg-blue-50',
-    colorIcono: 'text-blue-600',
+    fondoIcono: 'bg-clinico-50',
+    colorIcono: 'text-clinico-600',
   },
   PAYMENT_REFUNDED: {
     titulo: 'Pago reembolsado',
     detalle: 'El importe fue devuelto a tu medio de pago original.',
-    fondoIcono: 'bg-slate-100',
-    colorIcono: 'text-slate-600',
+    fondoIcono: 'bg-superficie-interactiva',
+    colorIcono: 'text-texto-secundario',
   },
 }
 

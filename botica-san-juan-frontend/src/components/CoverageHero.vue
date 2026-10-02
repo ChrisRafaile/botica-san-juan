@@ -7,60 +7,60 @@
         alt="Botica San Juan - Cobertura de Delivery"
         class="w-full h-full object-cover"
       />
-      <div class="absolute inset-0 bg-linear-to-r from-blue-900/80 to-secondary-900/80" />
+      <div class="absolute inset-0 bg-linear-to-r from-clinico-900/80 to-clinico-900/80" />
     </div>
 
     <!-- Floating Elements -->
-    <div class="absolute top-20 left-10 w-20 h-20 bg-blue-500/20 rounded-full blur-xl animate-pulse" />
+    <div class="absolute top-20 left-10 w-20 h-20 bg-clinico-500/20 rounded-full blur-xl animate-pulse" />
     <div
-      class="absolute bottom-20 right-10 w-32 h-32 bg-secondary-500/20 rounded-full blur-xl animate-pulse"
+      class="absolute bottom-20 right-10 w-32 h-32 bg-clinico-500/20 rounded-full blur-xl animate-pulse"
       style="animation-delay: 1s"
     />
     <div
-      class="absolute top-1/2 left-1/4 w-16 h-16 bg-accent-500/20 rounded-full blur-xl animate-pulse"
+      class="absolute top-1/2 left-1/4 w-16 h-16 bg-ambar-500/20 rounded-full blur-xl animate-pulse"
       style="animation-delay: 2s"
     />
 
     <!-- Content -->
     <div class="relative z-10 text-center text-white px-6 max-w-4xl mx-auto">
-      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
+      <div class="inline-flex items-center gap-2 bg-superficie-elevada/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
         <MapPinIcon class="w-4 h-4" />
         Zonas de Cobertura
       </div>
 
       <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
         Entregas a Domicilio
-        <span class="block text-blue-300">en Lima Metropolitana</span>
+        <span class="block text-clinico-300">en Lima Metropolitana</span>
       </h1>
 
-      <p class="text-xl md:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto leading-relaxed">
+      <p class="text-xl md:text-2xl text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">
         Servicio de delivery farmacéutico en San Juan de Lurigancho y alrededores. 
         <span class="font-semibold text-white">Av. Santa Rosa 103 Urb. Los Pinos</span>
       </p>
 
       <!-- Stats -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+        <div class="bg-superficie-elevada/10 backdrop-blur-sm rounded-2xl p-6">
           <div class="text-3xl font-bold text-white mb-2">
             5
           </div>
-          <div class="text-blue-200">
+          <div class="text-clinico-200">
             Distritos Cubiertos
           </div>
         </div>
-        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+        <div class="bg-superficie-elevada/10 backdrop-blur-sm rounded-2xl p-6">
           <div class="text-3xl font-bold text-white mb-2">
             16h
           </div>
-          <div class="text-blue-200">
+          <div class="text-clinico-200">
             Horario de Atención
           </div>
         </div>
-        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
+        <div class="bg-superficie-elevada/10 backdrop-blur-sm rounded-2xl p-6">
           <div class="text-3xl font-bold text-white mb-2">
             30min
           </div>
-          <div class="text-blue-200">
+          <div class="text-clinico-200">
             Tiempo Promedio
           </div>
         </div>
@@ -68,10 +68,10 @@
 
       <!-- CTA Buttons -->
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <button class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+        <button class="bg-clinico-600 hover:bg-clinico-700 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
           Ver Zonas de Cobertura
         </button>
-        <button class="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 border border-white/20">
+        <button class="bg-superficie-elevada/10 backdrop-blur-sm hover:bg-superficie-elevada/20 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 border border-white/20">
           Hacer Pedido
         </button>
       </div>
@@ -88,8 +88,12 @@
 import { MapPinIcon, ChevronDownIcon } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 import { gsap } from 'gsap'
+import { prefiereMenosMovimiento } from '@/utils/motion'
 
 onMounted(() => {
+  /* Si la persona pidió reducir el movimiento, no se anima: el contenido ya
+     está en su estado final y visible, que es justamente lo que se quiere. */
+  if (prefiereMenosMovimiento()) return
   // Animate hero content
   gsap.from('.hero-content', {
     duration: 1,

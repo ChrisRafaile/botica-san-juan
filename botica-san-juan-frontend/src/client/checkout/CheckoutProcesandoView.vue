@@ -1,39 +1,39 @@
 <template>
   <main
-    class="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4 py-12"
+    class="min-h-screen bg-linear-to-br from-clinico-50 to-clinico-100 flex items-center justify-center px-4 py-12"
   >
     <section
-      class="w-full max-w-lg bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-10 text-center"
+      class="w-full max-w-lg bg-superficie-elevada/90 backdrop-blur-sm rounded-2xl shadow-xl p-10 text-center"
       aria-labelledby="titulo-procesando"
     >
       <!-- El indicador respeta prefers-reduced-motion: sin movimiento se
            sustituye por un punto estatico, no por una animacion mas lenta. -->
       <div
-        class="mx-auto mb-8 h-16 w-16 rounded-full border-4 border-blue-100 border-t-blue-600 indicador"
+        class="mx-auto mb-8 h-16 w-16 rounded-full border-4 border-clinico-100 border-t-blue-600 indicador"
         role="progressbar"
         aria-label="Verificando el pago"
       />
 
       <h1
         id="titulo-procesando"
-        class="text-2xl font-bold text-gray-800 mb-3"
+        class="text-2xl font-bold text-texto-primario mb-3"
       >
         Procesando tu pago…
       </h1>
 
       <p
-        class="text-gray-600 mb-2"
+        class="text-texto-secundario mb-2"
         aria-live="polite"
       >
         {{ mensaje }}
       </p>
-      <p class="text-sm text-gray-500">
+      <p class="text-sm text-texto-terciario">
         No cierres esta ventana. Esto puede tardar unos segundos.
       </p>
 
       <p
         v-if="referencia"
-        class="mt-8 text-xs text-gray-400"
+        class="mt-8 text-xs text-texto-terciario"
       >
         Referencia {{ referencia }}
       </p>
@@ -41,7 +41,7 @@
       <button
         v-if="demorado"
         type="button"
-        class="mt-6 text-sm font-medium text-blue-700 underline underline-offset-4 hover:text-blue-900"
+        class="mt-6 text-sm font-medium text-clinico-700 underline underline-offset-4 hover:text-clinico-900"
         @click="verificar"
       >
         Verificar de nuevo

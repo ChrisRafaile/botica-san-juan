@@ -10,9 +10,9 @@
     </div>
 
     <!-- Floating elements for visual interest -->
-    <div class="absolute top-1/4 left-4 sm:left-10 w-16 sm:w-20 h-16 sm:h-20 bg-white/5 rounded-full blur-xl float-element-1 hidden lg:block" />
-    <div class="absolute bottom-1/4 right-4 sm:right-10 w-24 sm:w-32 h-24 sm:h-32 bg-white/3 rounded-full blur-2xl float-element-2 hidden lg:block" />
-    <div class="absolute top-3/4 left-1/3 w-12 sm:w-16 h-12 sm:h-16 bg-accent-400/10 rounded-full blur-lg float-element-3 hidden lg:block" />
+    <div class="absolute top-1/4 left-4 sm:left-10 w-16 sm:w-20 h-16 sm:h-20 bg-superficie-elevada/5 rounded-full blur-xl float-element-1 hidden lg:block" />
+    <div class="absolute bottom-1/4 right-4 sm:right-10 w-24 sm:w-32 h-24 sm:h-32 bg-superficie-elevada/3 rounded-full blur-2xl float-element-2 hidden lg:block" />
+    <div class="absolute top-3/4 left-1/3 w-12 sm:w-16 h-12 sm:h-16 bg-ambar-400/10 rounded-full blur-lg float-element-3 hidden lg:block" />
 
     <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
@@ -28,7 +28,7 @@
             </div>
             <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight hero-title text-center lg:text-left">
               Tu Farmacia de
-              <span class="text-accent-300 block">Confianza</span>
+              <span class="text-ambar-300 block">Confianza</span>
             </h1>
             <p class="text-lg sm:text-xl md:text-2xl text-white/90 max-w-2xl mx-auto lg:mx-0 text-center lg:text-left hero-description">
               En Botica San Juan, ubicada en Av. Santa Rosa 103, te ofrecemos
@@ -39,24 +39,24 @@
 
           <!-- Stats -->
           <div class="grid grid-cols-3 gap-4 sm:gap-6 max-w-sm sm:max-w-md mx-auto lg:mx-0">
-            <div class="text-center hero-stat bg-white/20 backdrop-blur-sm border-white/20 hover:bg-white/30">
-              <div class="text-2xl sm:text-3xl font-bold text-accent-200">
+            <div class="text-center hero-stat bg-superficie-elevada/20 backdrop-blur-sm border-white/20 hover:bg-superficie-elevada/30">
+              <div class="text-2xl sm:text-3xl font-bold text-ambar-200">
                 25+
               </div>
               <div class="text-sm text-white/90 font-medium">
                 Años Sirviendo
               </div>
             </div>
-            <div class="text-center hero-stat bg-white/20 backdrop-blur-sm border-white/20 hover:bg-white/30">
-              <div class="text-2xl sm:text-3xl font-bold text-accent-200">
+            <div class="text-center hero-stat bg-superficie-elevada/20 backdrop-blur-sm border-white/20 hover:bg-superficie-elevada/30">
+              <div class="text-2xl sm:text-3xl font-bold text-ambar-200">
                 5K+
               </div>
               <div class="text-sm text-white/90 font-medium">
                 Clientes Confían
               </div>
             </div>
-            <div class="text-center hero-stat bg-white/20 backdrop-blur-sm border-white/20 hover:bg-white/30">
-              <div class="text-2xl sm:text-3xl font-bold text-accent-200">
+            <div class="text-center hero-stat bg-superficie-elevada/20 backdrop-blur-sm border-white/20 hover:bg-superficie-elevada/30">
+              <div class="text-2xl sm:text-3xl font-bold text-ambar-200">
                 24/7
               </div>
               <div class="text-sm text-white/90 font-medium">
@@ -69,13 +69,13 @@
           <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start hero-buttons">
             <router-link
               to="/products"
-              class="bg-white hover:bg-gray-50 text-gray-900 font-semibold text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border border-white/30 hover:border-white/50"
+              class="bg-superficie-elevada hover:bg-superficie-hundida text-texto-primario font-semibold text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border border-white/30 hover:border-white/50"
             >
               Ver Productos
             </router-link>
             <router-link
               to="/contact"
-              class="bg-accent-500 hover:bg-accent-600 text-white font-semibold text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border border-accent-400/60 hover:border-accent-400"
+              class="bg-ambar-500 hover:bg-ambar-600 text-white font-semibold text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border border-ambar-400/60 hover:border-ambar-400"
             >
               Contactar Ahora
             </router-link>
@@ -86,9 +86,9 @@
         <div class="relative hero-illustration mt-8 lg:mt-0 order-1 lg:order-2">
           <div class="relative z-10">
             <!-- Main pharmacy illustration -->
-            <div class="bg-white/20 backdrop-blur-glass rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/30">
+            <div class="bg-superficie-elevada/20 backdrop-blur-glass rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/30">
               <div class="text-center space-y-4 sm:space-y-6">
-                <div class="w-40 sm:w-48 h-24 sm:h-32 mx-auto bg-white/30 rounded-xl flex items-center justify-center overflow-hidden shadow-inner border border-white/20">
+                <div class="w-40 sm:w-48 h-24 sm:h-32 mx-auto bg-superficie-elevada/30 rounded-xl flex items-center justify-center overflow-hidden shadow-inner border border-white/20">
                   <img
                     src="@/assets/images/medicamentos.jpg"
                     alt="Productos Farmacéuticos"
@@ -104,14 +104,14 @@
 
                 <!-- Feature highlights -->
                 <div class="grid grid-cols-2 gap-3 sm:gap-4 mt-6 sm:mt-8">
-                  <div class="text-center p-3 sm:p-4 bg-white/20 rounded-xl border border-white/20 hover:bg-white/30 transition-all duration-200 shadow-lg">
-                    <TruckIcon class="w-6 sm:w-8 h-6 sm:h-8 text-accent-200 mx-auto mb-2 drop-shadow-sm" />
+                  <div class="text-center p-3 sm:p-4 bg-superficie-elevada/20 rounded-xl border border-white/20 hover:bg-superficie-elevada/30 transition-all duration-200 shadow-lg">
+                    <TruckIcon class="w-6 sm:w-8 h-6 sm:h-8 text-ambar-200 mx-auto mb-2 drop-shadow-sm" />
                     <div class="text-xs sm:text-sm font-semibold text-white">
                       Entrega a Domicilio
                     </div>
                   </div>
-                  <div class="text-center p-3 sm:p-4 bg-white/20 rounded-xl border border-white/20 hover:bg-white/30 transition-all duration-200 shadow-lg">
-                    <ShieldIcon class="w-6 sm:w-8 h-6 sm:h-8 text-accent-200 mx-auto mb-2 drop-shadow-sm" />
+                  <div class="text-center p-3 sm:p-4 bg-superficie-elevada/20 rounded-xl border border-white/20 hover:bg-superficie-elevada/30 transition-all duration-200 shadow-lg">
+                    <ShieldIcon class="w-6 sm:w-8 h-6 sm:h-8 text-ambar-200 mx-auto mb-2 drop-shadow-sm" />
                     <div class="text-xs sm:text-sm font-semibold text-white">
                       Asesoría Profesional
                     </div>
@@ -122,8 +122,8 @@
           </div>
 
           <!-- Decorative elements -->
-          <div class="absolute -top-4 -right-4 w-20 sm:w-24 h-20 sm:h-24 bg-accent-400/40 rounded-full blur-xl animate-pulse float-element-1 hidden lg:block" />
-          <div class="absolute -bottom-4 -left-4 w-12 sm:w-16 h-12 sm:h-16 bg-secondary-400/40 rounded-full blur-lg animate-pulse float-element-2 hidden lg:block" />
+          <div class="absolute -top-4 -right-4 w-20 sm:w-24 h-20 sm:h-24 bg-ambar-400/40 rounded-full blur-xl animate-pulse float-element-1 hidden lg:block" />
+          <div class="absolute -bottom-4 -left-4 w-12 sm:w-16 h-12 sm:h-16 bg-clinico-400/40 rounded-full blur-lg animate-pulse float-element-2 hidden lg:block" />
         </div>
       </div>
     </div>
@@ -139,8 +139,12 @@
 import { onMounted, nextTick } from 'vue'
 import { gsap } from 'gsap'
 import { TruckIcon, ShieldIcon, ChevronDownIcon } from 'lucide-vue-next'
+import { prefiereMenosMovimiento } from '@/utils/motion'
 
 onMounted(async () => {
+  /* Si la persona pidió reducir el movimiento, no se anima: el contenido ya
+     está en su estado final y visible, que es justamente lo que se quiere. */
+  if (prefiereMenosMovimiento()) return
   await nextTick()
 
   // Small delay to ensure DOM is fully rendered

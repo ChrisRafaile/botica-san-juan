@@ -1,13 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gray-50 pt-16">
+  <div class="min-h-screen bg-superficie-hundida pt-16">
     <!-- Header Section -->
-    <section class="bg-white shadow-sm">
+    <section class="bg-superficie-elevada shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="text-center">
-          <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h1 class="text-3xl md:text-4xl font-bold text-texto-primario mb-4">
             Nuestros Productos
           </h1>
-          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p class="text-xl text-texto-secundario max-w-3xl mx-auto">
             Encuentra todos los medicamentos y productos de salud que necesitas.
             Calidad garantizada y precios competitivos.
           </p>
@@ -16,17 +16,17 @@
     </section>
 
     <!-- Filters and Search -->
-    <section class="bg-white border-b border-gray-200">
+    <section class="bg-superficie-elevada border-b border-borde-sutil">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
           <!-- Search -->
           <div class="relative flex-1 max-w-md">
-            <SearchIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <SearchIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 text-texto-terciario w-5 h-5" />
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Buscar productos..."
-              class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              class="w-full pl-10 pr-4 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500 focus:border-transparent"
             />
           </div>
 
@@ -35,7 +35,7 @@
             <!-- Tipo Filter -->
             <select
               v-model="selectedTipo"
-              class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              class="px-4 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500 focus:border-transparent"
             >
               <option value="">
                 Todos los tipos
@@ -52,7 +52,7 @@
             <!-- Laboratorio Filter -->
             <select
               v-model="selectedLaboratorio"
-              class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              class="px-4 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500 focus:border-transparent"
             >
               <option value="">
                 Todos los laboratorios
@@ -69,7 +69,7 @@
             <!-- Sort -->
             <select
               v-model="sortBy"
-              class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              class="px-4 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500 focus:border-transparent"
             >
               <option value="nombre">
                 Ordenar por nombre
@@ -95,10 +95,10 @@
            entender que el catalogo tiene 48 productos y no 3 361. -->
       <p
         v-if="!productsStore.isLoading && filteredProducts.length"
-        class="mb-5 text-sm text-gray-600"
+        class="mb-5 text-sm text-texto-secundario"
       >
-        Mostrando <strong class="text-gray-900">{{ filteredProducts.length }}</strong>
-        de <strong class="text-gray-900">{{ productsStore.totalFiltrado.toLocaleString('es-PE') }}</strong>
+        Mostrando <strong class="text-texto-primario">{{ filteredProducts.length }}</strong>
+        de <strong class="text-texto-primario">{{ productsStore.totalFiltrado.toLocaleString('es-PE') }}</strong>
         {{ productsStore.totalFiltrado === 1 ? 'producto' : 'productos' }}<template
           v-if="productsStore.searchQuery"
         > que coinciden con la búsqueda</template>.
@@ -136,11 +136,11 @@
 
           <!-- Product Info -->
           <div class="space-y-2">
-            <h3 class="text-lg font-semibold text-gray-900 line-clamp-2">
+            <h3 class="text-lg font-semibold text-texto-primario line-clamp-2">
               {{ product.nombre }}
             </h3>
 
-            <div class="text-sm text-gray-600 space-y-1">
+            <div class="text-sm text-texto-secundario space-y-1">
               <p v-if="product.concentracion">
                 <span class="font-medium">Concentración:</span> {{ product.concentracion }}
               </p>
@@ -160,18 +160,18 @@
               <div class="flex items-center space-x-2">
                 <span
                   class="text-sm font-medium"
-                  :class="product.stock > 0 ? 'text-green-600' : 'text-red-600'"
+                  :class="product.stock > 0 ? 'text-botica-600' : 'text-peligro-600'"
                 >
                   {{ product.stock > 0 ? 'En stock' : 'Agotado' }}
                 </span>
-                <span class="text-sm text-gray-500">
+                <span class="text-sm text-texto-terciario">
                   ({{ product.stock }})
                 </span>
               </div>
             </div>
 
             <div class="flex items-center justify-between pt-2">
-              <span class="text-2xl font-bold text-primary">
+              <span class="text-2xl font-bold text-botica-600">
                 S/ {{ product.precio.toFixed(2) }}
               </span>
 
@@ -193,14 +193,14 @@
         v-if="filteredProducts.length === 0"
         class="text-center py-12"
       >
-        <PackageIcon class="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <h3 v-if="productsStore.error" class="text-lg font-medium text-gray-900 mb-2">
+        <PackageIcon class="w-16 h-16 text-texto-terciario mx-auto mb-4" />
+        <h3 v-if="productsStore.error" class="text-lg font-medium text-texto-primario mb-2">
           No se pudo cargar el catálogo
         </h3>
-        <h3 v-else class="text-lg font-medium text-gray-900 mb-2">
+        <h3 v-else class="text-lg font-medium text-texto-primario mb-2">
           No se encontraron productos
         </h3>
-        <p class="text-gray-600">
+        <p class="text-texto-secundario">
           Intenta con otros términos de búsqueda o filtros.
         </p>
       </div>
@@ -211,7 +211,7 @@
       v-if="productsStore.isLoading"
       class="flex items-center justify-center py-12"
     >
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-botica-600" />
     </div>
   </div>
 </template>

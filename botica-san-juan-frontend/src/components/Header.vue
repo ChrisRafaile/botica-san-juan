@@ -1,5 +1,5 @@
 <template>
-  <header class="fixed top-0 w-full bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-lg z-50">
+  <header class="fixed top-0 w-full bg-superficie-elevada/95 backdrop-blur-md border-b border-borde-sutil/50 shadow-lg z-50">
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
@@ -13,7 +13,7 @@
               alt="Botica San Juan Logo"
               class="h-10 w-auto transition-transform group-hover:scale-105"
             />
-            <span class="text-xl font-bold text-gray-900 hidden sm:block">Botica San Juan</span>
+            <span class="text-xl font-bold text-texto-primario hidden sm:block">Botica San Juan</span>
           </router-link>
         </div>
 
@@ -23,12 +23,12 @@
             v-for="item in navigation"
             :key="item.name"
             :to="item.href"
-            class="text-gray-700 hover:text-primary px-2 py-2 text-sm font-medium transition-colors duration-200 relative group whitespace-nowrap"
-            :class="{ 'text-primary': $route.path === item.href }"
+            class="text-texto-secundario hover:text-botica-600 px-2 py-2 text-sm font-medium transition-colors duration-200 relative group whitespace-nowrap"
+            :class="{ 'text-botica-600': $route.path === item.href }"
           >
             {{ item.name }}
             <span
-              class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-200 group-hover:w-full"
+              class="absolute -bottom-1 left-0 w-0 h-0.5 bg-botica-600 transition-all duration-200 group-hover:w-full"
               :class="{ 'w-full': $route.path === item.href }"
             />
           </router-link>
@@ -39,12 +39,12 @@
           <!-- Cart -->
           <router-link
             to="/cart"
-            class="relative p-2 text-gray-700 hover:text-primary transition-colors duration-200 group"
+            class="relative p-2 text-texto-secundario hover:text-botica-600 transition-colors duration-200 group"
           >
             <ShoppingCartIcon class="w-6 h-6" />
             <span
               v-if="cartItemCount > 0"
-              class="absolute -top-1 -right-1 bg-accent text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+              class="absolute -top-1 -right-1 bg-botica-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
             >
               {{ cartItemCount }}
             </span>
@@ -56,12 +56,12 @@
             class="relative"
           >
             <button
-              class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+              class="flex items-center space-x-2 p-2 rounded-lg hover:bg-superficie-interactiva transition-colors duration-200"
               @click="toggleUserMenu"
             >
-              <UserIcon class="w-6 h-6 text-gray-700" />
+              <UserIcon class="w-6 h-6 text-texto-secundario" />
               <ChevronDownIcon
-                class="w-4 h-4 text-gray-500 transition-transform"
+                class="w-4 h-4 text-texto-terciario transition-transform"
                 :class="{ 'rotate-180': showUserMenu }"
               />
             </button>
@@ -69,23 +69,23 @@
             <!-- Dropdown Menu -->
             <div
               v-if="showUserMenu"
-              class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+              class="absolute right-0 mt-2 w-48 bg-superficie-elevada rounded-lg shadow-lg border border-borde-sutil py-1 z-50"
             >
               <router-link
                 to="/profile"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                class="block px-4 py-2 text-sm text-texto-secundario hover:bg-superficie-hundida transition-colors"
               >
                 Mi Perfil
               </router-link>
               <router-link
                 to="/orders"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                class="block px-4 py-2 text-sm text-texto-secundario hover:bg-superficie-hundida transition-colors"
               >
                 Mis Pedidos
               </router-link>
               <hr class="my-1" />
               <button
-                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                class="block w-full text-left px-4 py-2 text-sm text-texto-secundario hover:bg-superficie-hundida transition-colors"
                 @click="logout"
               >
                 Cerrar Sesión
@@ -100,7 +100,7 @@
           >
             <router-link
               to="/login"
-              class="text-gray-700 hover:text-primary px-3 py-2 text-sm font-medium transition-colors duration-200"
+              class="text-texto-secundario hover:text-botica-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
             >
               Iniciar Sesión
             </router-link>
@@ -114,7 +114,7 @@
 
           <!-- Mobile menu button -->
           <button
-            class="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+            class="md:hidden p-2 rounded-lg text-texto-secundario hover:bg-superficie-interactiva transition-colors duration-200"
             @click="toggleMobileMenu"
           >
             <MenuIcon
@@ -135,14 +135,14 @@
         class="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
         @click="closeMobileMenu"
       >
-        <div class="bg-white shadow-lg border-t border-gray-200">
+        <div class="bg-superficie-elevada shadow-lg border-t border-borde-sutil">
           <div class="flex flex-col space-y-2 py-4 px-4">
             <router-link
               v-for="item in navigation"
               :key="item.name"
               :to="item.href"
-              class="text-gray-700 hover:text-primary px-3 py-3 text-base font-medium transition-colors duration-200 rounded-md hover:bg-gray-50"
-              :class="{ 'text-primary bg-primary-50': $route.path === item.href }"
+              class="text-texto-secundario hover:text-botica-600 px-3 py-3 text-base font-medium transition-colors duration-200 rounded-md hover:bg-superficie-hundida"
+              :class="{ 'text-botica-600 bg-botica-50': $route.path === item.href }"
               @click="closeMobileMenu"
             >
               {{ item.name }}
@@ -159,7 +159,7 @@
             >
               <router-link
                 to="/login"
-                class="text-gray-700 hover:text-primary px-3 py-3 text-base font-medium transition-colors duration-200 rounded-md hover:bg-gray-50"
+                class="text-texto-secundario hover:text-botica-600 px-3 py-3 text-base font-medium transition-colors duration-200 rounded-md hover:bg-superficie-hundida"
                 @click="closeMobileMenu"
               >
                 Iniciar Sesión

@@ -9,7 +9,7 @@
         <div
           v-for="n in notificaciones.items"
           :key="n.id"
-          class="pointer-events-auto w-full max-w-md overflow-hidden rounded-xl border bg-white shadow-lg ring-1 ring-black/5"
+          class="pointer-events-auto w-full max-w-md overflow-hidden rounded-xl border bg-superficie-elevada shadow-lg ring-1 ring-black/5"
           :class="estilo[n.tipo].borde"
           role="alert"
           :aria-live="n.tipo === 'error' ? 'assertive' : 'polite'"
@@ -28,25 +28,25 @@
             </div>
 
             <div class="min-w-0 flex-1">
-              <p class="text-sm font-semibold text-gray-900">{{ n.titulo }}</p>
+              <p class="text-sm font-semibold text-texto-primario">{{ n.titulo }}</p>
 
               <p
                 v-if="n.detalle"
-                class="mt-1 text-sm leading-snug text-gray-600"
+                class="mt-1 text-sm leading-snug text-texto-secundario"
               >
                 {{ n.detalle }}
               </p>
 
               <ul
                 v-if="n.errores && n.errores.length"
-                class="mt-2 space-y-1 text-sm text-gray-600"
+                class="mt-2 space-y-1 text-sm text-texto-secundario"
               >
                 <li
                   v-for="(e, i) in n.errores"
                   :key="i"
                   class="flex gap-1.5"
                 >
-                  <span class="text-gray-400">&bull;</span>
+                  <span class="text-texto-terciario">&bull;</span>
                   <span>{{ e }}</span>
                 </li>
               </ul>
@@ -54,7 +54,7 @@
 
             <button
               type="button"
-              class="shrink-0 rounded-md p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              class="shrink-0 rounded-md p-1 text-texto-terciario transition hover:bg-superficie-interactiva hover:text-texto-secundario focus:outline-none focus:ring-2 focus:ring-botica-500"
               :aria-label="`Cerrar notificacion: ${n.titulo}`"
               @click="notificaciones.descartar(n.id)"
             >
@@ -96,31 +96,31 @@ interface EstiloNotificacion {
 const estilo: Record<TipoNotificacion, EstiloNotificacion> = {
   exito: {
     icono: markRaw(CheckCircleIcon),
-    borde: 'border-emerald-200',
-    fondoIcono: 'bg-emerald-50',
-    colorIcono: 'text-emerald-600',
-    barra: 'bg-emerald-500',
+    borde: 'border-botica-200',
+    fondoIcono: 'bg-botica-50',
+    colorIcono: 'text-botica-600',
+    barra: 'bg-botica-500',
   },
   error: {
     icono: markRaw(XCircleIcon),
-    borde: 'border-red-200',
-    fondoIcono: 'bg-red-50',
-    colorIcono: 'text-red-600',
-    barra: 'bg-red-500',
+    borde: 'border-peligro-500/30',
+    fondoIcono: 'bg-peligro-50',
+    colorIcono: 'text-peligro-600',
+    barra: 'bg-peligro-500',
   },
   aviso: {
     icono: markRaw(ExclamationTriangleIcon),
-    borde: 'border-amber-200',
-    fondoIcono: 'bg-amber-50',
-    colorIcono: 'text-amber-600',
-    barra: 'bg-amber-500',
+    borde: 'border-ambar-200',
+    fondoIcono: 'bg-ambar-50',
+    colorIcono: 'text-ambar-600',
+    barra: 'bg-ambar-500',
   },
   info: {
     icono: markRaw(InformationCircleIcon),
-    borde: 'border-sky-200',
-    fondoIcono: 'bg-sky-50',
-    colorIcono: 'text-sky-600',
-    barra: 'bg-sky-500',
+    borde: 'border-clinico-200',
+    fondoIcono: 'bg-clinico-50',
+    colorIcono: 'text-clinico-600',
+    barra: 'bg-clinico-500',
   },
 }
 </script>

@@ -1,12 +1,12 @@
 <template>
-  <section class="py-20 bg-white">
+  <section class="py-20 bg-superficie-elevada">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Section Header -->
       <div class="text-center mb-16 stats-header">
-        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+        <h2 class="text-4xl md:text-5xl font-bold text-texto-primario mb-6">
           Confianza que se Construye con Resultados
         </h2>
-        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        <p class="text-xl text-texto-secundario max-w-3xl mx-auto">
           Más de 15 años sirviendo a la comunidad con excelencia,
           compromiso y dedicación a tu salud.
         </p>
@@ -16,76 +16,76 @@
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
         <!-- Stat 1: Years of Experience -->
         <div class="stat-card text-center">
-          <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CalendarIcon class="w-10 h-10 text-primary-600" />
+          <div class="w-20 h-20 bg-botica-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CalendarIcon class="w-10 h-10 text-botica-600" />
           </div>
-          <div class="stat-number text-4xl md:text-5xl font-bold text-primary-600 mb-2">
+          <div class="stat-number text-4xl md:text-5xl font-bold text-botica-600 mb-2">
             15+
           </div>
-          <div class="text-lg font-semibold text-gray-900 mb-2">
+          <div class="text-lg font-semibold text-texto-primario mb-2">
             Años de Experiencia
           </div>
-          <p class="text-gray-600 text-sm">
+          <p class="text-texto-secundario text-sm">
             Sirviendo a la comunidad con dedicación y profesionalismo
           </p>
         </div>
 
         <!-- Stat 2: Happy Customers -->
         <div class="stat-card text-center">
-          <div class="w-20 h-20 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <UsersIcon class="w-10 h-10 text-secondary-600" />
+          <div class="w-20 h-20 bg-clinico-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <UsersIcon class="w-10 h-10 text-clinico-600" />
           </div>
-          <div class="stat-number text-4xl md:text-5xl font-bold text-secondary-600 mb-2">
+          <div class="stat-number text-4xl md:text-5xl font-bold text-clinico-600 mb-2">
             50K+
           </div>
-          <div class="text-lg font-semibold text-gray-900 mb-2">
+          <div class="text-lg font-semibold text-texto-primario mb-2">
             Clientes Satisfechos
           </div>
-          <p class="text-gray-600 text-sm">
+          <p class="text-texto-secundario text-sm">
             Familias que confían en nosotros para su cuidado de salud
           </p>
         </div>
 
         <!-- Stat 3: Products Available -->
         <div class="stat-card text-center">
-          <div class="w-20 h-20 bg-accent-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <PackageIcon class="w-10 h-10 text-accent-600" />
+          <div class="w-20 h-20 bg-ambar-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <PackageIcon class="w-10 h-10 text-ambar-600" />
           </div>
-          <div class="stat-number text-4xl md:text-5xl font-bold text-accent-600 mb-2">
+          <div class="stat-number text-4xl md:text-5xl font-bold text-ambar-600 mb-2">
             10K+
           </div>
-          <div class="text-lg font-semibold text-gray-900 mb-2">
+          <div class="text-lg font-semibold text-texto-primario mb-2">
             Productos Disponibles
           </div>
-          <p class="text-gray-600 text-sm">
+          <p class="text-texto-secundario text-sm">
             Amplio catálogo de medicamentos y productos de salud
           </p>
         </div>
 
         <!-- Stat 4: Delivery Coverage -->
         <div class="stat-card text-center">
-          <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <MapPinIcon class="w-10 h-10 text-purple-600" />
+          <div class="w-20 h-20 bg-clinico-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <MapPinIcon class="w-10 h-10 text-clinico-600" />
           </div>
-          <div class="stat-number text-4xl md:text-5xl font-bold text-purple-600 mb-2">
+          <div class="stat-number text-4xl md:text-5xl font-bold text-clinico-600 mb-2">
             100%
           </div>
-          <div class="text-lg font-semibold text-gray-900 mb-2">
+          <div class="text-lg font-semibold text-texto-primario mb-2">
             Cobertura de Delivery
           </div>
-          <p class="text-gray-600 text-sm">
+          <p class="text-texto-secundario text-sm">
             Entregas en toda Lima Metropolitana sin costo adicional
           </p>
         </div>
       </div>
 
       <!-- Trust Indicators -->
-      <div class="bg-linear-to-r from-primary-50 to-secondary-50 rounded-3xl p-8 md:p-12 stats-trust">
+      <div class="bg-linear-to-r from-botica-50 to-clinico-50 rounded-3xl p-8 md:p-12 stats-trust">
         <div class="text-center mb-12">
-          <h3 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h3 class="text-3xl md:text-4xl font-bold text-texto-primario mb-4">
             ¿Por qué elegir Boticas San Juan?
           </h3>
-          <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p class="text-lg text-texto-secundario max-w-2xl mx-auto">
             Somos más que una farmacia, somos tu aliado en salud con certificaciones
             y reconocimientos que avalan nuestra calidad y compromiso.
           </p>
@@ -94,13 +94,13 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Trust 1: Certifications -->
           <div class="trust-item text-center">
-            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <AwardIcon class="w-8 h-8 text-primary-600" />
+            <div class="w-16 h-16 bg-superficie-elevada rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <AwardIcon class="w-8 h-8 text-botica-600" />
             </div>
-            <h4 class="text-xl font-bold text-gray-900 mb-3">
+            <h4 class="text-xl font-bold text-texto-primario mb-3">
               Certificaciones DIGEMID
             </h4>
-            <p class="text-gray-600">
+            <p class="text-texto-secundario">
               Autorización sanitaria completa y cumplimiento de todas las normativas
               vigentes para garantizar la calidad y seguridad de nuestros productos.
             </p>
@@ -108,13 +108,13 @@
 
           <!-- Trust 2: 24/7 Service -->
           <div class="trust-item text-center">
-            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <ClockIcon class="w-8 h-8 text-secondary-600" />
+            <div class="w-16 h-16 bg-superficie-elevada rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <ClockIcon class="w-8 h-8 text-clinico-600" />
             </div>
-            <h4 class="text-xl font-bold text-gray-900 mb-3">
+            <h4 class="text-xl font-bold text-texto-primario mb-3">
               Servicio 24/7
             </h4>
-            <p class="text-gray-600">
+            <p class="text-texto-secundario">
               Atención continua con nuestro servicio de telemedicina Aliviamed
               y delivery express disponible las 24 horas del día.
             </p>
@@ -122,13 +122,13 @@
 
           <!-- Trust 3: Quality Guarantee -->
           <div class="trust-item text-center">
-            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <ShieldCheckIcon class="w-8 h-8 text-accent-600" />
+            <div class="w-16 h-16 bg-superficie-elevada rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <ShieldCheckIcon class="w-8 h-8 text-ambar-600" />
             </div>
-            <h4 class="text-xl font-bold text-gray-900 mb-3">
+            <h4 class="text-xl font-bold text-texto-primario mb-3">
               Garantía de Calidad
             </h4>
-            <p class="text-gray-600">
+            <p class="text-texto-secundario">
               Todos nuestros productos cuentan con cadena de frío garantizada
               y verificación de autenticidad para tu tranquilidad.
             </p>
@@ -151,8 +151,12 @@ import {
   ClockIcon,
   ShieldCheckIcon
 } from 'lucide-vue-next'
+import { prefiereMenosMovimiento } from '@/utils/motion'
 
 onMounted(async () => {
+  /* Si la persona pidió reducir el movimiento, no se anima: el contenido ya
+     está en su estado final y visible, que es justamente lo que se quiere. */
+  if (prefiereMenosMovimiento()) return
   await nextTick()
 
   // Increased delay to ensure DOM and assets are fully rendered

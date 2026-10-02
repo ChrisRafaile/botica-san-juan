@@ -1,12 +1,12 @@
 <template>
-  <section class="py-20 bg-gray-50">
+  <section class="py-20 bg-superficie-hundida">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Section Header -->
       <div class="text-center mb-16 services-header">
-        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+        <h2 class="text-4xl md:text-5xl font-bold text-texto-primario mb-6">
           Nuestros Servicios Médicos
         </h2>
-        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        <p class="text-xl text-texto-secundario max-w-3xl mx-auto">
           Ofrecemos una amplia gama de servicios farmacéuticos y de salud
           para cuidar de tu bienestar y el de tu familia.
         </p>
@@ -15,168 +15,168 @@
       <!-- Services Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
         <!-- Service 1: Telemedicine -->
-        <div class="service-card bg-white rounded-2xl p-8 shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl group">
-          <div class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary-200 transition-colors duration-300">
-            <VideoIcon class="w-8 h-8 text-primary-600" />
+        <div class="service-card bg-superficie-elevada rounded-2xl p-8 shadow-lg border border-borde-sutil transition-all duration-300 hover:shadow-xl group">
+          <div class="w-16 h-16 bg-botica-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-botica-200 transition-colors duration-300">
+            <VideoIcon class="w-8 h-8 text-botica-600" />
           </div>
-          <h3 class="text-2xl font-bold text-gray-900 mb-4">
+          <h3 class="text-2xl font-bold text-texto-primario mb-4">
             Telemedicina Aliviamed
           </h3>
-          <p class="text-gray-600 mb-6 leading-relaxed">
+          <p class="text-texto-secundario mb-6 leading-relaxed">
             Consultas médicas virtuales con especialistas certificados.
             Atención médica desde la comodidad de tu hogar, disponible 24/7.
           </p>
-          <ul class="space-y-2 text-sm text-gray-600">
+          <ul class="space-y-2 text-sm text-texto-secundario">
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Consultas ilimitadas
             </li>
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Recetas digitales
             </li>
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Seguimiento médico
             </li>
           </ul>
         </div>
 
         <!-- Service 2: Delivery -->
-        <div class="service-card bg-white rounded-2xl p-8 shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl group">
-          <div class="w-16 h-16 bg-secondary-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-secondary-200 transition-colors duration-300">
-            <TruckIcon class="w-8 h-8 text-secondary-600" />
+        <div class="service-card bg-superficie-elevada rounded-2xl p-8 shadow-lg border border-borde-sutil transition-all duration-300 hover:shadow-xl group">
+          <div class="w-16 h-16 bg-clinico-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-clinico-200 transition-colors duration-300">
+            <TruckIcon class="w-8 h-8 text-clinico-600" />
           </div>
-          <h3 class="text-2xl font-bold text-gray-900 mb-4">
+          <h3 class="text-2xl font-bold text-texto-primario mb-4">
             Delivery Express
           </h3>
-          <p class="text-gray-600 mb-6 leading-relaxed">
+          <p class="text-texto-secundario mb-6 leading-relaxed">
             Servicio de entrega a domicilio rápido y seguro en toda Lima Metropolitana.
             Recibe tus medicamentos sin salir de casa.
           </p>
-          <ul class="space-y-2 text-sm text-gray-600">
+          <ul class="space-y-2 text-sm text-texto-secundario">
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Entrega en 2 horas
             </li>
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Envío refrigerado
             </li>
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Seguimiento en tiempo real
             </li>
           </ul>
         </div>
 
         <!-- Service 3: Pharmacy Consultation -->
-        <div class="service-card bg-white rounded-2xl p-8 shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl group">
-          <div class="w-16 h-16 bg-accent-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-accent-200 transition-colors duration-300">
-            <UsersIcon class="w-8 h-8 text-accent-600" />
+        <div class="service-card bg-superficie-elevada rounded-2xl p-8 shadow-lg border border-borde-sutil transition-all duration-300 hover:shadow-xl group">
+          <div class="w-16 h-16 bg-ambar-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-ambar-200 transition-colors duration-300">
+            <UsersIcon class="w-8 h-8 text-ambar-600" />
           </div>
-          <h3 class="text-2xl font-bold text-gray-900 mb-4">
+          <h3 class="text-2xl font-bold text-texto-primario mb-4">
             Asesoría Farmacéutica
           </h3>
-          <p class="text-gray-600 mb-6 leading-relaxed">
+          <p class="text-texto-secundario mb-6 leading-relaxed">
             Nuestros farmacéuticos certificados te brindan orientación profesional
             sobre medicamentos, interacciones y cuidados de salud.
           </p>
-          <ul class="space-y-2 text-sm text-gray-600">
+          <ul class="space-y-2 text-sm text-texto-secundario">
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Revisión de recetas
             </li>
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Información sobre medicamentos
             </li>
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Consejos de salud preventiva
             </li>
           </ul>
         </div>
 
         <!-- Service 4: Health Tests -->
-        <div class="service-card bg-white rounded-2xl p-8 shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl group">
-          <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-purple-200 transition-colors duration-300">
-            <ActivityIcon class="w-8 h-8 text-purple-600" />
+        <div class="service-card bg-superficie-elevada rounded-2xl p-8 shadow-lg border border-borde-sutil transition-all duration-300 hover:shadow-xl group">
+          <div class="w-16 h-16 bg-clinico-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-clinico-200 transition-colors duration-300">
+            <ActivityIcon class="w-8 h-8 text-clinico-600" />
           </div>
-          <h3 class="text-2xl font-bold text-gray-900 mb-4">
+          <h3 class="text-2xl font-bold text-texto-primario mb-4">
             Pruebas de Salud
           </h3>
-          <p class="text-gray-600 mb-6 leading-relaxed">
+          <p class="text-texto-secundario mb-6 leading-relaxed">
             Realiza exámenes de laboratorio y pruebas de salud en nuestra farmacia.
             Resultados rápidos y confiables para tu tranquilidad.
           </p>
-          <ul class="space-y-2 text-sm text-gray-600">
+          <ul class="space-y-2 text-sm text-texto-secundario">
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Pruebas de glucosa
             </li>
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Presión arterial
             </li>
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Análisis de colesterol
             </li>
           </ul>
         </div>
 
         <!-- Service 5: Vaccination -->
-        <div class="service-card bg-white rounded-2xl p-8 shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl group">
-          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-200 transition-colors duration-300">
-            <ShieldIcon class="w-8 h-8 text-blue-600" />
+        <div class="service-card bg-superficie-elevada rounded-2xl p-8 shadow-lg border border-borde-sutil transition-all duration-300 hover:shadow-xl group">
+          <div class="w-16 h-16 bg-clinico-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-clinico-200 transition-colors duration-300">
+            <ShieldIcon class="w-8 h-8 text-clinico-600" />
           </div>
-          <h3 class="text-2xl font-bold text-gray-900 mb-4">
+          <h3 class="text-2xl font-bold text-texto-primario mb-4">
             Vacunación
           </h3>
-          <p class="text-gray-600 mb-6 leading-relaxed">
+          <p class="text-texto-secundario mb-6 leading-relaxed">
             Servicio de vacunación completo con las mejores vacunas disponibles.
             Protege tu salud y la de tu familia con nuestro equipo especializado.
           </p>
-          <ul class="space-y-2 text-sm text-gray-600">
+          <ul class="space-y-2 text-sm text-texto-secundario">
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Vacunas estacionales
             </li>
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Vacunas de rutina
             </li>
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Certificación oficial
             </li>
           </ul>
         </div>
 
         <!-- Service 6: Loyalty Program -->
-        <div class="service-card bg-white rounded-2xl p-8 shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl group">
-          <div class="w-16 h-16 bg-yellow-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-yellow-200 transition-colors duration-300">
-            <HeartIcon class="w-8 h-8 text-yellow-600" />
+        <div class="service-card bg-superficie-elevada rounded-2xl p-8 shadow-lg border border-borde-sutil transition-all duration-300 hover:shadow-xl group">
+          <div class="w-16 h-16 bg-ambar-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-ambar-200 transition-colors duration-300">
+            <HeartIcon class="w-8 h-8 text-ambar-600" />
           </div>
-          <h3 class="text-2xl font-bold text-gray-900 mb-4">
+          <h3 class="text-2xl font-bold text-texto-primario mb-4">
             Programa Agora
           </h3>
-          <p class="text-gray-600 mb-6 leading-relaxed">
+          <p class="text-texto-secundario mb-6 leading-relaxed">
             Únete a nuestro programa de lealtad y acumula puntos con cada compra.
             Disfruta de descuentos exclusivos y beneficios especiales.
           </p>
-          <ul class="space-y-2 text-sm text-gray-600">
+          <ul class="space-y-2 text-sm text-texto-secundario">
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Puntos por compra
             </li>
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Descuentos exclusivos
             </li>
             <li class="flex items-center">
-              <CheckIcon class="w-4 h-4 text-secondary-500 mr-2 shrink-0" />
+              <CheckIcon class="w-4 h-4 text-clinico-500 mr-2 shrink-0" />
               Beneficios premium
             </li>
           </ul>
@@ -185,11 +185,11 @@
 
       <!-- CTA Section -->
       <div class="text-center">
-        <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-gray-100 services-cta">
-          <h3 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        <div class="bg-superficie-elevada rounded-3xl p-8 md:p-12 shadow-xl border border-borde-sutil services-cta">
+          <h3 class="text-3xl md:text-4xl font-bold text-texto-primario mb-4">
             ¿Necesitas algún servicio específico?
           </h3>
-          <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p class="text-lg text-texto-secundario mb-8 max-w-2xl mx-auto">
             Nuestro equipo está listo para atenderte. Contáctanos y descubre
             cómo podemos ayudarte con tus necesidades de salud.
           </p>
@@ -225,8 +225,12 @@ import {
   HeartIcon,
   CheckIcon
 } from 'lucide-vue-next'
+import { prefiereMenosMovimiento } from '@/utils/motion'
 
 onMounted(async () => {
+  /* Si la persona pidió reducir el movimiento, no se anima: el contenido ya
+     está en su estado final y visible, que es justamente lo que se quiere. */
+  if (prefiereMenosMovimiento()) return
   await nextTick()
 
   // Increased delay to ensure DOM and assets are fully rendered

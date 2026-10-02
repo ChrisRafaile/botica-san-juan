@@ -1,23 +1,23 @@
 <template>
-  <section class="py-20 bg-linear-to-br from-primary-600 via-primary-700 to-secondary-600 relative overflow-hidden">
+  <section class="py-20 bg-linear-to-br from-botica-600 via-botica-700 to-clinico-600 relative overflow-hidden">
     <!-- Background Pattern -->
     <div class="absolute inset-0 opacity-10">
       <div class="absolute top-0 left-0 w-full h-full bg-linear-to-br from-white/20 to-transparent" />
     </div>
 
     <!-- Floating Elements -->
-    <div class="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl cta-float-1" />
-    <div class="absolute bottom-20 right-10 w-32 h-32 bg-accent-400/20 rounded-full blur-2xl cta-float-2" />
-    <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-secondary-400/15 rounded-full blur-lg cta-float-3" />
+    <div class="absolute top-20 left-10 w-20 h-20 bg-superficie-elevada/10 rounded-full blur-xl cta-float-1" />
+    <div class="absolute bottom-20 right-10 w-32 h-32 bg-ambar-400/20 rounded-full blur-2xl cta-float-2" />
+    <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-clinico-400/15 rounded-full blur-lg cta-float-3" />
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       <div class="text-center cta-content">
         <!-- Main CTA Content -->
         <div class="mb-12">
-          <h2 class="text-4xl md:text-6xl font-bold text-black bg-white/90 px-6 py-4 rounded-2xl inline-block cta-title">
+          <h2 class="text-4xl md:text-6xl font-bold text-black bg-superficie-elevada/90 px-6 py-4 rounded-2xl inline-block cta-title">
             Tu Salud es Nuestra Prioridad
           </h2>
-          <p class="text-xl md:text-2xl text-gray-800 bg-white/80 px-4 py-2 rounded-xl inline-block mt-4 cta-subtitle">
+          <p class="text-xl md:text-2xl text-texto-primario bg-superficie-elevada/80 px-4 py-2 rounded-xl inline-block mt-4 cta-subtitle">
             Únete a miles de familias que ya confían en Boticas San Juan.
             Regístrate ahora y obtén beneficios exclusivos en tu primera compra.
           </p>
@@ -27,14 +27,14 @@
         <div class="flex flex-col sm:flex-row gap-6 justify-center mb-16 cta-buttons">
           <router-link
             to="/register"
-            class="btn-cta-primary bg-yellow-400 text-black px-8 py-4 text-lg font-semibold rounded-2xl shadow-2xl hover:shadow-yellow-500/25 transition-all duration-300 transform hover:scale-105"
+            class="btn-cta-primary bg-ambar-400 text-black px-8 py-4 text-lg font-semibold rounded-2xl shadow-2xl hover:shadow-ambar-500/25 transition-all duration-300 transform hover:scale-105"
           >
             <UserPlusIcon class="w-6 h-6 inline mr-2" />
             Registrarme Ahora
           </router-link>
           <router-link
             to="/products"
-            class="btn-cta-secondary bg-white text-gray-900 px-8 py-4 text-lg font-semibold rounded-2xl border-2 border-gray-400 hover:border-gray-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            class="btn-cta-secondary bg-superficie-elevada text-texto-primario px-8 py-4 text-lg font-semibold rounded-2xl border-2 border-borde-fuerte hover:border-borde-marca transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
             <ShoppingCartIcon class="w-6 h-6 inline mr-2" />
             Ver Productos
@@ -44,40 +44,40 @@
         <!-- Benefits Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto cta-benefits">
           <!-- Benefit 1 -->
-          <div class="benefit-card bg-white rounded-2xl p-6 border border-gray-200 shadow-lg">
-            <div class="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center mb-4 mx-auto">
+          <div class="benefit-card bg-superficie-elevada rounded-2xl p-6 border border-borde-sutil shadow-lg">
+            <div class="w-12 h-12 bg-ambar-400 rounded-xl flex items-center justify-center mb-4 mx-auto">
               <GiftIcon class="w-6 h-6 text-black" />
             </div>
             <h3 class="text-xl font-bold text-black mb-2">
               20% de Descuento
             </h3>
-            <p class="text-gray-600">
+            <p class="text-texto-secundario">
               En tu primera compra al registrarte en nuestro programa Agora
             </p>
           </div>
 
           <!-- Benefit 2 -->
-          <div class="benefit-card bg-white rounded-2xl p-6 border border-gray-200 shadow-lg">
-            <div class="w-12 h-12 bg-green-400 rounded-xl flex items-center justify-center mb-4 mx-auto">
+          <div class="benefit-card bg-superficie-elevada rounded-2xl p-6 border border-borde-sutil shadow-lg">
+            <div class="w-12 h-12 bg-botica-400 rounded-xl flex items-center justify-center mb-4 mx-auto">
               <TruckIcon class="w-6 h-6 text-black" />
             </div>
             <h3 class="text-xl font-bold text-black mb-2">
               Delivery Gratis
             </h3>
-            <p class="text-gray-600">
+            <p class="text-texto-secundario">
               Envío gratuito en compras mayores a S/ 50 en toda Lima Metropolitana
             </p>
           </div>
 
           <!-- Benefit 3 -->
-          <div class="benefit-card bg-white rounded-2xl p-6 border border-gray-200 shadow-lg">
-            <div class="w-12 h-12 bg-blue-400 rounded-xl flex items-center justify-center mb-4 mx-auto">
+          <div class="benefit-card bg-superficie-elevada rounded-2xl p-6 border border-borde-sutil shadow-lg">
+            <div class="w-12 h-12 bg-clinico-400 rounded-xl flex items-center justify-center mb-4 mx-auto">
               <PhoneIcon class="w-6 h-6 text-black" />
             </div>
             <h3 class="text-xl font-bold text-black mb-2">
               Asesoría Gratuita
             </h3>
-            <p class="text-gray-600">
+            <p class="text-texto-secundario">
               Consultas farmacéuticas gratuitas con nuestros especialistas certificados
             </p>
           </div>
@@ -85,19 +85,19 @@
 
         <!-- Trust Message -->
         <div class="mt-16 text-center cta-trust">
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 bg-white/90 rounded-lg p-4 shadow-md">
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 bg-superficie-elevada/90 rounded-lg p-4 shadow-md">
             <div class="flex items-center gap-2">
-              <ShieldCheckIcon class="w-5 h-5 text-green-600" />
+              <ShieldCheckIcon class="w-5 h-5 text-botica-600" />
               <span class="text-sm text-black font-medium">Compra 100% Segura</span>
             </div>
-            <div class="hidden sm:block w-px h-4 bg-gray-300"></div>
+            <div class="hidden sm:block w-px h-4 bg-borde-base"></div>
             <div class="flex items-center gap-2">
-              <ClockIcon class="w-5 h-5 text-blue-600" />
+              <ClockIcon class="w-5 h-5 text-clinico-600" />
               <span class="text-sm text-black font-medium">Atención 24/7</span>
             </div>
-            <div class="hidden sm:block w-px h-4 bg-gray-300"></div>
+            <div class="hidden sm:block w-px h-4 bg-borde-base"></div>
             <div class="flex items-center gap-2">
-              <AwardIcon class="w-5 h-5 text-purple-600" />
+              <AwardIcon class="w-5 h-5 text-clinico-600" />
               <span class="text-sm text-black font-medium">Certificado DIGEMID</span>
             </div>
           </div>
@@ -120,8 +120,12 @@ import {
   ClockIcon,
   AwardIcon
 } from 'lucide-vue-next'
+import { prefiereMenosMovimiento } from '@/utils/motion'
 
 onMounted(async () => {
+  /* Si la persona pidió reducir el movimiento, no se anima: el contenido ya
+     está en su estado final y visible, que es justamente lo que se quiere. */
+  if (prefiereMenosMovimiento()) return
   await nextTick()
 
   // Simplified delay and animations to prevent loading issues

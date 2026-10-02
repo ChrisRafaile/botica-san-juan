@@ -1,23 +1,23 @@
 <template>
-  <section class="py-24 bg-white">
+  <section class="py-24 bg-superficie-elevada">
     <div class="container mx-auto px-6">
       <div class="text-center mb-16">
-        <div class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+        <div class="inline-flex items-center gap-2 bg-clinico-100 text-clinico-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
           <MapPinIcon class="w-4 h-4" />
           Selecciona tu Zona
         </div>
-        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+        <h2 class="text-4xl md:text-5xl font-bold text-texto-primario mb-6">
           Encuentra tu Distrito
         </h2>
-        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        <p class="text-xl text-texto-secundario max-w-3xl mx-auto">
           Selecciona el distrito donde resides para conocer los tiempos de entrega, costos de envío y áreas específicas de cobertura
         </p>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <!-- District Selector -->
-        <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300">
-          <h3 class="text-2xl font-bold text-gray-900 mb-6">
+        <div class="bg-superficie-elevada rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300">
+          <h3 class="text-2xl font-bold text-texto-primario mb-6">
             Distritos Disponibles
           </h3>
 
@@ -28,18 +28,18 @@
               :class="[
                 'p-4 rounded-lg border-2 transition-all text-left hover:shadow-md',
                 selectedDistrict?.id === district.id
-                  ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-md'
-                  : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                  ? 'border-clinico-500 bg-clinico-50 text-clinico-700 shadow-md'
+                  : 'border-borde-sutil hover:border-clinico-300 hover:bg-superficie-hundida'
               ]"
               @click="selectDistrict(district)"
             >
-              <h4 class="font-semibold text-gray-900 mb-1">
+              <h4 class="font-semibold text-texto-primario mb-1">
                 {{ district.name }}
               </h4>
-              <p class="text-sm text-gray-600 mb-2">
+              <p class="text-sm text-texto-secundario mb-2">
                 {{ district.description }}
               </p>
-              <div class="flex items-center gap-4 text-xs text-gray-500">
+              <div class="flex items-center gap-4 text-xs text-texto-terciario">
                 <span>🚚 {{ district.deliveryTime }}</span>
                 <span>💰 {{ district.shippingCost }}</span>
               </div>
@@ -48,8 +48,8 @@
         </div>
 
         <!-- Map Section -->
-        <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300">
-          <h3 class="text-2xl font-bold text-gray-900 mb-6">
+        <div class="bg-superficie-elevada rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300">
+          <h3 class="text-2xl font-bold text-texto-primario mb-6">
             Mapa de San Juan de Lurigancho
           </h3>
 
@@ -64,11 +64,11 @@
           </div>
 
           <!-- Address Info -->
-          <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h4 class="font-semibold text-blue-800 mb-2">
+          <div class="mt-6 p-4 bg-clinico-50 rounded-lg">
+            <h4 class="font-semibold text-clinico-800 mb-2">
               📍 Dirección de Nuestra Botica
             </h4>
-            <p class="text-blue-700">
+            <p class="text-clinico-700">
               Av. Sta. Rosa de Lima 103<br />
               San Juan de Lurigancho 15423, Perú
             </p>
@@ -76,17 +76,17 @@
 
           <!-- Legend -->
           <div class="mt-6">
-            <h4 class="font-semibold text-gray-900 mb-3">
+            <h4 class="font-semibold text-texto-primario mb-3">
               Leyenda del Mapa
             </h4>
             <div class="flex flex-wrap gap-4">
               <div class="flex items-center">
-                <div class="w-4 h-4 bg-green-500 rounded-full mr-2" />
-                <span class="text-sm text-gray-700">Zona de cobertura SJL</span>
+                <div class="w-4 h-4 bg-botica-500 rounded-full mr-2" />
+                <span class="text-sm text-texto-secundario">Zona de cobertura SJL</span>
               </div>
               <div class="flex items-center">
-                <div class="w-4 h-4 bg-red-500 rounded-full mr-2" />
-                <span class="text-sm text-gray-700">Ubicación de la botica</span>
+                <div class="w-4 h-4 bg-peligro-500 rounded-full mr-2" />
+                <span class="text-sm text-texto-secundario">Ubicación de la botica</span>
               </div>
             </div>
           </div>
@@ -96,63 +96,63 @@
       <!-- Coverage Info -->
       <div
         v-if="selectedDistrict"
-        class="mt-12 bg-gray-50 rounded-2xl p-8"
+        class="mt-12 bg-superficie-hundida rounded-2xl p-8"
       >
-        <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">
+        <h3 class="text-2xl font-bold text-texto-primario mb-6 text-center">
           Información de Cobertura - {{ selectedDistrict.name }}
         </h3>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="bg-superficie-elevada p-6 rounded-lg shadow-sm">
             <div class="flex items-center mb-3">
-              <ClockIcon class="w-5 h-5 text-blue-600 mr-3" />
-              <span class="font-semibold text-gray-900">Tiempo de entrega</span>
+              <ClockIcon class="w-5 h-5 text-clinico-600 mr-3" />
+              <span class="font-semibold text-texto-primario">Tiempo de entrega</span>
             </div>
-            <p class="text-gray-700">
+            <p class="text-texto-secundario">
               {{ selectedDistrict.deliveryTime }}
             </p>
           </div>
 
-          <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="bg-superficie-elevada p-6 rounded-lg shadow-sm">
             <div class="flex items-center mb-3">
-              <DollarSignIcon class="w-5 h-5 text-green-600 mr-3" />
-              <span class="font-semibold text-gray-900">Costo de envío</span>
+              <DollarSignIcon class="w-5 h-5 text-botica-600 mr-3" />
+              <span class="font-semibold text-texto-primario">Costo de envío</span>
             </div>
-            <p class="text-gray-700">
+            <p class="text-texto-secundario">
               {{ selectedDistrict.shippingCost }}
             </p>
           </div>
 
-          <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="bg-superficie-elevada p-6 rounded-lg shadow-sm">
             <div class="flex items-center mb-3">
-              <CalendarIcon class="w-5 h-5 text-blue-600 mr-3" />
-              <span class="font-semibold text-gray-900">Horario</span>
+              <CalendarIcon class="w-5 h-5 text-clinico-600 mr-3" />
+              <span class="font-semibold text-texto-primario">Horario</span>
             </div>
-            <p class="text-gray-700">
+            <p class="text-texto-secundario">
               {{ selectedDistrict.schedule }}
             </p>
           </div>
 
-          <div class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="bg-superficie-elevada p-6 rounded-lg shadow-sm">
             <div class="flex items-center mb-3">
-              <ShoppingCartIcon class="w-5 h-5 text-purple-600 mr-3" />
-              <span class="font-semibold text-gray-900">Mínimo de compra</span>
+              <ShoppingCartIcon class="w-5 h-5 text-clinico-600 mr-3" />
+              <span class="font-semibold text-texto-primario">Mínimo de compra</span>
             </div>
-            <p class="text-gray-700">
+            <p class="text-texto-secundario">
               {{ selectedDistrict.minOrder }}
             </p>
           </div>
         </div>
 
         <div class="mt-8">
-          <h4 class="font-semibold text-gray-900 mb-4 text-center">
+          <h4 class="font-semibold text-texto-primario mb-4 text-center">
             Áreas específicas de cobertura:
           </h4>
           <div class="flex flex-wrap gap-3 justify-center">
             <span
               v-for="area in selectedDistrict.areas"
               :key="area"
-              class="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium"
+              class="px-4 py-2 bg-clinico-100 text-clinico-700 rounded-full text-sm font-medium"
             >
               {{ area }}
             </span>
@@ -178,6 +178,7 @@ import L from 'leaflet'
 
 // Import Leaflet CSS
 import 'leaflet/dist/leaflet.css'
+import { prefiereMenosMovimiento } from '@/utils/motion'
 
 interface District {
   id: number
@@ -285,6 +286,10 @@ onMounted(() => {
   L.marker([-11.9686252, -76.9943794]).addTo(sjlMap)
     .bindPopup('<b>Boticas San Juan</b><br>Av. Sta. Rosa de Lima 103<br>San Juan de Lurigancho 15423, Perú')
     .openPopup()
+
+  /* Sólo la animación va detrás de la guarda: el mapa de Leaflet se monta
+     justo arriba y tiene que montarse igual con o sin movimiento. */
+  if (prefiereMenosMovimiento()) return
 
   // Animate district buttons with stagger
   gsap.from('.district-button', {

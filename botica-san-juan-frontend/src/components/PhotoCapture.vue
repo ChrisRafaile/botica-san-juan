@@ -5,7 +5,7 @@
       v-show="isCapturing"
       class="camera-view"
     >
-      <div class="mb-2 text-center text-sm text-gray-600">
+      <div class="mb-2 text-center text-sm text-texto-secundario">
         Cámara activa - Estado: {{ canCapture ? 'Listo para capturar' : 'Cargando...' }}
       </div>
       <video
@@ -74,7 +74,7 @@
       v-else-if="isCapturing"
       class="camera-view"
     >
-      <div class="mb-2 text-center text-sm text-gray-600">
+      <div class="mb-2 text-center text-sm text-texto-secundario">
         Cámara activa - Estado: {{ canCapture ? 'Listo para capturar' : 'Cargando...' }}
       </div>
       <video
@@ -90,13 +90,13 @@
       <div class="mt-4 flex gap-2 justify-center">
         <button
           :disabled="!canCapture"
-          class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          class="px-4 py-2 bg-clinico-500 text-white rounded hover:bg-clinico-600 disabled:opacity-50"
           @click="capturePhoto"
         >
           Capturar Foto
         </button>
         <button
-          class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+          class="px-4 py-2 bg-peligro-500 text-white rounded hover:bg-peligro-600"
           @click="stopCapture"
         >
           Cancelar
@@ -110,12 +110,12 @@
       class="start-capture"
     >
       <div class="mb-4 text-center">
-        <p class="text-sm text-gray-600 mb-2">
+        <p class="text-sm text-texto-secundario mb-2">
           Estado de la cámara: {{ hasCamera ? 'Disponible' : 'No disponible' }}
         </p>
         <p
           v-if="error"
-          class="text-sm text-red-600 mb-2"
+          class="text-sm text-peligro-600 mb-2"
         >
           {{ error }}
         </p>
@@ -135,7 +135,7 @@
       v-if="error"
       class="error-message"
     >
-      <AlertTriangle class="w-5 h-5 text-red-500 mr-2" />
+      <AlertTriangle class="w-5 h-5 text-peligro-500 mr-2" />
       <span>{{ error }}</span>
     </div>
   </div>

@@ -1,57 +1,57 @@
 <template>
-  <main class="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 px-4 py-10">
+  <main class="min-h-screen bg-linear-to-br from-clinico-50 to-clinico-100 px-4 py-10">
     <div class="mx-auto grid max-w-5xl gap-6 lg:grid-cols-5">
       <!-- Resumen del pedido -->
       <section
-        class="lg:col-span-3 rounded-2xl bg-white/90 p-8 shadow-xl backdrop-blur-sm"
+        class="lg:col-span-3 rounded-2xl bg-superficie-elevada/90 p-8 shadow-xl backdrop-blur-sm"
         aria-labelledby="titulo-resumen"
       >
         <h1
           id="titulo-resumen"
-          class="mb-6 text-2xl font-bold text-gray-800"
+          class="mb-6 text-2xl font-bold text-texto-primario"
         >
           Resumen de tu pedido
         </h1>
 
         <p
           v-if="cargando"
-          class="text-gray-500"
+          class="text-texto-terciario"
           aria-live="polite"
         >
           Cargando el pedido…
         </p>
 
         <template v-else-if="pedido">
-          <ul class="divide-y divide-gray-100">
+          <ul class="divide-y divide-borde-sutil">
             <li
               v-for="linea in pedido.pedido_detalles"
               :key="linea.id"
               class="flex items-start justify-between gap-4 py-3"
             >
               <div>
-                <p class="font-medium text-gray-800">
+                <p class="font-medium text-texto-primario">
                   {{ linea.producto?.nombre ?? 'Producto' }}
                 </p>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-texto-terciario">
                   {{ linea.cantidad }} × {{ formatearMonto(Number(linea.precio_unitario ?? linea.precio), moneda) }}
                 </p>
               </div>
-              <p class="whitespace-nowrap font-semibold text-gray-800">
+              <p class="whitespace-nowrap font-semibold text-texto-primario">
                 {{ formatearMonto(Number(linea.subtotal ?? 0), moneda) }}
               </p>
             </li>
           </ul>
 
-          <dl class="mt-6 space-y-2 border-t border-gray-100 pt-5">
-            <div class="flex justify-between text-sm text-gray-600">
+          <dl class="mt-6 space-y-2 border-t border-borde-sutil pt-5">
+            <div class="flex justify-between text-sm text-texto-secundario">
               <dt>Subtotal</dt>
               <dd>{{ formatearMonto(baseImponible, moneda) }}</dd>
             </div>
-            <div class="flex justify-between text-sm text-gray-600">
+            <div class="flex justify-between text-sm text-texto-secundario">
               <dt>IGV (18 %)</dt>
               <dd>{{ formatearMonto(igv, moneda) }}</dd>
             </div>
-            <div class="flex justify-between border-t border-gray-100 pt-3 text-lg font-bold text-gray-900">
+            <div class="flex justify-between border-t border-borde-sutil pt-3 text-lg font-bold text-texto-primario">
               <dt>Total</dt>
               <dd>{{ formatearMonto(total, moneda) }}</dd>
             </div>
@@ -59,25 +59,25 @@
 
           <p
             v-if="pedido.address"
-            class="mt-6 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-600"
+            class="mt-6 rounded-xl bg-superficie-hundida px-4 py-3 text-sm text-texto-secundario"
           >
-            <span class="font-medium text-gray-700">Entrega:</span> {{ pedido.address }}
+            <span class="font-medium text-texto-secundario">Entrega:</span> {{ pedido.address }}
           </p>
         </template>
       </section>
 
       <!-- Pago -->
       <section
-        class="lg:col-span-2 rounded-2xl bg-white/90 p-8 shadow-xl backdrop-blur-sm"
+        class="lg:col-span-2 rounded-2xl bg-superficie-elevada/90 p-8 shadow-xl backdrop-blur-sm"
         aria-labelledby="titulo-pago"
       >
         <h2
           id="titulo-pago"
-          class="mb-2 text-xl font-bold text-gray-800"
+          class="mb-2 text-xl font-bold text-texto-primario"
         >
           Pago seguro
         </h2>
-        <p class="mb-6 text-sm text-gray-600">
+        <p class="mb-6 text-sm text-texto-secundario">
           Los datos de tu tarjeta se ingresan directamente en el entorno de la
           pasarela. Botica San Juan no los recibe ni los almacena.
         </p>
@@ -99,7 +99,7 @@
 
         <div
           v-if="!formularioMontado"
-          class="min-h-[8rem] rounded-xl border border-dashed border-gray-200 bg-gray-50/70 p-4 text-center text-sm text-gray-500"
+          class="min-h-[8rem] rounded-xl border border-dashed border-borde-sutil bg-superficie-hundida/70 p-4 text-center text-sm text-texto-terciario"
           aria-live="polite"
         >
           <template v-if="modoSimulado">
@@ -116,7 +116,7 @@
 
         <p
           v-if="error"
-          class="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700"
+          class="mt-4 rounded-lg bg-peligro-50 px-4 py-3 text-sm text-peligro-700"
           role="alert"
           aria-live="assertive"
         >
@@ -126,14 +126,14 @@
         <button
           v-if="!formularioMontado"
           type="button"
-          class="mt-6 w-full rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-6 py-3 font-medium text-white shadow-lg shadow-blue-600/20 transition hover:from-blue-700 hover:to-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+          class="mt-6 w-full rounded-xl bg-linear-to-r from-clinico-600 to-clinico-600 px-6 py-3 font-medium text-white shadow-lg shadow-clinico-600/20 transition hover:from-clinico-700 hover:to-clinico-700 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="procesando || cargando"
           @click="pagar"
         >
           {{ procesando ? 'Preparando el pago…' : `Pagar ${formatearMonto(total, moneda)}` }}
         </button>
 
-        <p class="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
+        <p class="mt-4 flex items-center justify-center gap-2 text-xs text-texto-terciario">
           <svg
             class="h-4 w-4"
             viewBox="0 0 24 24"
