@@ -88,13 +88,31 @@
               novalidate
               @submit.prevent="enviarAcceso"
             >
+              <!--
+                Marca circular de la referencia.
+
+                En la referencia, este círculo cambia a la foto de la persona
+                en cuanto reconoce el usuario escrito. Aquí NO se hace, y es
+                una decisión deliberada: para pintar esa foto habría que
+                preguntarle al servidor si ese DNI existe antes de validar
+                ninguna contraseña, y eso convierte la pantalla en un detector
+                de DNIs registrados. Cualquiera podría recorrer números y saber
+                quién es cliente de la botica. La marca se queda fija.
+              -->
+              <div
+                class="mx-auto flex size-20 items-center justify-center rounded-full bg-linear-to-br from-clinico-500 to-botica-600 text-white shadow-md ring-4 ring-superficie-elevada"
+                aria-hidden="true"
+              >
+                <Pill class="size-9" />
+              </div>
+
               <h1
                 id="titulo-acceso"
-                class="text-2xl font-bold tracking-tight text-texto-primario"
+                class="mt-5 text-center text-2xl font-bold tracking-tight text-texto-primario"
               >
                 Iniciar sesión
               </h1>
-              <p class="mt-2 text-sm text-texto-secundario">
+              <p class="mt-2 text-center text-sm text-texto-secundario">
                 Ingresa con tu DNI y tu contraseña.
               </p>
 
@@ -330,12 +348,18 @@
             :class="{ 'panel-marca--registro': esRegistro }"
             aria-hidden="true"
           >
-            <div class="relative flex h-full flex-col items-center justify-center overflow-hidden bg-botica-800 px-10 text-center text-white">
-              <!-- Trama muy tenue: da textura sin competir con el texto -->
-              <div
-                class="pointer-events-none absolute inset-0 opacity-[0.07]"
-                style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 22px 22px;"
-              />
+            <div class="relative flex h-full flex-col items-center justify-center overflow-hidden bg-clinico-900 px-10 text-center text-white">
+              <!--
+                La espiral de la referencia. Va detrás del contenido y con un
+                velo encima: sin el velo, el trazo claro de la espiral pasa por
+                debajo del texto blanco y lo deja ilegible justo en el tramo
+                donde se cruzan. El velo cuesta nada y garantiza el contraste
+                pase por donde pase la curva.
+              -->
+              <div class="pointer-events-none absolute inset-0">
+                <EspiralMarca class="absolute inset-0" />
+                <div class="absolute inset-0 bg-clinico-950/45" />
+              </div>
 
               <div class="panel-contenido relative">
                 <div class="mx-auto flex size-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20">
@@ -419,6 +443,7 @@ import { useAuthStore } from '../stores/auth'
 import authService from '../services/auth'
 import CampoTexto from './components/CampoTexto.vue'
 import BotonEnvio from './components/BotonEnvio.vue'
+import EspiralMarca from './components/EspiralMarca.vue'
 
 const route = useRoute()
 const router = useRouter()

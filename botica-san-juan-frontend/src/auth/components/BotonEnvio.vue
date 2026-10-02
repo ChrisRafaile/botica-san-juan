@@ -10,7 +10,7 @@
     type="submit"
     :disabled="cargando"
     :aria-busy="cargando || undefined"
-    class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-botica-700 px-4 py-3 font-semibold text-white shadow-xs transition hover:bg-botica-800 active:bg-botica-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco disabled:cursor-not-allowed disabled:opacity-60"
+    class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-clinico-600 to-botica-600 px-4 py-3 font-semibold tracking-wide text-white shadow-md transition-[filter,box-shadow,transform] duration-200 hover:brightness-110 hover:shadow-lg active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:brightness-100"
   >
     <LoaderCircle
       v-if="cargando"

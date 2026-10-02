@@ -33,10 +33,10 @@
         :placeholder="placeholder"
         :aria-invalid="error ? 'true' : undefined"
         :aria-describedby="error ? `${id}-error` : undefined"
-        class="w-full rounded-xl border bg-superficie-elevada py-2.5 text-texto-primario outline-none transition placeholder:text-texto-deshabilitado focus:ring-4"
+        class="w-full rounded-full border bg-superficie-elevada py-3 text-texto-primario outline-none transition placeholder:text-texto-deshabilitado focus:ring-4"
         :class="[
-          icono ? 'pl-10' : 'pl-3.5',
-          accionIcono ? 'pr-11' : 'pr-3.5',
+          icono ? 'pl-11' : 'pl-4.5',
+          accionIcono ? 'pr-12' : 'pr-4.5',
           error
             ? 'border-peligro-600 focus:border-peligro-600 focus:ring-peligro-500/20'
             : 'border-borde-base focus:border-borde-marca focus:ring-botica-500/20',
