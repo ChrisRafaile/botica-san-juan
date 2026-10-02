@@ -1,36 +1,40 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import contactService, { type ContactForm, type ContactInquiry } from '@/services/contact'
+import contactService from '@/services/contact'
+import type { MensajeContacto, ContactoGuardado } from '@/services/contact'
 
+/**
+ * Consultas enviadas desde el portal.
+ *
+ * Antes apuntaba a `contact.php`, del sistema anterior, que la API no sirve:
+ * el formulario respondia 404 y el mensaje no llegaba a ninguna parte.
+ */
 export const useContactStore = defineStore('contacto', () => {
-  // State
-  const inquiries = ref<ContactInquiry[]>([])
+  const inquiries = ref<ContactoGuardado[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  // Actions
-  const sendContactForm = async (formData: ContactForm): Promise<void> => {
+  const sendContactForm = async (formulario: MensajeContacto): Promise<void> => {
     isLoading.value = true
     error.value = null
-
     try {
-      await contactService.sendContactForm(formData)
+      await contactService.enviar(formulario)
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error al enviar el formulario de contacto'
+      error.value = err instanceof Error ? err.message : 'No se pudo enviar tu consulta'
       throw err
     } finally {
       isLoading.value = false
     }
   }
 
+  /** Solo para el administrador: la API exige rol para leer los mensajes. */
   const fetchContactInquiries = async (): Promise<void> => {
     isLoading.value = true
     error.value = null
-
     try {
-      inquiries.value = await contactService.getContactInquiries()
+      inquiries.value = await contactService.listar()
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Error al cargar las consultas de contacto'
+      error.value = err instanceof Error ? err.message : 'No se pudieron cargar las consultas'
       throw err
     } finally {
       isLoading.value = false
@@ -41,15 +45,5 @@ export const useContactStore = defineStore('contacto', () => {
     error.value = null
   }
 
-  return {
-    // State
-    inquiries,
-    isLoading,
-    error,
-
-    // Actions
-    sendContactForm,
-    fetchContactInquiries,
-    clearError
-  }
+  return { inquiries, isLoading, error, sendContactForm, fetchContactInquiries, clearError }
 })

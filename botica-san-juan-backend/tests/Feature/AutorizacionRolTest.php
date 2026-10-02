@@ -64,6 +64,34 @@ class AutorizacionRolTest extends TestCase
             ->assertStatus(403);
     }
 
+    /**
+     * El formulario de contacto del portal es publico y su bandeja no.
+     *
+     * Exigir sesion para escribir a la botica deja fuera justo a quien
+     * todavia no es cliente; dejar leer los mensajes a cualquiera expone
+     * nombres, correos y consultas de terceros.
+     */
+    public function test_cualquiera_puede_escribir_a_la_botica_pero_no_leer_los_mensajes(): void
+    {
+        $this->postJson('/api/contacto', [
+            'nombre'  => 'Visitante',
+            'email'   => 'visitante@ejemplo.pe',
+            'mensaje' => 'Quisiera saber si tienen un medicamento.',
+        ])->assertStatus(201);
+
+        $this->assertDatabaseHas('contacto', ['email' => 'visitante@ejemplo.pe']);
+
+        /* Sin telefono ni motivo: son NOT NULL en la tabla y el servidor los
+           rellena, porque quien escribe no siempre deja telefono. */
+
+        $this->getJson('/api/contacto')->assertStatus(401);
+
+        $cliente = $this->crearCliente();
+        $this->withHeader('Authorization', 'Bearer ' . $cliente->createToken('prueba')->plainTextToken)
+            ->getJson('/api/contacto')
+            ->assertStatus(403);
+    }
+
     public function test_un_cliente_no_puede_leer_los_pedidos_de_otro(): void
     {
         $propio = $this->crearCliente();

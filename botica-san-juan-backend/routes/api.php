@@ -92,6 +92,14 @@ Route::get('/salud', function () {
 // Authentication routes
 Route::post('/login', [UsuarioController::class, 'login'])->middleware('throttle:login');
 Route::post('/register', [UsuarioController::class, 'register'])->middleware('throttle:register');
+
+/* El formulario de contacto del portal es PUBLICO: exigir sesion para
+   escribir a la botica deja fuera justo a quien todavia no es cliente, que es
+   la mitad del sentido de tener un formulario de contacto.
+
+   Lleva su propio limitador porque un buzon abierto sin limite es un buzon de
+   spam. La LECTURA de los mensajes sigue siendo del administrador. */
+Route::post('/contacto', [ContactoController::class, 'store'])->middleware('throttle:contacto');
 Route::post('/logout', [UsuarioController::class, 'logout'])->middleware(['auth:sanctum', 'throttle:api']);
 
 // API Routes for resources (protected)
@@ -103,7 +111,12 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('pedidos/resumen', [PedidoController::class, 'resumen'])->middleware('admin');
     Route::apiResource('pedidos', PedidoController::class)->middleware('admin');
     Route::apiResource('pedido-detalles', PedidoDetalleController::class)->middleware('admin');
-    Route::apiResource('contacto', ContactoController::class);
+    /* Enviar un mensaje es PUBLICO y se declara fuera de este grupo. Aqui
+       quedan solo la lectura y la gestion de los mensajes recibidos, que son
+       datos del negocio: nombres, correos y consultas de clientes. */
+    Route::apiResource('contacto', ContactoController::class)
+        ->except(['store'])
+        ->middleware('admin');
     // Tablero: todas las cifras se calculan en la base, no en el navegador.
     Route::get('tablero', [TableroController::class, 'index'])->middleware('admin');
 

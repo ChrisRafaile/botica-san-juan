@@ -20,13 +20,26 @@ class ContactoController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
-            'mensaje' => 'required|string',
+        $datos = $request->validate([
+            'nombre'   => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255',
+            'telefono' => 'nullable|string|max:30',
+            'motivo'   => 'nullable|string|max:255',
+            'mensaje'  => 'required|string|max:5000',
         ]);
 
-        $contacto = Contacto::create($request->all());
+        /* telefono y motivo son NOT NULL en la tabla pero opcionales en el
+           formulario: quien escribe no siempre deja telefono. Se guardan en
+           blanco en vez de rechazar el mensaje, que es lo que de verdad
+           importa recibir. La fecha la pone el servidor, no el navegador. */
+        $contacto = Contacto::create([
+            'nombre'   => $datos['nombre'],
+            'email'    => $datos['email'],
+            'telefono' => $datos['telefono'] ?? '',
+            'motivo'   => $datos['motivo'] ?? 'Consulta general',
+            'mensaje'  => $datos['mensaje'],
+            'fecha'    => now(),
+        ]);
 
         return response()->json($contacto, 201);
     }

@@ -50,5 +50,17 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perMinute(3)->by((string) $request->ip()),
             ];
         });
+
+        /* Formulario de contacto del portal. Es publico a proposito —quien
+           escribe a una botica normalmente todavia no es cliente— y por eso
+           necesita freno: tres mensajes por minuto y veinte por hora desde la
+           misma direccion. Una persona con una consulta real no llega ni de
+           lejos a ese limite; un script que busque buzon, si. */
+        RateLimiter::for('contacto', function (Request $request) {
+            return [
+                Limit::perMinute(3)->by((string) $request->ip()),
+                Limit::perHour(20)->by((string) $request->ip()),
+            ];
+        });
     }
 }
