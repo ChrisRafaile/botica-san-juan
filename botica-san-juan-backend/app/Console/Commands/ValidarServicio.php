@@ -86,37 +86,89 @@ class ValidarServicio extends Command
     /* Casos funcionales                                                      */
     /* ===================================================================== */
 
-    /** RF01 · Autenticacion con credenciales validas. */
+    /**
+     * RF01 · Autenticacion con credenciales validas.
+     *
+     * Este caso ejercita el ENDPOINT REAL, no el hash. Una version anterior
+     * solo comprobaba que la contrasena estuviera cifrada con bcrypt, cosa que
+     * habria aprobado aunque el inicio de sesion estuviera completamente roto.
+     * Ahora la peticion atraviesa el enrutador, la validacion, el limitador de
+     * intentos y el controlador, igual que la del navegador.
+     *
+     * El usuario se crea aqui con una contrasena conocida porque la base no
+     * guarda contrasenas en claro: no hay forma de autenticar a una cuenta
+     * existente sin conocer su clave. Se crea dentro de la transaccion que el
+     * comando revierte al terminar.
+     */
     private function cpF01(): void
     {
-        $this->cabecera('CP-F-01', 'RF01', 'Autenticar a un usuario con credenciales validas');
+        $this->cabecera('CP-F-01', 'RF01', 'Autenticar contra el endpoint de inicio de sesion');
 
-        $usuario = Usuario::query()->where('rol', 'administrador')->first();
+        $dni = '19000001';
+        $clave = 'Clave#Prueba2026';
 
-        if (!$usuario) {
-            $this->registrar('CP-F-01', 'PENDIENTE', 'No hay ningun administrador en la base.');
+        $usuario = Usuario::create([
+            'nombre' => 'Usuario de validacion',
+            'email' => 'validacion.apf2@boticasanjuan.pe',
+            'password' => $clave,
+            'dni' => $dni,
+            'telefono' => '987000099',
+            'rol' => 'administrador',
+            'mfa_enabled' => false,
+        ]);
 
-            return;
-        }
+        $this->dato('Datos de prueba', "DNI {$dni} con contrasena conocida (cuenta creada para la prueba y revertida al terminar)");
+        $this->dato('Pasos', 'POST /api/login con la clave correcta y despues con una incorrecta');
+        $this->dato('Resultado esperado', 'La correcta devuelve 200 con token; la incorrecta devuelve 401 sin revelar cual dato fallo');
 
-        $this->dato('Datos de prueba', "DNI {$usuario->dni} (administrador registrado)");
-        $this->dato('Pasos', 'Recuperar el usuario por DNI y verificar la contrasena contra el hash guardado');
-        $this->dato('Resultado esperado', 'El hash es bcrypt y una contrasena incorrecta no valida');
+        $correcta = $this->peticion('POST', '/api/login', ['dni' => $dni, 'password' => $clave]);
+        $incorrecta = $this->peticion('POST', '/api/login', ['dni' => $dni, 'password' => 'ClaveEquivocada999']);
 
-        $esBcrypt = str_starts_with((string) $usuario->password, '$2y$');
-        $rechazaIncorrecta = !Hash::check('contrasena-incorrecta-de-prueba', (string) $usuario->password);
+        $cuerpoOk = json_decode($correcta->getContent(), true) ?: [];
+        $cuerpoMal = json_decode($incorrecta->getContent(), true) ?: [];
+
+        $token = $cuerpoOk['token'] ?? $cuerpoOk['access_token'] ?? null;
+        $sinPassword = !str_contains(strtolower($correcta->getContent()), '"password"');
+        $mensajeGenerico = !str_contains(strtolower($cuerpoMal['message'] ?? ''), 'dni no existe');
 
         $this->evidencia(
-            "SELECT dni, rol, LEFT(password, 7) AS algoritmo FROM usuarios WHERE dni = '{$usuario->dni}'",
-            sprintf('dni=%s  rol=%s  algoritmo=%s', $usuario->dni, $usuario->rol, substr((string) $usuario->password, 0, 7))
+            "SELECT dni, rol, LEFT(password, 4) AS algoritmo FROM usuarios WHERE dni = '{$dni}'",
+            sprintf('dni=%s  rol=%s  algoritmo=%s (bcrypt)', $usuario->dni, $usuario->rol, substr((string) $usuario->password, 0, 4))
+        );
+        $this->evidencia(
+            'SELECT COUNT(*) FROM personal_access_tokens WHERE tokenable_id = ' . $usuario->id,
+            sprintf('tokens emitidos tras el inicio de sesion correcto: %d',
+                DB::table('personal_access_tokens')->where('tokenable_id', $usuario->id)->count())
         );
 
-        $this->dato('Resultado obtenido', $esBcrypt
-            ? 'La contrasena esta cifrada con bcrypt y la comprobacion rechaza una clave incorrecta'
-            : 'La contrasena NO esta cifrada con bcrypt');
+        $ok = $correcta->getStatusCode() === 200
+            && is_string($token) && $token !== ''
+            && $sinPassword
+            && $incorrecta->getStatusCode() === 401
+            && $mensajeGenerico;
 
-        $this->registrar('CP-F-01', $esBcrypt && $rechazaIncorrecta ? 'APROBADO' : 'FALLIDO',
-            'La contrasena nunca viaja ni se guarda en claro.');
+        $this->dato('Resultado obtenido', sprintf(
+            'Clave correcta: HTTP %d con token. Clave incorrecta: HTTP %d, mensaje "%s". La contrasena no aparece en la respuesta.',
+            $correcta->getStatusCode(), $incorrecta->getStatusCode(), $cuerpoMal['message'] ?? ''
+        ));
+
+        $this->registrar('CP-F-01', $ok ? 'APROBADO' : 'FALLIDO',
+            'El mensaje de error es generico a proposito: decir "ese DNI no existe" permitiria averiguar quien esta registrado.');
+    }
+
+    /**
+     * Lanza una peticion real por el nucleo HTTP, para que el caso atraviese
+     * enrutador, validacion y middleware en vez de llamar al controlador a mano.
+     */
+    private function peticion(string $metodo, string $ruta, array $datos): \Symfony\Component\HttpFoundation\Response
+    {
+        $peticion = \Illuminate\Http\Request::create(
+            $ruta, $metodo, [], [], [],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_ACCEPT' => 'application/json'],
+            json_encode($datos)
+        );
+
+        return app(\Illuminate\Contracts\Http\Kernel::class)->handle($peticion);
     }
 
     /** RF06 y RF07 · Venta de mostrador que descuenta stock. */
@@ -192,6 +244,9 @@ class ValidarServicio extends Command
         $antes = (int) Lote::where('producto_id', $producto->id)->sum('cantidad_actual');
 
         $this->dato('Datos de prueba', "Producto #{$producto->id} · 1 blister de 10 unidades · precio de blister S/ {$producto->precio_blister}");
+        $this->dato('ORIGEN DEL DATO', 'La equivalencia y el precio de blister los DEFINE ESTE CASO: el catalogo'
+            . ' real todavia no tiene presentaciones cargadas (0 de 3361 productos). Lo que se prueba es la regla'
+            . ' de conversion y de precio, no el dato del catalogo.');
         $this->dato('Pasos', 'Vender 1 blister y comprobar unidades descontadas e importe cobrado');
         $this->dato('Resultado esperado', 'Descuenta 10 unidades y cobra el precio del blister, no 10 veces el unitario');
 
