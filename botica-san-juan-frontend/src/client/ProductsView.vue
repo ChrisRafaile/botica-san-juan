@@ -99,8 +99,9 @@
       >
         Mostrando <strong class="text-gray-900">{{ filteredProducts.length }}</strong>
         de <strong class="text-gray-900">{{ productsStore.totalFiltrado.toLocaleString('es-PE') }}</strong>
-        {{ productsStore.totalFiltrado === 1 ? 'producto' : 'productos' }}
-        <template v-if="productsStore.searchQuery"> que coinciden con la búsqueda</template>.
+        {{ productsStore.totalFiltrado === 1 ? 'producto' : 'productos' }}<template
+          v-if="productsStore.searchQuery"
+        > que coinciden con la búsqueda</template>.
         <span v-if="productsStore.hayMasResultados">
           Afina la búsqueda para encontrar lo que necesitas.
         </span>
@@ -113,12 +114,24 @@
           class="card group"
         >
           <!-- Product Image -->
-          <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
+          <!-- La ruta de la imagen llega RELATIVA desde la base; sin resolverla
+               contra la API el navegador la busca en el dominio del portal y no
+               la encuentra. urlDeMedia ya lo resuelve y lo usa el admin. -->
+          <div class="relative aspect-square overflow-hidden rounded-lg bg-botica-50 mb-4">
             <img
-              :src="product.imagen"
+              v-if="urlDeMedia(product.imagen)"
+              :src="urlDeMedia(product.imagen)!"
               :alt="product.nombre"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+              decoding="async"
+              class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              @error="ocultarSiFalla"
             />
+            <!-- Debajo de la imagen, no en vez de ella: si la foto falla al
+                 cargar, @error la oculta y queda este marcador en su sitio. -->
+            <div class="flex h-full w-full items-center justify-center">
+              <PackageIcon class="size-10 text-botica-300" aria-hidden="true" />
+            </div>
           </div>
 
           <!-- Product Info -->
@@ -208,6 +221,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useCartStore } from '@/stores/carrito'
 import { useProductsStore } from '@/stores/productos'
 import type { Product } from '@/services/products'
+import { urlDeMedia, ocultarSiFalla } from '@/utils/media'
 import {
   SearchIcon,
   ShoppingCartIcon,

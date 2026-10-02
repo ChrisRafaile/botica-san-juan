@@ -39,6 +39,27 @@ const RUTAS_DE_AUTENTICACION = ['/login', '/register', '/forgot-password']
  * Si por lo que sea no se pudiera cargar, se cae a la navegacion dura: perder
  * el estado es malo, quedarse atrapado en una pantalla sin sesion es peor.
  */
+/**
+ * Dice si la pantalla en la que esta el usuario exige sesion.
+ *
+ * Se le pregunta al router en vez de mantener una lista de rutas publicas
+ * aqui: la lista se desincronizaria en cuanto alguien anada una pantalla, y
+ * el fallo resultante —visitantes expulsados al login— es de los que nadie
+ * reproduce hasta que un cliente se queja.
+ *
+ * Ante la duda devuelve false: dejar ver una pagina publica de mas es menos
+ * grave que echar a quien solo queria mirar el catalogo.
+ */
+async function rutaActualExigeSesion(): Promise<boolean> {
+  try {
+    const { default: router } = await import('@/router')
+    const coincidencias = router.resolve(window.location.pathname).matched
+    return coincidencias.some(r => r.meta?.requiresAuth === true)
+  } catch {
+    return false
+  }
+}
+
 async function redirigirALogin(rutaActual: string): Promise<void> {
   const destino = { path: '/login', query: { redirect: rutaActual } }
 
@@ -101,7 +122,7 @@ api.interceptors.response.use(
     })
     return response
   },
-  (error: AxiosError): Promise<AxiosError> => {
+  async (error: AxiosError): Promise<AxiosError> => {
     const status = error.response?.status
     const datos = error.response?.data
     const url = error.config?.url
@@ -137,23 +158,42 @@ api.interceptors.response.use(
       case 401: {
         const rutaActual = window.location.pathname
         const enPantallaDeAcceso = RUTAS_DE_AUTENTICACION.includes(rutaActual)
+        const habiaSesion = Boolean(localStorage.getItem('auth_token'))
 
-        if (!enPantallaDeAcceso) {
-          localStorage.removeItem('auth_token')
+        /* El token se retira siempre: si el servidor lo rechaza, no sirve. */
+        localStorage.removeItem('auth_token')
 
-          /* El carrito del punto de venta NO se borra aqui a proposito: sobrevive
-             a la expiracion de sesion y se recupera al volver a entrar. En un
-             mostrador, perder una venta a medio armar con el cliente delante es
-             mucho peor que el trabajo de volver a iniciar sesion. */
+        /* ARREGLO: antes se expulsaba al login desde CUALQUIER ruta que no
+           fuera de acceso, incluidas las publicas. Un visitante mirando el
+           catalogo acababa en la pantalla de acceso con un aviso de sesion
+           expirada, sin haber iniciado sesion nunca.
+ 
+           Pasaba sobre todo en desarrollo, donde el navegador suele guardar un
+           token viejo de alguna prueba: al arrancar, la aplicacion preguntaba
+           por el perfil, recibia 401 —la respuesta correcta para quien no ha
+           entrado— y se tomaba como sesion caida.
+ 
+           Ahora solo se redirige si la ruta actual EXIGE sesion. En una ruta
+           publica, un 401 unicamente significa que no hay sesion, y la pagina
+           se sigue viendo. */
+        if (enPantallaDeAcceso || !(await rutaActualExigeSesion())) {
+          break
+        }
+
+        /* El carrito del punto de venta NO se borra aqui a proposito: sobrevive
+           a la expiracion de sesion y se recupera al volver a entrar. En un
+           mostrador, perder una venta a medio armar con el cliente delante es
+           mucho peor que el trabajo de volver a iniciar sesion. */
+        if (habiaSesion) {
           notificaciones.aviso(
             'Tu sesion expiro',
             'Vuelve a iniciar sesion. Si tenias una venta en curso, se recuperara.',
           )
-
-          /* Se navega con el router y no con window.location: una recarga
-             completa tira todo el estado en memoria de la aplicacion. */
-          void redirigirALogin(rutaActual)
         }
+
+        /* Se navega con el router y no con window.location: una recarga
+           completa tira todo el estado en memoria de la aplicacion. */
+        void redirigirALogin(rutaActual)
         break
       }
 
