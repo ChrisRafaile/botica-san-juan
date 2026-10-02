@@ -10,6 +10,14 @@ const router = createRouter({
       component: () => import('../client/HomeView.vue'),
     },
     {
+      /* El menu del portal enlazaba /products desde el principio, pero la ruta
+         no estaba declarada: el enlace principal del catalogo llevaba a una
+         pantalla en blanco. La vista existia y estaba terminada. */
+      path: '/products',
+      name: 'products',
+      component: () => import('../client/ProductsView.vue'),
+    },
+    {
       path: '/about',
       name: 'about',
       component: () => import('../client/AboutView.vue'),
@@ -232,6 +240,17 @@ const router = createRouter({
           component: () => import('../admin/views/AdminSettingsView.vue'),
         },
       ],
+    },
+    {
+      /* Comodin, SIEMPRE la ultima: vue-router evalua en orden y esta
+         capturaria cualquier ruta declarada despues.
+
+         Sin ella, una direccion equivocada no mostraba un error sino una
+         pantalla vacia, que para quien llega desde un enlace viejo es
+         indistinguible de un sistema caido. */
+      path: '/:rutaInexistente(.*)*',
+      name: 'no-encontrada',
+      component: () => import('../client/NotFoundView.vue'),
     },
   ],
 })
