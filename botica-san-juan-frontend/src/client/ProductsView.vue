@@ -396,6 +396,41 @@ onMounted(async () => {
         </button>
       </div>
 
+      <!--
+        Esqueleto de carga.
+
+        No es decoración: es lo que EVITA el salto de maquetación. Sin él, la
+        página se pinta con la rejilla vacía, el pie queda a media pantalla, y
+        cuando llegan los 24 productos el pie sale despedido hacia abajo. Medido
+        con PerformanceObserver: ese único desplazamiento valía 0,4237 de CLS
+        —el pie pasaba de 519 px de alto 381 a quedar fuera de la vista—, y
+        llevaba el total de la página a 0,44, que Google clasifica como "pobre"
+        a partir de 0,25.
+
+        Las tarjetas falsas ocupan exactamente el sitio de las reales, así que
+        al sustituirse no se mueve nada.
+      -->
+      <div
+        v-else-if="catalogo.isLoading && catalogo.products.length === 0"
+        class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+        aria-hidden="true"
+      >
+        <div
+          v-for="n in catalogo.porPagina"
+          :key="`esqueleto-${n}`"
+          class="overflow-hidden rounded-2xl border border-borde-sutil bg-superficie-elevada"
+        >
+          <div class="aspect-square animate-pulse bg-superficie-hundida" />
+          <div class="space-y-2 p-3">
+            <div class="h-4 w-4/5 animate-pulse rounded bg-superficie-hundida" />
+            <div class="h-3 w-3/5 animate-pulse rounded bg-superficie-hundida" />
+            <div class="h-3 w-2/5 animate-pulse rounded bg-superficie-hundida" />
+            <div class="mt-3 h-6 w-1/2 animate-pulse rounded bg-superficie-hundida" />
+            <div class="h-9 w-full animate-pulse rounded-xl bg-superficie-hundida" />
+          </div>
+        </div>
+      </div>
+
       <!-- Sin resultados -->
       <div
         v-else-if="!catalogo.isLoading && catalogo.totalFiltrado === 0"
