@@ -212,7 +212,9 @@ const navigation = [
   { name: 'Zonas de Cobertura', href: '/coverage' }
 ]
 
-const cartItemCount = computed(() => cartStore.items.length)
+/* Unidades, no lineas: con 3 cajas de un mismo producto el contador decia "1",
+   que no es lo que nadie espera de la insignia de un carrito. */
+const cartItemCount = computed(() => cartStore.totalUnidades)
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const toggleUserMenu = () => {

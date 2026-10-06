@@ -1,108 +1,316 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import cartService from '@/services/cart'
-import type { CartItem } from '@/services/cart'
+import { ref, computed, watch } from 'vue'
+import api from '@/services/api'
+
+/**
+ * Carrito del portal público.
+ *
+ * QUÉ CAMBIÓ Y POR QUÉ
+ *
+ * El carrito anterior vivía entero en el servidor, en la tabla `carrito`, ligado
+ * a un `usuario_id`. Eso tenía dos consecuencias que nadie había medido:
+ *
+ *   1. **Un visitante sin cuenta no podía usarlo.** `addToCart` lanzaba
+ *      "Inicia sesión para agregar productos". En una botica de barrio, pedir
+ *      registro antes de dejar elegir es perder al cliente en el primer clic.
+ *   2. Cada operación —añadir, cambiar cantidad, quitar— disparaba una ida y
+ *      vuelta a la red, y `removeFromCart` además releía el carrito entero sólo
+ *      para traducir un id de producto a un id de línea. Subir una unidad
+ *      costaba dos peticiones.
+ *
+ * Ahora manda el navegador: en `localStorage` se guarda la lista de
+ * `{ producto_id, cantidad }` y nada más. Funciona sin cuenta, sobrevive a la
+ * recarga y a navegar entre páginas, y responde al instante.
+ *
+ * LO QUE NO SE GUARDA, Y ES DELIBERADO
+ *
+ * Ni el precio, ni el stock, ni el nombre, ni si necesita receta. Todo eso se
+ * pide a `POST /carrito/cotizar` cada vez que hace falta mostrar el carrito:
+ *
+ *   - el precio de hace tres días no es el de hoy;
+ *   - el stock pudo acabarse mientras la pestaña estaba abierta;
+ *   - y lo que está en `localStorage` lo puede editar cualquiera desde la
+ *     consola, así que un precio guardado ahí no es un dato, es una sugerencia.
+ *
+ * El servidor vuelve a topar la cantidad contra el stock vendible real aunque
+ * aquí se haya topado ya. El tope de esta clase es comodidad; el que cuenta es
+ * el del servidor.
+ */
+
+const CLAVE = 'botica:carrito'
+const MAX_POR_LINEA = 99
+
+/** Lo único que se persiste. */
+export interface LineaGuardada {
+  producto_id: number
+  cantidad: number
+}
+
+/** Lo que devuelve el servidor por línea, con los datos frescos. */
+export interface LineaCotizada {
+  producto_id: number
+  nombre: string
+  concentracion: string | null
+  presentacion: string | null
+  laboratorio: string | null
+  tipo: string | null
+  imagen: string | null
+  precio: number
+  cantidad: number
+  subtotal: number
+  stock_disponible: number
+  requiere_receta: boolean
+  afectacion_igv: string
+}
+
+export interface Ajuste {
+  producto_id: number
+  nombre?: string
+  motivo: 'sin_stock' | 'stock_insuficiente' | 'no_disponible'
+  solicitada?: number
+  servible?: number
+  mensaje: string
+}
+
+export interface Desglose {
+  subtotal_gravado: number
+  subtotal_exonerado: number
+  subtotal_inafecto: number
+  igv: number
+  tasa_igv: number
+  total: number
+}
+
+const DESGLOSE_CERO: Desglose = {
+  subtotal_gravado: 0,
+  subtotal_exonerado: 0,
+  subtotal_inafecto: 0,
+  igv: 0,
+  tasa_igv: 0.18,
+  total: 0,
+}
+
+/**
+ * Lee lo guardado, descartando cualquier cosa que no cuadre.
+ *
+ * Es deliberadamente desconfiado: el contenido puede venir de una versión
+ * anterior del portal, de otra pestaña, o de alguien que lo editó a mano. Un
+ * carrito corrupto debe quedar vacío, nunca reventar la pantalla.
+ */
+function leer(): LineaGuardada[] {
+  try {
+    const crudo = localStorage.getItem(CLAVE)
+    if (!crudo) return []
+
+    const datos = JSON.parse(crudo)
+    if (!Array.isArray(datos)) return []
+
+    return datos
+      .map((l): LineaGuardada => ({
+        producto_id: Number(l?.producto_id),
+        cantidad: Math.min(MAX_POR_LINEA, Math.max(1, Math.trunc(Number(l?.cantidad)))),
+      }))
+      .filter((l) => Number.isInteger(l.producto_id) && l.producto_id > 0 && l.cantidad > 0)
+  } catch {
+    /* localStorage puede fallar entero en modo privado o con las cookies
+       bloqueadas. El carrito entonces vive sólo en memoria, que es peor pero
+       sigue funcionando durante la visita. */
+    return []
+  }
+}
+
+function guardar(lineas: LineaGuardada[]): void {
+  try {
+    localStorage.setItem(CLAVE, JSON.stringify(lineas))
+  } catch {
+    /* Sin sitio o sin permiso: no hay nada que hacer y no es motivo para
+       interrumpir al usuario. */
+  }
+}
 
 export const useCartStore = defineStore('cart', () => {
-  const items = ref<CartItem[]>([])
-  const isLoading = ref(false)
+  const guardadas = ref<LineaGuardada[]>(leer())
+  const lineas = ref<LineaCotizada[]>([])
+  const ajustes = ref<Ajuste[]>([])
+  const desglose = ref<Desglose>({ ...DESGLOSE_CERO })
+  const requiereReceta = ref(false)
+  const cargando = ref(false)
+  const error = ref<string | null>(null)
+  /** Evita pintar "tu carrito está vacío" antes de la primera cotización. */
+  const cotizadoAlgunaVez = ref(false)
 
-  const totalItems = computed(() => {
-    return items.value.reduce((total, item) => total + item.cantidad, 0)
-  })
+  /* Toda escritura pasa por aquí: así no hay forma de cambiar el carrito y
+     olvidarse de persistirlo. */
+  watch(guardadas, (valor) => guardar(valor), { deep: true })
 
-  const totalPrice = computed(() => {
-    return items.value.reduce((total, item) => {
-      if (item.producto) {
-        return total + (item.producto.precio * item.cantidad)
+  /**
+   * Otra pestaña del mismo navegador tocó el carrito.
+   *
+   * Sin esto, tener el catálogo en una pestaña y el carrito en otra lleva a que
+   * una de las dos pise lo que hizo la otra al guardar.
+   */
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (evento) => {
+      if (evento.key !== CLAVE) return
+      guardadas.value = leer()
+    })
+  }
+
+  const totalUnidades = computed(() =>
+    guardadas.value.reduce((suma, l) => suma + l.cantidad, 0),
+  )
+
+  const vacio = computed(() => guardadas.value.length === 0)
+
+  const cantidadDe = (productoId: number) =>
+    guardadas.value.find((l) => l.producto_id === productoId)?.cantidad ?? 0
+
+  const estaEnCarrito = (productoId: number) => cantidadDe(productoId) > 0
+
+  /**
+   * Pide al servidor precio, stock y avisos actuales.
+   *
+   * Si el servidor recortó alguna cantidad por falta de stock, el carrito local
+   * se alinea con lo que el servidor dice que es servible. No tendría sentido
+   * seguir guardando "quiero 10" cuando hay 3: al volver a entrar mostraría otra
+   * vez un número que no se puede cumplir.
+   */
+  const cotizar = async () => {
+    if (guardadas.value.length === 0) {
+      lineas.value = []
+      ajustes.value = []
+      desglose.value = { ...DESGLOSE_CERO }
+      requiereReceta.value = false
+      cotizadoAlgunaVez.value = true
+      return
+    }
+
+    cargando.value = true
+    error.value = null
+
+    try {
+      const { data } = await api.post('/carrito/cotizar', { items: guardadas.value })
+
+      lineas.value = (data.lineas ?? []).map((l: LineaCotizada) => ({
+        ...l,
+        /* Los importes pueden llegar como cadena según el driver de base de
+           datos; ya rompió el render del catálogo una vez. */
+        precio: Number(l.precio),
+        subtotal: Number(l.subtotal),
+      }))
+      ajustes.value = data.ajustes ?? []
+      requiereReceta.value = Boolean(data.receta)
+      desglose.value = {
+        ...DESGLOSE_CERO,
+        ...data.desglose,
+        subtotal_gravado: Number(data.desglose?.subtotal_gravado ?? 0),
+        igv: Number(data.desglose?.igv ?? 0),
+        total: Number(data.desglose?.total ?? 0),
       }
-      return total
-    }, 0)
-  })
 
-  const loadCart = async () => {
-    try {
-      isLoading.value = true
-      const cartItems = await cartService.getCart()
-      items.value = cartItems
-    } catch (error) {
-      console.error('Error loading cart:', error)
-      items.value = []
+      /* Alineación con la realidad: se queda lo servible y desaparece lo que
+         ya no existe. */
+      guardadas.value = lineas.value
+        .filter((l) => l.cantidad > 0)
+        .map((l) => ({ producto_id: l.producto_id, cantidad: l.cantidad }))
+    } catch {
+      /* Mensaje sin detalle técnico: quien compra no puede hacer nada con un
+         código de estado, y el detalle ya está en la consola del navegador. */
+      error.value = 'No pudimos consultar los precios y el stock. Revisa tu conexión e inténtalo otra vez.'
     } finally {
-      isLoading.value = false
+      cargando.value = false
+      cotizadoAlgunaVez.value = true
     }
   }
 
-  const addItem = async (productId: number, quantity: number = 1) => {
-    try {
-      isLoading.value = true
-      await cartService.addToCart(productId, quantity)
-      await loadCart() // Reload cart to get updated data
-    } catch (error) {
-      console.error('Error adding item to cart:', error)
-      throw error
-    } finally {
-      isLoading.value = false
+  /**
+   * Añade unidades.
+   *
+   * `stockDisponible` es opcional porque quien añade desde el catálogo ya lo
+   * sabe —viene en la ficha— y así se evita una consulta. Cuando no se pasa, el
+   * tope lo pone el servidor al cotizar.
+   */
+  const agregar = (productoId: number, cantidad = 1, stockDisponible?: number) => {
+    const existente = guardadas.value.find((l) => l.producto_id === productoId)
+    const techo = Math.min(MAX_POR_LINEA, stockDisponible ?? MAX_POR_LINEA)
+
+    if (techo <= 0) return 0
+
+    const nueva = Math.min(techo, (existente?.cantidad ?? 0) + Math.max(1, cantidad))
+
+    if (existente) {
+      existente.cantidad = nueva
+    } else {
+      guardadas.value = [...guardadas.value, { producto_id: productoId, cantidad: nueva }]
     }
+
+    return nueva
   }
 
-  const removeItem = async (productId: number) => {
-    try {
-      isLoading.value = true
-      await cartService.removeFromCart(productId)
-      await loadCart() // Reload cart to get updated data
-    } catch (error) {
-      console.error('Error removing item from cart:', error)
-      throw error
-    } finally {
-      isLoading.value = false
+  /** Fija la cantidad exacta. Con 0 o menos, quita la línea. */
+  const fijarCantidad = (productoId: number, cantidad: number, stockDisponible?: number) => {
+    const techo = Math.min(MAX_POR_LINEA, stockDisponible ?? MAX_POR_LINEA)
+    const valor = Math.min(techo, Math.trunc(cantidad))
+
+    if (!Number.isFinite(valor) || valor <= 0) {
+      quitar(productoId)
+      return 0
     }
+
+    const existente = guardadas.value.find((l) => l.producto_id === productoId)
+    if (existente) {
+      existente.cantidad = valor
+    } else {
+      guardadas.value = [...guardadas.value, { producto_id: productoId, cantidad: valor }]
+    }
+
+    /* La línea cotizada se actualiza en el acto para que el desglose no quede
+       un paso por detrás mientras llega la respuesta. */
+    const cotizada = lineas.value.find((l) => l.producto_id === productoId)
+    if (cotizada) {
+      cotizada.cantidad = valor
+      cotizada.subtotal = Number((cotizada.precio * valor).toFixed(2))
+    }
+
+    return valor
   }
 
-  const updateQuantity = async (productId: number, quantity: number) => {
-    try {
-      isLoading.value = true
-      if (quantity <= 0) {
-        await cartService.removeFromCart(productId)
-      } else {
-        await cartService.updateCartItem(productId, quantity)
-      }
-      await loadCart() // Reload cart to get updated data
-    } catch (error) {
-      console.error('Error updating cart item:', error)
-      throw error
-    } finally {
-      isLoading.value = false
-    }
+  const quitar = (productoId: number) => {
+    guardadas.value = guardadas.value.filter((l) => l.producto_id !== productoId)
+    lineas.value = lineas.value.filter((l) => l.producto_id !== productoId)
   }
 
-  const clearCart = async () => {
-    try {
-      isLoading.value = true
-      await cartService.clearCart()
-      items.value = []
-    } catch (error) {
-      console.error('Error clearing cart:', error)
-      throw error
-    } finally {
-      isLoading.value = false
-    }
+  const vaciar = () => {
+    guardadas.value = []
+    lineas.value = []
+    ajustes.value = []
+    desglose.value = { ...DESGLOSE_CERO }
+    requiereReceta.value = false
   }
 
-  const isInCart = (productId: number) => {
-    return items.value.some(item => item.producto?.id === productId)
+  /** Descarta los avisos ya leídos sin volver a pedir nada al servidor. */
+  const descartarAjustes = () => {
+    ajustes.value = []
   }
 
   return {
-    items,
-    isLoading,
-    totalItems,
-    totalPrice,
-    loadCart,
-    addItem,
-    removeItem,
-    updateQuantity,
-    clearCart,
-    isInCart
+    guardadas,
+    lineas,
+    ajustes,
+    desglose,
+    requiereReceta,
+    cargando,
+    error,
+    cotizadoAlgunaVez,
+    totalUnidades,
+    vacio,
+    cantidadDe,
+    estaEnCarrito,
+    cotizar,
+    agregar,
+    fijarCantidad,
+    quitar,
+    vaciar,
+    descartarAjustes,
   }
 })

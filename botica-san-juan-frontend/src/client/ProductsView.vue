@@ -50,6 +50,7 @@ import {
   ChevronRightIcon,
   LoaderCircleIcon,
   AlertCircleIcon,
+  CheckIcon,
 } from 'lucide-vue-next'
 
 const cartStore = useCartStore()
@@ -112,20 +113,34 @@ async function irA(n: number) {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-/* --- Carrito -------------------------------------------------------------- */
-const agregando = ref<number | null>(null)
-const errorCarrito = ref('')
+/* --- Carrito --------------------------------------------------------------
+   Añadir ya no va a la red: el carrito vive en el navegador y la operación es
+   inmediata. Antes cada clic esperaba a dos peticiones y, si el visitante no
+   había iniciado sesión, terminaba en un error — es decir, el botón principal
+   del catálogo no funcionaba para quien aún no era cliente.
 
-async function agregarAlCarrito(producto: Product) {
-  agregando.value = producto.id
-  errorCarrito.value = ''
-  try {
-    await cartStore.addItem(producto.id, 1)
-  } catch (e) {
-    errorCarrito.value = e instanceof Error ? e.message : 'No se pudo agregar al carrito'
-  } finally {
-    agregando.value = null
-  }
+   Se le pasa el stock vendible para que el selector no deje pedir más de lo que
+   hay. Ese tope es comodidad: el definitivo lo vuelve a aplicar el servidor al
+   cotizar, porque esto de aquí corre en la máquina del visitante. */
+const ultimoAgregado = ref<number | null>(null)
+let avisoTemporizador: ReturnType<typeof setTimeout> | undefined
+
+function agregarAlCarrito(producto: Product) {
+  const disponible = vendible(producto)
+  if (disponible <= 0) return
+
+  cartStore.agregar(producto.id, 1, disponible)
+
+  ultimoAgregado.value = producto.id
+  clearTimeout(avisoTemporizador)
+  avisoTemporizador = setTimeout(() => { ultimoAgregado.value = null }, 2000)
+}
+
+onBeforeUnmount(() => clearTimeout(avisoTemporizador))
+
+/** Cuántas unidades de este producto ya hay en el carrito. */
+function enCarrito(producto: Product): number {
+  return cartStore.cantidadDe(producto.id)
 }
 
 /* --- Imágenes que no cargan -----------------------------------------------
@@ -191,7 +206,8 @@ function diferirRender(indice: number): boolean {
 onMounted(async () => {
   catalogo.orden = 'nombre'
   await catalogo.inicializar()
-  await cartStore.loadCart()
+  /* El carrito ya no se carga de la red: se lee de localStorage al crear el
+     store, así que aquí no queda nada que esperar. */
 })
 </script>
 
@@ -367,15 +383,6 @@ onMounted(async () => {
           <span class="cifras-tabulares font-medium text-texto-primario">{{ catalogo.totalFiltrado.toLocaleString('es-PE') }}</span>
           productos
         </template>
-      </p>
-
-      <p
-        v-if="errorCarrito"
-        class="mt-3 flex items-center gap-2 rounded-xl bg-peligro-50 px-4 py-3 text-sm text-peligro-700 dark:bg-peligro-500/10 dark:text-peligro-500"
-        role="alert"
-      >
-        <AlertCircleIcon class="size-4 shrink-0" aria-hidden="true" />
-        {{ errorCarrito }}
       </p>
 
       <!-- Error de carga, distinto de "no hay resultados" -->
@@ -563,13 +570,31 @@ onMounted(async () => {
               <button
                 type="button"
                 class="foco-dentro mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-xl bg-botica-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-botica-700 disabled:cursor-not-allowed disabled:opacity-60"
-                :disabled="vendible(producto) <= 0 || agregando === producto.id"
+                :disabled="vendible(producto) <= 0 || enCarrito(producto) >= vendible(producto)"
                 @click="agregarAlCarrito(producto)"
               >
-                <LoaderCircleIcon v-if="agregando === producto.id" class="size-4 animate-spin" aria-hidden="true" />
+                <CheckIcon v-if="ultimoAgregado === producto.id" class="size-4" aria-hidden="true" />
                 <ShoppingCartIcon v-else class="size-4" aria-hidden="true" />
-                {{ vendible(producto) > 0 ? 'Agregar' : 'Sin stock' }}
+                <template v-if="vendible(producto) <= 0">Sin stock</template>
+                <template v-else-if="ultimoAgregado === producto.id">Agregado</template>
+                <template v-else-if="enCarrito(producto) >= vendible(producto)">Tienes todo el stock</template>
+                <template v-else>Agregar</template>
               </button>
+
+              <!-- Cuántas unidades de este producto ya van en el carrito. Sin
+                   esto hay que abrir el carrito para saberlo, y es justo lo que
+                   se necesita para decidir si se añade otra.
+
+                   Se renderiza SIEMPRE, aunque esté vacío, y con altura fija: si
+                   apareciera sólo al añadir, la tarjeta crecería y empujaría
+                   toda la fila de productos justo cuando el cursor está encima
+                   del botón de la tarjeta siguiente. -->
+              <p
+                class="mt-1.5 h-4 text-center text-xs text-texto-secundario"
+                aria-live="polite"
+              >
+                <template v-if="enCarrito(producto) > 0">{{ enCarrito(producto) }} en el carrito</template>
+              </p>
             </div>
           </div>
         </article>

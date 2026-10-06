@@ -18,6 +18,14 @@ const router = createRouter({
       component: () => import('../client/ProductsView.vue'),
     },
     {
+      /* La cabecera enlaza el icono del carrito a /cart desde el principio,
+         pero la ruta nunca se declaro: el boton llevaba a "pagina no
+         encontrada". Mismo fallo, y misma causa, que tuvo /products. */
+      path: '/cart',
+      name: 'cart',
+      component: () => import('../client/CartView.vue'),
+    },
+    {
       path: '/about',
       name: 'about',
       component: () => import('../client/AboutView.vue'),
