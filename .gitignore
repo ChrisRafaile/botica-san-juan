@@ -94,3 +94,6 @@ infra/backup/salida/
 
 # Resultados de scripts/auditar-contraste-portal.mjs (se regeneran)
 botica-san-juan-frontend/aud-*.json
+
+# Espacio de trabajo de subagent-driven-development (efimero)
+.superpowers/
