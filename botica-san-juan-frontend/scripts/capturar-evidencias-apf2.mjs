@@ -24,6 +24,23 @@ const BASE = leer('base', 'http://localhost:5173')
 const SALIDA = leer('salida', '../docs/evidencias')
 const PUERTO = Number(leer('puerto', '9801'))
 
+/* Pantallas a medir. `prefijo` nombra los archivos de salida.
+   --rutas=/cart,/contact limita la ejecución a una parte. */
+const RUTAS_PEDIDAS = leer('rutas', '')
+const PANTALLAS = [
+  { ruta: '/products', prefijo: 'E4-catalogo' },
+  { ruta: '/cart', prefijo: 'E6-carrito' },
+  { ruta: '/contact', prefijo: 'E6-contacto' },
+].filter((p) => !RUTAS_PEDIDAS || RUTAS_PEDIDAS.split(',').includes(p.ruta))
+
+/* Carrito de ejemplo para la captura. Son ids REALES del catálogo local: el
+   servidor rechaza los que no existen, así que un carrito inventado daría una
+   pantalla vacía y la medición no mediría nada. */
+const SEMILLA_CARRITO = [
+  { producto_id: 1, cantidad: 2 },
+  { producto_id: 2, cantidad: 1 },
+]
+
 const CANDIDATOS = [
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
   'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
@@ -64,6 +81,19 @@ const MEDIR = String.raw`(async () => {
     .filter((s) => s.textContent.trim() === 'Imagen referencial');
   const recuento = document.querySelector('[role=status]')?.textContent.replace(/\s+/g, ' ').trim();
 
+  /* Especificos del carrito: cuantas lineas hay, si el tope de cantidad esta
+     activo y si el desglose fiscal se pinto entero. */
+  const campos = [...document.querySelectorAll('input[type=number][max]')];
+  const carrito = campos.length ? {
+    lineas: campos.length,
+    topesDeclarados: campos.filter((c) => Number(c.max) > 0).length,
+    enElTope: campos.filter((c) => Number(c.value) >= Number(c.max)).length,
+    etiquetasDesglose: [...document.querySelectorAll('dt')]
+      .map((d) => d.textContent.trim())
+      .filter((t) => /subtotal|igv|total|exonerado|inafecto/i.test(t)),
+    avisosReceta: document.body.textContent.match(/Requiere receta médica/g)?.length ?? 0,
+  } : null;
+
   const diferidas = [...tarjetas].filter((t) => getComputedStyle(t).contentVisibility === 'auto').length;
 
   return JSON.stringify({
@@ -76,6 +106,7 @@ const MEDIR = String.raw`(async () => {
     conDimensionesExplicitas: formas.filter((i) => i.getAttribute('width') && i.getAttribute('height')).length,
     etiquetasReferencial: etiquetas.length,
     tarjetasConRenderDiferido: diferidas,
+    carrito,
     ejemplo: formas[0] ? { src: formas[0].getAttribute('src'), alt: formas[0].getAttribute('alt') } : null,
   });
 })()`
@@ -112,29 +143,46 @@ try {
   await enviar('Page.enable')
   await enviar('Runtime.enable')
 
-  for (const tema of ['claro', 'oscuro']) {
-    /* El tema se fija antes de cargar: el script anti-parpadeo lo lee en el
-       primer pintado, asi que recargar es parte de la medicion. */
-    await enviar('Page.navigate', { url: `${BASE}/products` })
-    await dormir(1500)
-    await enviar('Runtime.evaluate', { expression: `localStorage.setItem('botica:tema','${tema}')` })
-    await enviar('Page.navigate', { url: `${BASE}/products` })
-    await dormir(4000)
+  for (const pantalla of PANTALLAS) {
+    for (const tema of ['claro', 'oscuro']) {
+      /* El tema y el carrito se fijan antes de cargar: el script anti-parpadeo
+         lee el tema en el primer pintado y el carrito se lee al crear el store,
+         asi que recargar es parte de la medicion. */
+      await enviar('Page.navigate', { url: `${BASE}${pantalla.ruta}` })
+      await dormir(1500)
+      await enviar('Runtime.evaluate', { expression: `localStorage.setItem('botica:tema','${tema}')` })
 
-    const r = await enviar('Runtime.evaluate', { expression: MEDIR, awaitPromise: true, returnByValue: true })
-    const datos = JSON.parse(r?.result?.value ?? '{}')
+      /* El carrito tiene que tener algo dentro o la medicion no mide nada: una
+         pantalla de "carrito vacio" no tiene lineas que puedan saltar. */
+      if (pantalla.ruta === '/cart') {
+        await enviar('Runtime.evaluate', {
+          expression: `localStorage.setItem('botica:carrito', JSON.stringify(${JSON.stringify(SEMILLA_CARRITO)}))`,
+        })
+      }
 
-    const png = await enviar('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false })
-    if (png?.data) {
-      writeFileSync(`${SALIDA}/E4-catalogo-${tema}.png`, Buffer.from(png.data, 'base64'))
+      await enviar('Page.navigate', { url: `${BASE}${pantalla.ruta}` })
+      await dormir(4000)
+
+      const r = await enviar('Runtime.evaluate', { expression: MEDIR, awaitPromise: true, returnByValue: true })
+      const datos = JSON.parse(r?.result?.value ?? '{}')
+      datos.ruta = pantalla.ruta
+      datos.tema = tema
+
+      const png = await enviar('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false })
+      if (png?.data) {
+        writeFileSync(`${SALIDA}/${pantalla.prefijo}-${tema}.png`, Buffer.from(png.data, 'base64'))
+      }
+
+      console.log(
+        `[${pantalla.ruta} · ${tema}] CLS ${datos.cls} (${datos.veredicto})` +
+        (datos.tarjetas ? ` · ${datos.tarjetas} tarjetas` : '') +
+        (datos.ilustraciones ? ` · ${datos.ilustraciones} ilustraciones (${datos.conDimensionesExplicitas} con width/height)` : '') +
+        (datos.etiquetasReferencial ? ` · ${datos.etiquetasReferencial} etiquetas "Imagen referencial"` : '') +
+        (datos.recuento ? ` · "${datos.recuento}"` : ''),
+      )
+
+      writeFileSync(`${SALIDA}/${pantalla.prefijo}-metricas-${tema}.json`, JSON.stringify(datos, null, 2))
     }
-
-    console.log(`[${tema}] CLS ${datos.cls} (${datos.veredicto}) · ${datos.tarjetas} tarjetas · ` +
-      `${datos.ilustraciones} ilustraciones (${datos.conDimensionesExplicitas} con width/height) · ` +
-      `${datos.etiquetasReferencial} etiquetas "Imagen referencial" · ` +
-      `${datos.tarjetasConRenderDiferido} con render diferido`)
-
-    writeFileSync(`${SALIDA}/E4-metricas-${tema}.json`, JSON.stringify(datos, null, 2))
   }
 } finally {
   try { ws?.close() } catch { /* ignorado */ }

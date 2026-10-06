@@ -1,0 +1,227 @@
+================================================================================
+E6 — CARRITO Y CONTACTO: STOCK, IGV, PERSISTENCIA Y DATOS OPERATIVOS
+================================================================================
+Fecha      : 6 de octubre de 2026
+Pantallas  : /cart (nueva)  ·  /contact
+Reproducir : php artisan test --filter=CarritoCotizarTest
+             node scripts/capturar-evidencias-apf2.mjs --rutas=/cart,/contact
+             node scripts/auditar-contraste-portal.mjs --rutas=/cart,/contact
+Artefactos : E6-carrito-{claro,oscuro}.png     E6-carrito-metricas-{claro,oscuro}.json
+             E6-contacto-{claro,oscuro}.png    E6-contacto-metricas-{claro,oscuro}.json
+             E6-contraste.json
+
+
+--------------------------------------------------------------------------------
+0. EL FALLO DE PARTIDA: LA PANTALLA NO EXISTÍA
+--------------------------------------------------------------------------------
+El icono del carrito de la cabecera enlazaba a `/cart` desde el principio, pero
+esa ruta nunca se declaró en el enrutador. Pulsarlo llevaba a "página no
+encontrada".
+
+Es el mismo fallo, y por la misma causa, que ya tuvo el enlace de Productos: el
+enlace se escribió antes que la vista y nadie volvió a comprobarlo. No lo detecta
+ninguna prueba porque no hay nada que probar — simplemente no había destino.
+
+
+--------------------------------------------------------------------------------
+1. EL TOPE DE CANTIDAD SE APLICA EN EL SERVIDOR, NO SOLO EN PANTALLA
+--------------------------------------------------------------------------------
+El carrito vive en `localStorage` para que un visitante SIN CUENTA pueda armarlo
+y no lo pierda al recargar. Antes vivía en la tabla `carrito` ligada a un
+`usuario_id`, y `addToCart` respondía "Inicia sesión para agregar productos": el
+botón principal del catálogo no funcionaba para quien todavía no era cliente.
+
+Pero en el navegador se guarda ÚNICAMENTE `{ producto_id, cantidad }`. Ni el
+precio, ni el stock, ni si requiere receta. Esos tres los pide
+`POST /api/carrito/cotizar` cada vez que se abre el carrito, por tres motivos:
+
+  · el precio de hace tres días no es el de hoy;
+  · el stock pudo acabarse mientras la pestaña estaba abierta;
+  · y lo que está en localStorage lo edita cualquiera desde la consola — un
+    precio guardado ahí no es un dato, es una sugerencia.
+
+Pruebas que lo demuestran (13 en CarritoCotizarTest, todas en verde):
+
+  ✓ recorta la cantidad al stock vendible aunque el navegador pida mas
+      Se mandan 99 unidades de un producto con 3 → devuelve cantidad 3,
+      subtotal S/ 30.00 y un ajuste con motivo "stock_insuficiente".
+
+  ✓ el precio lo pone el servidor y no el cliente
+      El navegador manda `precio: 0.01`; la respuesta cobra S/ 25.50.
+
+  ✓ un lote vencido no cuenta como stock vendible
+      50 unidades vencidas en el anaquel → stock_disponible 0, motivo
+      "sin_stock". `productos.stock` las cuenta porque están físicamente ahí;
+      el carrito no puede prometerlas.
+
+  ✓ dos lineas del mismo producto comparten el tope de stock
+      Añadir desde dos pestañas no duplica el tope.
+
+  ✓ un producto borrado del catalogo no rompe el carrito
+      La línea fantasma se informa y se descarta; el resto sobrevive.
+
+En pantalla (ver E6-carrito-*.png): el botón "+" se deshabilita al llegar al
+límite y debajo se escribe el motivo — "Máximo disponible: 1". Un botón apagado
+sin explicación se lee como una pantalla rota.
+
+Medición de la captura (E6-carrito-metricas-claro.json):
+    lineas: 2 · topesDeclarados: 2 · enElTope: 1
+
+
+--------------------------------------------------------------------------------
+2. EL IGV SE EXTRAE DEL PRECIO, NO SE SUMA ENCIMA
+--------------------------------------------------------------------------------
+En Perú el precio de mostrador YA INCLUYE el impuesto. El desglose correcto es:
+
+    base = precio / (1 + tasa)        igv = precio - base
+
+Sumar un 18 % al precio visible daría un total que el cliente no reconoce y que
+no coincide con lo que paga en el mostrador.
+
+En la captura:  S/ 4.24 (base) + S/ 0.76 (IGV) = S/ 5.00 (total).
+Si se sumara el impuesto, el total habría sido S/ 5.90.
+
+DECISIÓN TÉCNICA: el cálculo se extrajo a `App\Services\DesgloseFiscalService`,
+que usan **tanto el carrito del portal como la venta de mostrador**. Estaba
+enterrado dentro de `VentaService::registrar()`, y la salida fácil era repetir
+las tres líneas de aritmética en el controlador nuevo. Habría sido un error caro:
+el portal y la boleta mostrarían cifras distintas el día que cambie la tasa, y
+nadie se enteraría hasta que un cliente los comparase.
+
+Hay una prueba cuyo único trabajo es impedir que alguien vuelva a escribir la
+aritmética a mano:
+
+  ✓ el portal y el mostrador usan el mismo calculo fiscal
+
+Y otra que comprueba la identidad contable:
+
+  ✓ el desglose cuadra siempre: base + IGV + exonerado + inafecto = total
+
+Las 120 pruebas del proyecto siguen en verde tras el refactor (eran 107).
+
+
+--------------------------------------------------------------------------------
+3. AVISO DE VENTA BAJO RECETA — IMPLEMENTADO, PERO SIN DATOS QUE LO ACTIVEN
+--------------------------------------------------------------------------------
+El aviso está hecho y probado en dos niveles: una etiqueta en la línea del
+producto (para saber CUÁL de los cinco la necesita) y un bloque en el resumen
+antes de salir (para no enterarse al recoger el pedido).
+
+  ✓ avisa cuando alguna linea requiere receta
+
+PERO: medido contra la base local,
+
+    productos totales ................................ 884
+    con requiere_receta = true .......................   0
+    con tipo_afectacion_igv = EXONERADO ..............   0
+    filas en digemid_catalogos .......................   5  (datos de demo)
+    productos con codigo_digemid .....................   1
+
+Es decir, **con los datos actuales el aviso no se dispara nunca** y la línea de
+"Exonerado de IGV" del resumen tampoco aparece. La captura lo confirma:
+`avisosReceta: 0`.
+
+No se marcó ningún producto a mano: cuáles se venden bajo receta es un dato
+regulatorio que sale del catálogo DIGEMID, no una decisión de programación.
+`ProductoController::validateDigemidCompliance()` ya lo copia automáticamente
+cuando el producto tiene código DIGEMID; lo que falta es cargar ese catálogo.
+Queda anotado como dato pendiente, no como función pendiente.
+
+
+--------------------------------------------------------------------------------
+4. CONTACTO: CUATRO NÚMEROS DE WHATSAPP A LA VEZ
+--------------------------------------------------------------------------------
+El portal ofrecía simultáneamente:
+
+    wa.me/016772892    en Servicios, Cobertura y la cabecera de Contacto
+                       — es el número FIJO, y un fijo no tiene WhatsApp:
+                         ese botón no abría ninguna conversación
+    wa.me/51999999999  en el pie — relleno
+    +51 967 654 321    en la ficha de Contacto, solo como texto
+    +51 987 654 321    en los ajustes del panel
+
+Ninguno podía ser el bueno a la vez. Ahora hay una sola fuente,
+`src/datos/botica.ts`, y el número se lee de `VITE_BOTICA_WHATSAPP`. Mientras no
+esté configurado, **los botones de WhatsApp no se pintan** en lugar de enlazar a
+un número inventado: más vale una vía de contacto menos que una que no contesta.
+Se ve en E6-contacto-oscuro.png — la tarjeta de WhatsApp sigue, el botón no.
+
+También se quitaron afirmaciones que el negocio no presta, todas publicadas
+junto a un horario que dice que la botica cierra a las diez:
+
+    "Contáctanos 24/7"              → "Contáctanos todos los días"
+    "Urgencias 24/7 — Disponible"   → quitado
+    "Entregas a Domicilio 24 Horas" → quitado
+    "Consulta en Línea 24/7"        → quitado
+    info@ / ventas@ / soporte@ en boticasan-juan.com → quitados; se publica el
+        correo real que ya figuraba en el pie
+
+Añadido: teléfono y correo como enlaces `tel:` y `mailto:` (una página de
+contacto se mira desde el móvil, y un número que no se pulsa hay que copiarlo a
+mano), e indicador de si la botica está ABIERTA AHORA, que es la pregunta real
+de quien entra aquí.
+
+Formulario: los errores del servidor (422) ya no se tiran. Antes cualquier
+rechazo mostraba "Error al enviar el mensaje" y quien escribía mal el correo no
+sabía qué corregir; ahora el mensaje va bajo el campo que lo causó, con
+`aria-invalid` y `aria-describedby`. Además el teléfono deja de ser obligatorio:
+el servidor lo acepta vacío a propósito ("quien escribe no siempre deja
+teléfono") pero el formulario lo exigía, así que la decisión del backend no se
+cumplía nunca.
+
+
+--------------------------------------------------------------------------------
+5. MEDICIONES
+--------------------------------------------------------------------------------
+CLS (PerformanceObserver, ventana 1280x900, umbral BUENO <= 0.1):
+
+    /cart     tema claro    0.05294    BUENO
+    /cart     tema oscuro   0.05047    BUENO
+    /contact  tema claro    0.01491    BUENO
+    /contact  tema oscuro   0.01343    BUENO
+
+Reservas de espacio que lo hacen posible, todas deliberadas:
+  · esqueleto de carga en el carrito con el alto de las líneas futuras;
+  · altura fija en el texto del tope de cantidad y en los errores del
+    formulario — si aparecieran de la nada, los campos de abajo se moverían
+    justo cuando la persona lee qué corregir;
+  · altura fija en el indicador "abierto ahora", que se calcula al montar;
+  · `aspect-video` en el mapa, que reserva el hueco antes de que cargue.
+
+Contraste (WCAG AA, medido pintando sobre lienzo y leyendo sRGB):
+
+    [claro ] /cart       50 comprobaciones   0 fallos
+    [claro ] /contact   101 comprobaciones   0 fallos
+    [oscuro] /cart       50 comprobaciones   0 fallos
+    [oscuro] /contact   101 comprobaciones   0 fallos
+    ------------------------------------------------
+    Total   302 comprobaciones   0 fallos
+
+Pruebas y compilación:
+    php artisan test      120 passed (352 assertions)
+    pnpm type-check       sin errores
+    pnpm build            built in 9.15s, sin avisos
+
+
+--------------------------------------------------------------------------------
+6. UN FALLO QUE COMETÍ Y QUE LA CAPTURA DELATÓ
+--------------------------------------------------------------------------------
+La primera captura del carrito salió con las dos imágenes ROTAS, enseñando el
+texto alternativo dentro de un recuadro.
+
+La causa: escribí
+
+    :src="urlDeMedia(linea.imagen) || ilustracionDe(linea.tipo)"
+
+La base guarda rutas como `images/default_image.png` que ya no existen en el
+disco. `urlDeMedia` devuelve una URL válida en forma pero que responde 404, así
+que el `||` nunca cae al respaldo y el navegador pinta su icono de imagen rota.
+
+Lo exasperante es que el aviso está escrito en `utils/media.ts`, en mayúsculas,
+desde que el mismo error apareció en el catálogo: el respaldo tiene que ser un
+elemento HERMANO que se pinte siempre y quede debajo, y el fallo de carga hay que
+registrarlo en el estado del componente. Lo volví a hacer mal igualmente.
+
+Lo corrigió la captura, no la revisión del código: `pnpm type-check` y `pnpm
+build` pasaban limpios con las imágenes rotas. En la misma captura se vio también
+que la miga de pan quedaba medio tapada por la cabecera pegajosa.

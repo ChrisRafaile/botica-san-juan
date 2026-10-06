@@ -36,6 +36,7 @@ resultado favorable no prueba nada.
 | E3 | Contratos de la API respondiendo 200 con datos reales | Contratos de API | `E3-api-contratos-200.txt` |
 | E4 | CLS del catálogo e ilustraciones referenciales | Frontend / Performance | `E4-frontend-cls-y-svg.txt`, `E4-catalogo-{claro,oscuro}.png`, `E4-metricas-{claro,oscuro}.json` |
 | E5 | Suite de pruebas en verde e historial de commits | Entorno y pruebas | `E5a-pruebas-automatizadas.txt`, `E5b-git-historial.txt` |
+| E6 | Carrito y Contacto: stock, IGV, persistencia y datos operativos | Lógica de negocio + Frontend | `E6-carrito-y-contacto.txt`, `E6-{carrito,contacto}-{claro,oscuro}.png`, `E6-*-metricas-*.json`, `E6-contraste.json` |
 
 ---
 
@@ -189,6 +190,52 @@ del archivo tocado. Eso hace el historial legible como evidencia de avance.
 
 ---
 
+## E6 — Carrito y Contacto
+
+**Qué prueba:** que el carrito no puede prometer unidades que no están en el
+anaquel, que el IGV se desglosa como lo desglosa la boleta, y que los datos de
+contacto que publica el portal son los reales.
+
+**El punto de partida:** `/cart` no existía como ruta. El icono del carrito de
+la cabecera enlazaba ahí desde el principio y llevaba a «página no encontrada» —
+el mismo fallo que ya tuvo `/products`.
+
+Tres cosas que esta evidencia sostiene:
+
+1. **El tope de cantidad lo aplica el servidor.** El carrito guarda en el
+   navegador sólo `{producto_id, cantidad}`; el precio, el stock y el aviso de
+   receta se piden a `POST /api/carrito/cotizar` cada vez. Mandando 99 unidades
+   de un producto con 3, la respuesta devuelve 3. Mandando un precio inventado
+   de `0.01`, cobra los S/ 25.50 reales. Un lote vencido cuenta 0, aunque esté
+   físicamente en el anaquel. **13 pruebas** lo cubren.
+
+2. **El IGV se extrae del precio, no se suma.** En la captura: S/ 4.24 + S/ 0.76
+   = S/ 5.00. Sumando el impuesto habrían salido S/ 5.90. El cálculo se extrajo
+   a `DesgloseFiscalService`, que ahora usan **el portal y el mostrador**: tenerlo
+   duplicado habría hecho que la web y la boleta se separaran el día que cambie
+   la tasa, sin que nadie lo notase. Una prueba existe sólo para impedir esa
+   duplicación.
+
+3. **El portal publicaba cuatro números de WhatsApp a la vez**, uno de ellos el
+   teléfono fijo (que no tiene WhatsApp) y otro de relleno. Ahora hay una fuente
+   única, `src/datos/botica.ts`, y mientras el número no esté confirmado los
+   botones de WhatsApp **no se pintan** en vez de enlazar a uno inventado. Se
+   quitaron además las promesas de «24/7» publicadas junto a un horario que
+   cierra a las diez, y tres correos en un dominio que rebota.
+
+**Mediciones:** CLS 0.053 / 0.050 (carrito) y 0.015 / 0.013 (contacto) en los
+temas claro y oscuro — todos BUENO; **302 comprobaciones de contraste, 0 fallos**;
+120 pruebas en verde (eran 107); `type-check` y `build` limpios.
+
+**Lo que esta evidencia NO prueba, y conviene decirlo:** el aviso de receta está
+implementado y probado, pero **0 de los 884 productos** están marcados como venta
+bajo receta y **0** como exonerados de IGV, así que con los datos actuales ni el
+aviso ni la línea de exonerado aparecen nunca. Es un dato regulatorio que sale
+del catálogo DIGEMID (hoy con 5 filas de demo), no una decisión de programación:
+queda como dato pendiente de cargar, no como función pendiente de escribir.
+
+---
+
 ## Pendientes declarados
 
 Se listan aquí por honestidad del informe: son cosas que esta carpeta **no**
@@ -198,7 +245,10 @@ prueba todavía.
   con las cuentas de demostración.
 - **Fusión de duplicados en producción (Neon).** El runbook está escrito y
   probado en local; falta ejecutarlo, con respaldo previo, cuando se autorice.
-- **Carrito y Contacto:** verificación de sus estados de carga, error, vacío y
-  confirmación contra la API real.
+- **Número de WhatsApp de la botica.** El portal tenía cuatro distintos y ninguno
+  verificable. Hay que confirmarlo con el dueño y ponerlo en
+  `VITE_BOTICA_WHATSAPP`; hasta entonces los botones de WhatsApp no se muestran.
+- **Catálogo DIGEMID.** Con 5 filas de demo y 1 producto cruzado, el aviso de
+  venta bajo receta y el desglose de exonerados no llegan a activarse nunca.
 - **Cifras del portal:** unificar a «más de 10 años» y «más de 8k clientes +»
-  (hoy Inicio, Sobre Nosotros y el pie dan números distintos entre sí).
+  (el pie ya dice 10; Inicio y Sobre Nosotros siguen dando números distintos).

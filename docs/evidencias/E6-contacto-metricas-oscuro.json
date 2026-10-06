@@ -1,0 +1,16 @@
+{
+  "cls": 0.01343,
+  "saltos": [
+    0.0134
+  ],
+  "veredicto": "BUENO",
+  "tarjetas": 3,
+  "ilustraciones": 0,
+  "conDimensionesExplicitas": 0,
+  "etiquetasReferencial": 0,
+  "tarjetasConRenderDiferido": 0,
+  "carrito": null,
+  "ejemplo": null,
+  "ruta": "/contact",
+  "tema": "oscuro"
+}
