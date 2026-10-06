@@ -10,7 +10,7 @@
 
         <h2 class="text-3xl md:text-4xl font-bold text-texto-primario mb-6">
           ¿Cómo podemos
-          <span class="text-clinico-600">ayudarte</span>?
+          <span class="text-texto-acento">ayudarte</span>?
         </h2>
 
         <p class="text-xl text-texto-secundario max-w-2xl mx-auto">
@@ -154,7 +154,7 @@
             <button
               type="submit"
               :disabled="isSubmitting"
-              class="inline-flex items-center px-12 py-4 bg-linear-to-r from-clinico-600 to-clinico-700 text-white font-bold text-lg rounded-xl hover:from-clinico-700 hover:to-clinico-800 focus:ring-4 focus:ring-clinico-500/20 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              class="inline-flex items-center px-12 py-4 bg-linear-to-r from-clinico-700 to-clinico-800 text-white font-bold text-lg rounded-xl hover:from-clinico-700 hover:to-clinico-800 focus:ring-4 focus:ring-clinico-500/20 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               <SendIcon
                 v-if="!isSubmitting"

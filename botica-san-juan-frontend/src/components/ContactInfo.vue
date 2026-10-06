@@ -5,7 +5,7 @@
         <!-- Section Header -->
         <div class="text-center mb-16">
           <h2 class="text-4xl md:text-5xl font-bold text-texto-primario mb-6">
-            Información de <span class="text-clinico-600">Contacto</span>
+            Información de <span class="text-texto-acento">Contacto</span>
           </h2>
           <p class="text-xl text-texto-secundario max-w-3xl mx-auto">
             Estamos aquí para atenderte. Encuentra toda la información necesaria para comunicarte con nosotros.
@@ -173,15 +173,15 @@
               </h4>
               <ul class="space-y-2 text-texto-secundario">
                 <li class="flex items-start">
-                  <span class="w-2 h-2 bg-clinico-600 rounded-full mt-2 mr-3 shrink-0"></span>
+                  <span class="w-2 h-2 bg-clinico-700 rounded-full mt-2 mr-3 shrink-0"></span>
                   <span>Metro: Estación Santa Rosa (Línea 1) - 10 min en transporte público - SJL</span>
                 </li>
                 <li class="flex items-start">
-                  <span class="w-2 h-2 bg-clinico-600 rounded-full mt-2 mr-3 shrink-0"></span>
+                  <span class="w-2 h-2 bg-clinico-700 rounded-full mt-2 mr-3 shrink-0"></span>
                   <span>Corredores Complementarios: Ruta 405 y 406</span>
                 </li>
                 <li class="flex items-start">
-                  <span class="w-2 h-2 bg-clinico-600 rounded-full mt-2 mr-3 shrink-0"></span>
+                  <span class="w-2 h-2 bg-clinico-700 rounded-full mt-2 mr-3 shrink-0"></span>
                   <span>Estacionamiento gratuito disponible en las inmediaciones</span>
                 </li>
               </ul>
@@ -193,15 +193,15 @@
               </h4>
               <ul class="space-y-2 text-texto-secundario">
                 <li class="flex items-start">
-                  <span class="w-2 h-2 bg-clinico-600 rounded-full mt-2 mr-3 shrink-0"></span>
+                  <span class="w-2 h-2 bg-clinico-700 rounded-full mt-2 mr-3 shrink-0"></span>
                   <span>Cerca del Hospital de San Juan de Lurigancho</span>
                 </li>
                 <li class="flex items-start">
-                  <span class="w-2 h-2 bg-clinico-600 rounded-full mt-2 mr-3 shrink-0"></span>
+                  <span class="w-2 h-2 bg-clinico-700 rounded-full mt-2 mr-3 shrink-0"></span>
                   <span>A 3 cuadras de la Estación Santa Rosa</span>
                 </li>
                 <li class="flex items-start">
-                  <span class="w-2 h-2 bg-clinico-600 rounded-full mt-2 mr-3 shrink-0"></span>
+                  <span class="w-2 h-2 bg-clinico-700 rounded-full mt-2 mr-3 shrink-0"></span>
                   <span>Cerca del Mercado Modelo de SJL y centros comerciales</span>
                 </li>
               </ul>

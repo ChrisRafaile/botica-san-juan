@@ -80,7 +80,7 @@
       </div>
 
       <!-- Trust Indicators -->
-      <div class="bg-linear-to-r from-botica-50 to-clinico-50 rounded-3xl p-8 md:p-12 stats-trust">
+      <div class="bg-linear-to-r from-botica-500/10 to-clinico-500/10 rounded-3xl p-8 md:p-12 stats-trust">
         <div class="text-center mb-12">
           <h3 class="text-3xl md:text-4xl font-bold text-texto-primario mb-4">
             ¿Por qué elegir Boticas San Juan?

@@ -70,7 +70,7 @@
               <span>Atención 24/7</span>
             </div>
           </div>
-          <button class="w-full bg-clinico-600 text-white py-3 px-4 rounded-lg hover:bg-clinico-700 transition-colors font-medium">
+          <button class="w-full bg-clinico-700 text-white py-3 px-4 rounded-lg hover:bg-clinico-700 transition-colors font-medium">
             Ver Horarios
           </button>
         </div>

@@ -87,7 +87,7 @@
               Seguimiento médico
             </div>
           </div>
-          <button class="w-full bg-clinico-600 text-white py-3 px-4 rounded-lg hover:bg-clinico-700 transition-colors font-medium">
+          <button class="w-full bg-clinico-700 text-white py-3 px-4 rounded-lg hover:bg-clinico-700 transition-colors font-medium">
             Más información
           </button>
         </div>
@@ -125,7 +125,7 @@
           </div>
           <a
             href="tel:+016772892"
-            class="w-full bg-clinico-600 text-white py-3 px-4 rounded-lg hover:bg-clinico-700 transition-colors inline-flex items-center justify-center font-medium"
+            class="w-full bg-clinico-700 text-white py-3 px-4 rounded-lg hover:bg-clinico-700 transition-colors inline-flex items-center justify-center font-medium"
           >
             <PhoneIcon class="w-4 h-4 mr-2" />
             Llamar ahora

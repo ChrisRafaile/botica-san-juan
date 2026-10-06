@@ -33,7 +33,7 @@
                   Lima, Perú
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4">
-                  <button class="bg-clinico-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-clinico-700 transition-colors">
+                  <button class="bg-clinico-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-clinico-700 transition-colors">
                     Cómo Llegar
                   </button>
                   <button class="border-2 border-borde-control text-texto-acento px-6 py-3 rounded-xl font-semibold hover:bg-clinico-50 transition-colors">
@@ -118,7 +118,7 @@
           </div>
 
           <!-- Quick Actions -->
-          <div class="bg-clinico-600 rounded-3xl p-8 text-white">
+          <div class="bg-clinico-700 rounded-3xl p-8 text-white">
             <!-- El color va explicito: el design system fija
                  `h1..h6 { color: var(--texto-primario) }` de forma global, y
                  sin esto el encabezado sale oscuro sobre la tarjeta azul. -->

@@ -41,8 +41,8 @@
           </div>
           <div class="history-image">
             <div class="relative">
-              <div class="bg-linear-to-br from-clinico-100 to-clinico-200 rounded-3xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                <div class="w-full h-80 bg-linear-to-br from-clinico-200 to-clinico-300 rounded-2xl shadow-lg flex items-center justify-center">
+              <div class="bg-linear-to-br from-clinico-500/15 to-clinico-500/20 rounded-3xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                <div class="w-full h-80 bg-linear-to-br from-clinico-500/20 to-clinico-300 rounded-2xl shadow-lg flex items-center justify-center">
                   <div class="text-center text-clinico-700">
                     <Heart class="w-16 h-16 mx-auto mb-4 opacity-50" />
                     <p class="font-semibold">
@@ -87,7 +87,7 @@
 
         <div class="grid md:grid-cols-2 gap-12">
           <!-- Vision Card -->
-          <div class="vision-card bg-linear-to-br from-clinico-50 to-clinico-100 rounded-3xl p-8 border border-clinico-200">
+          <div class="vision-card bg-linear-to-br from-clinico-500/10 to-clinico-500/15 rounded-3xl p-8 border border-clinico-200">
             <div class="flex items-center gap-4 mb-6">
               <div class="w-16 h-16 bg-clinico-500 rounded-2xl flex items-center justify-center">
                 <Eye class="w-8 h-8 text-white" />
@@ -104,7 +104,7 @@
           </div>
 
           <!-- Mission Card -->
-          <div class="mission-card bg-linear-to-br from-botica-50 to-botica-100 rounded-3xl p-8 border border-botica-200">
+          <div class="mission-card bg-linear-to-br from-botica-500/10 to-botica-500/15 rounded-3xl p-8 border border-botica-200">
             <div class="flex items-center gap-4 mb-6">
               <div class="w-16 h-16 bg-botica-500 rounded-2xl flex items-center justify-center">
                 <Target class="w-8 h-8 text-white" />

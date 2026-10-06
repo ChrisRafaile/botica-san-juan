@@ -1,5 +1,5 @@
 <template>
-  <section class="relative bg-linear-to-br from-clinico-600 via-clinico-700 to-clinico-800 text-white overflow-hidden">
+  <section class="relative bg-linear-to-br from-clinico-700 via-clinico-800 to-clinico-900 text-white overflow-hidden">
     <!-- Background Pattern -->
     <div class="absolute inset-0 opacity-10">
       <div
@@ -16,7 +16,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <!-- Content -->
         <div class="text-center lg:text-left">
-          <div class="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6">
+          <div class="inline-flex items-center px-4 py-2 bg-black/15 backdrop-blur-sm rounded-full text-sm font-medium mb-6">
             <MessageCircleIcon class="w-4 h-4 mr-2" />
             Estamos aquí para ayudarte
           </div>
@@ -26,7 +26,7 @@
             <span class="block text-ambar-400">24/7</span>
           </h1>
 
-          <p class="text-xl md:text-2xl text-clinico-100 mb-8 leading-relaxed">
+          <p class="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
             Tu salud es nuestra prioridad. Estamos disponibles para resolver tus dudas y atender tus necesidades médicas.
           </p>
 
@@ -51,7 +51,7 @@
 
         <!-- Illustration -->
         <div class="relative">
-          <div class="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
+          <div class="relative bg-black/15 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
             <div class="grid grid-cols-2 gap-6">
               <div class="bg-white/20 rounded-2xl p-6 text-center backdrop-blur-sm">
                 <PhoneIcon class="w-12 h-12 mx-auto mb-4 text-white" />
@@ -60,7 +60,7 @@
                   Llamadas
                 </h3>
 
-                <p class="text-clinico-100 text-sm">
+                <p class="text-white/90 text-sm">
                   Atención inmediata
                 </p>
               </div>
@@ -71,7 +71,7 @@
                   Email
                 </h3>
 
-                <p class="text-clinico-100 text-sm">
+                <p class="text-white/90 text-sm">
                   Respuesta rápida
                 </p>
               </div>
@@ -82,7 +82,7 @@
                   WhatsApp
                 </h3>
 
-                <p class="text-clinico-100 text-sm">
+                <p class="text-white/90 text-sm">
                   Disponible 24/7
                 </p>
               </div>
@@ -93,7 +93,7 @@
                   Ubicación
                 </h3>
 
-                <p class="text-clinico-100 text-sm">
+                <p class="text-white/90 text-sm">
                   Fácil acceso
                 </p>
               </div>

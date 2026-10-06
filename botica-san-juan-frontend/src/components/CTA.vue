@@ -1,5 +1,5 @@
 <template>
-  <section class="py-20 bg-linear-to-br from-botica-600 via-botica-700 to-clinico-600 relative overflow-hidden">
+  <section class="py-20 bg-linear-to-br from-botica-700 via-botica-800 to-clinico-700 relative overflow-hidden">
     <!-- Background Pattern -->
     <div class="absolute inset-0 opacity-10">
       <div class="absolute top-0 left-0 w-full h-full bg-linear-to-br from-white/20 to-transparent" />
@@ -225,7 +225,9 @@ onMounted(async () => {
 .btn-cta-secondary {
   background: white;
   color: #111827;
-  border: 2px solid #9ca3af;
+  /* Antes #9ca3af (gris 400), que sobre el degradado verde del CTA daba
+     1.93:1 y WCAG pide 3:1 para el borde de un control. */
+  border: 2px solid #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 

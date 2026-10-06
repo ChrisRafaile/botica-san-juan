@@ -117,6 +117,20 @@ const GUION_AUDITORIA = String.raw`(() => {
     return [d[0], d[1], d[2]];
   };
 
+  /* Composicion alfa real.
+     El umbral de "suficientemente opaco" era 0.95, asi que un panel blanco al
+     90% se trataba como transparente y el texto se media contra el degradado
+     que hay DETRAS del panel, no contra el panel. Lo correcto no es mover el
+     umbral sino hacer lo que hace el navegador: apilar las capas y componerlas
+     de atras hacia delante. */
+  const componer = (encima, debajo) => {
+    const a = alfaDe(encima);
+    if (a >= 0.999) return aRGB(encima);
+    if (a <= 0.001) return debajo;
+    const c = aRGB(encima.replace(/\/\s*[0-9.]+%?\s*\)/, ')').replace(/,\s*[0-9.]+\s*\)/, ')'));
+    return [0, 1, 2].map((i) => Math.round(c[i] * a + debajo[i] * (1 - a)));
+  };
+
   const luminancia = (rgb) => {
     const c = rgb.map((v) => {
       const s = v / 255;
@@ -131,9 +145,44 @@ const GUION_AUDITORIA = String.raw`(() => {
     return (hi + 0.05) / (lo + 0.05);
   };
 
+  /* Igual, pero con el fondo ya compuesto en forma de [r,g,b]. */
+  const razonRGB = (colorTexto, rgbFondo) => {
+    const la = luminancia(aRGB(colorTexto)), lb = luminancia(rgbFondo);
+    const hi = Math.max(la, lb), lo = Math.min(la, lb);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+
+  const comoTexto = (rgb) => 'rgb(' + rgb.join(', ') + ')';
+
   const cordura = razon('#ffffff', '#000000');
 
+  /* Un degradado NO es motivo para rendirse. Sus paradas de color se pueden
+     leer y medir: si el texto cumple contra la parada PEOR, cumple en todo el
+     degradado. Rendirse aqui costaba caro: los paneles decorativos del portal
+     son degradados claros fijos (from-botica-50 to-clinico-50) con texto
+     tematizado dentro, que en oscuro se vuelve claro y desaparece. Al marcar
+     esos casos como "no concluyentes" la auditoria los estaba escondiendo. */
+  const paradasDeDegradado = (imagenFondo) => {
+    if (!imagenFondo || imagenFondo === 'none') return [];
+    if (!/gradient\(/.test(imagenFondo)) return [];
+    /* El navegador ya resolvio las variables y entrego colores concretos. */
+    const encontrados = imagenFondo.match(/(?:rgba?|oklab|oklch|color)\([^()]*\)/g);
+    return encontrados ? encontrados.filter((c) => alfaDe(c) > 0.95) : [];
+  };
+
   const alfaDe = (c) => {
+    if (!c) return 1;
+    if (c === 'transparent') return 0;
+    /* Dos sintaxis distintas, y al principio solo se contemplaba la primera:
+       rgba(r, g, b, a)  -> la alfa es el cuarto valor separado por comas
+       oklch(l c h / a)  -> la alfa va detras de una barra
+       Al no entender la segunda, las paradas translucidas de los degradados
+       pasaban el filtro y se median como si fueran opacas. */
+    const barra = c.match(/\/\s*([0-9.]+%?)\s*\)/);
+    if (barra) {
+      const v = parseFloat(barra[1]);
+      return barra[1].includes('%') ? v / 100 : v;
+    }
     const m = c.match(/rgba?\(([^)]+)\)/);
     if (!m) return 1;
     const p = m[1].split(',').map((x) => parseFloat(x));
@@ -143,60 +192,69 @@ const GUION_AUDITORIA = String.raw`(() => {
   /* Fondo efectivo: sube por los ancestros hasta hallar uno opaco. Si por el
      camino hay una imagen o degradado de fondo, se marca: ahi el contraste
      depende del pixel y una sola cifra mentiria. */
+  /**
+   * Fondo EFECTIVO de un elemento, compuesto como lo compone el navegador.
+   *
+   * Devuelve { rgb, imagen, paradas }:
+   *   rgb      color ya compuesto de todas las capas semitransparentes
+   *   imagen   true si hay una foto detras y la cifra no es concluyente
+   *   paradas  colores de un degradado, para medir contra el PEOR
+   */
   const fondoDe = (el) => {
-    let n = el, imagen = false, veloTranslucido = false;
+    const capas = [];
+    let n = el, paradas = [];
+
     while (n && n !== document.documentElement) {
       const cs = getComputedStyle(n);
-      /* Un velo semitransparente sobre una foto (el patron de los heroes) deja
-         el fondo real compuesto por el navegador. Si subimos atravesandolo y
-         acabamos en el fondo del documento, la cifra que saldria no es la que
-         ve nadie: el texto blanco del heroe parecia estar sobre blanco. Se
-         recuerda que se atraveso un velo para marcarlo como no concluyente. */
-      const a = alfaDe(cs.backgroundColor);
-      if (a > 0.05 && a <= 0.95) veloTranslucido = true;
 
-      /* CAPAS HERMANAS, que es como se construyen todos los heroes de este
-         portal: el fondo no esta en un ancestro sino en un <div absolute
-         inset-0> puesto ANTES del contenido. Subiendo por ancestros no se ve
-         jamas, asi que el texto blanco del heroe parecia estar sobre el fondo
-         del documento y salia como invisible. Aqui se mira si algun ancestro
-         tiene una capa hija que cubra todo y no contenga a nuestro elemento. */
+      if (cs.backgroundImage && cs.backgroundImage !== 'none') {
+        const ps = paradasDeDegradado(cs.backgroundImage);
+        if (ps.length) { paradas = ps; break; }
+        return { rgb: aRGB(cs.backgroundColor), imagen: true, paradas: [] };
+      }
+
+      const a = alfaDe(cs.backgroundColor);
+      if (a > 0.001) capas.push(cs.backgroundColor);
+      if (a >= 0.999) break;
+
+      /* Capas hermanas que cubren: asi se montan todos los heroes del portal
+         (un <div absolute inset-0> ANTES del contenido). Subiendo solo por
+         ancestros no se ven nunca. */
+      let cortar = false;
       for (const hijo of n.children) {
         if (hijo.contains(el) || hijo === el) continue;
         const hcs = getComputedStyle(hijo);
         if (hcs.position !== 'absolute' && hcs.position !== 'fixed') continue;
-        const r = hijo.getBoundingClientRect();
-        const rn = n.getBoundingClientRect();
-        const cubre = r.width >= rn.width * 0.9 && r.height >= rn.height * 0.9;
-        if (!cubre) continue;
-        if (hcs.backgroundImage && hcs.backgroundImage !== 'none') return { color: cs.backgroundColor, imagen: true };
-        /* La capa puede ser transparente ella misma y llevar la foto DENTRO,
-           que es como esta montado el heroe de cobertura: un <div absolute>
-           con un <img> y un velo encima. Mirar solo el fondo de la capa no
-           bastaba. */
-        if (hijo.querySelector('img, video, svg')) return { color: cs.backgroundColor, imagen: true };
+        const r = hijo.getBoundingClientRect(), rn = n.getBoundingClientRect();
+        if (r.width < rn.width * 0.9 || r.height < rn.height * 0.9) continue;
+
+        if (hijo.querySelector('img, video')) return { rgb: aRGB(hcs.backgroundColor), imagen: true, paradas: [] };
+        if (hcs.backgroundImage && hcs.backgroundImage !== 'none') {
+          const ps = paradasDeDegradado(hcs.backgroundImage);
+          if (ps.length) { paradas = ps; cortar = true; break; }
+          return { rgb: aRGB(hcs.backgroundColor), imagen: true, paradas: [] };
+        }
         const ha = alfaDe(hcs.backgroundColor);
-        if (ha > 0.95) return { color: hcs.backgroundColor, imagen };
-        if (ha > 0.05) veloTranslucido = true;
+        if (ha > 0.001) capas.push(hcs.backgroundColor);
+        if (ha >= 0.999) { cortar = true; break; }
       }
-      /* OJO: un degradado es background-image, NO background-color. La
-         primera version solo miraba el color, asi que atravesaba el boton con
-         degradado y comparaba su texto contra la seccion de detras: daba
-         fallos que no existian. Al encontrar un degradado o una imagen se
-         deja de subir y se marca el resultado como no concluyente, porque el
-         contraste depende del pixel y una sola cifra mentiria igual.
-         (Y sin acentos graves aqui dentro: esto vive en una plantilla
-         String.raw y un acento grave la cerraria.) */
-      if (cs.backgroundImage && cs.backgroundImage !== 'none') {
-        return { color: cs.backgroundColor, imagen: true };
-      }
-      if (alfaDe(cs.backgroundColor) > 0.95) return { color: cs.backgroundColor, imagen };
+      if (cortar) break;
+
       n = n.parentElement;
     }
-    return {
-      color: getComputedStyle(document.body).backgroundColor,
-      imagen: imagen || veloTranslucido,
-    };
+
+    /* Base: la parada del degradado si la hay, o el fondo del documento. */
+    let base = paradas.length ? aRGB(paradas[0]) : aRGB(getComputedStyle(document.body).backgroundColor);
+    for (let i = capas.length - 1; i >= 0; i--) base = componer(capas[i], base);
+
+    /* Con degradado, cada parada se compone con las mismas capas de encima. */
+    const todas = paradas.map((parada) => {
+      let b = aRGB(parada);
+      for (let i = capas.length - 1; i >= 0; i--) b = componer(capas[i], b);
+      return b;
+    });
+
+    return { rgb: base, imagen: false, paradas: todas };
   };
 
   const visible = (el) => {
@@ -252,7 +310,13 @@ const GUION_AUDITORIA = String.raw`(() => {
 
     const cs = getComputedStyle(el);
     const fondo = fondoDe(el);
-    const r = razon(cs.color, fondo.color);
+    /* Contra la parada PEOR del degradado: si cumple ahi, cumple en todo. */
+    const candidatos = (fondo.paradas && fondo.paradas.length) ? fondo.paradas : [fondo.rgb];
+    let r = Infinity, peorFondo = fondo.rgb;
+    for (const c of candidatos) {
+      const x = razonRGB(cs.color, c);
+      if (x < r) { r = x; peorFondo = c; }
+    }
     const umbral = umbralTexto(cs);
     medidos++;
 
@@ -261,7 +325,7 @@ const GUION_AUDITORIA = String.raw`(() => {
       razon: Number(r.toFixed(2)),
       umbral,
       color: cs.color,
-      fondo: fondo.color,
+      fondo: comoTexto(peorFondo),
       sobreImagen: fondo.imagen,
       texto: txt.slice(0, 40),
       ruta: ruta(el),
@@ -281,7 +345,8 @@ const GUION_AUDITORIA = String.raw`(() => {
     if (cs.borderTopStyle === 'none') continue;
 
     const fondo = fondoDe(el.parentElement || el);
-    const r = razon(cs.borderTopColor, fondo.color);
+    const candidatos = fondo.paradas.length ? fondo.paradas : [fondo.rgb];
+    const r = Math.min(...candidatos.map((c) => razonRGB(cs.borderTopColor, c)));
     medidos++;
     if (r < 3) {
       (fondo.imagen ? noConcluyentes : fallos).push({
@@ -289,7 +354,7 @@ const GUION_AUDITORIA = String.raw`(() => {
         razon: Number(r.toFixed(2)),
         umbral: 3,
         color: cs.borderTopColor,
-        fondo: fondo.color,
+        fondo: comoTexto(fondo.rgb),
         sobreImagen: fondo.imagen,
         texto: (el.getAttribute('placeholder') || el.textContent || el.tagName).trim().slice(0, 40),
         ruta: ruta(el),
@@ -322,12 +387,12 @@ const GUION_AUDITORIA = String.raw`(() => {
       continue;
     }
     if (ancho >= 1) {
-      const r = razon(cs.outlineColor, fondoDe(el).color);
+      const r = razonRGB(cs.outlineColor, fondoDe(el).rgb);
       medidos++;
       if (r < 3) {
         fallos.push({
           tipo: 'foco', razon: Number(r.toFixed(2)), umbral: 3,
-          color: cs.outlineColor, fondo: fondoDe(el).color, sobreImagen: false,
+          color: cs.outlineColor, fondo: comoTexto(fondoDe(el).rgb), sobreImagen: false,
           texto: (el.textContent || el.tagName).trim().slice(0, 40),
           ruta: ruta(el),
         });

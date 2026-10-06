@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-linear-to-br from-clinico-50 to-clinico-100">
+  <div class="min-h-screen bg-linear-to-br from-clinico-500/10 to-clinico-500/15">
     <div class="container mx-auto px-4 py-8">
       <div class="max-w-4xl mx-auto">
         <div class="bg-superficie-elevada/80 backdrop-blur-sm rounded-2xl shadow-xl p-8">
@@ -17,7 +17,7 @@
               <h3 class="text-xl font-semibold mb-2">
                 Mis Compras
               </h3>
-              <p class="text-clinico-100">
+              <p class="text-white/90">
                 Revisa tu historial de pedidos
               </p>
             </div>

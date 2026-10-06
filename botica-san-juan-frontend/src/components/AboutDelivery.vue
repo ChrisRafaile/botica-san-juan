@@ -17,7 +17,7 @@
       <!-- Delivery Services Grid -->
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
         <!-- Express Delivery -->
-        <div class="delivery-card bg-linear-to-br from-clinico-50 to-clinico-100 rounded-3xl p-8 border border-clinico-200">
+        <div class="delivery-card bg-linear-to-br from-clinico-500/10 to-clinico-500/15 rounded-3xl p-8 border border-clinico-200">
           <div class="w-16 h-16 bg-clinico-500 rounded-2xl flex items-center justify-center mb-6">
             <Zap class="w-8 h-8 text-white" />
           </div>
@@ -37,7 +37,7 @@
         </div>
 
         <!-- Same Day Delivery -->
-        <div class="delivery-card bg-linear-to-br from-botica-50 to-botica-100 rounded-3xl p-8 border border-botica-200">
+        <div class="delivery-card bg-linear-to-br from-botica-500/10 to-botica-500/15 rounded-3xl p-8 border border-botica-200">
           <div class="w-16 h-16 bg-botica-500 rounded-2xl flex items-center justify-center mb-6">
             <Clock class="w-8 h-8 text-white" />
           </div>
@@ -57,7 +57,7 @@
         </div>
 
         <!-- Free Delivery -->
-        <div class="delivery-card bg-linear-to-br from-clinico-50 to-clinico-100 rounded-3xl p-8 border border-clinico-200">
+        <div class="delivery-card bg-linear-to-br from-clinico-500/10 to-clinico-500/15 rounded-3xl p-8 border border-clinico-200">
           <div class="w-16 h-16 bg-clinico-500 rounded-2xl flex items-center justify-center mb-6">
             <Package class="w-8 h-8 text-white" />
           </div>
@@ -77,7 +77,7 @@
         </div>
 
         <!-- Refrigerated Delivery -->
-        <div class="delivery-card bg-linear-to-br from-peligro-50 to-peligro-500/15 rounded-3xl p-8 border border-peligro-500/30">
+        <div class="delivery-card bg-linear-to-br from-peligro-500/10 to-peligro-500/15 rounded-3xl p-8 border border-peligro-500/30">
           <div class="w-16 h-16 bg-peligro-500 rounded-2xl flex items-center justify-center mb-6">
             <Thermometer class="w-8 h-8 text-white" />
           </div>
@@ -97,7 +97,7 @@
         </div>
 
         <!-- Nationwide Delivery -->
-        <div class="delivery-card bg-linear-to-br from-ambar-50 to-ambar-100 rounded-3xl p-8 border border-ambar-200">
+        <div class="delivery-card bg-linear-to-br from-ambar-500/10 to-ambar-500/15 rounded-3xl p-8 border border-ambar-200">
           <div class="w-16 h-16 bg-ambar-500 rounded-2xl flex items-center justify-center mb-6">
             <MapPin class="w-8 h-8 text-white" />
           </div>
@@ -117,7 +117,7 @@
         </div>
 
         <!-- 24/7 Support -->
-        <div class="delivery-card bg-linear-to-br from-clinico-50 to-clinico-100 rounded-3xl p-8 border border-clinico-200">
+        <div class="delivery-card bg-linear-to-br from-clinico-500/10 to-clinico-500/15 rounded-3xl p-8 border border-clinico-200">
           <div class="w-16 h-16 bg-clinico-500 rounded-2xl flex items-center justify-center mb-6">
             <Phone class="w-8 h-8 text-white" />
           </div>

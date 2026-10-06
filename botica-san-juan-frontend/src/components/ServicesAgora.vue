@@ -16,7 +16,7 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div class="space-y-6">
-          <div class="bg-linear-to-r from-clinico-500 to-botica-500 p-8 rounded-2xl text-white shadow-xl">
+          <div class="bg-linear-to-r from-clinico-700 to-botica-700 p-8 rounded-2xl text-white shadow-xl">
             <h3 class="text-3xl font-bold mb-6">
               ¿Cómo funciona?
             </h3>
@@ -29,7 +29,7 @@
                   <h4 class="font-semibold mb-2 text-lg">
                     Regístrate
                   </h4>
-                  <p class="text-clinico-100 leading-relaxed">
+                  <p class="text-white/90 leading-relaxed">
                     Crea tu cuenta en el programa Agora de forma gratuita
                   </p>
                 </div>
@@ -42,7 +42,7 @@
                   <h4 class="font-semibold mb-2 text-lg">
                     Acumula puntos
                   </h4>
-                  <p class="text-clinico-100 leading-relaxed">
+                  <p class="text-white/90 leading-relaxed">
                     Por cada compra recibe puntos Agora automáticamente
                   </p>
                 </div>
@@ -55,7 +55,7 @@
                   <h4 class="font-semibold mb-2 text-lg">
                     Canjea recompensas
                   </h4>
-                  <p class="text-clinico-100 leading-relaxed">
+                  <p class="text-white/90 leading-relaxed">
                     Usa tus puntos por descuentos y productos exclusivos
                   </p>
                 </div>

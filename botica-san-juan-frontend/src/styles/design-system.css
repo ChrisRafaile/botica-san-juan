@@ -438,7 +438,17 @@
     font-family: var(--font-display);
     font-weight: 600;
     letter-spacing: -0.011em;
-    color: var(--texto-primario);
+    /* HEREDA el color, no lo impone.
+       Antes decia `color: var(--texto-primario)`, y esa regla global gana a la
+       herencia: un <h3> dentro de una seccion `text-white` salia con el color
+       primario igualmente. Sobre un fondo de marca oscuro eso es texto oscuro
+       sobre oscuro, y es un fallo que ha reaparecido tres veces en este
+       proyecto, cada vez en un componente distinto, porque la causa no estaba
+       donde se veia el sintoma.
+       Heredando, un encabezado toma el color de su contenedor —que es lo que
+       cualquiera espera al escribir `text-white` en la seccion— y en el caso
+       normal hereda el de <body>, que es --texto-primario. */
+    color: inherit;
     text-wrap: balance;
   }
 

@@ -39,7 +39,7 @@
 
           <!-- Stats -->
           <div class="grid grid-cols-3 gap-4 sm:gap-6 max-w-sm sm:max-w-md mx-auto lg:mx-0">
-            <div class="text-center hero-stat bg-white/20 backdrop-blur-sm border-white/20 hover:bg-white/30">
+            <div class="text-center hero-stat bg-black/20 backdrop-blur-sm border-white/40 hover:bg-black/30">
               <div class="text-2xl sm:text-3xl font-bold text-ambar-200">
                 25+
               </div>
@@ -47,7 +47,7 @@
                 Años Sirviendo
               </div>
             </div>
-            <div class="text-center hero-stat bg-white/20 backdrop-blur-sm border-white/20 hover:bg-white/30">
+            <div class="text-center hero-stat bg-black/20 backdrop-blur-sm border-white/40 hover:bg-black/30">
               <div class="text-2xl sm:text-3xl font-bold text-ambar-200">
                 5K+
               </div>
@@ -55,7 +55,7 @@
                 Clientes Confían
               </div>
             </div>
-            <div class="text-center hero-stat bg-white/20 backdrop-blur-sm border-white/20 hover:bg-white/30">
+            <div class="text-center hero-stat bg-black/20 backdrop-blur-sm border-white/40 hover:bg-black/30">
               <div class="text-2xl sm:text-3xl font-bold text-ambar-200">
                 24/7
               </div>
@@ -75,7 +75,7 @@
             </router-link>
             <router-link
               to="/contact"
-              class="bg-ambar-400 hover:bg-ambar-300 text-ambar-950 font-semibold text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border border-ambar-400/60 hover:border-ambar-400"
+              class="bg-ambar-400 hover:bg-ambar-300 text-ambar-950 font-semibold text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 border border-ambar-300 hover:border-ambar-200"
             >
               Contactar Ahora
             </router-link>
@@ -86,7 +86,7 @@
         <div class="relative hero-illustration mt-8 lg:mt-0 order-1 lg:order-2">
           <div class="relative z-10">
             <!-- Main pharmacy illustration -->
-            <div class="bg-white/20 backdrop-blur-glass rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/30">
+            <div class="bg-black/20 backdrop-blur-glass rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/40">
               <div class="text-center space-y-4 sm:space-y-6">
                 <div class="w-40 sm:w-48 h-24 sm:h-32 mx-auto bg-white/30 rounded-xl flex items-center justify-center overflow-hidden shadow-inner border border-white/20">
                   <img
@@ -104,13 +104,13 @@
 
                 <!-- Feature highlights -->
                 <div class="grid grid-cols-2 gap-3 sm:gap-4 mt-6 sm:mt-8">
-                  <div class="text-center p-3 sm:p-4 bg-white/20 rounded-xl border border-white/20 hover:bg-white/30 transition-all duration-200 shadow-lg">
+                  <div class="text-center p-3 sm:p-4 bg-black/20 rounded-xl border border-white/40 hover:bg-black/30 transition-all duration-200 shadow-lg">
                     <TruckIcon class="w-6 sm:w-8 h-6 sm:h-8 text-ambar-200 mx-auto mb-2 drop-shadow-sm" />
                     <div class="text-xs sm:text-sm font-semibold text-white">
                       Entrega a Domicilio
                     </div>
                   </div>
-                  <div class="text-center p-3 sm:p-4 bg-white/20 rounded-xl border border-white/20 hover:bg-white/30 transition-all duration-200 shadow-lg">
+                  <div class="text-center p-3 sm:p-4 bg-black/20 rounded-xl border border-white/40 hover:bg-black/30 transition-all duration-200 shadow-lg">
                     <ShieldIcon class="w-6 sm:w-8 h-6 sm:h-8 text-ambar-200 mx-auto mb-2 drop-shadow-sm" />
                     <div class="text-xs sm:text-sm font-semibold text-white">
                       Asesoría Profesional
@@ -229,7 +229,15 @@ onMounted(async () => {
 
 <style scoped>
 .hero-gradient {
-  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
+  /* Termina en clinico-700 y no en un azul medio: con #3b82f6 el texto blanco
+     del heroe daba 2.6:1, por debajo del 4.5:1 de WCAG AA. Y con tokens, no
+     con hexadecimales sueltos, para que siga a la marca. */
+  background: linear-gradient(
+    135deg,
+    var(--color-clinico-950) 0%,
+    var(--color-clinico-800) 50%,
+    var(--color-clinico-700) 100%
+  );
 }
 
 .hero-logo {

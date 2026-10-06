@@ -23,8 +23,8 @@
             v-for="item in navigation"
             :key="item.name"
             :to="item.href"
-            class="text-texto-secundario hover:text-botica-600 px-2 py-2 text-sm font-medium transition-colors duration-200 relative group whitespace-nowrap"
-            :class="{ 'text-botica-600': $route.path === item.href }"
+            class="text-texto-secundario hover:text-texto-marca px-2 py-2 text-sm font-medium transition-colors duration-200 relative group whitespace-nowrap"
+            :class="{ 'text-texto-marca': $route.path === item.href }"
           >
             {{ item.name }}
             <span
@@ -42,7 +42,7 @@
           <!-- Cart -->
           <router-link
             to="/cart"
-            class="relative p-2 text-texto-secundario hover:text-botica-600 transition-colors duration-200 group"
+            class="relative p-2 text-texto-secundario hover:text-texto-marca transition-colors duration-200 group"
           >
             <ShoppingCartIcon class="w-6 h-6" />
             <span
@@ -103,7 +103,7 @@
           >
             <router-link
               to="/login"
-              class="text-texto-secundario hover:text-botica-600 px-3 py-2 text-sm font-medium transition-colors duration-200"
+              class="text-texto-secundario hover:text-texto-marca px-3 py-2 text-sm font-medium transition-colors duration-200"
             >
               Iniciar Sesión
             </router-link>
@@ -144,7 +144,7 @@
               v-for="item in navigation"
               :key="item.name"
               :to="item.href"
-              class="text-texto-secundario hover:text-botica-600 px-3 py-3 text-base font-medium transition-colors duration-200 rounded-md hover:bg-superficie-hundida"
+              class="text-texto-secundario hover:text-texto-marca px-3 py-3 text-base font-medium transition-colors duration-200 rounded-md hover:bg-superficie-hundida"
               :class="{ 'text-botica-600 bg-botica-50': $route.path === item.href }"
               @click="closeMobileMenu"
             >
@@ -162,7 +162,7 @@
             >
               <router-link
                 to="/login"
-                class="text-texto-secundario hover:text-botica-600 px-3 py-3 text-base font-medium transition-colors duration-200 rounded-md hover:bg-superficie-hundida"
+                class="text-texto-secundario hover:text-texto-marca px-3 py-3 text-base font-medium transition-colors duration-200 rounded-md hover:bg-superficie-hundida"
                 @click="closeMobileMenu"
               >
                 Iniciar Sesión

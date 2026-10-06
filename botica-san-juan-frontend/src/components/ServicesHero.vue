@@ -1,5 +1,5 @@
 <template>
-  <section class="relative bg-linear-to-br from-clinico-600 via-clinico-700 to-clinico-800 text-white overflow-hidden">
+  <section class="relative bg-linear-to-br from-clinico-700 via-clinico-800 to-clinico-900 text-white overflow-hidden">
     <!-- Background Image -->
     <div class="absolute inset-0 opacity-20">
       <img
@@ -20,39 +20,39 @@
         <!-- Main Heading -->
         <div class="mb-8">
           <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            Nuestros <span class="text-clinico-200">Servicios</span>
+            Nuestros <span class="text-white/90">Servicios</span>
           </h1>
           <div class="w-24 h-1 bg-clinico-300 mx-auto mb-8 rounded-full"></div>
         </div>
 
         <!-- Subtitle -->
-        <p class="text-xl md:text-2xl text-clinico-100 mb-12 leading-relaxed max-w-3xl mx-auto">
+        <p class="text-xl md:text-2xl text-white/90 mb-12 leading-relaxed max-w-3xl mx-auto">
           Descubre todos los servicios que ofrecemos para cuidar de tu salud y bienestar
         </p>
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
+          <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
             <div class="text-3xl font-bold mb-2">
               24/7
             </div>
-            <div class="text-clinico-200">
+            <div class="text-white/90">
               Atención Continua
             </div>
           </div>
-          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
+          <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
             <div class="text-3xl font-bold mb-2">
               4
             </div>
-            <div class="text-clinico-200">
+            <div class="text-white/90">
               Servicios Digitales
             </div>
           </div>
-          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
+          <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
             <div class="text-3xl font-bold mb-2">
               100%
             </div>
-            <div class="text-clinico-200">
+            <div class="text-white/90">
               Confiable
             </div>
           </div>

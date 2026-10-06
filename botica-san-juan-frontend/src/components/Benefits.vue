@@ -109,7 +109,7 @@
 
       <!-- Call to Action -->
       <div class="text-center mt-10">
-        <div class="bg-linear-to-r from-botica-50 to-clinico-50 rounded-2xl p-6 md:p-10 benefits-cta">
+        <div class="bg-linear-to-r from-botica-500/10 to-clinico-500/10 rounded-2xl p-6 md:p-10 benefits-cta">
           <h3 class="text-2xl md:text-3xl font-bold text-texto-primario mb-4">
             ¿Necesitas ayuda con tu salud?
           </h3>
