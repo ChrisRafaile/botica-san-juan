@@ -49,9 +49,16 @@ export function urlDeMedia(ruta?: string | null): string | null {
  * Manejador de `@error` para imágenes.
  *
  * Oculta el elemento en lugar de dejar el icono de imagen rota, que es peor que
- * no mostrar nada: la vista puede poner debajo un respaldo con `v-else` o un
- * fondo neutro. Ocurre cuando el archivo existe en la base pero ya no está en
- * el servidor, algo habitual tras una migración de datos.
+ * no mostrar nada. Ocurre cuando el archivo existe en la base pero ya no está
+ * en el servidor, algo habitual tras una migración de datos.
+ *
+ * OJO CON EL RESPALDO: tiene que ser un elemento HERMANO que se pinte siempre
+ * y quede debajo, no un `v-else`. Un `v-else` es mutuamente excluyente con el
+ * `v-if` de la imagen, así que al ocultarse el <img> no aparece nada y queda
+ * un hueco vacío. Eso pasó en el catálogo público.
+ *
+ * Si la vista necesita decidir entre imagen y respaldo, no uses esta función:
+ * registra el fallo en el estado del componente y condiciona con él.
  */
 export function ocultarSiFalla(evento: Event): void {
   const img = evento.target as HTMLImageElement | null

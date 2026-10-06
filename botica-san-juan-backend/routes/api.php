@@ -170,6 +170,11 @@ Route::middleware('throttle:api')->group(function () {
     // El resumen va ANTES del apiResource: si fuera despues, la ruta
     // productos/{producto} capturaria "resumen" como si fuera un id.
     Route::get('productos/resumen', [ProductoController::class, 'resumen'])->middleware(['auth:sanctum', 'admin']);
+    /* Facetas del catalogo: publicas, porque las necesita el buscador del
+       portal. Solo devuelven valores de filtro y recuentos, nada sensible.
+       Va ANTES del apiResource por el mismo motivo que resumen: si no,
+       productos/{producto} capturaria "facetas" como si fuera un id. */
+    Route::get('productos/facetas', [ProductoController::class, 'facetas']);
     Route::apiResource('productos', ProductoController::class)->only(['index', 'show']);
     Route::apiResource('categorias', CategoriaController::class)->only(['index', 'show']);
     Route::apiResource('subcategorias', SubcategoriaController::class)->only(['index', 'show']);

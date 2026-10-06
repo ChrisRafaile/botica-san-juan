@@ -53,12 +53,33 @@ export interface ListadoProductos {
   ultimaPagina: number
 }
 
+export type OrdenCatalogo = 'nombre' | 'precio_asc' | 'precio_desc' | 'recientes'
+
 export interface OpcionesListado {
   busqueda?: string
   tipo?: string
   laboratorio?: string
+  categoriaId?: number | null
+  /** Sólo productos con existencias. */
+  soloDisponibles?: boolean
+  orden?: OrdenCatalogo
   pagina?: number
   porPagina?: number
+}
+
+/** Un valor posible de filtro, con cuántos productos tiene detrás. */
+export interface Faceta {
+  valor: string
+  etiqueta?: string
+  total: number
+}
+
+export interface FacetasCatalogo {
+  tipos: Faceta[]
+  laboratorios: Faceta[]
+  categorias: Faceta[]
+  total: number
+  sinStock: number
 }
 
 /**
@@ -126,13 +147,46 @@ class ProductsService {
     const busqueda = opciones.busqueda?.trim()
     if (busqueda) params.q = busqueda
     if (opciones.tipo) params.tipo = opciones.tipo
-    /* `laboratorio` NO se envia: el controlador no lo contempla y mandarlo
-       daria la impresion de que filtra cuando el servidor lo ignora. Ese
-       filtro se resuelve en la vista sobre la pagina cargada, con sus
-       limitaciones, hasta que exista en la API. */
+    /* `laboratorio` YA SE ENVIA. Antes no: el controlador no lo contemplaba y
+       mandarlo habria dado la impresion de filtrar sin hacerlo. Ahora existe
+       en la API, con sus 83 valores reales. */
+    if (opciones.laboratorio) params.laboratorio = opciones.laboratorio
+    if (opciones.categoriaId) params.categoria_id = opciones.categoriaId
+    if (opciones.soloDisponibles) params.stock_status = 'in_stock'
+    /* El catalogo publico se ordena por nombre: "lo ultimo que se edito en el
+       almacen", que es el orden por omision del servidor, no significa nada
+       para quien viene a comprar. */
+    params.orden = opciones.orden ?? 'nombre'
 
     const respuesta = await api.get('/productos', { params })
     return abrirPaginador(respuesta.data)
+  }
+
+  /**
+   * Valores posibles de cada filtro, contados sobre TODO el catalogo.
+   *
+   * La pantalla construia sus desplegables con lo que viniera en la pagina
+   * cargada, asi que de 83 laboratorios ofrecia los pocos que hubieran caido
+   * en esos 48 productos y el resto del catalogo quedaba inalcanzable.
+   */
+  async facetas(): Promise<FacetasCatalogo> {
+    const { data } = await api.get('/productos/facetas')
+    const lista = (x: unknown): Faceta[] =>
+      Array.isArray(x)
+        ? x.map((f) => ({
+            valor: String((f as Faceta).valor ?? ''),
+            etiqueta: (f as Faceta).etiqueta,
+            total: Number((f as Faceta).total ?? 0),
+          })).filter((f) => f.valor !== '')
+        : []
+
+    return {
+      tipos: lista(data?.tipos),
+      laboratorios: lista(data?.laboratorios),
+      categorias: lista(data?.categorias),
+      total: Number(data?.total ?? 0),
+      sinStock: Number(data?.sin_stock ?? 0),
+    }
   }
 
   async getAllProducts(): Promise<Product[]> {

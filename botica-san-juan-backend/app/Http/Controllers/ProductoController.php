@@ -18,6 +18,56 @@ class ProductoController extends Controller
      * con 3361 productos y diez por página, mostraba "2 en stock". Un resumen
      * del catálogo se cuenta en la base, no sobre lo que cabe en pantalla.
      */
+    /**
+     * Valores disponibles para los filtros del catálogo, con su recuento.
+     *
+     * GET /api/productos/facetas   (público)
+     *
+     * POR QUÉ UN ENDPOINT Y NO DEDUCIRLOS DE LA PÁGINA
+     *
+     * La pantalla pública construía sus desplegables con los tipos y
+     * laboratorios que venían en la página cargada. Con 48 productos de 3 361
+     * eso significa que el desplegable ofrecía un puñado de valores y el resto
+     * del catálogo era inalcanzable: filtrar por un laboratorio que no hubiera
+     * salido en esa página era imposible, y nada en la interfaz lo decía.
+     *
+     * Es el mismo error que ya apareció en el tablero y en inventario: contar
+     * o listar sobre lo cargado en vez de preguntárselo a quien tiene todos los
+     * datos. Aquí son tres agregaciones en SQL sobre la tabla entera.
+     *
+     * El recuento no es decorativo: es lo que permite no ofrecer un filtro que
+     * sólo puede devolver una lista vacía.
+     */
+    public function facetas()
+    {
+        $tipos = Producto::query()
+            ->selectRaw('tipo AS valor, COUNT(*) AS total')
+            ->whereNotNull('tipo')->where('tipo', '!=', '')
+            ->groupBy('tipo')->orderByDesc('total')
+            ->get();
+
+        $laboratorios = Producto::query()
+            ->selectRaw('laboratorio AS valor, COUNT(*) AS total')
+            ->whereNotNull('laboratorio')->where('laboratorio', '!=', '')
+            ->groupBy('laboratorio')->orderBy('laboratorio')
+            ->get();
+
+        $categorias = Producto::query()
+            ->selectRaw('productos.categoria_id AS valor, categorias.nombre AS etiqueta, COUNT(*) AS total')
+            ->join('categorias', 'categorias.id', '=', 'productos.categoria_id')
+            ->groupBy('productos.categoria_id', 'categorias.nombre')
+            ->orderByDesc('total')
+            ->get();
+
+        return response()->json([
+            'tipos'         => $tipos,
+            'laboratorios'  => $laboratorios,
+            'categorias'    => $categorias,
+            'total'         => Producto::count(),
+            'sin_stock'     => Producto::where('stock', '<=', 0)->count(),
+        ]);
+    }
+
     public function resumen(\App\Services\ResumenInventarioService $inventario)
     {
         $resumen = $inventario->porEstadoDeStock();
@@ -35,8 +85,27 @@ class ProductoController extends Controller
     {
         $perPage = (int) $request->get('per_page', 10);
         $query = Producto::query()
-            ->with(['categoria:id,nombre', 'subcategoria:id,nombre', 'digemidCatalogo:id,codigo_digemid,nombre_producto,precio_maximo_regulado'])
-            ->orderByDesc('updated_at');
+            ->with(['categoria:id,nombre', 'subcategoria:id,nombre', 'digemidCatalogo:id,codigo_digemid,nombre_producto,precio_maximo_regulado']);
+
+        /**
+         * Orden.
+         *
+         * Por omision sigue siendo el mas reciente primero, que es lo que
+         * quiere el administrador al volver a una pantalla que acaba de
+         * editar. Para el catalogo publico eso no significa nada —nadie busca
+         * "lo ultimo que toco el almacenero"— y por eso la pantalla publica
+         * pide `nombre`.
+         *
+         * El valor llega del navegador, asi que se compara contra una lista
+         * cerrada en vez de interpolarlo: un `orderByRaw` con texto de fuera
+         * es una inyeccion esperando a ocurrir.
+         */
+        match ((string) $request->input('orden', 'recientes')) {
+            'nombre' => $query->orderBy('nombre'),
+            'precio_asc' => $query->orderBy('precio'),
+            'precio_desc' => $query->orderByDesc('precio'),
+            default => $query->orderByDesc('updated_at'),
+        };
 
         $search = trim((string) $request->input('q', $request->input('search', '')));
         if ($search !== '') {
@@ -54,6 +123,20 @@ class ProductoController extends Controller
 
         if ($request->filled('tipo') && $request->input('tipo') !== 'all') {
             $query->where('tipo', $request->input('tipo'));
+        }
+
+        /**
+         * Laboratorio.
+         *
+         * Faltaba, y su ausencia no se notaba desde fuera: la pantalla publica
+         * ofrecia un desplegable de laboratorios, el navegador enviaba el
+         * parametro y el servidor lo IGNORABA en silencio. El resultado era un
+         * filtro que parecia funcionar —la lista cambiaba, porque cambiaba la
+         * pagina— pero que no filtraba nada. Hay 83 laboratorios distintos en
+         * el catalogo, asi que el criterio es util de verdad.
+         */
+        if ($request->filled('laboratorio') && $request->input('laboratorio') !== 'all') {
+            $query->where('laboratorio', $request->input('laboratorio'));
         }
 
         if ($request->filled('categoria_id')) {

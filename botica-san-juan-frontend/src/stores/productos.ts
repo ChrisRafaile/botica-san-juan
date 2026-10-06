@@ -1,105 +1,169 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import productsService from '@/services/products'
-import type { Product } from '@/services/products'
+import type { Product, FacetasCatalogo, OrdenCatalogo } from '@/services/products'
 
 /**
- * Catalogo del portal publico.
+ * Catálogo del portal público.
  *
- * LOS FILTROS SE RESUELVEN EN EL SERVIDOR
+ * TODO SE RESUELVE EN EL SERVIDOR
  *
- * La version anterior cargaba una pagina y filtraba sobre ella en el
- * navegador. Con 3 361 productos en el catalogo eso significa que buscar
- * "paracetamol" solo lo encontraba si ya estaba entre los que se habian
- * descargado, y que el desplegable de tipos solo ofrecia los tipos presentes
- * en esa pagina. Es el mismo error que ya aparecio en el tablero y en la
- * pantalla de inventario del administrador: contar o filtrar sobre lo
- * cargado en vez de preguntarle a quien tiene todos los datos.
+ * Filtrar y paginar en el navegador exige haber descargado antes el catálogo
+ * entero. Con 3 361 productos eso es una descarga enorme para enseñar doce, y
+ * además miente: la versión anterior cargaba una página y filtraba sobre ella,
+ * así que buscar "paracetamol" sólo lo encontraba si ya estaba entre los
+ * descargados, y el desplegable de tipos ofrecía los tipos de esa página.
  *
- * `total` guarda cuantos productos hay DE VERDAD, para que la pantalla pueda
- * decir "48 de 3 361" en lugar de dar a entender que eso es todo el catalogo.
+ * Es el patrón que ya apareció en el tablero y en inventario: contar o filtrar
+ * sobre lo cargado en vez de preguntárselo a quien tiene todos los datos.
+ *
+ * Aquí la consulta entera —búsqueda, tipo, laboratorio, categoría,
+ * disponibilidad, orden y página— viaja a la API, y las facetas de los
+ * desplegables vienen de un endpoint que las cuenta sobre la tabla completa.
  */
 export const useProductsStore = defineStore('products', () => {
   const products = ref<Product[]>([])
-  const filteredProducts = ref<Product[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
-  const searchQuery = ref('')
-  const selectedCategory = ref<string>('')
 
-  /** Total real del catalogo segun el servidor, no el de la pagina cargada. */
-  const total = ref(0)
-  /** Cuantos coinciden con el filtro actual, tambien segun el servidor. */
+  /* --- Criterios actuales ------------------------------------------------ */
+  const busqueda = ref('')
+  const tipo = ref('')
+  const laboratorio = ref('')
+  const categoriaId = ref<number | null>(null)
+  const soloDisponibles = ref(false)
+  const orden = ref<OrdenCatalogo>('nombre')
+
+  /* --- Paginación -------------------------------------------------------- */
+  const pagina = ref(1)
+  const porPagina = ref(24)
   const totalFiltrado = ref(0)
+  const ultimaPagina = ref(1)
 
-  const categories = computed(() => {
-    const unicas = new Set(products.value.map(p => p.tipo).filter(Boolean))
-    return Array.from(unicas).sort()
-  })
+  /* --- Facetas ----------------------------------------------------------- */
+  const facetas = ref<FacetasCatalogo | null>(null)
 
-  /** Hay mas resultados de los que se estan mostrando. */
-  const hayMasResultados = computed(() => filteredProducts.value.length < totalFiltrado.value)
+  const hayFiltrosActivos = computed(
+    () =>
+      busqueda.value.trim() !== '' ||
+      tipo.value !== '' ||
+      laboratorio.value !== '' ||
+      categoriaId.value !== null ||
+      soloDisponibles.value,
+  )
 
-  async function consultar(opciones: { busqueda?: string; tipo?: string }) {
+  const desde = computed(() => (totalFiltrado.value === 0 ? 0 : (pagina.value - 1) * porPagina.value + 1))
+  const hasta = computed(() => Math.min(pagina.value * porPagina.value, totalFiltrado.value))
+
+  /**
+   * Cada consulta lleva su número de orden y sólo se acepta el resultado de la
+   * última. Sin esto, escribir rápido en el buscador deja que una respuesta
+   * lenta de hace tres letras pise a la que corresponde a lo escrito ahora:
+   * la lista acaba mostrando resultados de una búsqueda que ya no existe.
+   */
+  let consultaEnCurso = 0
+
+  async function consultar() {
+    const mia = ++consultaEnCurso
     isLoading.value = true
     error.value = null
+
     try {
-      const { items, total: cuantos } = await productsService.listar(opciones)
-      filteredProducts.value = items
-      totalFiltrado.value = cuantos
-      return items
+      const resultado = await productsService.listar({
+        busqueda: busqueda.value,
+        tipo: tipo.value || undefined,
+        laboratorio: laboratorio.value || undefined,
+        categoriaId: categoriaId.value,
+        soloDisponibles: soloDisponibles.value,
+        orden: orden.value,
+        pagina: pagina.value,
+        porPagina: porPagina.value,
+      })
+
+      if (mia !== consultaEnCurso) return
+
+      products.value = resultado.items
+      totalFiltrado.value = resultado.total
+      ultimaPagina.value = Math.max(1, resultado.ultimaPagina)
+
+      /* Si un filtro deja menos páginas que la que se estaba viendo, se vuelve
+         a la última válida en vez de mostrar una página vacía. */
+      if (pagina.value > ultimaPagina.value) {
+        pagina.value = ultimaPagina.value
+        await consultar()
+      }
     } catch (err) {
+      if (mia !== consultaEnCurso) return
       error.value = err instanceof Error ? err.message : 'No se pudo cargar el catálogo'
-      console.error('Error al consultar el catálogo:', err)
-      filteredProducts.value = []
+      products.value = []
       totalFiltrado.value = 0
-      return []
+      ultimaPagina.value = 1
     } finally {
-      isLoading.value = false
+      if (mia === consultaEnCurso) isLoading.value = false
     }
   }
 
-  const loadProducts = async () => {
-    const items = await consultar({})
-    products.value = items
-    total.value = totalFiltrado.value
+  /** Las facetas se piden una vez: no cambian al filtrar. */
+  async function cargarFacetas() {
+    if (facetas.value) return
+    try {
+      facetas.value = await productsService.facetas()
+    } catch {
+      /* Sin facetas la pantalla sigue siendo usable: se queda sin desplegables
+         pero la búsqueda y la paginación funcionan igual. */
+      facetas.value = null
+    }
   }
 
-  const searchProducts = async (query: string) => {
-    searchQuery.value = query
-    await consultar({ busqueda: query, tipo: selectedCategory.value })
+  /** Cualquier cambio de criterio vuelve a la página 1. */
+  async function aplicarFiltros() {
+    pagina.value = 1
+    await consultar()
   }
 
-  const filterByCategory = async (category: string) => {
-    selectedCategory.value = category
-    await consultar({ busqueda: searchQuery.value, tipo: category })
+  async function irAPagina(n: number) {
+    const destino = Math.min(Math.max(1, n), ultimaPagina.value)
+    if (destino === pagina.value) return
+    pagina.value = destino
+    await consultar()
   }
 
-  const getProductById = (id: number) => {
-    return products.value.find(p => p.id === id)
+  async function limpiarFiltros() {
+    busqueda.value = ''
+    tipo.value = ''
+    laboratorio.value = ''
+    categoriaId.value = null
+    soloDisponibles.value = false
+    orden.value = 'nombre'
+    await aplicarFiltros()
   }
 
-  const clearFilters = async () => {
-    searchQuery.value = ''
-    selectedCategory.value = ''
-    await loadProducts()
+  async function inicializar() {
+    await Promise.all([consultar(), cargarFacetas()])
   }
 
   return {
     products,
-    filteredProducts,
     isLoading,
     error,
-    searchQuery,
-    selectedCategory,
-    categories,
-    total,
+    busqueda,
+    tipo,
+    laboratorio,
+    categoriaId,
+    soloDisponibles,
+    orden,
+    pagina,
+    porPagina,
     totalFiltrado,
-    hayMasResultados,
-    loadProducts,
-    searchProducts,
-    filterByCategory,
-    getProductById,
-    clearFilters,
+    ultimaPagina,
+    facetas,
+    hayFiltrosActivos,
+    desde,
+    hasta,
+    inicializar,
+    consultar,
+    aplicarFiltros,
+    irAPagina,
+    limpiarFiltros,
   }
 })
