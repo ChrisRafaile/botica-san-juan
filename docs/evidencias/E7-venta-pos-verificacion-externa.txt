@@ -1,0 +1,28 @@
+
+=== VERIFICACION EXTERNA (consulta directa, fuera del comando que vendio) ===
+PEDIDO 186
+  estado=completado  origen=pos  fecha=2026-10-06 18:41:17
+  base S/305.08 + IGV S/54.92 = total S/360.00
+  detalle 164: producto 11 (AB-MOKS), 9 u, S/360.00
+     lote L-2601 (vence 2027-03-31 00:00:00) -> 7 u
+     lote L-2705 (vence 2028-01-15 00:00:00) -> 2 u
+  movimiento: venta lote 3387 cantidad -7 stock 12 -> 5
+  movimiento: venta lote 3388 cantidad -2 stock 5 -> 3
+PEDIDO 187
+  estado=completado  origen=pos  fecha=2026-10-06 18:41:22
+  base S/305.08 + IGV S/54.92 = total S/360.00
+  detalle 165: producto 766 (AB-MOKS FORTE), 9 u, S/360.00
+     lote INICIAL (vence sin fecha) -> 9 u
+  movimiento: venta lote 765 cantidad -9 stock 12 -> 3
+SIMULACIONES PREVIAS (pedidos 184 y 185): NO EXISTEN. La transaccion se revirtio entera.
+STOCK VENDIBLE TRAS LAS VENTAS
+  AB-MOKS (id 11): 3 unidades
+  AB-MOKS FORTE (id 766): 3 unidades
+INTEGRIDAD REFERENCIAL DE TODA LA BASE
+  pedido_detalles sin producto ........ 0
+  pedido_detalle_lotes sin detalle .... 0
+  pedido_detalle_lotes sin lote ....... 0
+  movimientos_stock sin producto ...... 0
+  movimientos_stock sin lote .......... 0
+CATALOGO: 884 productos
+

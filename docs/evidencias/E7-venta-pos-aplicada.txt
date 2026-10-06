@@ -1,0 +1,56 @@
+
+==============================================================================
+  VENTA DE MOSTRADOR SOBRE EL CATÁLOGO REAL  [APLICANDO]
+==============================================================================
+  Catálogo: 884 productos · 2026-10-06 18:41
+
+PRODUCTO
+  id 766 · AB-MOKS FORTE 250 mg
+  Caja Envase Blíster Tabletas Recubiertas · MEDIFARMA
+  precio S/ 40.00 · afectación IGV 10 · receta: no
+
+LOTES DISPONIBLES ANTES DE LA VENTA  (orden FEFO: antes vence, antes sale)
+  lote INICIAL        vence sin fecha      12 unidades
+  --------------------------------------------------------
+  TOTAL VENDIBLE 12 unidades · se van a vender 9
+
+PEDIDO REGISTRADO
+  id 187 · origen pos · estado completado
+
+DESGLOSE FISCAL
+  base imponible   S/     305.08
+  IGV (18 %)       S/      54.92
+  TOTAL            S/     360.00
+
+  ✓ base + IGV + exonerado + inafecto = total
+  ✓ el IGV del pedido coincide con DesgloseFiscalService (el que usa el carrito del portal)
+
+LOTES DESPUÉS DE LA VENTA
+  lote INICIAL        vence sin fecha      12 →   3   (-9)
+
+  ✓ lo descontado de los lotes (9) es lo entregado en el pedido (9)
+  ✓ el descuento siguió el orden FEFO
+
+TRAZABILIDAD · pedido_detalle_lotes
+  detalle 165   lote INICIAL          9 unidades  (vence sin fecha)
+  ✓ la venta dejó asignaciones por lote
+  ✓ las unidades asignadas a lotes (9) cuadran con las entregadas (9)
+  ✓ ninguna asignación quedó sin lote (la trazabilidad no tiene huecos)
+
+MOVIMIENTOS DE STOCK
+  venta      lote 765    cantidad  -9   stock  12 →   3
+  ✓ la venta dejó movimientos de stock
+  ✓ en cada movimiento, stock_anterior + cantidad = stock_posterior (la cantidad lleva signo)
+  ✓ los movimientos de una venta son todos de salida (cantidad negativa)
+  ✓ no se crearon movimientos de más fuera de esta venta
+
+INTEGRIDAD REFERENCIAL
+  ✓ no hay detalles de pedido huérfanos
+  ✓ no hay asignaciones de lote huérfanas
+  ✓ ningún movimiento apunta a un producto inexistente
+  ✓ ninguna línea de venta apunta a un producto inexistente
+  ✓ se creó exactamente un pedido
+
+VENTA APLICADA. Pedido 187 registrado en la base.
+
+Todas las comprobaciones pasaron.

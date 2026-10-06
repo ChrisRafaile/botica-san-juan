@@ -1,0 +1,11 @@
+Tiempos de respuesta - API local - 2026-10-06 13:44
+Catalogo de 884 productos. 12 peticiones por ruta, se descartan las 2 primeras.
+--------------------------------------------------------------------------------------
+catalogo pagina 1 (24 items)   mediana   238.0 ms   p95   276.3 ms   max   276.3 ms   n=10
+busqueda "amoxicilina"         mediana   222.3 ms   p95   263.6 ms   max   263.6 ms   n=10
+filtro por laboratorio         mediana   241.3 ms   p95   290.1 ms   max   290.1 ms   n=10
+facetas (3 agregados SQL)      mediana   223.3 ms   p95   270.3 ms   max   270.3 ms   n=10
+pagina 400 de 442              mediana   228.8 ms   p95   249.4 ms   max   249.4 ms   n=10
+cotizar carrito (3 lineas)     mediana   230.5 ms   p95   263.3 ms   max   263.3 ms   n=10
+--------------------------------------------------------------------------------------
+Umbral del RNF03: la busqueda de productos responde en menos de 2 000 ms (p95).
