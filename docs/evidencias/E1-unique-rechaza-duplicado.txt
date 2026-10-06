@@ -1,0 +1,22 @@
+=== EVIDENCIA 1 | Integridad: el motor de base de datos rechaza el duplicado ===
+Fecha: 2026-10-06 11:53  ·  PostgreSQL 16  ·  base botica_san_juan
+Restriccion: indice UNIQUE sobre (nombre, concentracion, presentacion,
+             laboratorio, tipo, adicional) con NULLS NOT DISTINCT
+
+Psy Shell v0.12.12 (PHP 8.4.13 — cli) by Justin Hileman
+Producto existente tomado como molde:
+  id=1 | A FOLIC | 0.5 mg | Caja Envase Blister Tabletas | IQ FARMA | TABLETA
+
+Se intenta INSERTAR una fila identica en los campos de identidad...
+
+RESULTADO: RECHAZADO por el motor de base de datos.
+  Excepcion: UniqueConstraintViolationException
+  Mensaje  : SQLSTATE[23505]: Unique violation: 7 ERROR:  llave duplicada viola restricción de unicidad «productos_identidad_unique»
+DETAIL:  Ya existe la llave (nombre, concentracion, presentacion, laboratorio, tipo, adicional)=(A FOLIC, 0.5 mg, Caja Envase Blister Tabletas, IQ FARMA, TABLETA, null). (Connec
+
+Productos en el catalogo: 884 (sin cambios)
+
+
+   INFO  Ctrl+D.
+
+

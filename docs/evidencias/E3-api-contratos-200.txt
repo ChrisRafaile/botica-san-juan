@@ -1,0 +1,136 @@
+=== EVIDENCIA 3 | Contratos de API: peticiones reales con respuesta 200 ===
+Fecha: 2026-10-06 11:54
+Documento OpenAPI 3.1 generado por Scramble en /docs/api.json (73 rutas)
+Visor interactivo: http://127.0.0.1:8083/docs/api  (solo entorno local)
+
+--- GET /api/productos?per_page=2&orden=nombre
+    HTTP 200 OK   Content-Type: application/json
+    total=884  per_page=2  current_page=1  last_page=442
+    Cuerpo JSON (recortado):
+      {
+        "current_page": 1,
+        "data": [
+          {
+            "id": 1,
+            "nombre": "A FOLIC",
+            "concentracion": "0.5 mg",
+            "adicional": null,
+            "laboratorio": "IQ FARMA",
+            "presentacion": "Caja Envase Blister Tabletas",
+            "tipo": "TABLETA",
+            "stock": 3,
+            "precio": "1.50",
+            "imagen": "images/default_image.png",
+            "created_at": null,
+            "updated_at": "2026-09-18T22:56:47Z",
+            "categoria_id": 1,
+            "subcategoria_id": 1,
+            "codigo_barras": null,
+            "stock_minimo": 5,
+            "stock_reposicion": 10,
+            "codigo_digemid": null,
+            "principio_activo": null,
+            "requiere_receta": false,
+            "laboratorio_fabricante": null,
+            "unidad_base": "unidad",
+            "venta_fraccionada": false,
+            "unidades_por_blister": null,
+            "blisters_por_caja": null,
+            "pr
+
+--- GET /api/productos/facetas
+    HTTP 200 OK   Content-Type: application/json
+    tipos=22  laboratorios=83  categorias=3  total=884  sin_stock=2
+    Cuerpo JSON (recortado):
+      {
+        "tipos": [
+          {
+            "valor": "TABLETA",
+            "total": 325
+          },
+          {
+            "valor": "SUSPENSION",
+            "total": 144
+          },
+          {
+            "valor": "INYECTABLE",
+            "total": 117
+          },
+          {
+            "valor": "CAPSULA",
+            "total": 90
+          },
+          {
+            "valor": "SOLUCION",
+            "total": 83
+          },
+          {
+            "valor": "CREMA",
+            "total": 29
+          },
+          {
+            "valor": "UNGUENTO",
+            "total": 21
+          },
+          {
+            "valor": "AEROSOL",
+            "total": 20
+          },
+          {
+            "valor": "JALEA",
+            "total": 17
+          },
+          {
+            "valor": "SOLUCION OFTALMICA",
+            "total": 7
+          },
+          {
+            "valor": "OVULO",
+            "total": 5
+          },
+          {
+            "valor": "POLVO",
+            "total": 5
+          },
+          {
+            "valor": "SOLUCION OTICA",
+            "total": 4
+          },
+          {
+            "valor": "
+
+--- GET /api/productos?tipo=INYECTABLE&per_page=1
+    HTTP 200 OK   Content-Type: application/json
+    total=117  per_page=1  current_page=1  last_page=117
+    Cuerpo JSON (recortado):
+      {
+        "current_page": 1,
+        "data": [
+          {
+            "id": 548,
+            "nombre": "GRAVOL PEDIATRICO",
+            "concentracion": "30 mg /3 mL",
+            "adicional": null,
+            "laboratorio": "MEDIFARMA",
+            "presentacion": "Caja Ampolla x 3 mL",
+            "tipo": "INYECTABLE",
+            "stock": 2,
+            "precio": "6.00",
+            "imagen": "images/default_image.png",
+            "created_at": null,
+            "updated_at": null,
+            "categoria_id": 1,
+            "subcategoria_id": 5,
+            "codigo_barras": null,
+            "stock_minimo": 5,
+            "stock_reposicion": 10,
+            "codigo_digemid": null,
+            "principio_activo": null,
+            "requiere_receta": false,
+            "laboratorio_fabricante": null,
+            "unidad_base": "unidad",
+            "venta_fraccionada": false,
+            "unidades_por_blister": null,
+            "blisters_por_caja": null,
+            "precio_b
+

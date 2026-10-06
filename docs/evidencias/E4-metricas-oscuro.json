@@ -1,0 +1,17 @@
+{
+  "cls": 0.0135,
+  "saltos": [
+    0.0134
+  ],
+  "veredicto": "BUENO",
+  "recuento": "Mostrando 1–24 de 884 productos",
+  "tarjetas": 24,
+  "ilustraciones": 16,
+  "conDimensionesExplicitas": 16,
+  "etiquetasReferencial": 16,
+  "tarjetasConRenderDiferido": 16,
+  "ejemplo": {
+    "src": "/formas/tableta.svg",
+    "alt": "Ilustración referencial de la forma farmacéutica: tableta"
+  }
+}

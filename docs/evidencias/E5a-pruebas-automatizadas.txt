@@ -1,0 +1,144 @@
+=== EVIDENCIA 5a | Suite de pruebas automatizadas ===
+Fecha: 2026-10-06 11:53  ·  PHPUnit 11.5.42 sobre PostgreSQL 16
+Base de pruebas: botica_san_juan_test (se recrea en cada corrida)
+
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AccesoDocumentosTributariosTest::test_sin_token_los_documentos_tributarios_devuelven_401(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AutorizacionRolTest::test_con_rol_cliente_las_lecturas_de_gestion_devuelven_403(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AutorizacionRolTest::test_sin_token_las_rutas_administrativas_devuelven_401(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AutorizacionRolTest::test_con_rol_cliente_las_rutas_administrativas_devuelven_403(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   PASS  Tests\Feature\AccesoDocumentosTributariosTest
+  ✓ sin token los documentos tributarios devuelven 401 with data set "listado de comprobantes"                   0.88s  
+  ✓ sin token los documentos tributarios devuelven 401 with data set "descarga x m l"                            0.06s  
+  ✓ sin token los documentos tributarios devuelven 401 with data set "descarga p d f"                            0.06s  
+  ✓ sin token los documentos tributarios devuelven 401 with data set "listado de comisiones"                     0.06s  
+  ✓ la exportacion gerencial exige rol administrador                                                             0.10s  
+
+   PASS  Tests\Feature\AutenticacionTest
+  ✓ un usuario registrado inicia sesion y recibe un token                                                        0.09s  
+  ✓ la contrasena nunca se expone en la respuesta                                                                0.07s  
+  ✓ la contrasena se almacena cifrada con bcrypt                                                                 0.17s  
+  ✓ credenciales invalidas devuelven 401 con mensaje generico                                                    0.07s  
+  ✓ un dni inexistente devuelve 401 y no 404                                                                     0.23s  
+  ✓ el dni es obligatorio y de ocho digitos                                                                      0.07s  
+  ✓ la contrasena es obligatoria                                                                                 0.07s  
+  ✓ la cuenta se bloquea tras cinco intentos fallidos                                                            0.08s  
+  ✓ un usuario autenticado puede cerrar sesion                                                                   0.07s  
+  ✓ cerrar sesion sin token devuelve 401                                                                         0.06s  
+
+   PASS  Tests\Feature\AutorizacionRolTest
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "tablero"                                0.07s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "listado de pedidos"                     0.07s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "resumen de pedidos"                     0.07s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "resumen de stock"                       0.07s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "reporte gerencial"                      0.07s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "registro de ventas"                     0.07s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "proveedores"                            0.07s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "busqueda del punto de venta"            0.07s  
+  ✓ cualquiera puede escribir a la botica pero no leer los mensajes                                              0.08s  
+  ✓ un cliente no puede leer los pedidos de otro                                                                 0.08s  
+  ✓ sin token las rutas administrativas devuelven 401 with data set "crear producto"                             0.07s  
+  ✓ sin token las rutas administrativas devuelven 401 with data set "crear categoria"                            0.06s  
+  ✓ sin token las rutas administrativas devuelven 401 with data set "crear subcategoria"                         0.17s  
+  ✓ sin token las rutas administrativas devuelven 401 with data set "crear proveedor"                            0.06s  
+  ✓ sin token las rutas administrativas devuelven 401 with data set "crear compra"                               0.06s  
+  ✓ sin token las rutas administrativas devuelven 401 with data set "listar usuarios"                            0.06s  
+  ✓ con rol cliente las rutas administrativas devuelven 403 with data set "crear producto"                       0.07s  
+  ✓ con rol cliente las rutas administrativas devuelven 403 with data set "crear categoria"                      0.08s  
+  ✓ con rol cliente las rutas administrativas devuelven 403 with data set "crear subcategoria"                   0.07s  
+  ✓ con rol cliente las rutas administrativas devuelven 403 with data set "crear proveedor"                      0.07s  
+  ✓ con rol cliente las rutas administrativas devuelven 403 with data set "crear compra"                         0.07s  
+  ✓ con rol cliente las rutas administrativas devuelven 403 with data set "listar usuarios"                      0.07s  
+  ✓ un administrador puede crear una categoria                                                                   0.07s  
+  ✓ un cliente no puede eliminar una categoria                                                                   0.07s  
+  ✓ el catalogo de lectura es publico                                                                            0.08s  
+  ✓ sin cabecera json una ruta protegida responde 401 y no 500                                                   0.07s  
+
+   PASS  Tests\Feature\ConfirmacionVentaTest
+  ✓ confirmar una venta descuenta el stock                                                                       0.11s  
+  ✓ el total lo calcula el servidor y no el consumidor                                                           0.10s  
+  ✓ stock insuficiente rechaza la venta y no altera existencias                                                  0.08s  
+  ✓ una linea invalida no persiste ninguna linea                                                                 0.08s  
+  ✓ las lineas repetidas del mismo producto se consolidan                                                        0.09s  
+  ✓ sin token la confirmacion de venta responde 401                                                              0.06s  
+
+   PASS  Tests\Feature\EnvioAsincronoSunatTest
+  ✓ el envio se encola y responde 202                                                                            0.09s  
+  ✓ un comprobante ya aceptado no se reenvia                                                                     0.07s  
+  ✓ el trabajo resuelve el estado del comprobante                                                                0.07s  
+  ✓ reejecutar el trabajo sobre un comprobante aceptado no lo altera                                             0.07s  
+  ✓ un cliente no puede encolar el envio                                                                         0.08s  
+
+   PASS  Tests\Feature\FacturacionBusquedaTest
+  ✓ la busqueda de comprobantes no lanza error de sql                                                            0.08s  
+  ✓ busca por numero completo con ceros a la izquierda                                                           0.09s  
+  ✓ busca por numero correlativo suelto                                                                          0.08s  
+  ✓ busca por nombre del cliente                                                                                 0.08s  
+  ✓ una busqueda sin coincidencias devuelve una lista vacia                                                      0.07s  
+  ✓ la serie y el numero son unicos en conjunto                                                                  0.07s  
+
+   PASS  Tests\Feature\FusionDuplicadosCatalogoTest
+  ✓ por omision no suma el stock de las copias                                                                   0.08s  
+  ✓ sumar stock si suma los lotes de las copias                                                                  0.08s  
+  ✓ el superviviente es la fila con actividad aunque no sea el id menor                                          0.09s  
+  ✓ sin actividad en ninguna fila el superviviente es el id menor                                                0.08s  
+  ✓ omite el grupo cuando dos filas tienen actividad                                                             0.07s  
+  ✓ un lote con movimientos se conserva a cero en vez de borrarse                                                0.08s  
+  ✓ sin aplicar no escribe nada                                                                                  0.07s  
+  ✓ no fusiona productos que solo comparten el nombre                                                            0.07s  
+
+   PASS  Tests\Feature\PagosIzipayTest
+  ✓ iniciar el pago devuelve token de formulario y llave publica                                                 0.09s  
+  ✓ la respuesta nunca expone la llave privada                                                                   0.08s  
+  ✓ un usuario no puede iniciar el pago de un pedido ajeno                                                       0.07s  
+  ✓ dos intentos sobre el mismo pedido no crean dos pagos                                                        0.08s  
+  ✓ una notificacion valida marca el pedido como pagado                                                          0.09s  
+  ✓ una notificacion con firma invalida se rechaza y no altera nada                                              0.08s  
+  ✓ un segmento secreto incorrecto devuelve 404                                                                  0.07s  
+  ✓ la misma notificacion dos veces solo se aplica una vez                                                       0.09s  
+  ✓ una notificacion fuera de orden no revierte un pago confirmado                                               0.09s  
+  ✓ un pago rechazado queda fallido con motivo saneado                                                           0.08s  
+  ✓ un abandono deja el pago cancelado y no pagado                                                               0.08s  
+  ✓ una referencia desconocida no crea pagos                                                                     0.07s  
+  ✓ el evento registrado no conserva datos sensibles de tarjeta                                                  0.08s  
+  ✓ el estado del pago solo lo consulta su dueno                                                                 0.08s  
+  ✓ el importe lo fija el pedido y no la peticion                                                                0.08s  
+  ✓ un estado desconocido del proveedor nunca se interpreta como pagado                                          0.08s  
+  ✓ el retorno del navegador se valida con su propia clave                                                       0.08s  
+  ✓ un retorno valido que dice pagado no marca el pedido como pagado                                             0.07s  
+  ✓ un retorno con firma invalida se rechaza                                                                     0.08s  
+  ✓ la firma del navegador no sirve para la notificacion                                                         0.07s  
+  ✓ los campos de tarjeta heredados no salen por la api                                                          0.07s  
+  ✓ una notificacion con algoritmo no soportado se rechaza                                                       0.08s  
+  ✓ una notificacion que declara la clave del navegador se rechaza                                               0.07s  
+  ✓ el importe se expresa en la unidad minima de la moneda                                                       0.06s  
+  ✓ los estados del proveedor son los cuatro documentados                                                        0.06s  
+  ✓ ningun estado detallado de rechazo se lee como pagado                                                        0.06s  
+
+   PASS  Tests\Feature\ProductoApiTest
+  ✓ el listado de productos es publico                                                                           0.08s  
+  ✓ un administrador registra un producto                                                                        0.08s  
+  ✓ el nombre el stock y el precio son obligatorios                                                              0.08s  
+  ✓ no se admite stock negativo                                                                                  0.08s  
+  ✓ no se admite precio negativo                                                                                 0.07s  
+  ✓ el codigo de barras no puede repetirse                                                                       0.07s  
+  ✓ la categoria referenciada debe existir                                                                       0.07s  
+  ✓ un administrador actualiza el stock de un producto                                                           0.08s  
+  ✓ la venta fraccionada admite unidad blister y caja                                                            0.09s  
+  ✓ una unidad base no valida se rechaza                                                                         0.08s  
+  ✓ una categoria valida se asocia al producto                                                                   0.09s  
+
+   PASS  Tests\Feature\SaludYSeguridadTest
+  ✓ el endpoint de salud responde ok                                                                             0.08s  
+  ✓ el endpoint de salud de base de datos responde ok                                                            0.08s  
+  ✓ las respuestas incluyen las cabeceras de seguridad                                                           0.07s  
+  ✓ cada respuesta lleva un identificador de peticion                                                            0.06s  
+
+  Tests:    107 passed (298 assertions)
+  Duration: 9.57s
+
+

@@ -1,0 +1,45 @@
+=== EVIDENCIA 5b | Historial de commits (flujo develop -> main) ===
+Fecha: 2026-10-06 11:53
+Repositorio: github.com/ChrisRafaile/botica-san-juan
+
+* 963ecc1 (HEAD -> develop, origin/main, origin/develop, origin/HEAD, main) docs(env): la ruta larga del proyecto trunca nombres al instalar
+* 9bd232a docs(api): visor OpenAPI en /docs/api y 47 avisos de seguridad cerrados
+* 1745722 feat(catalog): ilustracion referencial por forma farmaceutica
+* 9aa1669 Superviviente por actividad, y runbook de la fusion
+* 0df3a6c Catalogo publico: navbar, campos que distinguen y stock vendible
+* fe74a18 Fusion de duplicados del catalogo: comando en modo simulacion
+* 0b4c8b5 Catalogo publico: paginacion y filtros resueltos en el servidor
+* ba6cfcc Contraste: cero fallos en los dos temas, y el medidor deja de mentir
+* 9683b15 Tema claro/oscuro: de 683 fallos de contraste a cero, medidos
+* 5bb98fc Acceso: cierra la enumeracion de DNIs por tiempos y deja de registrar credenciales
+* 6cd1589 Acceso: espiral de marca en SVG, campos pildora y CTA en degradado
+* 054f11d Portal publico: paleta viva, tokens del sistema y movimiento accesible
+* 7a12a03 CP-F-01 ejercita el endpoint real de autenticacion
+* 32dac20 fix(portal): carrito y contacto hablaban con un sistema que ya no existe
+* c5826a5 fix(portal): un 401 en pagina publica ya no expulsa al visitante al login
+* 3ac0e78 fix(portal): los precios llegan como cadena y rompian el render
+* 13d6ebd fix(portal): el catalogo no mostraba nada con 3 361 productos en la base
+* a139f4e fix(portal): el enlace Productos llevaba a una pantalla en blanco
+* 8cffbc5 docs(despliegue): version 1 desplegada de punta a punta
+* f15d88a fix(despliegue): retira la capacidad del binario que Render no permite ejecutar
+* 93ce681 fix(despliegue): crea los directorios de storage que Laravel necesita
+* 9454b4a fix(despliegue): la imagen no construia y el arranque rechazaba DB_URL
+* 6866dce fix(despliegue): las cuentas de demostracion nunca se habrian creado
+* f9fc3a0 fix(despliegue): la API sigue la misma rama que el Front-End
+* 8d775b1 fix(despliegue): sirve las rutas del portal en Vercel y fija sus cabeceras
+*   d2fb597 Sprint 3-4: punto de venta, conteo por ciclos, IGV por producto y base de datos en produccion (#13)
+|\  
+| * 8791039 (origin/feature/design-system-premium, feature/design-system-premium) build(despliegue): anade el blueprint de Render para la API
+| * dd380ae fix(seguridad): cierra la lectura de gestion y un acceso directo por id
+
+--- Reparto de commits por tipo (Conventional Commits) ---
+  fix: 21
+  feat: 15
+  otros: 8
+  docs: 5
+  chore: 4
+  Acceso: 2
+  test: 2
+  build: 1
+  Contraste: 1
+  refactor: 1

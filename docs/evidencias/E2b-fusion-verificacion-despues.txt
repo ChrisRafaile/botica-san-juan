@@ -1,0 +1,12 @@
+=== EVIDENCIA 2b | El mismo comando tras aplicar la fusion: no queda nada que fusionar ===
+Fecha: 2026-10-06 11:53
+
+
+SIMULACIÓN · Fusión de duplicados del catálogo
+========================================================================
+   Estrategia de stock: DESCARTAR los lotes de las copias (por omisión)
+   Superviviente:       la ÚNICA fila con actividad; si no hay ninguna, el id MENOR
+   Grupos ambiguos:     más de una fila con actividad → OMITIR y listar
+
+No hay grupos duplicados. El catálogo ya está fusionado.
+

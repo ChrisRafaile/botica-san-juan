@@ -1,0 +1,128 @@
+================================================================================
+E4 — FRONTEND: SALTO DE MAQUETACIÓN (CLS) E ILUSTRACIONES REFERENCIALES
+================================================================================
+Fecha        : 6 de octubre de 2026
+Pantalla     : /products (catálogo público)
+Ventana      : 1280 × 900, Chrome headless vía CDP
+Reproducir   : cd botica-san-juan-frontend
+               node scripts/capturar-evidencias-apf2.mjs
+Artefactos   : E4-catalogo-claro.png   E4-metricas-claro.json
+               E4-catalogo-oscuro.png  E4-metricas-oscuro.json
+
+Qué prueba esta evidencia: que el catálogo carga sin que el contenido salte
+bajo el cursor del usuario, y que las 884 fichas tienen una imagen que informa
+sin mentir sobre el producto.
+
+
+--------------------------------------------------------------------------------
+1. EL PROBLEMA QUE SE MIDIÓ (no el que se suponía)
+--------------------------------------------------------------------------------
+En el bloque anterior afirmé que la página tenía "cero CLS" porque los SVG
+llevaban width y height explícitos. Al medirlo de verdad, con
+PerformanceObserver sobre la métrica layout-shift, el resultado fue:
+
+    CLS = 0.44382        →  POBRE  (el umbral de "pobre" está en 0.25)
+
+Es decir, la afirmación anterior era falsa. Lo que la desmintió no fue una
+revisión visual sino la medición; por eso se deja registrada aquí con la cifra
+mala incluida.
+
+
+--------------------------------------------------------------------------------
+2. DIAGNÓSTICO: DE DÓNDE SALÍA EL SALTO
+--------------------------------------------------------------------------------
+PerformanceObserver entrega, en cada entrada de layout-shift, las fuentes del
+desplazamiento con su rectángulo antes y después. Inspeccionándolas:
+
+    {
+      "etiqueta": "footer.bg-lateral-fondo.text-lateral-texto",
+      "de":  "519px alto 381",
+      "a":   "0px alto 0",
+      "valor": 0.4237
+    }
+
+El culpable NO eran las imágenes: 0.4237 de los 0.44382 los aportaba el pie de
+página. La secuencia era:
+
+  1. Vue monta la vista con la rejilla de productos vacía (aún no hay respuesta
+     de /api/productos).
+  2. Como no hay nada entre la cabecera y el pie, el footer se pinta a 519 px
+     del borde superior, bien visible en pantalla.
+  3. Llega la respuesta con 24 productos, la rejilla se llena de golpe y el
+     footer se va fuera del viewport.
+
+Todo lo que el usuario tenía bajo el cursor se desplazó. Es exactamente el
+caso que la métrica existe para detectar, y los width/height de las imágenes no
+podían evitarlo porque el hueco vacío no era de las imágenes.
+
+
+--------------------------------------------------------------------------------
+3. LA CORRECCIÓN
+--------------------------------------------------------------------------------
+Se añadió en ProductsView.vue un esqueleto de carga que ocupa exactamente el
+mismo espacio que ocuparán las tarjetas reales — `catalogo.porPagina` tarjetas
+grises con la misma rejilla y la misma relación de aspecto:
+
+    <div
+      v-else-if="catalogo.isLoading && catalogo.products.length === 0"
+      class="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+      aria-hidden="true"
+    >
+      <div v-for="n in catalogo.porPagina" :key="`esqueleto-${n}`" ...>
+        <div class="aspect-square animate-pulse bg-superficie-hundida" />
+        ...
+      </div>
+    </div>
+
+Lleva aria-hidden porque para un lector de pantalla es ruido: el estado de
+carga ya se anuncia por la región [role=status].
+
+
+--------------------------------------------------------------------------------
+4. MEDICIÓN DESPUÉS, EN LOS DOS TEMAS
+--------------------------------------------------------------------------------
+                                    CLS        veredicto
+    antes (tema claro)           0.44382      POBRE
+    después (tema claro)         0.01524      BUENO   (umbral ≤ 0.1)
+    después (tema oscuro)        0.01350      BUENO
+
+Reducción: 0.44382 → 0.01524, un 96.6 % menos.
+
+El 0.015 restante es el ajuste de una sola línea de texto y queda muy por
+debajo del umbral; no se persigue el cero por el cero.
+
+
+--------------------------------------------------------------------------------
+5. LO QUE ADEMÁS VERIFICA LA MEDICIÓN (mismo JSON, misma ejecución)
+--------------------------------------------------------------------------------
+    tarjetas renderizadas .................. 24   (= per_page del servidor)
+    ilustraciones de forma farmacéutica .... 16
+    de ellas con width y height explícitos . 16   (16 de 16)
+    etiquetas visibles "Imagen referencial" . 16   (una por ilustración)
+    tarjetas con render diferido ........... 16   (content-visibility: auto)
+
+    ejemplo:
+      src = /formas/tableta.svg
+      alt = "Ilustración referencial de la forma farmacéutica: tableta"
+
+Las otras 8 tarjetas de la página llevan foto real del producto y por eso no
+muestran ni ilustración ni etiqueta: la etiqueta solo aparece cuando la imagen
+NO es del producto.
+
+Decisión técnica que esto respalda: la botica no tiene fotografías de sus 884
+productos. Poner una foto de archivo parecida sería peor que no poner ninguna,
+porque en un medicamento sugerir un envase que no es el real puede llevar a
+comprar lo que no se quería. La ilustración representa la FORMA FARMACÉUTICA
+—tableta, jarabe, inyectable— y la tarjeta lo dice con una etiqueta visible y
+con el texto alternativo, de modo que la advertencia llega también a quien usa
+lector de pantalla.
+
+
+--------------------------------------------------------------------------------
+6. POR QUÉ ESTA EVIDENCIA ES REPRODUCIBLE Y NO UNA CAPTURA
+--------------------------------------------------------------------------------
+Las dos imágenes PNG las genera el mismo script que toma la medición, con un
+tamaño de ventana fijo y tras esperar a que la página termine de cargar. Si
+alguien elimina el esqueleto de carga, la cifra de CLS vuelve a dispararse y la
+siguiente ejecución lo delata. Una captura hecha a mano no habría detectado
+nada de esto: a simple vista la página ya se veía bien antes de la corrección.

@@ -1,0 +1,146 @@
+
+SIMULACIÓN · Fusión de duplicados del catálogo
+========================================================================
+   Estrategia de stock: DESCARTAR los lotes de las copias (por omisión)
+   Superviviente:       la ÚNICA fila con actividad; si no hay ninguna, el id MENOR
+   Grupos ambiguos:     más de una fila con actividad → OMITIR y listar
+
+   Grupos duplicados encontrados                   869
+   Grupos que se fusionan                          869
+   Grupos ambiguos omitidos                          0
+   Filas que se eliminarán                       2477
+   Filas que quedarán como supervivientes         869
+
+   Supervivientes elegidos por ACTIVIDAD            17
+     de ellos, el superviviente NO es el id menor      1
+   Supervivientes elegidos por id MENOR            852
+
+SUPERVIVIENTE ELEGIDO POR ACTIVIDAD (no es el id menor)
+------------------------------------------------------------------------
+   1. AMOXICILINA · 500 mg · Caja Envase Blister Cápsulas · PHARMAGEN · CAPSULA
+      ids:    72, 835, 1705, 2575
+      elegido id 835 · stock 2 · 2 filas de actividad (movimientos/ventas/incidencias)
+      motivo: es la ÚNICA fila con actividad del grupo; el id menor 72 tiene 0 y stock 3 (valor de importación)
+
+No queda ningún grupo ambiguo: en todos hay como máximo una fila con actividad.
+
+PRIMEROS 10 GRUPOS
+------------------------------------------------------------------------
+
+   1. A FOLIC · 0.5 mg · Caja Envase Blister Tabletas · IQ FARMA · TABLETA
+      ids: 1, 755, 1625, 2495
+      id 1      precio 1.00      lotes suman 3      actividad 2    SUPERVIVIENTE
+      id 755    precio 1.00      lotes suman 5      actividad 0    se elimina
+      id 1625   precio 1.50      lotes suman 5      actividad 0    se elimina
+      id 2495   precio 1.50      lotes suman 5      actividad 0    se elimina
+      superviviente: id 1 (única fila con actividad del grupo)
+      precio del superviviente: 1.50 (tomado del id mayor 2495, importación más reciente)
+
+   2. AB AMBROMOX · 600 mg · Caja Vial · FARMINDUSTRIA · INYECTABLE
+      ids: 2, 756, 1626, 2496
+      id 2      precio 2.00      lotes suman 1      actividad 4    SUPERVIVIENTE
+      id 756    precio 2.00      lotes suman 4      actividad 0    se elimina
+      id 1626   precio 2.00      lotes suman 4      actividad 0    se elimina
+      id 2496   precio 2.00      lotes suman 4      actividad 0    se elimina
+      superviviente: id 2 (única fila con actividad del grupo)
+      precio del superviviente: 2.00 (tomado del id mayor 2496, importación más reciente)
+
+   3. AB AMBROMOX · 1 200 mg · Vial + Accesorios · FARMINDUSTRIA · INYECTABLE
+      ids: 3, 757, 1627, 2497
+      id 3      precio 40.00     lotes suman 3      actividad 2    SUPERVIVIENTE
+      id 757    precio 40.00     lotes suman 3      actividad 0    se elimina
+      id 1627   precio 40.00     lotes suman 3      actividad 0    se elimina
+      id 2497   precio 40.00     lotes suman 3      actividad 0    se elimina
+      superviviente: id 3 (única fila con actividad del grupo)
+      precio del superviviente: 40.00 (tomado del id mayor 2497, importación más reciente)
+
+   4. AB MOKS · 250 mg + 15 mg/5 mL · Frasco X 60 mL · MEDIFARMA · SUSPENSION
+      ids: 4, 758, 1628, 2498
+      id 4      precio 40.00     lotes suman 1      actividad 3    SUPERVIVIENTE
+      id 758    precio 40.00     lotes suman 2      actividad 0    se elimina
+      id 1628   precio 40.00     lotes suman 2      actividad 0    se elimina
+      id 2498   precio 40.00     lotes suman 2      actividad 0    se elimina
+      superviviente: id 4 (única fila con actividad del grupo)
+      precio del superviviente: 40.00 (tomado del id mayor 2498, importación más reciente)
+
+   5. AB MOKS · 250 mg + 15 mg/5 mL · Frasco X 105 mL · MEDIFARMA · SUSPENSION
+      ids: 5, 759, 1629, 2499
+      id 5      precio 40.00     lotes suman 5      actividad 0    SUPERVIVIENTE
+      id 759    precio 40.00     lotes suman 5      actividad 0    se elimina
+      id 1629   precio 40.00     lotes suman 5      actividad 0    se elimina
+      id 2499   precio 40.00     lotes suman 5      actividad 0    se elimina
+      superviviente: id 5 (ninguna fila tiene actividad → id menor)
+      precio del superviviente: 40.00 (tomado del id mayor 2499, importación más reciente)
+
+   6. AB MOKS · 250 mg + 15 mg/5 mL · Frasco X 75 mL · MEDIFARMA · SUSPENSION
+      ids: 6, 760, 1630, 2500
+      id 6      precio 40.00     lotes suman 0      actividad 4    SUPERVIVIENTE
+      id 760    precio 40.00     lotes suman 6      actividad 0    se elimina
+      id 1630   precio 40.00     lotes suman 6      actividad 0    se elimina
+      id 2500   precio 40.00     lotes suman 6      actividad 0    se elimina
+      superviviente: id 6 (única fila con actividad del grupo)
+      precio del superviviente: 40.00 (tomado del id mayor 2500, importación más reciente)
+
+   7. AB MOKS FORTE · 1000 mg + 60 mg · Caja Envase Blister Tabletas Recubiertas · MEDIFARMA · TABLETA
+      ids: 7, 761, 1631, 2501
+      id 7      precio 40.00     lotes suman 7      actividad 0    SUPERVIVIENTE
+      id 761    precio 40.00     lotes suman 7      actividad 0    se elimina
+      id 1631   precio 40.00     lotes suman 7      actividad 0    se elimina
+      id 2501   precio 40.00     lotes suman 7      actividad 0    se elimina
+      superviviente: id 7 (ninguna fila tiene actividad → id menor)
+      precio del superviviente: 40.00 (tomado del id mayor 2501, importación más reciente)
+
+   8. AB-BRONCOL NF 1200 · 1000 mg + 200 mg · Caja Vial + Solvente x 5 mL · MEDIFARMA · INYECTABLE
+      ids: 8, 762, 1632, 2502
+      id 8      precio 40.00     lotes suman 8      actividad 0    SUPERVIVIENTE
+      id 762    precio 40.00     lotes suman 8      actividad 0    se elimina
+      id 1632   precio 40.00     lotes suman 8      actividad 0    se elimina
+      id 2502   precio 40.00     lotes suman 8      actividad 0    se elimina
+      superviviente: id 8 (ninguna fila tiene actividad → id menor)
+      precio del superviviente: 40.00 (tomado del id mayor 2502, importación más reciente)
+
+   9. AB-BRONCOL NF 300 · 250 mg + 50 mg · Caja Vial + 1 Ampolla x 3 mL · MEDIFARMA · INYECTABLE
+      ids: 9, 763, 1633, 2503
+      id 9      precio 40.00     lotes suman 6      actividad 2    SUPERVIVIENTE
+      id 763    precio 40.00     lotes suman 7      actividad 0    se elimina
+      id 1633   precio 40.00     lotes suman 7      actividad 0    se elimina
+      id 2503   precio 40.00     lotes suman 7      actividad 0    se elimina
+      superviviente: id 9 (única fila con actividad del grupo)
+      precio del superviviente: 40.00 (tomado del id mayor 2503, importación más reciente)
+
+  10. AB-BRONCOL NF 600 · 600 mg · Caja 1 Vial + 1 Ampolla Solvente x 5 mL · MEDIFARMA · INYECTABLE
+      ids: 10, 764, 1634, 2504
+      id 10     precio 40.00     lotes suman 10     actividad 1    SUPERVIVIENTE
+      id 764    precio 40.00     lotes suman 10     actividad 0    se elimina
+      id 1634   precio 40.00     lotes suman 10     actividad 0    se elimina
+      id 2504   precio 40.00     lotes suman 10     actividad 0    se elimina
+      superviviente: id 10 (única fila con actividad del grupo)
+      precio del superviviente: 40.00 (tomado del id mayor 2504, importación más reciente)
+
+FILAS REAPUNTADAS AL SUPERVIVIENTE
+------------------------------------------------------------------------
+   lotes                                             0
+   pedido_detalles                                   0
+   movimientos_stock                                 0
+   conteo_detalles                                   0
+   incidencias_venta                                 0
+   carrito                                           0
+
+EFECTOS SOBRE EL CATÁLOGO
+------------------------------------------------------------------------
+   Productos eliminados                           2477
+   Supervivientes elegidos por actividad            17
+   Supervivientes con stock recalculado            869
+   Supervivientes con precio actualizado           234
+   Conteos repetidos descartados                     2
+
+INVENTARIO
+------------------------------------------------------------------------
+   Lotes eliminados (unidades ya contadas)        2477
+   Lotes conservados a cero por trazabilidad         0
+   Lotes con código ajustado al reapuntar           0
+   Unidades fantasma descartadas                 12562
+
+   Sumar las copias habría añadido 12562 unidades que no están en el anaquel.
+
+Simulación: no se escribió nada. Añade --aplicar para ejecutarlo.
