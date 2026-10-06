@@ -6,7 +6,7 @@
     </div>
 
     <!-- Floating Elements -->
-    <div class="absolute top-20 left-10 w-20 h-20 bg-superficie-elevada/10 rounded-full blur-xl cta-float-1" />
+    <div class="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl cta-float-1" />
     <div class="absolute bottom-20 right-10 w-32 h-32 bg-ambar-400/20 rounded-full blur-2xl cta-float-2" />
     <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-clinico-400/15 rounded-full blur-lg cta-float-3" />
 
@@ -14,10 +14,10 @@
       <div class="text-center cta-content">
         <!-- Main CTA Content -->
         <div class="mb-12">
-          <h2 class="text-4xl md:text-6xl font-bold text-black bg-superficie-elevada/90 px-6 py-4 rounded-2xl inline-block cta-title">
+          <h2 class="text-4xl md:text-6xl font-bold text-neutro-900 bg-white/90 px-6 py-4 rounded-2xl inline-block cta-title">
             Tu Salud es Nuestra Prioridad
           </h2>
-          <p class="text-xl md:text-2xl text-texto-primario bg-superficie-elevada/80 px-4 py-2 rounded-xl inline-block mt-4 cta-subtitle">
+          <p class="text-xl md:text-2xl text-neutro-800 bg-white/80 px-4 py-2 rounded-xl inline-block mt-4 cta-subtitle">
             Únete a miles de familias que ya confían en Boticas San Juan.
             Regístrate ahora y obtén beneficios exclusivos en tu primera compra.
           </p>
@@ -27,7 +27,7 @@
         <div class="flex flex-col sm:flex-row gap-6 justify-center mb-16 cta-buttons">
           <router-link
             to="/register"
-            class="btn-cta-primary bg-ambar-400 text-black px-8 py-4 text-lg font-semibold rounded-2xl shadow-2xl hover:shadow-ambar-500/25 transition-all duration-300 transform hover:scale-105"
+            class="btn-cta-primary bg-ambar-400 text-ambar-950 px-8 py-4 text-lg font-semibold rounded-2xl shadow-2xl hover:shadow-ambar-500/25 transition-all duration-300 transform hover:scale-105"
           >
             <UserPlusIcon class="w-6 h-6 inline mr-2" />
             Registrarme Ahora
@@ -46,9 +46,9 @@
           <!-- Benefit 1 -->
           <div class="benefit-card bg-superficie-elevada rounded-2xl p-6 border border-borde-sutil shadow-lg">
             <div class="w-12 h-12 bg-ambar-400 rounded-xl flex items-center justify-center mb-4 mx-auto">
-              <GiftIcon class="w-6 h-6 text-black" />
+              <GiftIcon class="w-6 h-6 text-texto-primario" />
             </div>
-            <h3 class="text-xl font-bold text-black mb-2">
+            <h3 class="text-xl font-bold text-texto-primario mb-2">
               20% de Descuento
             </h3>
             <p class="text-texto-secundario">
@@ -59,9 +59,9 @@
           <!-- Benefit 2 -->
           <div class="benefit-card bg-superficie-elevada rounded-2xl p-6 border border-borde-sutil shadow-lg">
             <div class="w-12 h-12 bg-botica-400 rounded-xl flex items-center justify-center mb-4 mx-auto">
-              <TruckIcon class="w-6 h-6 text-black" />
+              <TruckIcon class="w-6 h-6 text-texto-primario" />
             </div>
-            <h3 class="text-xl font-bold text-black mb-2">
+            <h3 class="text-xl font-bold text-texto-primario mb-2">
               Delivery Gratis
             </h3>
             <p class="text-texto-secundario">
@@ -72,9 +72,9 @@
           <!-- Benefit 3 -->
           <div class="benefit-card bg-superficie-elevada rounded-2xl p-6 border border-borde-sutil shadow-lg">
             <div class="w-12 h-12 bg-clinico-400 rounded-xl flex items-center justify-center mb-4 mx-auto">
-              <PhoneIcon class="w-6 h-6 text-black" />
+              <PhoneIcon class="w-6 h-6 text-texto-primario" />
             </div>
-            <h3 class="text-xl font-bold text-black mb-2">
+            <h3 class="text-xl font-bold text-texto-primario mb-2">
               Asesoría Gratuita
             </h3>
             <p class="text-texto-secundario">
@@ -85,20 +85,20 @@
 
         <!-- Trust Message -->
         <div class="mt-16 text-center cta-trust">
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 bg-superficie-elevada/90 rounded-lg p-4 shadow-md">
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4 bg-white/90 rounded-lg p-4 shadow-md">
             <div class="flex items-center gap-2">
               <ShieldCheckIcon class="w-5 h-5 text-botica-600" />
-              <span class="text-sm text-black font-medium">Compra 100% Segura</span>
+              <span class="text-sm text-neutro-800 font-medium">Compra 100% Segura</span>
             </div>
             <div class="hidden sm:block w-px h-4 bg-borde-base"></div>
             <div class="flex items-center gap-2">
               <ClockIcon class="w-5 h-5 text-clinico-600" />
-              <span class="text-sm text-black font-medium">Atención 24/7</span>
+              <span class="text-sm text-neutro-800 font-medium">Atención 24/7</span>
             </div>
             <div class="hidden sm:block w-px h-4 bg-borde-base"></div>
             <div class="flex items-center gap-2">
               <AwardIcon class="w-5 h-5 text-clinico-600" />
-              <span class="text-sm text-black font-medium">Certificado DIGEMID</span>
+              <span class="text-sm text-neutro-800 font-medium">Certificado DIGEMID</span>
             </div>
           </div>
         </div>

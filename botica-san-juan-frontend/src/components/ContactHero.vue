@@ -9,14 +9,14 @@
     </div>
 
     <!-- Floating Elements -->
-    <div class="absolute top-20 left-10 w-20 h-20 bg-superficie-elevada/10 rounded-full blur-xl animate-pulse"></div>
-    <div class="absolute bottom-20 right-10 w-32 h-32 bg-superficie-elevada/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
+    <div class="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+    <div class="absolute bottom-20 right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
 
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <!-- Content -->
         <div class="text-center lg:text-left">
-          <div class="inline-flex items-center px-4 py-2 bg-superficie-elevada/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6">
+          <div class="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium mb-6">
             <MessageCircleIcon class="w-4 h-4 mr-2" />
             Estamos aquí para ayudarte
           </div>
@@ -33,7 +33,7 @@
           <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
             <a
               href="tel:+016772892"
-              class="inline-flex items-center px-8 py-4 bg-superficie-elevada text-clinico-700 font-semibold rounded-xl hover:bg-clinico-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              class="inline-flex items-center px-8 py-4 bg-white text-clinico-700 font-semibold rounded-xl hover:bg-clinico-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
               <PhoneIcon class="w-5 h-5 mr-3" />
               Llamar ahora
@@ -41,7 +41,7 @@
             <a
               href="https://wa.me/016772892"
               target="_blank"
-              class="inline-flex items-center px-8 py-4 bg-ambar-500 text-white font-semibold rounded-xl hover:bg-ambar-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              class="inline-flex items-center px-8 py-4 bg-ambar-400 text-ambar-950 font-semibold rounded-xl hover:bg-ambar-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
               <MessageCircleIcon class="w-5 h-5 mr-3" />
               WhatsApp
@@ -51,9 +51,9 @@
 
         <!-- Illustration -->
         <div class="relative">
-          <div class="relative bg-superficie-elevada/10 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
+          <div class="relative bg-white/10 backdrop-blur-sm rounded-3xl p-8 shadow-2xl">
             <div class="grid grid-cols-2 gap-6">
-              <div class="bg-superficie-elevada/20 rounded-2xl p-6 text-center backdrop-blur-sm">
+              <div class="bg-white/20 rounded-2xl p-6 text-center backdrop-blur-sm">
                 <PhoneIcon class="w-12 h-12 mx-auto mb-4 text-white" />
 
                 <h3 class="font-semibold text-white mb-2">
@@ -64,7 +64,7 @@
                   Atención inmediata
                 </p>
               </div>
-              <div class="bg-superficie-elevada/20 rounded-2xl p-6 text-center backdrop-blur-sm">
+              <div class="bg-white/20 rounded-2xl p-6 text-center backdrop-blur-sm">
                 <MailIcon class="w-12 h-12 mx-auto mb-4 text-white" />
 
                 <h3 class="font-semibold text-white mb-2">
@@ -75,7 +75,7 @@
                   Respuesta rápida
                 </p>
               </div>
-              <div class="bg-superficie-elevada/20 rounded-2xl p-6 text-center backdrop-blur-sm">
+              <div class="bg-white/20 rounded-2xl p-6 text-center backdrop-blur-sm">
                 <MessageCircleIcon class="w-12 h-12 mx-auto mb-4 text-white" />
 
                 <h3 class="font-semibold text-white mb-2">
@@ -86,7 +86,7 @@
                   Disponible 24/7
                 </p>
               </div>
-              <div class="bg-superficie-elevada/20 rounded-2xl p-6 text-center backdrop-blur-sm">
+              <div class="bg-white/20 rounded-2xl p-6 text-center backdrop-blur-sm">
                 <MapPinIcon class="w-12 h-12 mx-auto mb-4 text-white" />
 
                 <h3 class="font-semibold text-white mb-2">

@@ -40,7 +40,7 @@
                   v-model="form.name"
                   type="text"
                   required
-                  class="w-full pl-12 pr-4 py-4 border-2 border-borde-sutil rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario"
+                  class="w-full pl-12 pr-4 py-4 border-2 border-borde-control rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario"
                   placeholder="Ingresa tu nombre completo"
                 />
               </div>
@@ -60,7 +60,7 @@
                   v-model="form.email"
                   type="email"
                   required
-                  class="w-full pl-12 pr-4 py-4 border-2 border-borde-sutil rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario"
+                  class="w-full pl-12 pr-4 py-4 border-2 border-borde-control rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario"
                   placeholder="Ingresa tu correo electrónico"
                 />
               </div>
@@ -83,7 +83,7 @@
                   v-model="form.phone"
                   type="tel"
                   required
-                  class="w-full pl-12 pr-4 py-4 border-2 border-borde-sutil rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario"
+                  class="w-full pl-12 pr-4 py-4 border-2 border-borde-control rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario"
                   placeholder="999-999-999"
                 />
               </div>
@@ -102,7 +102,7 @@
                   id="reason"
                   v-model="form.reason"
                   required
-                  class="w-full pl-12 pr-4 py-4 border-2 border-borde-sutil rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario appearance-none bg-superficie-elevada"
+                  class="w-full pl-12 pr-4 py-4 border-2 border-borde-control rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario appearance-none bg-superficie-elevada"
                 >
                   <option value="">
                     Selecciona un motivo
@@ -143,7 +143,7 @@
                 v-model="form.message"
                 required
                 rows="6"
-                class="w-full pl-12 pr-4 py-4 border-2 border-borde-sutil rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario resize-vertical"
+                class="w-full pl-12 pr-4 py-4 border-2 border-borde-control rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario resize-vertical"
                 placeholder="Describe tu consulta o mensaje..."
               />
             </div>

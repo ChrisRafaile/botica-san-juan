@@ -189,7 +189,7 @@
       <div class="bg-superficie-elevada rounded-3xl p-8 shadow-lg">
         <div class="grid md:grid-cols-4 gap-8 text-center">
           <div class="stats-item">
-            <div class="text-4xl font-bold text-clinico-600 mb-2">
+            <div class="text-4xl font-bold text-texto-acento mb-2">
               4.9/5
             </div>
             <div class="text-texto-secundario mb-1">
@@ -204,7 +204,7 @@
             </div>
           </div>
           <div class="stats-item">
-            <div class="text-4xl font-bold text-clinico-600 mb-2">
+            <div class="text-4xl font-bold text-texto-acento mb-2">
               98%
             </div>
             <div class="text-texto-secundario">
@@ -215,7 +215,7 @@
             </div>
           </div>
           <div class="stats-item">
-            <div class="text-4xl font-bold text-clinico-600 mb-2">
+            <div class="text-4xl font-bold text-texto-acento mb-2">
               24h
             </div>
             <div class="text-texto-secundario">
@@ -226,7 +226,7 @@
             </div>
           </div>
           <div class="stats-item">
-            <div class="text-4xl font-bold text-clinico-600 mb-2">
+            <div class="text-4xl font-bold text-texto-acento mb-2">
               100%
             </div>
             <div class="text-texto-secundario">

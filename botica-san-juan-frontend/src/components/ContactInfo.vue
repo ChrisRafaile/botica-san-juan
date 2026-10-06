@@ -126,15 +126,15 @@
               <div class="space-y-3">
                 <div class="flex justify-between items-center py-2 border-b border-borde-sutil">
                   <span class="text-texto-secundario">Urgencias 24/7</span>
-                  <span class="font-medium text-botica-600">Disponible</span>
+                  <span class="font-medium text-texto-marca">Disponible</span>
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-borde-sutil">
                   <span class="text-texto-secundario">Entregas a Domicilio</span>
-                  <span class="font-medium text-clinico-600">24 Horas</span>
+                  <span class="font-medium text-texto-acento">24 Horas</span>
                 </div>
                 <div class="flex justify-between items-center py-2">
                   <span class="text-texto-secundario">Consulta en Línea</span>
-                  <span class="font-medium text-clinico-600">24/7</span>
+                  <span class="font-medium text-texto-acento">24/7</span>
                 </div>
               </div>
             </div>

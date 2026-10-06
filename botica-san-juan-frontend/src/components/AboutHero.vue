@@ -6,9 +6,9 @@
     </div>
 
     <!-- Floating Elements -->
-    <div class="absolute top-20 left-10 w-20 h-20 bg-superficie-elevada/10 rounded-full blur-xl animate-pulse"></div>
-    <div class="absolute bottom-20 right-10 w-32 h-32 bg-superficie-elevada/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
-    <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-superficie-elevada/10 rounded-full blur-lg animate-pulse delay-500"></div>
+    <div class="absolute top-20 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+    <div class="absolute bottom-20 right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl animate-pulse delay-1000"></div>
+    <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-white/10 rounded-full blur-lg animate-pulse delay-500"></div>
 
     <div class="relative container mx-auto px-6 py-24 lg:py-32">
       <div class="max-w-4xl mx-auto text-center hero-content">
@@ -27,7 +27,7 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div class="bg-superficie-elevada/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
             <div class="text-3xl font-bold mb-2">
               15+
             </div>
@@ -35,7 +35,7 @@
               Años de Experiencia
             </div>
           </div>
-          <div class="bg-superficie-elevada/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
             <div class="text-3xl font-bold mb-2">
               50K+
             </div>
@@ -43,7 +43,7 @@
               Clientes Satisfechos
             </div>
           </div>
-          <div class="bg-superficie-elevada/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
             <div class="text-3xl font-bold mb-2">
               24/7
             </div>
@@ -55,10 +55,10 @@
 
         <!-- CTA Button -->
         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center cta-buttons">
-          <button class="bg-superficie-elevada text-clinico-700 px-8 py-4 rounded-full font-semibold text-lg hover:bg-clinico-50 transition-all duration-300 transform hover:scale-105 shadow-lg">
+          <button class="bg-white text-clinico-700 px-8 py-4 rounded-full font-semibold text-lg hover:bg-clinico-50 transition-all duration-300 transform hover:scale-105 shadow-lg">
             Conoce Nuestra Historia
           </button>
-          <button class="border-2 border-white/30 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-superficie-elevada/10 transition-all duration-300 backdrop-blur-sm">
+          <button class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/10 transition-all duration-300 backdrop-blur-sm">
             Nuestros Valores
           </button>
         </div>

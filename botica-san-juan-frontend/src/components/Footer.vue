@@ -333,7 +333,7 @@ onBeforeUnmount(() => {
                 autocomplete="email"
                 placeholder="Tu correo electrónico"
                 :aria-describedby="errorBoletin ? 'error-boletin' : undefined"
-                class="min-w-0 flex-1 rounded-l-lg border border-lateral-borde bg-lateral-fondo-sup px-4 py-3 text-white placeholder-lateral-texto-tenue focus:border-botica-500 focus:outline-none"
+                class="min-w-0 flex-1 rounded-l-lg border border-white/40 bg-lateral-fondo-sup px-4 py-3 text-white placeholder-lateral-texto-tenue focus:border-botica-500 focus:outline-none"
               />
               <button
                 type="submit"

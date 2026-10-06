@@ -221,7 +221,7 @@
           </h3>
           <div class="grid md:grid-cols-4 gap-8">
             <div class="text-center trust-stat">
-              <div class="text-3xl font-bold text-botica-600 mb-2">
+              <div class="text-3xl font-bold text-texto-marca mb-2">
                 4.8/5
               </div>
               <div class="text-sm text-texto-secundario">
@@ -238,7 +238,7 @@
               </div>
             </div>
             <div class="text-center trust-stat">
-              <div class="text-3xl font-bold text-clinico-600 mb-2">
+              <div class="text-3xl font-bold text-texto-acento mb-2">
                 95%
               </div>
               <div class="text-sm text-texto-secundario">
@@ -254,7 +254,7 @@
               </div>
             </div>
             <div class="text-center trust-stat">
-              <div class="text-3xl font-bold text-botica-600 mb-2">
+              <div class="text-3xl font-bold text-texto-marca mb-2">
                 5K+
               </div>
               <div class="text-sm text-texto-secundario">

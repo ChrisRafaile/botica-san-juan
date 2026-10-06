@@ -125,3 +125,25 @@
 .dark .leaflet-tile-pane {
   filter: brightness(0.82) contrast(1.06) saturate(0.85);
 }
+
+/**
+ * Atribución de Leaflet.
+ *
+ * El enlace "Leaflet" viene con el color propio de la librería (#0078A8) sobre
+ * su fondo gris claro: 3,64:1 medido, por debajo del 4,5:1 que exige WCAG para
+ * texto pequeño. Es un control de terceros, pero aparece en nuestras páginas y
+ * la atribución es obligatoria, así que se le corrige el contraste en vez de
+ * esconderla.
+ */
+.leaflet-container .leaflet-control-attribution {
+  background: rgb(255 255 255 / 0.9);
+  color: var(--color-neutro-800);
+}
+
+/* Especificidad deliberadamente alta: la hoja de Leaflet se importa DESPUES de
+   esta desde el componente, asi que a igual especificidad ganaba la suya. */
+.leaflet-container .leaflet-control-attribution a,
+.leaflet-container .leaflet-control-attribution a:hover {
+  color: var(--color-clinico-800);
+  text-decoration: underline;
+}

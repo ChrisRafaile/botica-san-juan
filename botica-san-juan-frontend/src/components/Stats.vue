@@ -33,9 +33,9 @@
         <!-- Stat 2: Happy Customers -->
         <div class="stat-card text-center">
           <div class="w-20 h-20 bg-clinico-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <UsersIcon class="w-10 h-10 text-clinico-600" />
+            <UsersIcon class="w-10 h-10 text-texto-acento" />
           </div>
-          <div class="stat-number text-4xl md:text-5xl font-bold text-clinico-600 mb-2">
+          <div class="stat-number text-4xl md:text-5xl font-bold text-texto-acento mb-2">
             50K+
           </div>
           <div class="text-lg font-semibold text-texto-primario mb-2">
@@ -65,9 +65,9 @@
         <!-- Stat 4: Delivery Coverage -->
         <div class="stat-card text-center">
           <div class="w-20 h-20 bg-clinico-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <MapPinIcon class="w-10 h-10 text-clinico-600" />
+            <MapPinIcon class="w-10 h-10 text-texto-acento" />
           </div>
-          <div class="stat-number text-4xl md:text-5xl font-bold text-clinico-600 mb-2">
+          <div class="stat-number text-4xl md:text-5xl font-bold text-texto-acento mb-2">
             100%
           </div>
           <div class="text-lg font-semibold text-texto-primario mb-2">
@@ -109,7 +109,7 @@
           <!-- Trust 2: 24/7 Service -->
           <div class="trust-item text-center">
             <div class="w-16 h-16 bg-superficie-elevada rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <ClockIcon class="w-8 h-8 text-clinico-600" />
+              <ClockIcon class="w-8 h-8 text-texto-acento" />
             </div>
             <h4 class="text-xl font-bold text-texto-primario mb-3">
               Servicio 24/7

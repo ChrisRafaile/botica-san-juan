@@ -39,7 +39,7 @@
           accionIcono ? 'pr-12' : 'pr-4.5',
           error
             ? 'border-peligro-600 focus:border-peligro-600 focus:ring-peligro-500/20'
-            : 'border-borde-base focus:border-borde-marca focus:ring-botica-500/20',
+            : 'border-borde-control focus:border-borde-marca focus:ring-botica-500/20',
         ]"
         @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
         @blur="$emit('blur')"

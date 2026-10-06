@@ -2,7 +2,7 @@
   <section class="py-24 bg-clinico-600">
     <div class="container mx-auto px-6 text-center">
       <div class="max-w-4xl mx-auto">
-        <div class="inline-flex items-center gap-2 bg-superficie-elevada/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
+        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
           <MessageCircleIcon class="w-4 h-4" />
           ¿Necesitas Ayuda?
         </div>
@@ -18,7 +18,7 @@
         <!-- Contact Options -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <!-- WhatsApp -->
-          <div class="bg-superficie-elevada/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-superficie-elevada/20 transition-all duration-300 contact-card">
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all duration-300 contact-card">
             <div class="bg-botica-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
               <MessageCircleIcon class="w-8 h-8 text-white" />
             </div>
@@ -39,7 +39,7 @@
           </div>
 
           <!-- Phone -->
-          <div class="bg-superficie-elevada/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-superficie-elevada/20 transition-all duration-300 contact-card">
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all duration-300 contact-card">
             <div class="bg-clinico-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
               <PhoneIcon class="w-8 h-8 text-white" />
             </div>
@@ -59,7 +59,7 @@
           </div>
 
           <!-- Email -->
-          <div class="bg-superficie-elevada/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-superficie-elevada/20 transition-all duration-300 contact-card">
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all duration-300 contact-card">
             <div class="bg-clinico-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
               <MailIcon class="w-8 h-8 text-white" />
             </div>
@@ -80,7 +80,7 @@
         </div>
 
         <!-- Additional Info -->
-        <div class="bg-superficie-elevada/10 backdrop-blur-sm rounded-2xl p-8">
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8">
           <h3 class="text-2xl font-bold text-white mb-6">
             Información Importante
           </h3>
@@ -132,7 +132,7 @@
             </div>
           </div>
           <!-- Pharmacy Location Map -->
-          <div class="bg-superficie-elevada/10 backdrop-blur-sm rounded-2xl p-8 mt-8">
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 mt-8">
             <h3 class="text-2xl font-bold text-white mb-6 text-center">
               Mapa Interactivo de Cobertura
             </h3>

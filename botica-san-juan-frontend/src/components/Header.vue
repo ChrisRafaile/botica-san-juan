@@ -36,6 +36,9 @@
 
         <!-- User Actions -->
         <div class="flex items-center space-x-3">
+          <!-- Tema claro / oscuro / según el sistema -->
+          <SelectorTema />
+
           <!-- Cart -->
           <router-link
             to="/cart"
@@ -192,6 +195,7 @@ import {
   XIcon
 } from 'lucide-vue-next'
 
+import SelectorTema from './SelectorTema.vue'
 const router = useRouter()
 const cartStore = useCartStore()
 const authStore = useAuthStore()

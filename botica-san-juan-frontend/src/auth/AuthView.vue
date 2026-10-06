@@ -150,7 +150,7 @@
                   <input
                     v-model="acceso.recordar"
                     type="checkbox"
-                    class="size-4 rounded border-borde-base text-botica-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+                    class="size-4 rounded border-borde-control text-botica-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
                   />
                   Recordarme
                 </label>
@@ -299,7 +299,7 @@
                 <input
                   v-model="registro.aceptaTerminos"
                   type="checkbox"
-                  class="mt-0.5 size-4 shrink-0 rounded border-borde-base text-botica-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+                  class="mt-0.5 size-4 shrink-0 rounded border-borde-control text-botica-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
                 />
                 <span>
                   Acepto los términos del servicio y el tratamiento de mis datos

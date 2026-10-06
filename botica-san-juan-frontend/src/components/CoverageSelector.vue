@@ -29,7 +29,7 @@
                 'p-4 rounded-lg border-2 transition-all text-left hover:shadow-md',
                 selectedDistrict?.id === district.id
                   ? 'border-clinico-500 bg-clinico-50 text-clinico-700 shadow-md'
-                  : 'border-borde-sutil hover:border-clinico-300 hover:bg-superficie-hundida'
+                  : 'border-borde-control hover:border-clinico-300 hover:bg-superficie-hundida'
               ]"
               @click="selectDistrict(district)"
             >

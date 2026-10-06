@@ -57,7 +57,7 @@ let toastId = 0
 const toastClasses = {
   success: 'bg-botica-500 text-white',
   error: 'bg-peligro-500 text-white',
-  warning: 'bg-ambar-500 text-white',
+  warning: 'bg-ambar-400 text-ambar-950',
   info: 'bg-clinico-500 text-white'
 }
 

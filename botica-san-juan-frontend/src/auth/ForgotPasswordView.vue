@@ -77,7 +77,7 @@
                 v-model="email"
                 type="email"
                 required
-                class="w-full px-4 py-3 border border-borde-base rounded-xl focus:ring-2 focus:ring-clinico-500 focus:border-transparent transition-all"
+                class="w-full px-4 py-3 border border-borde-control rounded-xl focus:ring-2 focus:ring-clinico-500 focus:border-transparent transition-all"
                 placeholder="tu@email.com"
               />
               <div class="absolute inset-y-0 right-0 pr-3 flex items-center">

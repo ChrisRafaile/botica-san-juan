@@ -91,3 +91,6 @@ yarn.lock
 infra/backup/salida/
 *.dump
 *.sql.gz
+
+# Resultados de scripts/auditar-contraste-portal.mjs (se regeneran)
+botica-san-juan-frontend/aud-*.json

@@ -45,7 +45,7 @@
         <!-- Service 2: Delivery -->
         <div class="service-card bg-superficie-elevada rounded-2xl p-8 shadow-lg border border-borde-sutil transition-all duration-300 hover:shadow-xl group">
           <div class="w-16 h-16 bg-clinico-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-clinico-200 transition-colors duration-300">
-            <TruckIcon class="w-8 h-8 text-clinico-600" />
+            <TruckIcon class="w-8 h-8 text-texto-acento" />
           </div>
           <h3 class="text-2xl font-bold text-texto-primario mb-4">
             Delivery Express
@@ -101,7 +101,7 @@
         <!-- Service 4: Health Tests -->
         <div class="service-card bg-superficie-elevada rounded-2xl p-8 shadow-lg border border-borde-sutil transition-all duration-300 hover:shadow-xl group">
           <div class="w-16 h-16 bg-clinico-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-clinico-200 transition-colors duration-300">
-            <ActivityIcon class="w-8 h-8 text-clinico-600" />
+            <ActivityIcon class="w-8 h-8 text-texto-acento" />
           </div>
           <h3 class="text-2xl font-bold text-texto-primario mb-4">
             Pruebas de Salud
@@ -129,7 +129,7 @@
         <!-- Service 5: Vaccination -->
         <div class="service-card bg-superficie-elevada rounded-2xl p-8 shadow-lg border border-borde-sutil transition-all duration-300 hover:shadow-xl group">
           <div class="w-16 h-16 bg-clinico-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-clinico-200 transition-colors duration-300">
-            <ShieldIcon class="w-8 h-8 text-clinico-600" />
+            <ShieldIcon class="w-8 h-8 text-texto-acento" />
           </div>
           <h3 class="text-2xl font-bold text-texto-primario mb-4">
             Vacunación

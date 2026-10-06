@@ -26,7 +26,7 @@
               v-model="searchQuery"
               type="text"
               placeholder="Buscar productos..."
-              class="w-full pl-10 pr-4 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500 focus:border-transparent"
+              class="w-full pl-10 pr-4 py-2 border border-borde-control rounded-lg focus:ring-2 focus:ring-botica-500 focus:border-transparent"
             />
           </div>
 
@@ -35,7 +35,7 @@
             <!-- Tipo Filter -->
             <select
               v-model="selectedTipo"
-              class="px-4 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500 focus:border-transparent"
+              class="px-4 py-2 border border-borde-control rounded-lg focus:ring-2 focus:ring-botica-500 focus:border-transparent"
             >
               <option value="">
                 Todos los tipos
@@ -52,7 +52,7 @@
             <!-- Laboratorio Filter -->
             <select
               v-model="selectedLaboratorio"
-              class="px-4 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500 focus:border-transparent"
+              class="px-4 py-2 border border-borde-control rounded-lg focus:ring-2 focus:ring-botica-500 focus:border-transparent"
             >
               <option value="">
                 Todos los laboratorios
@@ -69,7 +69,7 @@
             <!-- Sort -->
             <select
               v-model="sortBy"
-              class="px-4 py-2 border border-borde-base rounded-lg focus:ring-2 focus:ring-botica-500 focus:border-transparent"
+              class="px-4 py-2 border border-borde-control rounded-lg focus:ring-2 focus:ring-botica-500 focus:border-transparent"
             >
               <option value="nombre">
                 Ordenar por nombre
@@ -160,7 +160,7 @@
               <div class="flex items-center space-x-2">
                 <span
                   class="text-sm font-medium"
-                  :class="product.stock > 0 ? 'text-botica-600' : 'text-peligro-600'"
+                  :class="product.stock > 0 ? 'text-texto-marca' : 'text-peligro-600'"
                 >
                   {{ product.stock > 0 ? 'En stock' : 'Agotado' }}
                 </span>
@@ -171,7 +171,7 @@
             </div>
 
             <div class="flex items-center justify-between pt-2">
-              <span class="text-2xl font-bold text-botica-600">
+              <span class="text-2xl font-bold text-texto-marca">
                 S/ {{ product.precio.toFixed(2) }}
               </span>
 

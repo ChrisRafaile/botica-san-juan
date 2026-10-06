@@ -21,7 +21,7 @@
           <div class="contact-card bg-superficie-elevada rounded-3xl p-8 shadow-lg border border-borde-sutil">
             <div class="flex items-start gap-4">
               <div class="w-12 h-12 bg-clinico-100 rounded-2xl flex items-center justify-center shrink-0">
-                <MapPin class="w-6 h-6 text-clinico-600" />
+                <MapPin class="w-6 h-6 text-texto-acento" />
               </div>
               <div>
                 <h3 class="text-xl font-bold text-texto-primario mb-2">
@@ -36,7 +36,7 @@
                   <button class="bg-clinico-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-clinico-700 transition-colors">
                     Cómo Llegar
                   </button>
-                  <button class="border-2 border-clinico-600 text-clinico-600 px-6 py-3 rounded-xl font-semibold hover:bg-clinico-50 transition-colors">
+                  <button class="border-2 border-borde-control text-texto-acento px-6 py-3 rounded-xl font-semibold hover:bg-clinico-50 transition-colors">
                     Ver en Maps
                   </button>
                 </div>
@@ -56,7 +56,7 @@
                   <div class="font-semibold text-texto-primario">
                     Teléfono
                   </div>
-                  <div class="text-clinico-600 font-medium">
+                  <div class="text-texto-acento font-medium">
                     (01) 677-2892
                   </div>
                 </div>
@@ -67,13 +67,13 @@
             <div class="contact-card bg-superficie-elevada rounded-3xl p-6 shadow-lg border border-borde-sutil">
               <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-clinico-100 rounded-2xl flex items-center justify-center">
-                  <Mail class="w-6 h-6 text-clinico-600" />
+                  <Mail class="w-6 h-6 text-texto-acento" />
                 </div>
                 <div>
                   <div class="font-semibold text-texto-primario">
                     Email
                   </div>
-                  <div class="text-clinico-600 font-medium">
+                  <div class="text-texto-acento font-medium">
                     info@boticasan-juan.com
                   </div>
                 </div>
@@ -84,7 +84,7 @@
             <div class="contact-card bg-superficie-elevada rounded-3xl p-6 shadow-lg border border-borde-sutil">
               <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-clinico-100 rounded-2xl flex items-center justify-center">
-                  <Clock class="w-6 h-6 text-clinico-600" />
+                  <Clock class="w-6 h-6 text-texto-acento" />
                 </div>
                 <div>
                   <div>
@@ -119,7 +119,10 @@
 
           <!-- Quick Actions -->
           <div class="bg-clinico-600 rounded-3xl p-8 text-white">
-            <h3>
+            <!-- El color va explicito: el design system fija
+                 `h1..h6 { color: var(--texto-primario) }` de forma global, y
+                 sin esto el encabezado sale oscuro sobre la tarjeta azul. -->
+            <h3 class="text-2xl font-bold mb-4 text-white">
               ¿Necesitas ayuda inmediata?
             </h3>
             <p class="mb-6 opacity-90">
@@ -127,10 +130,10 @@
               sobre medicamentos y salud.
             </p>
             <div class="flex flex-col sm:flex-row gap-4">
-              <button class="bg-superficie-elevada text-clinico-600 px-6 py-3 rounded-xl font-semibold hover:bg-superficie-interactiva transition-colors">
+              <button class="bg-white text-clinico-700 px-6 py-3 rounded-xl font-semibold hover:bg-superficie-interactiva transition-colors">
                 Llamar Ahora
               </button>
-              <button class="border-2 border-white/30 text-white px-6 py-3 rounded-xl font-semibold hover:bg-superficie-elevada/10 transition-colors">
+              <button class="border-2 border-white text-white px-6 py-3 rounded-xl font-semibold hover:bg-white/10 transition-colors">
                 Chat en Línea
               </button>
             </div>
@@ -161,7 +164,7 @@
             <!-- Location Details -->
             <div class="space-y-4">
               <div class="flex items-start gap-3">
-                <Navigation class="w-5 h-5 text-clinico-600 mt-0.5" />
+                <Navigation class="w-5 h-5 text-texto-acento mt-0.5" />
                 <div>
                   <div>
                     Dirección
@@ -173,7 +176,7 @@
               </div>
 
               <div class="flex items-start gap-3">
-                <Car class="w-5 h-5 text-clinico-600 mt-0.5" />
+                <Car class="w-5 h-5 text-texto-acento mt-0.5" />
                 <div>
                   <div>
                     Estacionamiento
@@ -185,7 +188,7 @@
               </div>
 
               <div class="flex items-start gap-3">
-                <Bus class="w-5 h-5 text-clinico-600 mt-0.5" />
+                <Bus class="w-5 h-5 text-texto-acento mt-0.5" />
                 <div>
                   <div>
                     Transporte Público

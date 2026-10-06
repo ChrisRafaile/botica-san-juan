@@ -25,7 +25,7 @@
           <p class="text-texto-secundario text-sm leading-relaxed">
             Amplia variedad de medicamentos con y sin receta médica
           </p>
-          <div class="mt-4 text-clinico-600 font-semibold text-sm">
+          <div class="mt-4 text-texto-acento font-semibold text-sm">
             Ver productos →
           </div>
         </div>
@@ -40,7 +40,7 @@
           <p class="text-texto-secundario text-sm leading-relaxed">
             Productos para el cuidado de la piel, cabello y higiene personal
           </p>
-          <div class="mt-4 text-clinico-600 font-semibold text-sm">
+          <div class="mt-4 text-texto-acento font-semibold text-sm">
             Ver productos →
           </div>
         </div>
@@ -55,7 +55,7 @@
           <p class="text-texto-secundario text-sm leading-relaxed">
             Todo lo necesario para el cuidado de los más pequeños de la casa
           </p>
-          <div class="mt-4 text-clinico-600 font-semibold text-sm">
+          <div class="mt-4 text-texto-acento font-semibold text-sm">
             Ver productos →
           </div>
         </div>
@@ -70,7 +70,7 @@
           <p class="text-texto-secundario text-sm leading-relaxed">
             Vitaminas, minerales y suplementos nutricionales de calidad
           </p>
-          <div class="mt-4 text-clinico-600 font-semibold text-sm">
+          <div class="mt-4 text-texto-acento font-semibold text-sm">
             Ver productos →
           </div>
         </div>

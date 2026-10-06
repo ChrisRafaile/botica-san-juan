@@ -217,11 +217,23 @@
   --texto-deshabilitado: var(--color-neutro-400);
   --texto-sobre-marca: var(--color-neutro-0);
   --texto-marca: var(--color-botica-700);
+  /* Equivalente azul de --texto-marca. Hacia falta: los componentes escribian
+     `text-clinico-600` directamente, y ese paso es demasiado oscuro para
+     leerse sobre la superficie oscura (2.75:1 medido, hace falta 4.5:1). Un
+     token que cambia con el tema resuelve los dos modos de una vez. */
+  --texto-acento: var(--color-clinico-700);
 
   /* Bordes */
   --borde-sutil: var(--color-neutro-200);
   --borde-base: var(--color-neutro-300);
   --borde-fuerte: var(--color-neutro-400);
+  /* Borde de CONTROL: campos, selectores y areas de texto.
+     Existe aparte de --borde-base porque las normas son distintas. Un
+     separador decorativo puede ser tenue; el borde de un campo es lo que dice
+     que ahi hay un campo, y WCAG le exige 3:1 contra el fondo igual que a
+     cualquier componente de interfaz. Usar --borde-base en los campos daba
+     1.34:1 en modo oscuro: el campo existia pero no se veia. */
+  --borde-control: var(--color-neutro-450);
   --borde-marca: var(--color-botica-600);
 
   /* Barra lateral — tiene su propia escala porque es una superficie oscura
@@ -260,10 +272,12 @@
   --texto-deshabilitado: var(--color-neutro-600);
   --texto-sobre-marca: var(--color-neutro-0);
   --texto-marca: var(--color-botica-300);
+  --texto-acento: var(--color-clinico-300);
 
   --borde-sutil: oklch(0.272 0.009 165);
   --borde-base: oklch(0.328 0.010 165);
   --borde-fuerte: oklch(0.410 0.011 164);
+  --borde-control: oklch(0.560 0.012 165);
   --borde-marca: var(--color-botica-500);
 
   /* En oscuro la lateral se separa del fondo por elevación, no por color */
@@ -301,10 +315,12 @@
   --color-texto-deshabilitado: var(--texto-deshabilitado);
   --color-texto-sobre-marca: var(--texto-sobre-marca);
   --color-texto-marca: var(--texto-marca);
+  --color-texto-acento: var(--texto-acento);
 
   --color-borde-sutil: var(--borde-sutil);
   --color-borde-base: var(--borde-base);
   --color-borde-fuerte: var(--borde-fuerte);
+  --color-borde-control: var(--borde-control);
   --color-borde-marca: var(--borde-marca);
 
   --color-lateral-fondo: var(--lateral-fondo);

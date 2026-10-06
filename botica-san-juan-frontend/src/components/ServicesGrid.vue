@@ -60,7 +60,7 @@
         <div class="bg-superficie-elevada rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 service-card">
           <div class="text-center mb-6">
             <div class="bg-clinico-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <StethoscopeIcon class="w-8 h-8 text-clinico-600" />
+              <StethoscopeIcon class="w-8 h-8 text-texto-acento" />
             </div>
             <h3 class="text-xl font-bold text-texto-primario mb-2">
               Aliviamed
@@ -96,7 +96,7 @@
         <div class="bg-superficie-elevada rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 service-card">
           <div class="text-center mb-6">
             <div class="bg-clinico-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <PhoneIcon class="w-8 h-8 text-clinico-600" />
+              <PhoneIcon class="w-8 h-8 text-texto-acento" />
             </div>
             <h3 class="text-xl font-bold text-texto-primario mb-2">
               SanJuanfono
@@ -163,7 +163,7 @@
               Beneficios exclusivos
             </div>
           </div>
-          <button class="w-full bg-ambar-600 text-white py-3 px-4 rounded-lg hover:bg-ambar-700 transition-colors font-medium">
+          <button class="w-full bg-ambar-700 text-white py-3 px-4 rounded-lg hover:bg-ambar-800 transition-colors font-medium">
             Únete al programa
           </button>
         </div>
