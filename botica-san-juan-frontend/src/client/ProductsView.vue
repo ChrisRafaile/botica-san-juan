@@ -39,6 +39,7 @@ import { useCartStore } from '@/stores/carrito'
 import { useProductsStore } from '@/stores/productos'
 import type { Product } from '@/services/products'
 import { urlDeMedia } from '@/utils/media'
+import { ilustracionDe, textoAlternativoDe } from '@/utils/formaFarmaceutica'
 import {
   SearchIcon,
   ShoppingCartIcon,
@@ -436,12 +437,46 @@ onMounted(async () => {
               :alt="producto.nombre"
               loading="lazy"
               decoding="async"
+              width="400"
+              height="400"
               class="size-full object-cover"
               @error="marcarImagenRota(producto.id)"
             />
-            <div v-else class="flex size-full items-center justify-center">
-              <PackageIcon class="size-10 text-texto-terciario" aria-hidden="true" />
+
+            <!--
+              Sin fotografía propia, se dibuja la FORMA FARMACÉUTICA.
+
+              Representa el envase (tableta, jarabe, inyectable), no el
+              producto, y la etiqueta de abajo lo dice en voz alta. En un
+              medicamento, insinuar que el envase es ese cuando no lo es puede
+              llevar a comprar lo que no se quería; una forma genérica informa
+              sin afirmar nada falso.
+
+              `width`/`height` van explícitos aunque el SVG escale: es lo que
+              reserva el hueco antes de que el archivo llegue y evita que la
+              rejilla salte (CLS). El contenedor ya fija la relación de aspecto,
+              así que entre los dos el salto es cero.
+            -->
+            <div v-else class="flex size-full items-center justify-center p-6">
+              <img
+                :src="ilustracionDe(producto.tipo)"
+                :alt="textoAlternativoDe(producto.tipo)"
+                loading="lazy"
+                decoding="async"
+                width="128"
+                height="128"
+                class="size-full max-w-32 object-contain"
+              />
             </div>
+
+            <!-- La advertencia va en la tarjeta, no solo en el alt: quien ve la
+                 imagen necesita saberlo igual que quien la escucha. -->
+            <span
+              v-if="!muestraImagen(producto)"
+              class="absolute bottom-2 right-2 rounded-full bg-neutro-900/75 px-2 py-0.5 text-2xs font-medium text-white backdrop-blur-sm"
+            >
+              Imagen referencial
+            </span>
 
             <!-- Señal de existencias, sobre la imagen para que se lea antes de
                  llegar al precio. Los dos estados llevan fondo FIJO y texto
