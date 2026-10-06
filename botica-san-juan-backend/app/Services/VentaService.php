@@ -117,7 +117,8 @@ class VentaService
 
         return DB::transaction(function () use ($items, $datosCliente, $vendedorId, $usuarioClienteId, $pagos, $origen) {
 
-            $tasaIgv = (float) config('inventario.tasa_igv', 0.18);
+            $fiscal  = app(DesgloseFiscalService::class);
+            $tasaIgv = $fiscal->tasa();
 
             $esMostrador = $origen === Pedido::ORIGEN_POS;
 
@@ -305,15 +306,13 @@ class VentaService
                 );
             }
 
-            /* Los precios de venta ya incluyen IGV, como es habitual en
-               mostrador. Se separa la base imponible del impuesto para el
-               comprobante y para el contador. */
-            $baseGravadaSinIgv = $tasaIgv > 0 ? round($baseGravada / (1 + $tasaIgv), 2) : $baseGravada;
-            $igv               = round($baseGravada - $baseGravadaSinIgv, 2);
-
-            /* Lo exonerado y lo inafecto entran al total tal cual: no llevan
-               impuesto que extraer, su precio ya es el importe final. */
-            $total = round($baseGravada + $baseExonerada + $baseInafecta, 2);
+            /* El desglose lo hace DesgloseFiscalService, el mismo que usa el
+               carrito del portal. Si viviera aquí, el total que el cliente ve
+               en la web y el de su boleta podrían separarse sin que nadie lo
+               notase hasta que él los comparase. */
+            $desglose = $fiscal->repartir($baseGravada, $baseExonerada, $baseInafecta);
+            $igv      = $desglose['igv'];
+            $total    = $desglose['total'];
 
             /* Un encargo del portal todavia no se ha cobrado: registrar
                ahi un pago en efectivo por el total lo daria por cobrado y
@@ -324,9 +323,9 @@ class VentaService
                 : null;
 
             $pedido->update([
-                'subtotal_gravado'   => $baseGravadaSinIgv,
-                'subtotal_exonerado' => round($baseExonerada, 2),
-                'subtotal_inafecto'  => round($baseInafecta, 2),
+                'subtotal_gravado'   => $desglose['subtotal_gravado'],
+                'subtotal_exonerado' => $desglose['subtotal_exonerado'],
+                'subtotal_inafecto'  => $desglose['subtotal_inafecto'],
                 'igv'                => $igv,
                 'total'              => $total,
                 'medio_pago'         => $medioResumen,

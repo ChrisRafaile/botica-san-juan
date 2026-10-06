@@ -6,6 +6,7 @@ use App\Http\Controllers\CompraController;
 use App\Http\Controllers\ComisionController;
 use App\Http\Controllers\FacturacionController;
 use App\Http\Controllers\DigemidCatalogoController;
+use App\Http\Controllers\CarritoPublicoController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\ReporteContableController;
 use App\Http\Controllers\ReporteController;
@@ -100,6 +101,15 @@ Route::post('/register', [UsuarioController::class, 'register'])->middleware('th
    Lleva su propio limitador porque un buzon abierto sin limite es un buzon de
    spam. La LECTURA de los mensajes sigue siendo del administrador. */
 Route::post('/contacto', [ContactoController::class, 'store'])->middleware('throttle:contacto');
+
+/* Cotizacion del carrito del portal. PUBLICA a proposito: el carrito se arma
+   antes de tener cuenta, y obligar a registrarse para ver el precio y el stock
+   es perder al visitante justo cuando ya habia elegido.
+
+   No escribe nada —no reserva stock ni crea pedido— asi que el unico riesgo es
+   el abuso, y para eso lleva el limitador general. */
+Route::post('/carrito/cotizar', [CarritoPublicoController::class, 'cotizar'])
+    ->middleware('throttle:api');
 Route::post('/logout', [UsuarioController::class, 'logout'])->middleware(['auth:sanctum', 'throttle:api']);
 
 // API Routes for resources (protected)
