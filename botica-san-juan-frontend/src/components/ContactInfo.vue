@@ -1,208 +1,199 @@
+<!--
+  Información operativa de la botica.
+
+  QUÉ SE QUITÓ, Y POR QUÉ IMPORTA
+
+  Esta ficha prometía cosas que el negocio no presta:
+
+    · "Urgencias 24/7 — Disponible", "Entregas a Domicilio — 24 Horas" y
+      "Consulta en Línea — 24/7", justo debajo de un horario que dice que la
+      botica cierra a las diez. Las dos afirmaciones no pueden ser ciertas a la
+      vez, y la que un cliente recuerda es la que le conviene: aparecerse a la
+      una de la mañana.
+    · Tres correos en `boticasan-juan.com`, un dominio que no es el del sistema.
+      Un correo que rebota es peor que no publicar correo.
+    · Un segundo teléfono, "800-BOTICA-01", que no es un número marcable.
+
+  Se queda lo que se puede sostener: dónde está, cuándo abre, a qué número se
+  llama y por dónde se escribe. Y todo sale de `datos/botica.ts`, que es la
+  única fuente: antes el WhatsApp estaba escrito a mano en siete archivos con
+  cuatro números distintos.
+
+  LO QUE SE AÑADIÓ
+
+  Los teléfonos ahora son enlaces `tel:` y `wa.me`: en un móvil, que es desde
+  donde se mira una página de contacto, un número que no se puede pulsar obliga
+  a copiarlo a mano. Y un indicador de si está abierta AHORA, porque esa es la
+  pregunta real de quien entra a esta página, no cuál es la tabla de horarios.
+-->
 <template>
-  <section class="py-20 bg-linear-to-br from-superficie-hundida to-superficie-elevada">
+  <section class="bg-superficie-hundida py-20">
     <div class="container mx-auto px-6">
-      <div class="max-w-6xl mx-auto">
-        <!-- Section Header -->
-        <div class="text-center mb-16">
-          <h2 class="text-4xl md:text-5xl font-bold text-texto-primario mb-6">
+      <div class="mx-auto max-w-6xl">
+        <div class="mb-16 text-center">
+          <h2 class="mb-6 text-4xl font-bold text-texto-primario md:text-5xl">
             Información de <span class="text-texto-acento">Contacto</span>
           </h2>
-          <p class="text-xl text-texto-secundario max-w-3xl mx-auto">
-            Estamos aquí para atenderte. Encuentra toda la información necesaria para comunicarte con nosotros.
+          <p class="mx-auto max-w-3xl text-xl text-texto-secundario">
+            Dónde estamos, cuándo atendemos y por dónde escribirnos.
           </p>
         </div>
 
-        <!-- Contact Info Grid -->
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          <!-- Location Card -->
-          <div class="contact-info-card bg-superficie-elevada p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-borde-sutil">
-            <div class="flex items-center mb-6">
-              <div class="w-12 h-12 bg-clinico-100 rounded-xl flex items-center justify-center mr-4">
-                <MapPinIcon class="w-6 h-6 text-clinico-600" />
+        <div class="mb-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <!-- Sede -->
+          <article class="contact-info-card rounded-2xl border border-borde-sutil bg-superficie-elevada p-8 shadow-lg">
+            <div class="mb-6 flex items-center">
+              <div class="mr-4 flex size-12 items-center justify-center rounded-xl bg-clinico-100 dark:bg-clinico-500/15">
+                <MapPinIcon class="size-6 text-clinico-700 dark:text-clinico-300" aria-hidden="true" />
               </div>
-              <h3 class="text-xl font-bold text-texto-primario">
-                Ubicación
-              </h3>
+              <h3 class="text-xl font-bold text-texto-primario">Nuestra sede</h3>
             </div>
-            <div class="space-y-2 text-texto-secundario">
-              <p class="font-medium">
-                Botica San Juan
-              </p>
-              <p>Av. Sta. Rosa de Lima 103</p>
-              <p>San Juan de Lurigancho 15423</p>
-              <p>Lima, Perú</p>
-            </div>
-          </div>
 
-          <!-- Phone Card -->
-          <div class="contact-info-card bg-superficie-elevada p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-borde-sutil">
-            <div class="flex items-center mb-6">
-              <div class="w-12 h-12 bg-botica-100 rounded-xl flex items-center justify-center mr-4">
-                <PhoneIcon class="w-6 h-6 text-botica-600" />
-              </div>
-              <h3 class="text-xl font-bold text-texto-primario">
-                Teléfonos
-              </h3>
-            </div>
-            <div class="space-y-3">
-              <div class="flex items-center text-texto-secundario">
-                <PhoneIcon class="w-4 h-4 mr-3 text-botica-600" />
-                <span>(01) 677-2892</span>
-              </div>
-              <div class="flex items-center text-texto-secundario">
-                <PhoneIcon class="w-4 h-4 mr-3 text-botica-600" />
-                <span>800-BOTICA-01</span>
-              </div>
-              <div class="flex items-center text-texto-secundario">
-                <MessageSquareIcon class="w-4 h-4 mr-3 text-clinico-600" />
-                <span>WhatsApp: +51 967 654 321</span>
-              </div>
-            </div>
-          </div>
+            <address class="space-y-1 not-italic text-texto-secundario">
+              <p class="font-medium text-texto-primario">Botica San Juan</p>
+              <p>{{ DIRECCION.calle }}</p>
+              <p>{{ DIRECCION.distrito }} {{ DIRECCION.codigoPostal }}</p>
+              <p>{{ DIRECCION.ciudad }}, {{ DIRECCION.pais }}</p>
+            </address>
 
-          <!-- Email Card -->
-          <div class="contact-info-card bg-superficie-elevada p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-borde-sutil">
-            <div class="flex items-center mb-6">
-              <div class="w-12 h-12 bg-clinico-100 rounded-xl flex items-center justify-center mr-4">
-                <MailIcon class="w-6 h-6 text-clinico-600" />
+            <a
+              :href="MAPA_COMO_LLEGAR"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="foco-dentro mt-4 inline-flex items-center gap-2 rounded-lg text-sm font-medium text-texto-marca hover:underline"
+            >
+              <NavigationIcon class="size-4" aria-hidden="true" />
+              Cómo llegar
+            </a>
+          </article>
+
+          <!-- Teléfono y WhatsApp -->
+          <article class="contact-info-card rounded-2xl border border-borde-sutil bg-superficie-elevada p-8 shadow-lg">
+            <div class="mb-6 flex items-center">
+              <div class="mr-4 flex size-12 items-center justify-center rounded-xl bg-botica-100 dark:bg-botica-500/15">
+                <PhoneIcon class="size-6 text-botica-700 dark:text-botica-300" aria-hidden="true" />
               </div>
-              <h3 class="text-xl font-bold text-texto-primario">
-                Correo
-              </h3>
+              <h3 class="text-xl font-bold text-texto-primario">Llámanos o escríbenos</h3>
             </div>
-            <div class="space-y-3">
-              <div class="flex items-center text-texto-secundario">
-                <MailIcon class="w-4 h-4 mr-3 text-clinico-600" />
-                <span>info@boticasan-juan.com</span>
+
+            <ul class="space-y-3">
+              <li>
+                <a
+                  :href="`tel:${TELEFONO_FIJO_E164}`"
+                  class="foco-dentro flex items-center gap-3 rounded-lg text-texto-secundario transition-colors hover:text-texto-marca"
+                >
+                  <PhoneIcon class="size-4 shrink-0 text-botica-600" aria-hidden="true" />
+                  <span>{{ TELEFONO_FIJO }}</span>
+                </a>
+              </li>
+              <li v-if="enlaceWa">
+                <a
+                  :href="enlaceWa"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="foco-dentro flex items-center gap-3 rounded-lg text-texto-secundario transition-colors hover:text-texto-marca"
+                >
+                  <MessageSquareIcon class="size-4 shrink-0 text-exito-600" aria-hidden="true" />
+                  <span>Escribir por WhatsApp</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  :href="`mailto:${CORREO}`"
+                  class="foco-dentro flex items-center gap-3 rounded-lg text-texto-secundario transition-colors hover:text-texto-marca"
+                >
+                  <MailIcon class="size-4 shrink-0 text-clinico-600" aria-hidden="true" />
+                  <span class="truncate">{{ CORREO }}</span>
+                </a>
+              </li>
+            </ul>
+
+            <p class="mt-4 text-sm text-texto-secundario">
+              Para consultas sobre un pedido, ten a mano el nombre con el que lo
+              hiciste: así lo encontramos sin pedirte más datos.
+            </p>
+          </article>
+
+          <!-- Horario, con el estado de ahora mismo -->
+          <article class="contact-info-card rounded-2xl border border-borde-sutil bg-superficie-elevada p-8 shadow-lg">
+            <div class="mb-6 flex items-center">
+              <div class="mr-4 flex size-12 items-center justify-center rounded-xl bg-ambar-100 dark:bg-ambar-500/15">
+                <ClockIcon class="size-6 text-ambar-700 dark:text-ambar-300" aria-hidden="true" />
               </div>
-              <div class="flex items-center text-texto-secundario">
-                <MailIcon class="w-4 h-4 mr-3 text-clinico-600" />
-                <span>ventas@boticasan-juan.com</span>
-              </div>
-              <div class="flex items-center text-texto-secundario">
-                <MailIcon class="w-4 h-4 mr-3 text-clinico-600" />
-                <span>soporte@boticasan-juan.com</span>
-              </div>
+              <h3 class="text-xl font-bold text-texto-primario">Horario</h3>
             </div>
-          </div>
+
+            <!-- Altura fija: el estado se calcula al montar y si apareciera de
+                 golpe empujaría la tabla de horarios hacia abajo. -->
+            <p class="mb-4 flex h-7 items-center gap-2">
+              <span
+                class="inline-block size-2 shrink-0 rounded-full"
+                :class="atencion.abierta ? 'bg-exito-600' : 'bg-neutro-400'"
+                aria-hidden="true"
+              ></span>
+              <span
+                class="text-sm font-semibold"
+                :class="atencion.abierta ? 'text-exito-700 dark:text-exito-500' : 'text-texto-secundario'"
+              >
+                {{ atencion.texto }}
+              </span>
+            </p>
+
+            <dl class="space-y-2 text-sm">
+              <div
+                v-for="franja in HORARIO"
+                :key="franja.etiqueta"
+                class="flex items-center justify-between border-b border-borde-sutil py-1.5 last:border-0"
+                :class="franja === atencion.franja ? 'font-medium' : ''"
+              >
+                <dt class="text-texto-secundario">{{ franja.etiqueta }}</dt>
+                <dd class="text-texto-primario">{{ franja.texto }}</dd>
+              </div>
+            </dl>
+          </article>
         </div>
 
-        <!-- Business Hours -->
-        <div class="bg-superficie-elevada p-8 rounded-2xl shadow-lg border border-borde-sutil mb-16 business-hours">
-          <div class="flex items-center mb-8">
-            <div class="w-12 h-12 bg-ambar-100 rounded-xl flex items-center justify-center mr-4">
-              <ClockIcon class="w-6 h-6 text-ambar-600" />
+        <!-- Mapa -->
+        <div class="map-section rounded-2xl border border-borde-sutil bg-superficie-elevada p-8 shadow-lg">
+          <div class="mb-6 flex items-center">
+            <div class="mr-4 flex size-12 items-center justify-center rounded-xl bg-peligro-50 dark:bg-peligro-500/15">
+              <MapPinIcon class="size-6 text-peligro-600" aria-hidden="true" />
             </div>
-            <h3 class="text-2xl font-bold text-texto-primario">
-              Horarios de Atención
-            </h3>
+            <h3 class="text-2xl font-bold text-texto-primario">Dónde encontrarnos</h3>
           </div>
 
-          <div class="grid md:grid-cols-2 gap-8">
-            <div>
-              <h4 class="text-lg font-semibold text-texto-primario mb-4">
-                Horarios Regulares
-              </h4>
-              <div class="space-y-3">
-                <div class="flex justify-between items-center py-2 border-b border-borde-sutil">
-                  <span class="text-texto-secundario">Lunes a Viernes</span>
-                  <span class="font-medium text-texto-primario">7:00 AM - 10:00 PM</span>
-                </div>
-                <div class="flex justify-between items-center py-2 border-b border-borde-sutil">
-                  <span class="text-texto-secundario">Sábados</span>
-                  <span class="font-medium text-texto-primario">8:00 AM - 9:00 PM</span>
-                </div>
-                <div class="flex justify-between items-center py-2">
-                  <span class="text-texto-secundario">Domingos y Festivos</span>
-                  <span class="font-medium text-texto-primario">9:00 AM - 6:00 PM</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h4 class="text-lg font-semibold text-texto-primario mb-4">
-                Servicios Especiales
-              </h4>
-              <div class="space-y-3">
-                <div class="flex justify-between items-center py-2 border-b border-borde-sutil">
-                  <span class="text-texto-secundario">Urgencias 24/7</span>
-                  <span class="font-medium text-texto-marca">Disponible</span>
-                </div>
-                <div class="flex justify-between items-center py-2 border-b border-borde-sutil">
-                  <span class="text-texto-secundario">Entregas a Domicilio</span>
-                  <span class="font-medium text-texto-acento">24 Horas</span>
-                </div>
-                <div class="flex justify-between items-center py-2">
-                  <span class="text-texto-secundario">Consulta en Línea</span>
-                  <span class="font-medium text-texto-acento">24/7</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Map Section -->
-        <div class="bg-superficie-elevada p-8 rounded-2xl shadow-lg border border-borde-sutil map-section">
-          <div class="flex items-center mb-8">
-            <div class="w-12 h-12 bg-peligro-50 rounded-xl flex items-center justify-center mr-4">
-              <MapPinIcon class="w-6 h-6 text-peligro-600" />
-            </div>
-            <h3 class="text-2xl font-bold text-texto-primario">
-              Nuestra Ubicación
-            </h3>
-          </div>
-
-          <!-- Google Maps Embed -->
-          <div class="aspect-video bg-superficie-interactiva rounded-xl overflow-hidden border-2 border-borde-sutil">
+          <!-- aspect-video reserva el alto antes de que cargue el iframe; sin
+               eso el mapa aparece de golpe y empuja todo lo que tiene debajo. -->
+          <div class="aspect-video overflow-hidden rounded-xl border-2 border-borde-sutil bg-superficie-interactiva">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3903.1093089078936!2d-76.99819362405982!3d-11.966933240421248!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c5919fa13ef3%3A0xba67ea4c5d045e15!2sAv.%20Sta.%20Rosa%20de%20Lima%20103%2C%20San%20Juan%20de%20Lurigancho%2015423!5e0!3m2!1ses-419!2spe!4v1760860710905!5m2!1ses-419!2spe"
+              :src="MAPA_EMBED"
+              title="Ubicación de Botica San Juan en el mapa"
               width="100%"
               height="100%"
-              style="border:0;"
+              style="border: 0"
               allowfullscreen
               loading="lazy"
               referrerpolicy="no-referrer-when-downgrade"
             />
           </div>
 
-          <!-- Directions -->
-          <div class="mt-8 grid md:grid-cols-2 gap-6">
+          <div class="mt-8 grid gap-6 md:grid-cols-2">
             <div>
-              <h4 class="text-lg font-semibold text-texto-primario mb-3">
-                Cómo Llegar
-              </h4>
+              <h4 class="mb-3 text-lg font-semibold text-texto-primario">Cómo llegar</h4>
               <ul class="space-y-2 text-texto-secundario">
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-clinico-700 rounded-full mt-2 mr-3 shrink-0"></span>
-                  <span>Metro: Estación Santa Rosa (Línea 1) - 10 min en transporte público - SJL</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-clinico-700 rounded-full mt-2 mr-3 shrink-0"></span>
-                  <span>Corredores Complementarios: Ruta 405 y 406</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-clinico-700 rounded-full mt-2 mr-3 shrink-0"></span>
-                  <span>Estacionamiento gratuito disponible en las inmediaciones</span>
+                <li v-for="via in VIAS" :key="via" class="flex items-start">
+                  <span class="mr-3 mt-2 size-2 shrink-0 rounded-full bg-clinico-700 dark:bg-clinico-400" aria-hidden="true"></span>
+                  <span>{{ via }}</span>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 class="text-lg font-semibold text-texto-primario mb-3">
-                Puntos de Referencia
-              </h4>
+              <h4 class="mb-3 text-lg font-semibold text-texto-primario">Puntos de referencia</h4>
               <ul class="space-y-2 text-texto-secundario">
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-clinico-700 rounded-full mt-2 mr-3 shrink-0"></span>
-                  <span>Cerca del Hospital de San Juan de Lurigancho</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-clinico-700 rounded-full mt-2 mr-3 shrink-0"></span>
-                  <span>A 3 cuadras de la Estación Santa Rosa</span>
-                </li>
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-clinico-700 rounded-full mt-2 mr-3 shrink-0"></span>
-                  <span>Cerca del Mercado Modelo de SJL y centros comerciales</span>
+                <li v-for="punto in REFERENCIAS" :key="punto" class="flex items-start">
+                  <span class="mr-3 mt-2 size-2 shrink-0 rounded-full bg-clinico-700 dark:bg-clinico-400" aria-hidden="true"></span>
+                  <span>{{ punto }}</span>
                 </li>
               </ul>
             </div>
@@ -214,72 +205,70 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import {
   MapPinIcon,
   PhoneIcon,
-  MailIcon,
   ClockIcon,
-  MessageSquareIcon
+  MessageSquareIcon,
+  NavigationIcon,
+  MailIcon,
 } from 'lucide-vue-next'
 import { prefiereMenosMovimiento } from '@/utils/motion'
+import {
+  CORREO,
+  DIRECCION,
+  HORARIO,
+  TELEFONO_FIJO,
+  TELEFONO_FIJO_E164,
+  MAPA_EMBED,
+  MAPA_COMO_LLEGAR,
+  enlaceWhatsApp,
+  estadoAtencion,
+} from '@/datos/botica'
 
-gsap.registerPlugin(ScrollTrigger)
+const VIAS = [
+  'Metro: Estación Santa Rosa (Línea 1), a 10 minutos en transporte público',
+  'Corredores complementarios: rutas 405 y 406',
+  'Estacionamiento gratuito en las inmediaciones',
+]
+
+const REFERENCIAS = [
+  'Cerca del Hospital de San Juan de Lurigancho',
+  'A 3 cuadras de la Estación Santa Rosa',
+  'Cerca del Mercado Modelo de SJL',
+]
+
+const enlaceWa = enlaceWhatsApp(
+  'Hola, tengo una consulta sobre los productos de Botica San Juan.',
+)
+
+/* Se calcula al montar y no en el renderizado del servidor: la hora del
+   dispositivo de quien mira es la que importa aquí. */
+const atencion = ref(estadoAtencion())
 
 onMounted(() => {
+  atencion.value = estadoAtencion()
+
   /* Si la persona pidió reducir el movimiento, no se anima: el contenido ya
      está en su estado final y visible, que es justamente lo que se quiere. */
   if (prefiereMenosMovimiento()) return
-  // Set initial state for contact info cards
-  gsap.set('.contact-info-card', {
-    y: 30,
-    opacity: 0
-  })
 
-  // Set initial state for business hours section
-  gsap.set('.business-hours', {
-    y: 30,
-    opacity: 0
-  })
-
-  // Set initial state for map section
-  gsap.set('.map-section', {
-    y: 30,
-    opacity: 0
-  })
-
-  // Animate contact info cards with stagger
-  gsap.to('.contact-info-card', {
+  gsap.from('.contact-info-card', {
     duration: 0.8,
-    y: 0,
-    opacity: 1,
-    stagger: 0.2,
+    y: 30,
+    opacity: 0,
+    stagger: 0.15,
     ease: 'power3.out',
-    delay: 0.2
   })
 
-  // Animate business hours section
-  gsap.to('.business-hours', {
+  gsap.from('.map-section', {
     duration: 0.8,
-    y: 0,
-    opacity: 1,
+    y: 30,
+    opacity: 0,
     ease: 'power3.out',
-    delay: 0.6
-  })
-
-  // Animate map section
-  gsap.to('.map-section', {
-    duration: 0.8,
-    y: 0,
-    opacity: 1,
-    ease: 'power3.out',
-    delay: 0.8
+    delay: 0.4,
   })
 })
 </script>
-
-<style scoped>
-/* Component styles */
-</style>

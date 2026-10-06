@@ -29,13 +29,22 @@
               Atención inmediata y personalizada a través de WhatsApp Business
             </p>
             <a
-              href="https://wa.me/016772892"
+              v-if="enlaceWa"
+              :href="enlaceWa"
               target="_blank"
-              class="inline-flex items-center justify-center w-full bg-botica-600 text-white py-3 px-6 rounded-lg hover:bg-botica-700 transition-colors font-medium"
+              rel="noopener noreferrer"
+              class="foco-dentro inline-flex items-center justify-center w-full bg-botica-600 text-white py-3 px-6 rounded-lg hover:bg-botica-700 transition-colors font-medium"
             >
-              <MessageCircleIcon class="w-4 h-4 mr-2" />
+              <MessageCircleIcon class="w-4 h-4 mr-2" aria-hidden="true" />
               Contactar por WhatsApp
             </a>
+            <RouterLink
+              v-else
+              to="/contact"
+              class="foco-dentro inline-flex items-center justify-center w-full bg-botica-600 text-white py-3 px-6 rounded-lg hover:bg-botica-700 transition-colors font-medium"
+            >
+              Ver cómo contactarnos
+            </RouterLink>
           </div>
 
           <!-- Phone -->
@@ -50,11 +59,11 @@
               Llama directamente a nuestra línea dedicada de atención al cliente
             </p>
             <a
-              href="tel:+016772892"
-              class="inline-flex items-center justify-center w-full bg-clinico-700 text-white py-3 px-6 rounded-lg hover:bg-clinico-700 transition-colors font-medium"
+              :href="`tel:${TELEFONO_FIJO_E164}`"
+              class="foco-dentro inline-flex items-center justify-center w-full bg-clinico-700 text-white py-3 px-6 rounded-lg hover:bg-clinico-700 transition-colors font-medium"
             >
-              <PhoneIcon class="w-4 h-4 mr-2" />
-              Llamar ahora
+              <PhoneIcon class="w-4 h-4 mr-2" aria-hidden="true" />
+              Llamar al {{ TELEFONO_FIJO }}
             </a>
           </div>
 
@@ -197,7 +206,11 @@ import L from 'leaflet'
 
 // Import Leaflet CSS
 import 'leaflet/dist/leaflet.css'
+import { RouterLink } from 'vue-router'
 import { prefiereMenosMovimiento } from '@/utils/motion'
+import { TELEFONO_FIJO, TELEFONO_FIJO_E164, enlaceWhatsApp } from '@/datos/botica'
+
+const enlaceWa = enlaceWhatsApp('Hola, quisiera consultar si llegan a mi zona.')
 
 onMounted(() => {
   /* La guarda rodea SÓLO la animación: más abajo se monta el mapa de Leaflet,

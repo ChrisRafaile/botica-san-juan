@@ -42,8 +42,17 @@
                   required
                   class="w-full pl-12 pr-4 py-4 border-2 border-borde-control rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario"
                   placeholder="Ingresa tu nombre completo"
+                  :aria-invalid="Boolean(erroresCampo.nombre)"
+                  :aria-describedby="erroresCampo.nombre ? 'error-nombre' : undefined"
+                  :class="erroresCampo.nombre ? 'border-peligro-500' : ''"
                 />
               </div>
+              <!-- Altura reservada: si el error apareciera de la nada, los
+                   campos de abajo se desplazarían justo cuando la persona está
+                   leyendo qué corregir. -->
+              <p id="error-nombre" class="mt-1.5 min-h-5 text-sm text-peligro-600">
+                {{ erroresCampo.nombre }}
+              </p>
             </div>
 
             <div class="form-group">
@@ -62,8 +71,14 @@
                   required
                   class="w-full pl-12 pr-4 py-4 border-2 border-borde-control rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario"
                   placeholder="Ingresa tu correo electrónico"
+                  :aria-invalid="Boolean(erroresCampo.email)"
+                  :aria-describedby="erroresCampo.email ? 'error-email' : undefined"
+                  :class="erroresCampo.email ? 'border-peligro-500' : ''"
                 />
               </div>
+              <p id="error-email" class="mt-1.5 min-h-5 text-sm text-peligro-600">
+                {{ erroresCampo.email }}
+              </p>
             </div>
           </div>
 
@@ -74,7 +89,11 @@
                 for="phone"
                 class="block text-sm font-semibold text-texto-secundario mb-3"
               >
-                Teléfono *
+                <!-- Sin asterisco: el servidor lo acepta vacío a propósito
+                     ("quien escribe no siempre deja teléfono"), pero el
+                     formulario lo exigía. El que mandaba era el formulario, así
+                     que la decisión del backend no se cumplía nunca. -->
+                Teléfono <span class="font-normal text-texto-terciario">(opcional)</span>
               </label>
               <div class="relative">
                 <PhoneIcon class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-texto-terciario" />
@@ -82,11 +101,16 @@
                   id="phone"
                   v-model="form.phone"
                   type="tel"
-                  required
                   class="w-full pl-12 pr-4 py-4 border-2 border-borde-control rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario"
-                  placeholder="999-999-999"
+                  placeholder="999 999 999"
+                  :aria-invalid="Boolean(erroresCampo.telefono)"
+                  :aria-describedby="erroresCampo.telefono ? 'error-telefono' : undefined"
+                  :class="erroresCampo.telefono ? 'border-peligro-500' : ''"
                 />
               </div>
+              <p id="error-telefono" class="mt-1.5 min-h-5 text-sm text-peligro-600">
+                {{ erroresCampo.telefono }}
+              </p>
             </div>
 
             <div class="form-group">
@@ -125,6 +149,9 @@
                 </select>
                 <ChevronDownIcon class="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-texto-terciario pointer-events-none" />
               </div>
+              <p id="error-motivo" class="mt-1.5 min-h-5 text-sm text-peligro-600">
+                {{ erroresCampo.motivo }}
+              </p>
             </div>
           </div>
 
@@ -145,8 +172,14 @@
                 rows="6"
                 class="w-full pl-12 pr-4 py-4 border-2 border-borde-control rounded-xl focus:border-clinico-500 focus:ring-4 focus:ring-clinico-500/10 transition-all duration-300 text-texto-primario placeholder-texto-terciario resize-vertical"
                 placeholder="Describe tu consulta o mensaje..."
+                :aria-invalid="Boolean(erroresCampo.mensaje)"
+                :aria-describedby="erroresCampo.mensaje ? 'error-mensaje' : undefined"
+                :class="erroresCampo.mensaje ? 'border-peligro-500' : ''"
               />
             </div>
+            <p id="error-mensaje" class="mt-1.5 min-h-5 text-sm text-peligro-600">
+              {{ erroresCampo.mensaje }}
+            </p>
           </div>
 
           <!-- Submit Button -->
@@ -255,9 +288,13 @@ const isSubmitting = ref(false)
 const submitSuccess = ref(false)
 const submitError = ref('')
 
+/** Mensaje de error por campo, tal como lo devuelve el servidor en un 422. */
+const erroresCampo = ref<Record<string, string>>({})
+
 const handleSubmit = async () => {
   isSubmitting.value = true
   submitError.value = ''
+  erroresCampo.value = {}
   submitSuccess.value = false
 
   try {
@@ -286,7 +323,26 @@ const handleSubmit = async () => {
     }, 5000)
 
   } catch (error) {
-    submitError.value = error instanceof Error ? error.message : 'Error al enviar el mensaje. Por favor, inténtalo de nuevo.'
+    /* El servidor valida los mismos campos que el navegador, y cuando rechaza
+       uno dice CUÁL y por qué (422 con `errors`). Antes todo eso se tiraba y se
+       mostraba "Error al enviar el mensaje": quien escribía un correo mal
+       formado no tenía forma de saber qué corregir y volvía a pulsar enviar.
+
+       El tipo de axios no se importa para no acoplar este componente al
+       cliente HTTP; se comprueba la forma de la respuesta, que es lo único que
+       hace falta. */
+    const respuesta = (error as { response?: { status?: number; data?: { errors?: Record<string, string[]>; message?: string } } })?.response
+
+    if (respuesta?.status === 422 && respuesta.data?.errors) {
+      erroresCampo.value = Object.fromEntries(
+        Object.entries(respuesta.data.errors).map(([campo, mensajes]) => [campo, mensajes[0] ?? '']),
+      )
+      submitError.value = 'Revisa los campos marcados.'
+    } else {
+      erroresCampo.value = {}
+      submitError.value =
+        'No pudimos enviar tu mensaje. Revisa tu conexión e inténtalo de nuevo, o llámanos.'
+    }
   } finally {
     isSubmitting.value = false
   }

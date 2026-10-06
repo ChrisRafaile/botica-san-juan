@@ -43,17 +43,28 @@
             </div>
             <div class="flex items-center text-sm text-texto-secundario">
               <CheckIcon class="w-4 h-4 text-botica-600 mr-2 shrink-0" />
-              Soporte 24/7
+              Atención en horario de la botica
             </div>
           </div>
+          <!-- El enlace iba a wa.me/016772892, que es el número FIJO: un fijo
+               no tiene WhatsApp, así que no abría ninguna conversación. -->
           <a
-            href="https://wa.me/016772892"
+            v-if="enlaceWa"
+            :href="enlaceWa"
             target="_blank"
-            class="w-full bg-botica-600 text-white py-3 px-4 rounded-lg hover:bg-botica-700 transition-colors inline-flex items-center justify-center font-medium"
+            rel="noopener noreferrer"
+            class="foco-dentro w-full bg-botica-600 text-white py-3 px-4 rounded-lg hover:bg-botica-700 transition-colors inline-flex items-center justify-center font-medium"
           >
-            <MessageCircleIcon class="w-4 h-4 mr-2" />
+            <MessageCircleIcon class="w-4 h-4 mr-2" aria-hidden="true" />
             Contactar por WhatsApp
           </a>
+          <RouterLink
+            v-else
+            to="/contact"
+            class="foco-dentro w-full bg-botica-600 text-white py-3 px-4 rounded-lg hover:bg-botica-700 transition-colors inline-flex items-center justify-center font-medium"
+          >
+            Ver cómo contactarnos
+          </RouterLink>
         </div>
 
         <!-- Aliviamed Service -->
@@ -181,8 +192,12 @@ import {
   CheckIcon
 } from 'lucide-vue-next'
 import { onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import { gsap } from 'gsap'
 import { prefiereMenosMovimiento } from '@/utils/motion'
+import { enlaceWhatsApp } from '@/datos/botica'
+
+const enlaceWa = enlaceWhatsApp('Hola, quisiera consultar por un producto.')
 
 onMounted(() => {
   /* Si la persona pidió reducir el movimiento, no se anima: el contenido ya

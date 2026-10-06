@@ -21,9 +21,12 @@
             Estamos aquí para ayudarte
           </div>
 
+          <!-- Decía "Contáctanos 24/7" sobre un horario que cierra a las diez.
+               La promesa que el cliente recuerda es la grande, y el que se
+               presenta a la una de la mañana se va con razón enfadado. -->
           <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
             Contáctanos
-            <span class="block text-ambar-400">24/7</span>
+            <span class="block text-ambar-400">todos los días</span>
           </h1>
 
           <p class="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
@@ -32,18 +35,25 @@
 
           <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
             <a
-              href="tel:+016772892"
-              class="inline-flex items-center px-8 py-4 bg-white text-clinico-700 font-semibold rounded-xl hover:bg-clinico-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              :href="`tel:${TELEFONO_FIJO_E164}`"
+              class="foco-dentro inline-flex items-center px-8 py-4 bg-white text-clinico-700 font-semibold rounded-xl hover:bg-clinico-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
-              <PhoneIcon class="w-5 h-5 mr-3" />
-              Llamar ahora
+              <PhoneIcon class="w-5 h-5 mr-3" aria-hidden="true" />
+              Llamar al {{ TELEFONO_FIJO }}
             </a>
+            <!-- El enlace apuntaba a wa.me/016772892, que es el FIJO: WhatsApp
+                 no existe en un número fijo, así que ese botón no abría ninguna
+                 conversación. Ahora sale de datos/botica.ts y, si el número no
+                 está configurado, no se pinta en vez de prometer un canal que
+                 no responde. -->
             <a
-              href="https://wa.me/016772892"
+              v-if="enlaceWa"
+              :href="enlaceWa"
               target="_blank"
-              class="inline-flex items-center px-8 py-4 bg-ambar-400 text-ambar-950 font-semibold rounded-xl hover:bg-ambar-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              rel="noopener noreferrer"
+              class="foco-dentro inline-flex items-center px-8 py-4 bg-ambar-400 text-ambar-950 font-semibold rounded-xl hover:bg-ambar-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
-              <MessageCircleIcon class="w-5 h-5 mr-3" />
+              <MessageCircleIcon class="w-5 h-5 mr-3" aria-hidden="true" />
               WhatsApp
             </a>
           </div>
@@ -83,7 +93,7 @@
                 </h3>
 
                 <p class="text-white/90 text-sm">
-                  Disponible 24/7
+                  En horario de atención
                 </p>
               </div>
               <div class="bg-white/20 rounded-2xl p-6 text-center backdrop-blur-sm">
@@ -116,8 +126,11 @@ import {
   MapPinIcon
 } from 'lucide-vue-next'
 import { prefiereMenosMovimiento } from '@/utils/motion'
+import { TELEFONO_FIJO, TELEFONO_FIJO_E164, enlaceWhatsApp } from '@/datos/botica'
 
 gsap.registerPlugin(ScrollTrigger)
+
+const enlaceWa = enlaceWhatsApp('Hola, tengo una consulta para Botica San Juan.')
 
 onMounted(() => {
   /* Si la persona pidió reducir el movimiento, no se anima: el contenido ya

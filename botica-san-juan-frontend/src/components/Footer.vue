@@ -70,6 +70,15 @@ import {
 } from 'lucide-vue-next'
 import contactService from '@/services/contact'
 import { EASE, DUR, STAGGER, prefiereMenosMovimiento } from '@/utils/motion'
+import {
+  CORREO,
+  DIRECCION,
+  TELEFONO_FIJO,
+  TELEFONO_FIJO_E164,
+  enlaceWhatsApp,
+} from '@/datos/botica'
+
+const enlaceWa = enlaceWhatsApp('Hola, quisiera consultar por un producto.')
 
 const anioActual = computed(() => new Date().getFullYear())
 
@@ -197,19 +206,32 @@ onBeforeUnmount(() => {
           </div>
 
           <p class="mb-6 leading-relaxed">
-            Más de 15 años cuidando de tu salud y la de tu familia. Farmacia certificada
+            Más de 10 años cuidando de tu salud y la de tu familia. Farmacia certificada
             con servicio de calidad y compromiso.
           </p>
 
+          <!-- El número era 51999999999, relleno: el enlace abría una
+               conversación con un número que no existe. Ahora sale de
+               datos/botica.ts y, si no está configurado, se enlaza a Contacto
+               en lugar de prometer un canal que no responde. -->
           <a
-            href="https://wa.me/51999999999"
+            v-if="enlaceWa"
+            :href="enlaceWa"
             target="_blank"
             rel="noopener noreferrer"
             class="foco-dentro inline-flex items-center gap-2 rounded-lg bg-lateral-fondo-sup px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-exito-600 hover:text-white"
           >
-            <MessageCircleIcon class="size-5" />
+            <MessageCircleIcon class="size-5" aria-hidden="true" />
             Escríbenos por WhatsApp
           </a>
+          <RouterLink
+            v-else
+            to="/contact"
+            class="foco-dentro inline-flex items-center gap-2 rounded-lg bg-lateral-fondo-sup px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-exito-600 hover:text-white"
+          >
+            <MessageCircleIcon class="size-5" aria-hidden="true" />
+            Cómo contactarnos
+          </RouterLink>
         </div>
 
         <!-- Enlaces -->
@@ -249,19 +271,19 @@ onBeforeUnmount(() => {
           <h4 class="mb-6 text-lg font-semibold text-white">Contáctanos</h4>
           <div class="space-y-4">
             <div class="flex items-start gap-3">
-              <MapPinIcon class="mt-0.5 size-5 shrink-0 text-botica-300" />
-              <p class="text-sm">Av. Santa Rosa 103<br />Lima, Perú</p>
+              <MapPinIcon class="mt-0.5 size-5 shrink-0 text-botica-300" aria-hidden="true" />
+              <p class="text-sm">{{ DIRECCION.calle }}<br />{{ DIRECCION.distrito }}, {{ DIRECCION.ciudad }}</p>
             </div>
 
             <div class="flex items-start gap-3">
-              <PhoneIcon class="mt-0.5 size-5 shrink-0 text-botica-300" />
+              <PhoneIcon class="mt-0.5 size-5 shrink-0 text-botica-300" aria-hidden="true" />
               <div>
                 <p class="cifras-tabulares text-sm">
                   <a
-                    href="tel:+5116772892"
+                    :href="`tel:${TELEFONO_FIJO_E164}`"
                     class="foco-dentro rounded-md transition-colors hover:text-botica-300"
                   >
-                    (01) 677-2892
+                    {{ TELEFONO_FIJO }}
                   </a>
                 </p>
                 <p class="text-xs text-lateral-texto-tenue">Línea principal</p>
@@ -269,14 +291,14 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="flex items-start gap-3">
-              <MailIcon class="mt-0.5 size-5 shrink-0 text-botica-300" />
+              <MailIcon class="mt-0.5 size-5 shrink-0 text-botica-300" aria-hidden="true" />
               <div class="min-w-0">
                 <p class="truncate text-sm">
                   <a
-                    href="mailto:Boticassanjuan16@gmail.com"
+                    :href="`mailto:${CORREO}`"
                     class="foco-dentro rounded-md transition-colors hover:text-botica-300"
                   >
-                    Boticassanjuan16@gmail.com
+                    {{ CORREO }}
                   </a>
                 </p>
                 <p class="text-xs text-lateral-texto-tenue">Atención al cliente</p>
