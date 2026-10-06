@@ -32,3 +32,9 @@ coverage
 # Capturas generadas por scripts/capturar-evidencias.mjs.
 # Son evidencia del informe, no codigo: viven en la carpeta del curso.
 capturas/
+
+# Salidas temporales de los scripts de captura
+evid.log
+evid.err
+contraste.log
+contraste.err

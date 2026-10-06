@@ -1,26 +1,28 @@
 {
-  "cls": 0.05047,
+  "cls": 0.04509,
   "saltos": [
     0.0134,
-    0.037
+    0.0316
   ],
   "veredicto": "BUENO",
-  "recuento": "3 unidades de 2 productos",
+  "recuento": "4 unidades de 3 productos",
   "tarjetas": 0,
   "ilustraciones": 0,
   "conDimensionesExplicitas": 0,
   "etiquetasReferencial": 0,
   "tarjetasConRenderDiferido": 0,
   "carrito": {
-    "lineas": 2,
-    "topesDeclarados": 2,
+    "lineas": 3,
+    "topesDeclarados": 3,
     "enElTope": 1,
     "etiquetasDesglose": [
       "Subtotal gravado",
       "IGV (18 %)",
       "Total"
     ],
-    "avisosReceta": 0
+    "avisosReceta": 1,
+    "avisoRecetaEnResumen": true,
+    "salidaWhatsApp": true
   },
   "ejemplo": null,
   "ruta": "/cart",

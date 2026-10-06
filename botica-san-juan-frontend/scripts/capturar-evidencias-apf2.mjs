@@ -38,6 +38,10 @@ const PANTALLAS = [
    pantalla vacía y la medición no mediría nada. */
 const SEMILLA_CARRITO = [
   { producto_id: 1, cantidad: 2 },
+  /* CLOBETASOL: marcado de venta bajo receta por RecetaMedicaDemoSeeder. Va
+     aquí para que la captura demuestre la advertencia funcionando y no solo su
+     existencia en el código. */
+  { producto_id: 306, cantidad: 1 },
   { producto_id: 2, cantidad: 1 },
 ]
 
@@ -92,6 +96,10 @@ const MEDIR = String.raw`(async () => {
       .map((d) => d.textContent.trim())
       .filter((t) => /subtotal|igv|total|exonerado|inafecto/i.test(t)),
     avisosReceta: document.body.textContent.match(/Requiere receta médica/g)?.length ?? 0,
+    avisoRecetaEnResumen: /venta bajo receta médica/i.test(document.body.textContent),
+    /* Solo se comprueba QUE exista el enlace y su prefijo, nunca el numero:
+       es un dato personal y este JSON se versiona. */
+    salidaWhatsApp: Boolean(document.querySelector('a[href^="https://wa.me/"]')),
   } : null;
 
   const diferidas = [...tarjetas].filter((t) => getComputedStyle(t).contentVisibility === 'auto').length;
