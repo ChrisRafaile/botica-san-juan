@@ -1,0 +1,33 @@
+SMOKE TEST - ENTORNO DESPLEGADO
+Fecha: 2026-10-06 22:02
+============================================================================================
+
+a) Disponibilidad y catalogo
+  [OK ] Portal en Vercel responde                            esperado: 200        obtenido: 200
+  [OK ] API: GET /api/salud                                  esperado: 200        obtenido: 200
+  [OK ] API: la base responde                                esperado: True       obtenido: True
+  [FALLO] Catalogo depurado: 884 productos                     esperado: 884        obtenido: 3361
+  [OK ] Primer producto por nombre                           esperado: A FOLIC    obtenido: A FOLIC
+  [OK ] El servidor calcula el stock vendible                esperado: True       obtenido: True
+  [FALLO] Facetas: total coincide con el catalogo              esperado: 884        obtenido: 3361
+
+b) El contenedor sirve el codigo de este avance
+  [FALLO] POST /api/carrito/cotizar existe                     esperado: 200        obtenido: 405
+  [FALLO] GET /api/test retirado de produccion                 esperado: 404        obtenido: 200
+
+c) Las rutas de gestion rechazan a quien no presenta token
+  [OK ] GET /api/pedidos sin token                           esperado: 401        obtenido: 401
+  [OK ] GET /api/usuarios sin token                          esperado: 401        obtenido: 401
+  [OK ] GET /api/tablero sin token                           esperado: 401        obtenido: 401
+  [OK ] GET /api/reportes/ventas sin token                   esperado: 401        obtenido: 401
+  [OK ] El catalogo publico sigue accesible                  esperado: 200        obtenido: 200
+
+d) Tiempo de respuesta del catalogo (RNF03: menos de 2 000 ms)
+  mediana 368 ms   max 494 ms   (primera, con arranque en frio: 432 ms)
+
+============================================================================================
+RESULTADO: 4 comprobacion(es) FALLARON.
+
+PENDIENTE DE VERIFICACION MANUAL: acceso con las cuentas de demostracion
+(DNI 10000001 administrador y 10000002 cliente). No se automatiza aqui para no
+dejar contrasenas en el historial del terminal ni en este archivo de evidencia.
