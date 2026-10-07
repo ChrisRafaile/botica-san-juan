@@ -62,5 +62,23 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perHour(20)->by((string) $request->ip()),
             ];
         });
+
+        /* Confirmacion de pedido del portal. Es publica para no obligar a
+           registrarse, pero a diferencia del contacto ESCRIBE en la base y
+           descuenta inventario: un abuso aqui no llena un buzon, deja el
+           anaquel descuadrado y bloquea stock en pedidos que nadie recogera.
+           De ahi que el limite sea mas estrecho que el general.
+
+           Se reparte por cuenta cuando hay sesion y por IP cuando no, para que
+           varias personas tras la misma conexion —una familia, un locutorio— no
+           se bloqueen entre si. */
+        RateLimiter::for('checkout', function (Request $request) {
+            $clave = $request->user()?->id ?: $request->ip();
+
+            return [
+                Limit::perMinute(6)->by((string) $clave),
+                Limit::perHour(30)->by((string) $clave),
+            ];
+        });
     }
 }

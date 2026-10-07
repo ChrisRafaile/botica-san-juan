@@ -56,6 +56,7 @@ class Pedido extends Model
         'vendedor_id',
         'cliente_nombre',
         'cliente_documento',
+        'cliente_telefono',
         'cliente_tipo_documento',
         'fecha',
         'fecha_pedido',

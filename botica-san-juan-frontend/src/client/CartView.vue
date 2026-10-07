@@ -329,16 +329,29 @@
             </p>
           </div>
 
-          <!-- Salida del pedido -->
+          <!-- Confirmar el pedido. Es la acción principal: deja el encargo
+               registrado en el sistema y emite el comprobante. -->
+          <button
+            type="button"
+            class="foco-dentro mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-botica-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-botica-700 disabled:cursor-not-allowed disabled:opacity-60"
+            :disabled="enviando"
+            @click="abrirCheckout"
+          >
+            <LoaderCircleIcon v-if="enviando" class="size-5 animate-spin" aria-hidden="true" />
+            <ReceiptIcon v-else class="size-5" aria-hidden="true" />
+            {{ enviando ? 'Registrando…' : 'Confirmar pedido' }}
+          </button>
+
+          <!-- Salida alternativa por WhatsApp, para quien prefiere hablar. -->
           <a
             v-if="enlacePedido"
             :href="enlacePedido"
             target="_blank"
             rel="noopener noreferrer"
-            class="foco-dentro mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-botica-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-botica-700"
+            class="foco-dentro mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-exito-600 px-4 py-2.5 text-sm font-medium text-exito-700 transition-colors hover:bg-exito-50 dark:text-exito-500 dark:hover:bg-exito-500/10"
           >
-            <MessageSquareIcon class="size-5" aria-hidden="true" />
-            Enviar pedido por WhatsApp
+            <MessageSquareIcon class="size-4" aria-hidden="true" />
+            Prefiero coordinarlo por WhatsApp
           </a>
 
           <!-- Si el número no está configurado no se enlaza a uno inventado:
@@ -383,6 +396,221 @@
             confirmarlo, no al agregarlo al carrito.
           </p>
         </aside>
+      </div>
+
+      <!--
+        Checkout.
+
+        DOS CAMINOS, UNA SOLA PANTALLA
+
+        Quien tiene sesión no vuelve a escribir sus datos: el servidor los toma
+        de su cuenta. Quien no la tiene puede encargar igual dando nombre,
+        documento y teléfono — lo mínimo para entregar el pedido y emitir el
+        comprobante.
+
+        Antes el encargo exigía cuenta, y eso es perder al cliente en el último
+        paso: ya había elegido y ya sabía el precio. Se le ofrece registrarse,
+        no se le obliga.
+      -->
+      <div
+        v-if="checkoutAbierto"
+        class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-neutro-900/50 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-checkout"
+        @click.self="cerrarCheckout"
+      >
+        <div class="my-8 w-full max-w-md rounded-2xl bg-superficie-elevada p-6 shadow-xl">
+          <h2 id="titulo-checkout" class="text-xl font-semibold text-texto-primario">
+            Confirmar pedido
+          </h2>
+          <p class="mt-1 text-sm text-texto-secundario">
+            {{ carrito.totalUnidades }} {{ carrito.totalUnidades === 1 ? 'unidad' : 'unidades' }} ·
+            <strong class="text-texto-primario">{{ soles(carrito.desglose.total) }}</strong>
+          </p>
+
+          <!-- Con sesión: no se pide nada que el sistema ya sepa. -->
+          <div
+            v-if="autenticado"
+            class="mt-5 rounded-xl bg-superficie-hundida p-4 text-sm"
+          >
+            <p class="flex items-center gap-2 font-medium text-texto-primario">
+              <UserIcon class="size-4" aria-hidden="true" />
+              {{ auth.user?.nombre }}
+            </p>
+            <p class="mt-1 text-texto-secundario">
+              El pedido quedará en tu cuenta y podrás seguirlo desde tu panel.
+            </p>
+          </div>
+
+          <!-- Sin sesión: checkout rápido. -->
+          <form v-else class="mt-5 space-y-4" @submit.prevent="enviarPedido">
+            <p class="rounded-xl bg-superficie-hundida p-3 text-xs text-texto-secundario">
+              No hace falta crear una cuenta.
+              <RouterLink to="/login" class="foco-dentro rounded font-medium text-texto-marca underline">
+                Si ya tienes una, inicia sesión
+              </RouterLink>
+              y el pedido quedará guardado en tu historial.
+            </p>
+
+            <div>
+              <label for="co-nombre" class="block text-sm font-medium text-texto-secundario">
+                Nombre completo
+              </label>
+              <input
+                id="co-nombre"
+                v-model="formulario.cliente_nombre"
+                type="text"
+                autocomplete="name"
+                required
+                class="foco-dentro mt-1 w-full rounded-xl border border-borde-control bg-superficie-base px-3 py-2 text-texto-primario"
+                :class="errores.cliente_nombre ? 'border-peligro-500' : ''"
+                :aria-invalid="Boolean(errores.cliente_nombre)"
+              />
+              <p class="mt-1 min-h-5 text-xs text-peligro-600">{{ errores.cliente_nombre }}</p>
+            </div>
+
+            <div>
+              <label for="co-doc" class="block text-sm font-medium text-texto-secundario">
+                DNI o RUC
+              </label>
+              <input
+                id="co-doc"
+                v-model="formulario.cliente_documento"
+                type="text"
+                inputmode="numeric"
+                maxlength="11"
+                required
+                class="foco-dentro mt-1 w-full rounded-xl border border-borde-control bg-superficie-base px-3 py-2 text-texto-primario"
+                :class="errores.cliente_documento ? 'border-peligro-500' : ''"
+                :aria-invalid="Boolean(errores.cliente_documento)"
+              />
+              <!-- Se dice ANTES de enviar qué comprobante va a salir: con RUC
+                   es factura y con DNI boleta, y quien necesita factura debe
+                   enterarse aquí y no al recogerla. -->
+              <p class="mt-1 min-h-5 text-xs" :class="errores.cliente_documento ? 'text-peligro-600' : 'text-texto-secundario'">
+                {{ errores.cliente_documento || pistaComprobante }}
+              </p>
+            </div>
+
+            <div>
+              <label for="co-tel" class="block text-sm font-medium text-texto-secundario">
+                Teléfono
+              </label>
+              <input
+                id="co-tel"
+                v-model="formulario.cliente_telefono"
+                type="tel"
+                autocomplete="tel"
+                required
+                class="foco-dentro mt-1 w-full rounded-xl border border-borde-control bg-superficie-base px-3 py-2 text-texto-primario"
+                :class="errores.cliente_telefono ? 'border-peligro-500' : ''"
+                :aria-invalid="Boolean(errores.cliente_telefono)"
+              />
+              <p class="mt-1 min-h-5 text-xs" :class="errores.cliente_telefono ? 'text-peligro-600' : 'text-texto-secundario'">
+                {{ errores.cliente_telefono || 'Para avisarte cuando esté listo.' }}
+              </p>
+            </div>
+          </form>
+
+          <p
+            v-if="errorEnvio"
+            class="mt-4 rounded-xl bg-peligro-50 p-3 text-sm text-peligro-700 dark:bg-peligro-500/10 dark:text-peligro-500"
+            role="alert"
+          >
+            {{ errorEnvio }}
+          </p>
+
+          <p class="mt-4 text-xs text-texto-secundario">
+            El pedido queda <strong>pendiente de preparación</strong>. El pago se
+            hace al recogerlo en el mostrador.
+          </p>
+
+          <div class="mt-6 flex justify-end gap-3">
+            <button
+              type="button"
+              class="foco-dentro rounded-xl border border-borde-control px-4 py-2 text-sm font-medium text-texto-primario hover:bg-superficie-interactiva"
+              :disabled="enviando"
+              @click="cerrarCheckout"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              class="foco-dentro inline-flex items-center gap-2 rounded-xl bg-botica-600 px-4 py-2 text-sm font-semibold text-white hover:bg-botica-700 disabled:opacity-60"
+              :disabled="enviando"
+              @click="enviarPedido"
+            >
+              <LoaderCircleIcon v-if="enviando" class="size-4 animate-spin" aria-hidden="true" />
+              {{ enviando ? 'Registrando…' : 'Confirmar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pedido confirmado -->
+      <div
+        v-if="confirmado"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-900/50 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-confirmado"
+      >
+        <div class="w-full max-w-md rounded-2xl bg-superficie-elevada p-6 text-center shadow-xl">
+          <CheckCircleIcon class="mx-auto size-12 text-exito-600" aria-hidden="true" />
+          <h2 id="titulo-confirmado" class="mt-4 text-xl font-semibold text-texto-primario">
+            Pedido registrado
+          </h2>
+
+          <dl class="mt-5 space-y-2 rounded-xl bg-superficie-hundida p-4 text-left text-sm">
+            <div class="flex justify-between">
+              <dt class="text-texto-secundario">N.º de pedido</dt>
+              <dd class="cifras-tabulares font-semibold text-texto-primario">#{{ confirmado.seguimiento.pedido_id }}</dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-texto-secundario">{{ confirmado.comprobante.tipo === 'factura' ? 'Factura' : 'Boleta' }}</dt>
+              <dd class="cifras-tabulares font-semibold text-texto-primario">{{ confirmado.comprobante.identificador }}</dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-texto-secundario">Total</dt>
+              <dd class="cifras-tabulares font-semibold text-texto-primario">{{ soles(Number(confirmado.pedido.total)) }}</dd>
+            </div>
+          </dl>
+
+          <!-- Un invitado no tiene panel donde consultarlo: el número es lo
+               único con lo que puede preguntar en el mostrador, así que se le
+               dice explícitamente que lo anote. -->
+          <p v-if="confirmado.seguimiento.invitado" class="mt-4 text-sm text-texto-secundario">
+            Anota el número de pedido: es con lo que preguntarás por él en la botica.
+          </p>
+          <p v-else class="mt-4 text-sm text-texto-secundario">
+            Puedes seguirlo desde tu panel de cliente.
+          </p>
+
+          <div class="mt-6 flex justify-center gap-3">
+            <RouterLink
+              to="/products"
+              class="foco-dentro rounded-xl border border-borde-control px-4 py-2 text-sm font-medium text-texto-primario hover:bg-superficie-interactiva"
+            >
+              Seguir comprando
+            </RouterLink>
+            <RouterLink
+              v-if="!confirmado.seguimiento.invitado"
+              to="/client/home"
+              class="foco-dentro rounded-xl bg-botica-600 px-4 py-2 text-sm font-semibold text-white hover:bg-botica-700"
+            >
+              Ver mis pedidos
+            </RouterLink>
+            <button
+              v-else
+              type="button"
+              class="foco-dentro rounded-xl bg-botica-600 px-4 py-2 text-sm font-semibold text-white hover:bg-botica-700"
+              @click="confirmado = null"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Confirmación de vaciado. Vaciar sin preguntar pierde trabajo del
@@ -432,6 +660,7 @@ import { RouterLink } from 'vue-router'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 import { useCartStore, type LineaCotizada } from '@/stores/carrito'
+import { useAuthStore } from '@/stores/auth'
 import { urlDeMedia } from '@/utils/media'
 import { ilustracionDe, textoAlternativoDe } from '@/utils/formaFarmaceutica'
 import {
@@ -452,6 +681,10 @@ import {
   CopyIcon,
   CheckIcon,
   XIcon,
+  ReceiptIcon,
+  UserIcon,
+  LoaderCircleIcon,
+  CheckCircleIcon,
 } from 'lucide-vue-next'
 
 const carrito = useCartStore()
@@ -526,6 +759,76 @@ const textoPedido = computed(() => {
 })
 
 const enlacePedido = computed(() => enlaceWhatsApp(textoPedido.value))
+
+/* --- Checkout ------------------------------------------------------------- */
+
+const auth = useAuthStore()
+const autenticado = computed(() => auth.isAuthenticated)
+
+const checkoutAbierto = ref(false)
+const enviando = ref(false)
+const errorEnvio = ref('')
+const errores = ref<Record<string, string>>({})
+const confirmado = ref<Awaited<ReturnType<typeof carrito.confirmar>> | null>(null)
+
+const formulario = ref({
+  cliente_nombre: '',
+  cliente_documento: '',
+  cliente_telefono: '',
+})
+
+/** Qué comprobante saldrá, dicho antes de enviar y no al recogerlo. */
+const pistaComprobante = computed(() => {
+  const d = formulario.value.cliente_documento.replace(/\D/g, '')
+  if (d.length === 11) return 'Con RUC se emite factura (F001).'
+  if (d.length === 8) return 'Con DNI se emite boleta (B001).'
+  return 'DNI de 8 dígitos o RUC de 11.'
+})
+
+function abrirCheckout() {
+  errorEnvio.value = ''
+  errores.value = {}
+  checkoutAbierto.value = true
+}
+
+function cerrarCheckout() {
+  if (enviando.value) return
+  checkoutAbierto.value = false
+}
+
+async function enviarPedido() {
+  enviando.value = true
+  errorEnvio.value = ''
+  errores.value = {}
+
+  try {
+    confirmado.value = await carrito.confirmar(
+      /* Con sesión no se mandan datos: el servidor los toma de la cuenta. */
+      autenticado.value ? undefined : { ...formulario.value },
+    )
+    checkoutAbierto.value = false
+  } catch (e) {
+    const r = (e as {
+      response?: { status?: number; data?: { errors?: Record<string, string[]>; message?: string; sin_stock?: boolean } }
+    })?.response
+
+    if (r?.status === 422 && r.data?.errors) {
+      errores.value = Object.fromEntries(
+        Object.entries(r.data.errors).map(([campo, msgs]) => [campo, msgs[0] ?? '']),
+      )
+      errorEnvio.value = 'Revisa los campos marcados.'
+    } else if (r?.data?.sin_stock) {
+      /* Se vuelve a cotizar para que el carrito refleje lo que SÍ hay, en vez
+         de dejar al cliente con unas cantidades que el servidor ya rechazó. */
+      errorEnvio.value = r.data.message ?? 'Ya no hay stock suficiente.'
+      await carrito.cotizar()
+    } else {
+      errorEnvio.value = 'No pudimos registrar el pedido. Inténtalo de nuevo o llámanos.'
+    }
+  } finally {
+    enviando.value = false
+  }
+}
 
 async function copiarPedido() {
   try {

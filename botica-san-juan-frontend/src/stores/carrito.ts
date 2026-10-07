@@ -293,6 +293,39 @@ export const useCartStore = defineStore('cart', () => {
     ajustes.value = []
   }
 
+  /**
+   * Confirma el pedido contra la API.
+   *
+   * Sirve a los dos caminos con la misma llamada: si hay sesión, el
+   * interceptor de `api` manda el token y el servidor liga el pedido a esa
+   * cuenta; si no, van los datos del checkout rápido. El servidor decide, no
+   * esta función.
+   *
+   * No se le pasa el precio: lo vuelve a calcular el servidor sobre el
+   * catálogo, igual que al cotizar.
+   */
+  const confirmar = async (datosInvitado?: {
+    cliente_nombre: string
+    cliente_documento: string
+    cliente_telefono: string
+  }) => {
+    const { data } = await api.post('/pedidos/confirmar', {
+      items: guardadas.value,
+      ...(datosInvitado ?? {}),
+    })
+
+    /* El carrito se vacía SÓLO si el servidor confirmó. Vaciarlo antes, o a la
+       vez que se envía, pierde el pedido del cliente cuando la respuesta trae
+       un 422 por falta de stock. */
+    vaciar()
+
+    return data as {
+      pedido: { id: number; total: number }
+      comprobante: { tipo: string; identificador: string; estado_sunat: string }
+      seguimiento: { pedido_id: number; invitado: boolean }
+    }
+  }
+
   return {
     guardadas,
     lineas,
@@ -312,5 +345,6 @@ export const useCartStore = defineStore('cart', () => {
     quitar,
     vaciar,
     descartarAjustes,
+    confirmar,
   }
 })

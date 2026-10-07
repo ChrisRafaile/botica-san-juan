@@ -175,8 +175,37 @@ class ConfirmacionVentaTest extends TestCase
         $this->assertSame('8.00', (string) $pedido->total);
     }
 
-    public function test_sin_token_la_confirmacion_de_venta_responde_401(): void
+    /**
+     * CAMBIO DE CONTRATO DELIBERADO, NO UNA PRUEBA RELAJADA.
+     *
+     * Esta prueba afirmaba que sin token la confirmación respondía 401, porque
+     * la ruta vivía dentro del grupo `auth:sanctum`. Eso significaba que
+     * encargar obligaba a registrarse: el cliente ya había elegido y ya sabía
+     * el precio, y en el último paso se le pedía crear una cuenta.
+     *
+     * Desde el checkout rápido la ruta es pública y el control está donde
+     * corresponde: el invitado debe identificarse con nombre, DNI o RUC y
+     * teléfono. Lo que se comprueba ahora es que **esa apertura no dejó la
+     * puerta abierta**: sin datos no se registra nada, y la respuesta dice qué
+     * falta en vez de un 401 que no distingue "no tienes cuenta" de "te faltan
+     * datos".
+     *
+     * Las garantías de fondo —precio del servidor, stock revalidado, sin
+     * duplicar comprobante— están cubiertas en CheckoutPortalTest.
+     */
+    public function test_sin_token_la_confirmacion_exige_identificar_al_cliente(): void
     {
-        $this->postJson('/api/pedidos/confirmar', ['items' => []])->assertStatus(401);
+        $respuesta = $this->postJson('/api/pedidos/confirmar', ['items' => []]);
+
+        $respuesta->assertStatus(422);
+        $respuesta->assertJsonValidationErrors([
+            'items',
+            'cliente_nombre',
+            'cliente_documento',
+            'cliente_telefono',
+        ]);
+
+        /* Y, sobre todo, que no haya nacido ningún pedido de ese intento. */
+        $this->assertSame(0, Pedido::count());
     }
 }

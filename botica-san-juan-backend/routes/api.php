@@ -110,6 +110,26 @@ Route::post('/contacto', [ContactoController::class, 'store'])->middleware('thro
    el abuso, y para eso lleva el limitador general. */
 Route::post('/carrito/cotizar', [CarritoPublicoController::class, 'cotizar'])
     ->middleware('throttle:api');
+
+/* Confirmacion del pedido del portal: crea el pedido, su detalle por lote y
+   descuenta el stock dentro de una unica transaccion (RF06 / RF07 / RNF06).
+
+   NO EXIGE SESION, Y ES UNA DECISION DE NEGOCIO
+   ---------------------------------------------
+   Antes vivia dentro del grupo `auth:sanctum`, de modo que encargar obligaba a
+   registrarse. En una botica de barrio eso es perder al cliente en el ultimo
+   paso: ya eligio, ya sabe cuanto cuesta, y se le pide crear una cuenta.
+
+   El control sigue existiendo, solo que donde corresponde: el invitado tiene
+   que dar nombre, DNI o RUC y telefono —lo minimo para entregar el pedido y
+   para emitir el comprobante—, y el servidor vuelve a validar stock y precios.
+   Si el token viene en la cabecera, `auth('sanctum')` lo resuelve y el pedido
+   queda ligado a esa cuenta; si no viene, es un encargo de invitado.
+
+   Lleva su propio limitador: un endpoint publico que escribe en la base y
+   descuenta inventario no puede quedar bajo el limite general. */
+Route::post('/pedidos/confirmar', [PedidoController::class, 'confirmar'])
+    ->middleware('throttle:checkout');
 Route::post('/logout', [UsuarioController::class, 'logout'])->middleware(['auth:sanctum', 'throttle:api']);
 
 // API Routes for resources (protected)
@@ -138,9 +158,8 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('reportes/registro-ventas/csv', [ReporteContableController::class, 'csv'])->middleware('admin');
     Route::get('reportes/gerencial', [ReporteController::class, 'gerencial'])->middleware('admin');
 
-    // Confirmacion de venta: crea el pedido, su detalle y descuenta el stock
-    // dentro de una unica transaccion (RF-07 / RNF-05).
-    Route::post('pedidos/confirmar', [PedidoController::class, 'confirmar']);
+    /* `pedidos/confirmar` se declara FUERA de este grupo, mas abajo: admite
+       tanto al cliente con sesion como al invitado del checkout rapido. */
 
     // Cobro. El importe lo toma del pedido, nunca de la peticion.
     Route::post('pedidos/{pedido}/pago', [PagoController::class, 'iniciar']);

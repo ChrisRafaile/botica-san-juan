@@ -1,0 +1,22 @@
+
+=== PEDIDO 190 leido de la base, fuera del script que lo creo ===
+  origen=web estado=pendiente usuario_id=NULL
+  cliente: Cliente de Prueba APF2 | doc 12345678 (dni) | tel 999000111
+  base S/11.86 + IGV S/2.14 = total S/14.00
+  linea: A FOLIC x1 = S/1.50 (afectacion 10)
+     lote INICIAL -> 1 u
+  linea: CLOBETASOL x1 = S/12.50 (afectacion 10)
+     lote INICIAL -> 1 u
+  comprobante: B001-00000034 (boleta) estado_sunat=pendiente
+  movimientos de stock: 2
+=== DATOS PARA IMPRESION TERMICA / XML SUNAT ===
+  1 x A FOLIC 0.5 mg = S/1.50
+  1 x CLOBETASOL 0.05 % = S/12.50
+  gravado S/11.86 + IGV S/2.14 = S/14.00
+  leyenda: Los precios incluyen IGV.
+=== INTEGRIDAD DE TODA LA BASE ===
+  pedido_detalle_lotes sin lote: 0
+  movimientos_stock sin producto: 0
+  comprobantes con serie+numero repetido: 0
+  pedidos con mas de un comprobante: 0
+

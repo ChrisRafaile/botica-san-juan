@@ -100,7 +100,7 @@ class VentaService
      * final no se pudo entregar, el cobro tiene que cuadrar con lo entregado.
      *
      * @param  array<int, array{producto_id:int, unidad_venta:string, cantidad:int}>  $items
-     * @param  array{cliente_nombre?:string, cliente_documento?:string, cliente_tipo_documento?:string, observacion?:string}  $datosCliente
+     * @param  array{cliente_nombre?:string, cliente_documento?:string, cliente_tipo_documento?:string, cliente_telefono?:string, observacion?:string}  $datosCliente
      * @param  array<int, array{medio:string, monto?:float, monto_recibido?:float, referencia?:string}>  $pagos
      */
     public function registrar(
@@ -128,6 +128,9 @@ class VentaService
                 'vendedor_id'            => $vendedorId,
                 'cliente_nombre'         => $datosCliente['cliente_nombre'] ?? null,
                 'cliente_documento'      => $datosCliente['cliente_documento'] ?? null,
+                /* Sólo lo trae el encargo del portal: en mostrador el cliente
+                   está delante y no hay a quién llamar. */
+                'cliente_telefono'       => $datosCliente['cliente_telefono'] ?? null,
                 'cliente_tipo_documento' => $datosCliente['cliente_tipo_documento'] ?? 'sin_documento',
                 'fecha'                  => now(),
                 'fecha_pedido'           => now(),

@@ -1,0 +1,37 @@
+CHECKOUT DEL PORTAL - verificacion de punta a punta
+Fecha: 2026-10-06 21:12
+
+------------------------------------------------------------------------------
+1. POST /carrito/cotizar  (publico, sin sesion)
+------------------------------------------------------------------------------
+  A FOLIC                      1 x S/   1.50 = S/    1.50   stock 1   receta: no
+  CLOBETASOL                   1 x S/  12.50 = S/   12.50   stock 5   receta: SI
+  base S/ 11.86 + IGV S/ 2.14 = total S/ 14.00
+  aviso de receta en el pedido: True
+
+------------------------------------------------------------------------------
+2. POST /pedidos/confirmar  (invitado: sin token)
+------------------------------------------------------------------------------
+  pedido        : #190
+  origen        : web   estado: pendiente
+  usuario_id    :    (vacio = encargo de invitado)
+  comprobante   : B001-00000034  boleta
+  estado SUNAT  : pendiente   (pendiente: se emite internamente, aun no se envia)
+  base S/ 11.86 + IGV S/ 2.14 = total S/ 14.00
+
+------------------------------------------------------------------------------
+3. El invitado tiene que identificarse
+------------------------------------------------------------------------------
+  HTTP 422
+    cliente_nombre: Necesitamos un nombre para preparar el pedido.
+    cliente_documento: Necesitamos tu DNI o RUC para emitir el comprobante.
+    cliente_telefono: Necesitamos un teléfono para avisarte cuando esté listo.
+
+------------------------------------------------------------------------------
+4. Un documento que no es DNI ni RUC se rechaza
+------------------------------------------------------------------------------
+  HTTP 422 - El documento debe ser un DNI de 8 dígitos o un RUC de 11.
+
+==============================================================================
+Pedido generado para verificar en la base: #190
+==============================================================================

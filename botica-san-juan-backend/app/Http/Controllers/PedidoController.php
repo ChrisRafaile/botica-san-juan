@@ -106,11 +106,37 @@ class PedidoController extends Controller
      */
     public function confirmar(Request $request, VentaService $ventas)
     {
+        /* Quién es el cliente: la sesión si la hay, nadie si no.
+           `auth('sanctum')` resuelve el token cuando viene en la cabecera y
+           devuelve null cuando no, sin exigirlo. Por eso esta ruta ya no vive
+           dentro del grupo que obliga a estar autenticado: un visitante tiene
+           que poder encargar. */
+        $cliente = auth('sanctum')->user();
+        $esInvitado = $cliente === null;
+
         $validado = $request->validate([
             'items' => ['required', 'array', 'min:1'],
             'items.*.producto_id' => ['required', 'integer', 'exists:productos,id'],
             'items.*.cantidad' => ['required', 'integer', 'min:1', 'max:1000'],
             'direccion' => ['nullable', 'string', 'max:255'],
+
+            /* Checkout rápido: sin cuenta, pero no sin datos. Estos tres son lo
+               mínimo para poder entregar el pedido y avisar cuando esté listo.
+               Se exigen SOLO al invitado; quien inició sesión ya los tiene. */
+            'cliente_nombre'   => [$esInvitado ? 'required' : 'nullable', 'string', 'max:255'],
+            'cliente_documento' => [
+                $esInvitado ? 'required' : 'nullable',
+                'string',
+                /* DNI (8) o RUC (11). El tipo de comprobante se decide con esto:
+                   RUC → factura, DNI → boleta. */
+                'regex:/^(\d{8}|\d{11})$/',
+            ],
+            'cliente_telefono' => [$esInvitado ? 'required' : 'nullable', 'string', 'max:30'],
+        ], [
+            'cliente_nombre.required'    => 'Necesitamos un nombre para preparar el pedido.',
+            'cliente_documento.required' => 'Necesitamos tu DNI o RUC para emitir el comprobante.',
+            'cliente_documento.regex'    => 'El documento debe ser un DNI de 8 dígitos o un RUC de 11.',
+            'cliente_telefono.required'  => 'Necesitamos un teléfono para avisarte cuando esté listo.',
         ]);
 
         /* Este endpoint llamaba a VentaService::confirmar(), un metodo que
@@ -121,11 +147,25 @@ class PedidoController extends Controller
            Se pasa el origen explicitamente. Sin ese argumento el pedido
            nacería como venta de mostrador —completado y pagado— y un encargo
            web sin cobrar entraria en la caja del dia. */
+        /* Los datos del cliente: los del formulario si vinieron, y si no los de
+           la cuenta. Se copian al pedido aunque haya sesión porque el
+           comprobante debe decir a quién se le vendió el día que se emitió,
+           aunque mañana esa persona cambie su nombre en el perfil. */
+        $documento = $validado['cliente_documento'] ?? $cliente?->dni;
+
+        $datosCliente = [
+            'cliente_nombre'    => $validado['cliente_nombre'] ?? $cliente?->nombre,
+            'cliente_documento' => $documento,
+            'cliente_tipo_documento' => $this->tipoDeDocumento($documento),
+            'cliente_telefono'  => $validado['cliente_telefono'] ?? $cliente?->telefono,
+            'observacion'       => $validado['direccion'] ?? null,
+        ];
+
         try {
             $pedido = $ventas->registrar(
                 items: $validado['items'],
-                datosCliente: ['observacion' => $validado['direccion'] ?? null],
-                usuarioClienteId: (int) $request->user()->id,
+                datosCliente: $datosCliente,
+                usuarioClienteId: $cliente?->id,
                 origen: Pedido::ORIGEN_WEB,
             );
         } catch (VentaSinStockException $e) {
@@ -139,10 +179,46 @@ class PedidoController extends Controller
             ], 422);
         }
 
+        /* El comprobante se emite en el acto, con el pedido ya cerrado y sus
+           importes calculados. Es idempotente: un doble clic o un reintento no
+           produce un segundo comprobante del mismo pedido, que sería duplicidad
+           tributaria. */
+        $comprobante = app(\App\Services\ComprobanteService::class)->emitir($pedido);
+
         return response()->json([
             'message' => 'Pedido registrado. Queda pendiente de preparacion.',
             'pedido' => $pedido,
+            'comprobante' => [
+                'tipo'          => $comprobante->tipo_comprobante,
+                'identificador' => $comprobante->serie.'-'.str_pad((string) $comprobante->numero, 8, '0', STR_PAD_LEFT),
+                'estado_sunat'  => $comprobante->estado_sunat,
+            ],
+            /* Un invitado no tiene panel donde consultar su pedido, así que el
+               número es lo único con lo que puede preguntar por él en el
+               mostrador. Por eso se devuelve siempre y la pantalla lo muestra. */
+            'seguimiento' => [
+                'pedido_id'  => $pedido->id,
+                'invitado'   => $esInvitado,
+            ],
         ], 201);
+    }
+
+    /**
+     * Tipo de documento a partir de su longitud.
+     *
+     * 11 dígitos es RUC y obliga a factura; 8 es DNI y va con boleta. Cualquier
+     * otra cosa se registra como venta sin documento identificado, que es lo que
+     * de verdad es, en vez de inventar un tipo.
+     */
+    private function tipoDeDocumento(?string $documento): string
+    {
+        $limpio = preg_replace('/\D/', '', (string) $documento);
+
+        return match (strlen((string) $limpio)) {
+            11 => 'ruc',
+            8  => 'dni',
+            default => 'sin_documento',
+        };
     }
 
     /**
