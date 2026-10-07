@@ -28,10 +28,14 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// Test route
-Route::get('/test', function () {
-    return response()->json(['message' => 'API is working']);
-});
+/* Ruta de diagnostico, SOLO en local.
+   Estaba publica en produccion devolviendo "API is working". No filtra datos,
+   pero un endpoint de depuracion accesible desde fuera es superficie que no
+   hace falta: para saber si el servicio responde ya esta /api/salud, que ademas
+   comprueba la base. */
+if (app()->environment('local')) {
+    Route::get('/test', fn () => response()->json(['message' => 'API is working']));
+}
 
 Route::get('/health', function () {
     return response()->json([
