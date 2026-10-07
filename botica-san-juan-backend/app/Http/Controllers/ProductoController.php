@@ -336,14 +336,46 @@ class ProductoController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Baja de un producto del catálogo.
+     *
+     * POR QUÉ SE COMPRUEBA ANTES DE BORRAR
+     *
+     * `lotes.producto_id` es CASCADE: borrar el producto arrastra sus lotes. Y
+     * desde que `movimientos_stock.lote_id` es RESTRICT, ese arrastre falla si
+     * alguno de esos lotes tiene movimientos registrados.
+     *
+     * Eso es lo correcto —un producto que se ha vendido no puede desaparecer y
+     * llevarse por delante su trazabilidad—, pero sin esta comprobación el
+     * usuario recibiría un 500 con una violación de clave foránea, que no le
+     * dice qué hacer. Aquí se le dice: cuántos movimientos y cuántas ventas lo
+     * sostienen, y que lo que procede es desactivarlo, no borrarlo.
      */
     public function destroy(string $id)
     {
         $producto = Producto::findOrFail($id);
+
+        $movimientos = \App\Models\MovimientoStock::where('producto_id', $producto->id)->count();
+        $ventas      = \App\Models\PedidoDetalle::where('producto_id', $producto->id)->count();
+
+        if ($movimientos > 0 || $ventas > 0) {
+            return response()->json([
+                'message' => 'Este producto tiene historial y no se puede eliminar.',
+                'motivo'  => sprintf(
+                    'Tiene %d movimiento(s) de stock y %d línea(s) de venta. Borrarlo destruiría la '
+                    .'trazabilidad de los lotes vendidos, que es lo que permite saber a quién se le '
+                    .'vendió un lote ante una alerta sanitaria.',
+                    $movimientos,
+                    $ventas
+                ),
+                'alternativa' => 'Desactívalo o déjalo sin stock en lugar de eliminarlo.',
+                'movimientos' => $movimientos,
+                'ventas'      => $ventas,
+            ], 409);
+        }
+
         $producto->delete();
 
-        return response()->json(['message' => 'Producto deleted successfully']);
+        return response()->json(['message' => 'Producto eliminado.']);
     }
 
     /**
