@@ -16,7 +16,24 @@
 # arrancaria sin protestar.
 # =============================================================================
 
-FROM dunglas/frankenphp:1-php8.3-alpine
+# PHP 8.4, no 8.3.
+#
+# La imagen estuvo en 8.3 y eso rompio todos los despliegues desde el 5 de
+# octubre, de forma silenciosa: `composer install` abortaba con
+#
+#     symfony/clock v8.1.0 requires php >=8.4.1 -> your php version (8.3.35)
+#     does not satisfy that requirement
+#
+# El contenedor moria durante la construccion, Render mantenia vivo el anterior
+# y el servicio seguia respondiendo 200. Desde fuera no se veia nada: lo unico
+# que ocurria es que el codigo nuevo no llegaba nunca.
+#
+# El origen fue una actualizacion de dependencias resuelta contra el PHP 8.4
+# local, que fijo Symfony 8.1 en el lock. Para que esa discrepancia no se repita
+# sin avisar, `composer.json` declara ahora `config.platform.php`: Composer
+# resuelve siempre contra la version de PHP del despliegue, no contra la del
+# equipo de quien ejecuta el comando.
+FROM dunglas/frankenphp:1-php8.4-alpine
 
 # pdo_pgsql es la unica extension imprescindible (PostgreSQL); intl la pide
 # Laravel para el formato de numeros y fechas en es-PE, y opcache evita
