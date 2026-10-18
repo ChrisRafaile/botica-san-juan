@@ -530,7 +530,7 @@ El Bloque 3 de la auditoría asigna los sprints 5 y 6. Con SUNAT directa, **dos 
 
 ## 9. Estado de la Fase A (correlativo)
 
-**Fecha:** 18/10/2026. Implementado en la rama `claude/cool-dijkstra-m2ahwb`, sin commit todavía. **Las pruebas no se han ejecutado**: el entorno donde se escribió no tenía servidor PostgreSQL ni PHP 8.4. Solo se validó la sintaxis (`php -l`) y se revisó el SQL a mano. Hasta correr la suite contra PostgreSQL 16, la Fase A no se da por cerrada.
+**Fecha:** 18/10/2026. Implementada e integrada en `main`. La suite completa pasó contra PostgreSQL 16 (150 pruebas, 458 aserciones, PHP 8.3 con `--ignore-platform-req=php`; el CI valida con PHP 8.4). Queda sin cubrir la concurrencia real entre procesos: `RefreshDatabase` usa una sola conexión, así que las pruebas comprueban el contrato (el `FOR UPDATE`, la recuperación ante un contador desfasado) pero no la espera de bloqueo entre dos cajas.
 
 **Hecho (pasos 4, 5 y 6 de la sección 6, y las pruebas de los pasos 2 y 3 en su versión secuencial):**
 
