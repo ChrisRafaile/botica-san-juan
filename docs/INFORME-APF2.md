@@ -58,7 +58,7 @@ Este documento se escribió con esas dos frases como norma. En consecuencia:
 | RF09 Alertas | `lotes.fecha_vencimiento`, `productos.stock_minimo` |
 | RF10 Compras | `proveedores`, `compras`, `compra_detalles` |
 | RF11 DIGEMID | `digemid_catalogos` |
-| RF12 Comprobantes | `documentos_tributarios` |
+| RF12 Comprobantes | `comprobantes_electronicos` |
 | RF13 Tablero | agregados en SQL sobre `pedidos` y `lotes` |
 | RF14 Reportes CSV | `pedidos`, `pedido_detalles` |
 | RF15 Bitácora | `movimientos_stock`, `incidencias_venta` |
@@ -84,8 +84,17 @@ un duplicado devuelve `SQLSTATE[23505]`.
 `pedido_detalle_lotes.lote_id` es `ON DELETE RESTRICT`: borrar un lote vendido
 debe fallar, porque sin esa fila no hay forma de saber a quién se le vendió ante
 una alerta sanitaria. `lotes.producto_id` es `CASCADE`. Y
-`movimientos_stock.lote_id` es `SET NULL`, que **destruye trazabilidad en
-silencio**: queda anotado como deuda técnica en §8.
+`movimientos_stock.lote_id` también es `RESTRICT`: era `SET NULL`, que
+**destruía trazabilidad en silencio** (borrar el lote ponía a `NULL` el lote de
+sus movimientos, sin error), y se corrigió con la migración
+`2026_10_06_190000_restringir_borrado_de_lotes_con_movimientos`. La columna
+sigue admitiendo `NULL` al crearse, porque un ajuste de inventario puede no
+atribuirse a ningún lote; lo que se prohíbe es que la base la vacíe después.
+Como `lotes.producto_id` es `CASCADE`, borrar un producto con historial chocaría
+con esta restricción; por eso `ProductoController::destroy` lo comprueba antes y
+responde `409` con el motivo, en lugar de un error 500. Lo cubre
+`TrazabilidadLotesTest`. Decisión: un lote o un producto con historial no se
+borra, se desactiva.
 
 ### 2.3 Cómo se protege la información
 
@@ -118,7 +127,7 @@ por `RestrictedDocsAccess`).
 | RF08 | HU09 | `/admin/pos` | `POST /api/pedidos/confirmar` | `pedido_detalles.unidad_venta` | CP09 · `pos:probar` |
 | RF09 | HU03 | `/admin/inventory/alerts` | `GET /api/productos/resumen` | `lotes`, `productos` | CP10 · `ProductoApiTest` |
 | RF11 | HU02 | `/admin/supply/digemid` | `GET /api/digemid` | `digemid_catalogos` | CP11 · parcial, ver §8 |
-| RF12 | HU10 | `/admin/billing` | `POST /api/documentos-tributarios` | `documentos_tributarios` | CP12 · `AccesoDocumentosTributariosTest`, `EnvioAsincronoSunatTest` |
+| RF12 | HU10 | `/admin/billing` | `POST /api/facturacion/documentos/{id}/enviar-sunat-async` | `comprobantes_electronicos` | CP12 · `AccesoDocumentosTributariosTest`, `EnvioAsincronoSunatTest` |
 | RF13 | HU04 | `/admin/home` | `GET /api/tablero` | agregados SQL | CP13 · `ProductoApiTest` |
 | RF15 | HU12 | — | — | `movimientos_stock`, `incidencias_venta` | CP14 · E7 |
 | — | — | `/contact` | `POST /api/contacto` | `contactos` | CP15 · E6 |
@@ -322,7 +331,6 @@ Se declara aquí, con nombre y causa, en vez de dejar que el lector lo descubra.
 | **Catálogo DIGEMID** | 5 filas de demostración; 1 producto cruzado de 884 | Sin él, `requiere_receta` y la exoneración de IGV no se pueblan solos. Se cubrió con `RecetaMedicaDemoSeeder` (34 productos de 5 familias) **para poder demostrar el comportamiento**; es una marcación de demostración, no la fuente regulatoria, y debe retirarse cuando se cargue el catálogo real |
 | **Exoneración de IGV** | 0 productos marcados como exonerados | La línea «Exonerado» del desglose está implementada y probada, pero no se activa con los datos actuales |
 | **Número de WhatsApp** | Configurable, sin confirmar | El portal llegó a ofrecer **cuatro números distintos**, uno de ellos el teléfono fijo (que no tiene WhatsApp). Ahora hay fuente única y, sin `VITE_BOTICA_WHATSAPP`, el botón no se pinta |
-| **`movimientos_stock.lote_id` es `SET NULL`** | Deuda técnica conocida | Borrar un lote deja sus movimientos apuntando a `NULL` **sin error**: destruye trazabilidad en silencio. Debería ser `RESTRICT`, como ya lo es en `pedido_detalle_lotes` |
 | **Fusión de duplicados en Neon** | Runbook escrito y probado en local | Falta ejecutarlo en producción, con respaldo previo. [`RUNBOOK-fusion-duplicados.md`](RUNBOOK-fusion-duplicados.md) |
 | **Fechas de vencimiento reales** | Parciales | El stock heredado llegó sin fecha. El conteo por ciclos (`/admin/inventory/conteo`) las va poblando: 20-30 productos al día corrigen el inventario sin parar la botica |
 | **PHPUnit 12** | Bloqueado | Incompatible con `nunomaduro/collision`. Se intentó, rompió la suite y se revirtió |
