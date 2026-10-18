@@ -16,7 +16,7 @@ con control de lotes, trazabilidad de vencimientos y facturación electrónica S
 ![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D?style=flat-square&logo=vuedotjs&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?style=flat-square&logo=typescript&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-89%20passing-22C55E?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-107%20passing-22C55E?style=flat-square)
 
 </div>
 
@@ -40,7 +40,7 @@ de artículos.
 | | Módulo | Descripción |
 |:---:|---|---|
 | <img src="docs/assets/icons/shield.svg" width="16" /> | **Seguridad** | Autenticación con tokens, roles diferenciados, segundo factor TOTP y auditoría de cambios críticos |
-| <img src="docs/assets/icons/pill.svg" width="16" /> | **Catálogo** | 3 361 productos con laboratorio, principio activo, código DIGEMID y carga masiva desde CSV o Excel |
+| <img src="docs/assets/icons/pill.svg" width="16" /> | **Catálogo** | 884 productos (depurado desde 3 361 al fusionar 869 grupos duplicados) con laboratorio, principio activo, código DIGEMID y carga masiva desde CSV o Excel |
 | <img src="docs/assets/icons/boxes.svg" width="16" /> | **Inventario** | Control de lotes con lógica FEFO y alertas de vencimiento a 90, 60 y 30 días |
 | <img src="docs/assets/icons/scan-barcode.svg" width="16" /> | **Punto de venta** | Búsqueda indexada por nombre, principio activo o código de barras, con venta por unidad, blíster o caja |
 | <img src="docs/assets/icons/receipt.svg" width="16" /> | **Facturación** | Boletas y facturas electrónicas con envío a la SUNAT desde la misma pantalla de cobro |
@@ -58,11 +58,11 @@ escritorio empaquetada con Tauri y al portal público del cliente.
 ```
 Presentación     Vue 3 · TypeScript · Pinia · Tailwind CSS · Tauri
      │
-Aplicación       16 controladores REST · middleware de rol, CORS y auditoría
+Aplicación       20 controladores REST · middleware de rol, CORS y auditoría
      │
 Dominio          Ventas · Inventario FEFO · Compras · Facturación · SunatClient
      │
-Persistencia     Eloquent ORM · 31 migraciones versionadas · PostgreSQL 16
+Persistencia     Eloquent ORM · 45 migraciones versionadas · PostgreSQL 16
      │
 Infraestructura  HTTPS · CI/CD · health checks · respaldos · monitoreo
 ```
@@ -74,14 +74,14 @@ Infraestructura  HTTPS · CI/CD · health checks · respaldos · monitoreo
 ```
 botica_san_juan/
 ├── botica-san-juan-backend/     API REST en Laravel 12
-│   ├── app/Http/Controllers/    16 controladores
+│   ├── app/Http/Controllers/    20 controladores
 │   ├── app/Http/Middleware/     Rol · CORS · auditoría · cabeceras de seguridad
 │   ├── app/Services/            Integración con la SUNAT
-│   ├── database/migrations/     31 migraciones versionadas
-│   └── tests/                   89 pruebas automatizadas
+│   ├── database/migrations/     45 migraciones versionadas
+│   └── tests/                   107 pruebas automatizadas (última corrida registrada)
 ├── botica-san-juan-frontend/    SPA en Vue 3 + TypeScript
 │   └── src/
-│       ├── admin/               Panel administrativo (20 vistas)
+│       ├── admin/               Panel administrativo (13 vistas)
 │       ├── auth/                Autenticación
 │       ├── client/              Portal público
 │       └── services/            Cliente HTTP con interceptores
@@ -126,12 +126,16 @@ El sistema queda disponible en `http://localhost:5173` y la API en `http://local
 <img src="docs/assets/icons/flask.svg" width="18" align="top" />  **Pruebas**
 
 ```bash
-cd botica-san-juan-backend && php artisan test      # 89 pruebas, 236 aserciones
+cd botica-san-juan-backend && php artisan test      # 107 pruebas, 298 aserciones (evidencia E5a)
 cd botica-san-juan-frontend && npm run type-check   # verificación de tipos
 ```
 
 Las pruebas cubren autenticación, autorización por rol, gestión de productos,
-búsqueda de comprobantes, endpoints de salud y cabeceras de seguridad.
+carrito y checkout, ventas de mostrador, trazabilidad de lotes, fusión de
+duplicados del catálogo, envío a la SUNAT, búsqueda de comprobantes, endpoints
+de salud y cabeceras de seguridad. La cifra de 107 es la de la última corrida
+registrada en [`E5a`](docs/evidencias/E5a-pruebas-automatizadas.txt) (6 de
+octubre de 2026, PostgreSQL 16); el código contiene hoy 119 métodos de prueba.
 
 <br />
 
@@ -171,13 +175,14 @@ Los mensajes de commit siguen la convención
 
 | Componente | Estado |
 |---|:---:|
-| Base de datos PostgreSQL con 3 537 registros migrados | Operativa |
-| API REST con 16 controladores | Operativa |
+| V1 desplegada en producción: Vercel (front), Render (API) y Neon (PostgreSQL 16) | Operativa |
+| Catálogo depurado de 3 361 a 884 productos (869 grupos duplicados fusionados; E2a, E2b) | Verificada en local; la fusión en Neon está pendiente de ejecutar |
+| API REST con 20 controladores y 45 migraciones | Operativa |
 | Seguridad: roles, doble factor y auditoría | Operativa |
-| Panel administrativo con 20 vistas | Operativa |
-| Suite de 89 pruebas automatizadas | Operativa |
-| Integración con la SUNAT | En desarrollo |
-| Punto de venta con descuento de stock | Planificado |
+| Panel administrativo con 13 vistas | Operativa |
+| Suite de 107 pruebas automatizadas (E5a) | Operativa |
+| Punto de venta con descuento de stock por lotes FEFO (E7) | Operativa y verificada |
+| Integración con la SUNAT | Parcial: envío asíncrono implementado; la emisión tributaria real sigue pendiente |
 
 <br />
 
