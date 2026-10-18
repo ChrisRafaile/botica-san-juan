@@ -4,9 +4,10 @@ namespace App\Services;
 
 use App\Models\ComprobanteElectronico;
 use App\Models\Pedido;
+use App\Models\SerieComprobante;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
-use RuntimeException;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Emisión interna de boletas y facturas.
@@ -38,9 +39,11 @@ use RuntimeException;
  *
  * Dos comprobantes con la misma serie y número es una contingencia tributaria,
  * no un detalle. La tabla tiene un índice `UNIQUE(serie, numero)` que lo
- * impide a nivel de motor; aquí se calcula el siguiente dentro de una
- * transacción y bloqueando la fila más alta de la serie (`lockForUpdate`), para
- * que dos ventas simultáneas en dos cajas no lean el mismo número.
+ * impide a nivel de motor; el siguiente número sale de la tabla
+ * `series_comprobante`, cuya fila se bloquea (`lockForUpdate`) dentro de la
+ * misma transacción que crea el comprobante, para que dos ventas simultáneas en
+ * dos cajas se pongan en cola en vez de leer el mismo número. Además un UNIQUE
+ * parcial sobre `pedido_id` garantiza un comprobante por pedido.
  */
 class ComprobanteService
 {
@@ -61,58 +64,96 @@ class ComprobanteService
      */
     public function emitir(Pedido $pedido): ComprobanteElectronico
     {
-        $yaEmitido = ComprobanteElectronico::where('pedido_id', $pedido->id)->first();
-        if ($yaEmitido) {
-            return $yaEmitido;
-        }
+        return $this->emitirConDatos(
+            $pedido,
+            $this->correspondeFactura($pedido) ? 'factura' : 'boleta',
+            [
+                'cliente_nombre'    => $pedido->cliente_nombre ?: 'Cliente sin identificar',
+                'cliente_documento' => $pedido->cliente_documento,
+                'total'             => $pedido->total,
+                'fecha_emision'     => now(),
+            ]
+        );
+    }
 
-        $esFactura = $this->correspondeFactura($pedido);
-        $serie     = $esFactura ? self::SERIE_FACTURA : self::SERIE_BOLETA;
+    /**
+     * Punto único de asignación de correlativo. `emitir` y la generación
+     * masiva del panel de facturación pasan por aquí, cada una con sus propios
+     * datos de cliente, para que exista UN solo camino que reserve números.
+     *
+     * Todo ocurre en una transacción corta:
+     *   1. se bloquea la fila de la serie (`FOR UPDATE`): la segunda caja
+     *      espera aquí y, al liberarse, lee el contador ya incrementado, sin
+     *      chocar ni reintentar;
+     *   2. con la serie bloqueada se comprueba si el pedido ya tiene
+     *      comprobante (la otra petición pudo confirmarlo mientras esperábamos);
+     *   3. se incrementa el contador y se crea el comprobante. Si el INSERT
+     *      falla, el incremento se revierte con él: no hay huecos por error.
+     *
+     * Dentro de esta transacción no se genera XML, no se firma y no se llama a
+     * SUNAT.
+     *
+     * @param  'boleta'|'factura'  $tipo
+     * @param  array<string, mixed>  $datos  cliente_nombre, cliente_documento, total, fecha_emision
+     */
+    public function emitirConDatos(Pedido $pedido, string $tipo, array $datos): ComprobanteElectronico
+    {
+        $serie = $tipo === 'factura' ? self::SERIE_FACTURA : self::SERIE_BOLETA;
 
-        /* Se reintenta porque el bloqueo de fila no cubre el primer comprobante
-           de una serie: cuando aún no hay ninguno no hay fila que bloquear, y
-           dos cajas simultáneas calcularían las dos el número 1. Quien de
-           verdad garantiza que no haya duplicados es el índice
-           `UNIQUE(serie, numero)`; esto sólo convierte ese choque en un
-           reintento en lugar de en un error para el vendedor.
+        try {
+            /* El segundo argumento reintenta solo ante deadlock (40P01) o fallo
+               de serialización; no hay reintento por violación de unicidad. */
+            return DB::transaction(function () use ($pedido, $tipo, $serie, $datos) {
+                $fila = SerieComprobante::bloquear($serie, $tipo);
 
-           Tres intentos bastan: el conflicto exige coincidencia en el mismo
-           milisegundo y la probabilidad de encadenar tres es despreciable. */
-        for ($intento = 1; $intento <= 3; $intento++) {
-            try {
-                return DB::transaction(function () use ($pedido, $serie, $esFactura) {
-                    /* El bloqueo va sobre la FILA más alta de esta serie, no
-                       sobre un `max()`: PostgreSQL rechaza `FOR UPDATE` junto a
-                       una función de agregación ("FOR UPDATE no está permitido
-                       con funciones de agregación"). */
-                    $ultimo = ComprobanteElectronico::where('serie', $serie)
-                        ->orderByDesc('numero')
-                        ->lockForUpdate()
-                        ->first();
+                $yaEmitido = ComprobanteElectronico::where('pedido_id', $pedido->id)->first();
+                if ($yaEmitido) {
+                    return $yaEmitido;
+                }
 
-                    return ComprobanteElectronico::create([
-                        'pedido_id'         => $pedido->id,
-                        'tipo_comprobante'  => $esFactura ? 'factura' : 'boleta',
-                        'serie'             => $serie,
-                        'numero'            => (int) ($ultimo?->numero ?? 0) + 1,
-                        'cliente_nombre'    => $pedido->cliente_nombre ?: 'Cliente sin identificar',
-                        'cliente_documento' => $pedido->cliente_documento,
-                        'total'             => $pedido->total,
-                        'estado_sunat'      => 'pendiente',
-                        'fecha_emision'     => now(),
+                /* Red de seguridad ante un contador desfasado (alguien insertó
+                   comprobantes a mano o restauró un respaldo parcial): nunca se
+                   emite por debajo de lo ya existente en la serie. Sólo avanza,
+                   así que no puede crear duplicados. */
+                $maximoReal = (int) ComprobanteElectronico::where('serie', $serie)->max('numero');
+                $numero     = max($fila->ultimo_numero, $maximoReal) + 1;
+
+                if ($maximoReal > $fila->ultimo_numero) {
+                    Log::warning('Contador de serie desfasado; se corrige al máximo emitido.', [
+                        'serie'         => $serie,
+                        'ultimo_numero' => $fila->ultimo_numero,
+                        'maximo_real'   => $maximoReal,
                     ]);
-                });
-            } catch (QueryException $e) {
-                /* 23505 es violación de unicidad: otra caja ganó la carrera por
-                   ese número. Cualquier otro error no es una carrera y debe
-                   salir a la superficie en vez de reintentarse en bucle. */
-                if ($intento === 3 || !str_contains($e->getMessage(), '23505')) {
-                    throw $e;
+                }
+
+                $fila->ultimo_numero = $numero;
+                $fila->save();
+
+                return ComprobanteElectronico::create([
+                    'pedido_id'         => $pedido->id,
+                    'tipo_comprobante'  => $tipo,
+                    'serie'             => $serie,
+                    'numero'            => $numero,
+                    'cliente_nombre'    => $datos['cliente_nombre'],
+                    'cliente_documento' => $datos['cliente_documento'] ?? null,
+                    'total'             => $datos['total'],
+                    'estado_sunat'      => 'pendiente',
+                    'fecha_emision'     => $datos['fecha_emision'] ?? now(),
+                ]);
+            }, 3);
+        } catch (QueryException $e) {
+            /* Segunda red: si el UNIQUE parcial de `pedido_id` saltó (otra
+               conexión lo confirmó entre medias), la emisión ya existe y se
+               devuelve. Cualquier otro error sube tal cual. */
+            if (str_contains($e->getMessage(), 'comprobantes_electronicos_pedido_id_unique_activo')) {
+                $existente = ComprobanteElectronico::where('pedido_id', $pedido->id)->first();
+                if ($existente) {
+                    return $existente;
                 }
             }
-        }
 
-        throw new RuntimeException('No se pudo asignar un correlativo de comprobante.');
+            throw $e;
+        }
     }
 
     /**

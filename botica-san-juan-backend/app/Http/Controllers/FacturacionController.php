@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\EnviarComprobanteASunat;
 use App\Models\ComprobanteElectronico;
 use App\Models\Pedido;
+use App\Services\ComprobanteService;
 use App\Services\SunatClient;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -12,12 +13,14 @@ use chillerlan\QRCode\Common\EccLevel;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class FacturacionController extends Controller
 {
-    public function __construct(private readonly SunatClient $sunatClient)
+    public function __construct(
+        private readonly SunatClient $sunatClient,
+        private readonly ComprobanteService $comprobantes,
+    )
     {
     }
 
@@ -75,8 +78,9 @@ class FacturacionController extends Controller
 
         $created = 0;
         foreach ($pedidos as $pedido) {
-            $this->crearComprobanteParaPedido($pedido);
-            $created++;
+            if ($this->crearComprobanteParaPedido($pedido)->wasRecentlyCreated) {
+                $created++;
+            }
         }
 
         return response()->json([
@@ -242,36 +246,26 @@ class FacturacionController extends Controller
     }
 
     /**
-     * Crea el comprobante reservando el correlativo dentro de una transaccion.
-     *
-     * El bloqueo pesimista sobre los comprobantes de la serie impide que dos
-     * emisiones simultaneas obtengan el mismo numero y choquen contra la
-     * restriccion UNIQUE(serie, numero).
+     * Crea el comprobante delegando la reserva del correlativo en
+     * `ComprobanteService`, que es el único sitio que la hace (serie bloqueada
+     * dentro de la transacción; ver docs/planes/bloque3-correlativo-y-ubl.md).
+     * Aquí sólo se conservan las reglas propias de esta ruta: el tipo se decide
+     * por el importe y el cliente sale del usuario del pedido.
      */
     private function crearComprobanteParaPedido(Pedido $pedido): ComprobanteElectronico
     {
         $totalPedido = $this->resolvePedidoTotal($pedido);
-        $tipo = $totalPedido >= 700 ? 'factura' : 'boleta';
-        $serie = $tipo === 'factura' ? 'F001' : 'B001';
 
-        return DB::transaction(function () use ($pedido, $tipo, $serie, $totalPedido) {
-            $ultimoNumero = (int) ComprobanteElectronico::query()
-                ->where('serie', $serie)
-                ->lockForUpdate()
-                ->max('numero');
-
-            return ComprobanteElectronico::create([
-                'pedido_id' => $pedido->id,
-                'tipo_comprobante' => $tipo,
-                'serie' => $serie,
-                'numero' => $ultimoNumero + 1,
-                'cliente_nombre' => $pedido->usuario->nombre ?? ('Cliente ' . $pedido->usuario_id),
+        return $this->comprobantes->emitirConDatos(
+            $pedido,
+            $totalPedido >= 700 ? 'factura' : 'boleta',
+            [
+                'cliente_nombre'    => $pedido->usuario->nombre ?? ('Cliente ' . $pedido->usuario_id),
                 'cliente_documento' => $pedido->usuario->dni ?? null,
-                'total' => $totalPedido,
-                'estado_sunat' => 'pendiente',
-                'fecha_emision' => $pedido->fecha_pedido ?? now(),
-            ]);
-        });
+                'total'             => $totalPedido,
+                'fecha_emision'     => $pedido->fecha_pedido ?? now(),
+            ]
+        );
     }
 
     private function resolvePedidoTotal(Pedido $pedido): float

@@ -525,3 +525,26 @@ El Bloque 3 de la auditoría asigna los sprints 5 y 6. Con SUNAT directa, **dos 
 | Paquetes disponibles / ausentes | `composer.json:11-19`, `composer.lock` |
 | Disco efímero | `render.yaml` (comentario de `LOG_CHANNEL`), `config/filesystems.php:34-35` |
 | Neon endpoint directo | `DESPLIEGUE.md:129-133` |
+
+---
+
+## 9. Estado de la Fase A (correlativo)
+
+**Fecha:** 18/10/2026. Implementado en la rama `claude/cool-dijkstra-m2ahwb`, sin commit todavía. **Las pruebas no se han ejecutado**: el entorno donde se escribió no tenía servidor PostgreSQL ni PHP 8.4. Solo se validó la sintaxis (`php -l`) y se revisó el SQL a mano. Hasta correr la suite contra PostgreSQL 16, la Fase A no se da por cerrada.
+
+**Hecho (pasos 4, 5 y 6 de la sección 6, y las pruebas de los pasos 2 y 3 en su versión secuencial):**
+
+- Migración `2026_10_18_100000_create_series_comprobante_table.php`: crea `series_comprobante` (`ambiente`, `serie`, `tipo_comprobante`, `ultimo_numero`, `UNIQUE(ambiente, serie)`), la siembra con el `MAX(numero)` por serie de `comprobantes_electronicos` (todo como ambiente `simulado`) y garantiza las filas `B001` y `F001`. Crea el índice `UNIQUE (pedido_id) WHERE pedido_id IS NOT NULL`. Antes de nada aborta con la lista de pedidos afectados si ya hay pedidos con más de un comprobante, sin borrar datos. `down()` elimina el índice y la tabla.
+- Modelo `SerieComprobante::bloquear()`: lee la fila con `FOR UPDATE`; si no existe la crea con `INSERT ... ON CONFLICT DO NOTHING` partiendo del máximo ya emitido, lo que es seguro ante concurrencia.
+- `ComprobanteService::emitirConDatos()` es ya el único camino que reserva números. Dentro de una sola transacción: bloquea la serie, comprueba la idempotencia por pedido, incrementa el contador y crea el comprobante. `emitir()` delega en él. Se eliminó el bucle de reintentos por 23505; `DB::transaction(..., 3)` solo reintenta deadlocks. Si el contador estuviera por debajo del máximo real de la serie, se corrige hacia adelante y se registra un aviso (no puede producir duplicados). Si salta el índice de `pedido_id`, se devuelve el comprobante existente.
+- `FacturacionController::generarDesdePedidos` ya no usa `lockForUpdate()->max()`: delega en `emitirConDatos()` conservando sus reglas propias (factura si total >= 700, cliente tomado del usuario, mismo JSON de respuesta; `created` cuenta solo los realmente creados).
+- Pruebas en `tests/Feature/CorrelativoComprobanteTest.php`: numeración contigua, series independientes, idempotencia, rechazo del segundo comprobante activo por el índice, contador desfasado, serie inexistente, `FOR UPDATE` presente en la consulta, `generarDesdePedidos` de punta a punta, y la migración (siembra y aborto por duplicados).
+
+**Queda de la Fase A:**
+
+- **Ejecutar la suite contra PostgreSQL 16** y confirmar en particular que `generarDesdePedidos` ya no falla (la sospecha del paso 3 no se pudo comprobar en su estado anterior).
+- **Prueba de concurrencia real (pasos 1 y 2):** varios procesos `php artisan` en paralelo con `DatabaseTruncation`. Con `RefreshDatabase` (una sola conexión y transacción) no se puede reproducir la espera de bloqueo entre cajas; lo cubierto aquí es el contrato, no la carrera misma.
+- Paso 7: ampliar estados y tipos. Al añadir `anulada`, recrear el índice de `pedido_id` con `AND estado_sunat <> 'anulada'`.
+- Paso 8: salvaguarda para que una venta cobrada no quede sin comprobante si `emitir` falla; paso 9: despliegue del worker.
+- Decisiones pendientes del dueño que afectan a lo hecho: preguntas 6 (qué hacer con los comprobantes `simulado`), 7 (serie por caja) y 9 (si `generarDesdePedidos` se retira; hoy conserva su regla de 700 soles y `usuario->dni`).
+- `ambiente` se fija en `simulado` por defecto; no hay aún `SUNAT_AMBIENTE`. `UNIQUE(serie, numero)` de `comprobantes_electronicos` no incluye el ambiente, así que una serie beta/producción deberá usar un nombre de serie distinto o ampliar ese índice en la Fase C.
