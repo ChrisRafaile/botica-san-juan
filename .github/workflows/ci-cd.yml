@@ -37,6 +37,38 @@ jobs:
       run:
         working-directory: botica-san-juan-backend
 
+    # Las pruebas corren sobre PostgreSQL 16, el mismo motor que produccion
+    # (phpunit.xml fija DB_CONNECTION=pgsql y DB_DATABASE=botica_san_juan_test).
+    # SQLite no sirve: no entiende GREATEST, FILTER (WHERE ...) ni ILIKE.
+    # El servicio crea la base de pruebas al arrancar; las credenciales son
+    # desechables y solo existen dentro de este job.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: botica_san_juan_test
+        ports:
+          - 5432:5432
+        # Sin la espera de salud, las pruebas arrancarian antes de que la
+        # base acepte conexiones y fallarian con "connection refused".
+        options: >-
+          --health-cmd "pg_isready -U postgres -d botica_san_juan_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # Las variables de entorno del proceso prevalecen sobre el .env copiado
+    # de .env.example, asi que la conexion no depende de ese archivo.
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: botica_san_juan_test
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,10 +76,12 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
-          # pdo_pgsql se instala porque produccion corre sobre PostgreSQL 16;
-          # las pruebas usan SQLite en memoria segun phpunit.xml.
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, pgsql, pdo_pgsql
+          # composer.json exige PHP ^8.4 y composer.lock se resolvio para
+          # 8.4.1: con 8.3 "composer install" aborta en la comprobacion de
+          # plataforma antes de llegar a las pruebas.
+          php-version: '8.4'
+          # pdo_pgsql es el controlador que usan las pruebas y produccion.
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, pgsql, pdo_pgsql
           coverage: none
 
       - name: Install Composer dependencies
