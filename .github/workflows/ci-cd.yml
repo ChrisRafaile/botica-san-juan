@@ -109,8 +109,14 @@ jobs:
 
       # pnpm se instala antes que Node: así setup-node encuentra el gestor y
       # puede cachear su almacén de paquetes.
+      # La version va explicita porque la accion busca package.json en la RAIZ
+      # del repositorio y el del frontend esta en botica-san-juan-frontend/:
+      # el "working-directory" del job solo afecta a los pasos "run", no a los
+      # "uses". Debe coincidir con "packageManager" de ese package.json.
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.2
 
       - name: Setup Node
         uses: actions/setup-node@v4
