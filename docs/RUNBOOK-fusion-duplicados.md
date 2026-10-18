@@ -194,3 +194,115 @@ vender conviene:
    (`/admin/inventory/conteo`): contar 20-30 productos al día por rotación
    corrige el inventario sin parar la botica, y de paso va poblando las fechas
    de vencimiento que hoy faltan.
+
+---
+
+## Ejecución segura en Neon
+
+Para producción no se corren los pasos 1 a 3 a mano: se usa
+[`scripts/fusion-duplicados-neon.sh`](../scripts/fusion-duplicados-neon.sh), que
+encadena las guardas, el respaldo, la simulación, la pausa y la verificación, y
+se detiene ante cualquier discrepancia. El paso 4 (`migrate`) y el muestreo con
+el dueño siguen siendo manuales.
+
+```bash
+# La cadena sale del panel de Neon: endpoint DIRECTO (sin -pooler), con sslmode.
+# Solo en el entorno de la sesión; el script nunca la guarda ni la imprime.
+read -rs DATABASE_URL && export DATABASE_URL     # pega la cadena y Enter
+scripts/fusion-duplicados-neon.sh --solo-simular # ensayo: respaldo + conteos + simulación
+scripts/fusion-duplicados-neon.sh                # flujo completo
+scripts/fusion-duplicados-neon.sh --verificar infra/backup/salida/fusion-<sello>
+```
+
+Qué hace el script, en orden:
+
+1. **Guardas.** Exige `DATABASE_URL`; rechaza `-pooler`, hosts que no sean
+   `*.neon.tech`, ausencia de `sslmode=require`, réplicas de solo lectura,
+   PostgreSQL < 15 y ejecución sin terminal. Todas las lecturas van con
+   `default_transaction_read_only=on`.
+2. **Conteos antes** (`antes.kv`): productos, grupos duplicados, ambiguos,
+   perdedores y filas de `pedido_detalles`, `movimientos_stock`, `lotes`
+   (y `incidencias_venta`, `conteo_detalles`, `carrito`) que cuelgan de
+   perdedores. Calcula en SQL independiente lo que la fusión **debería** dejar
+   (productos, lotes, unidades, suma de `productos.stock`).
+3. **Puertas.** Aborta si hay grupos ambiguos, si tras fusionar quedarían grupos
+   que violan `productos_identidad_unique` (filas que difieren solo en
+   `codigo_digemid`) o si el índice ya existe con duplicados.
+4. **Confirmación tipeada** `FUSIONAR <base> EN <host>`.
+5. **Respaldo** `pg_dump -Fc`, con comprobación de que no está vacío, de que
+   `pg_restore --list` lo lee, de que trae datos de todas las tablas, `sha256`
+   y, opcionalmente (`FUSION_RESTORE_TEST_URL`, base **desechable y vacía**), un
+   restore de prueba.
+6. **Simulación** (`artisan` sin `--aplicar`). Sus cifras deben coincidir con el
+   SQL independiente; si no, aborta (puede estar apuntando a otra base).
+7. **Pausa** y segunda confirmación `APLICAR`. Se vuelve a medir: si la base
+   cambió durante la pausa, aborta.
+8. **Aplicar.** La salida de artisan va a un archivo abierto de antemano. **El
+   resultado se decide por la base, no por el código de salida**: si artisan
+   falla al escribir pero ya hizo commit, el script lo detecta y dice que no se
+   repita; si la base no cambió, la transacción se revirtió y es seguro
+   reintentar. Re-ejecutar sobre una base ya fusionada termina en «nada que
+   hacer».
+9. **Invariantes** (`despues.kv`): 0 grupos por la clave de
+   `productos_identidad_unique`, 0 referencias huérfanas en las 7 relaciones,
+   filas y cantidades de ventas/movimientos/incidencias/`pedido_detalle_lotes`
+   intactas, ningún `movimientos_stock.lote_id` pasado a NULL, y unidades en
+   lotes y suma de `productos.stock` iguales a lo calculado antes.
+
+Todo queda en `infra/backup/salida/fusion-<sello>/` (ignorada por git, permisos
+700/600): `corrida.log`, `antes.kv`, `despues.kv`, salidas de artisan, el
+respaldo y `ROLLBACK.txt`.
+
+> El stock total **sí baja** (17 086 → 4 524 en local): es lo esperado, porque
+> las copias eran la misma mercancía. «Conservado» significa que el resultado
+> coincide con la cifra calculada de antemano, no que el total no cambie.
+
+### Lista de verificación previa
+
+- [ ] Ensayo hecho con `--solo-simular` y leído el informe completo.
+- [ ] Acuerdo del dueño y ventana acordada. **App en mantenimiento** (sin
+      ventas POS, sin pedidos del portal, sin importaciones) desde antes del
+      respaldo hasta cerrar la verificación: el comando lee los grupos *antes*
+      de abrir la transacción y no bloquea tablas.
+- [ ] Rama/snapshot de Neon creado a mano como segundo respaldo, y consultada
+      la **ventana de retención** del plan (el rollback por punto en el tiempo
+      depende de ella).
+- [ ] `DATABASE_URL` es el endpoint **directo** (sin `-pooler`) y con
+      `sslmode=require`.
+- [ ] `pg_dump` ≥ versión del servidor (16).
+- [ ] Espacio libre en disco ≥ 2 × tamaño de la base.
+- [ ] `php artisan migrate:status`: sin migraciones pendientes inesperadas
+      (`migrate --force` ejecuta **todas** las pendientes, no solo el índice).
+- [ ] Cero grupos ambiguos y cero grupos que violen el índice (el script lo
+      comprueba y aborta).
+
+### Lista de verificación posterior
+
+- [ ] El script terminó con «Fusión aplicada y verificada» (o `--verificar`
+      sobre su carpeta da todo OK).
+- [ ] `php artisan migrate --pretend` solo muestra el índice
+      `productos_identidad_unique`; luego `php artisan migrate --force`
+      (endpoint directo). Que falle es señal de duplicados residuales: **no**
+      repetir `--aplicar` a ciegas, correr `--verificar`.
+- [ ] Segunda simulación (`catalogo:fusionar-duplicados`) → «0 grupos».
+- [ ] Muestreo con el dueño del stock de unos pocos productos conocidos.
+- [ ] `php artisan test` contra una base local, no contra producción.
+- [ ] Salir del mantenimiento; archivar la carpeta de la corrida **fuera del
+      repositorio** (el volcado incluye tablas de credenciales).
+
+### Rollback
+
+Si el commit no llegó a ocurrir no hay nada que deshacer. Si ocurrió y hay que
+volver atrás (el script escribe `ROLLBACK.txt` con la hora UTC y el LSN):
+
+1. **Preferido:** rama de Neon desde la hora previa a la fusión y apuntar la app
+   al endpoint directo de esa rama. La base original queda intacta.
+2. Restaurar el `.dump` en una base **nueva y vacía**
+   (`pg_restore --no-owner --exit-on-error -d <nueva>`), comparar con
+   `antes.kv` y apuntar la app allí.
+3. Último recurso: `pg_restore --clean --if-exists` sobre la misma base, con la
+   app detenida.
+
+Si ya se creó `productos_identidad_unique`, retirarlo antes de restaurar
+(`php artisan migrate:rollback --step=1`). Todo lo vendido después de la
+fusión se pierde al volver al punto previo: de ahí el mantenimiento.
