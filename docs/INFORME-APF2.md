@@ -331,7 +331,6 @@ Se declara aquí, con nombre y causa, en vez de dejar que el lector lo descubra.
 | **Catálogo DIGEMID** | 5 filas de demostración; 1 producto cruzado de 884 | Sin él, `requiere_receta` y la exoneración de IGV no se pueblan solos. Se cubrió con `RecetaMedicaDemoSeeder` (34 productos de 5 familias) **para poder demostrar el comportamiento**; es una marcación de demostración, no la fuente regulatoria, y debe retirarse cuando se cargue el catálogo real |
 | **Exoneración de IGV** | 0 productos marcados como exonerados | La línea «Exonerado» del desglose está implementada y probada, pero no se activa con los datos actuales |
 | **Número de WhatsApp** | Configurable, sin confirmar | El portal llegó a ofrecer **cuatro números distintos**, uno de ellos el teléfono fijo (que no tiene WhatsApp). Ahora hay fuente única y, sin `VITE_BOTICA_WHATSAPP`, el botón no se pinta |
-| **Fusión de duplicados en Neon** | Runbook escrito y probado en local | Falta ejecutarlo en producción, con respaldo previo. [`RUNBOOK-fusion-duplicados.md`](RUNBOOK-fusion-duplicados.md) |
 | **Fechas de vencimiento reales** | Parciales | El stock heredado llegó sin fecha. El conteo por ciclos (`/admin/inventory/conteo`) las va poblando: 20-30 productos al día corrigen el inventario sin parar la botica |
 | **PHPUnit 12** | Bloqueado | Incompatible con `nunomaduro/collision`. Se intentó, rompió la suite y se revirtió |
 | **Cifras del portal** | Inconsistentes | El pie ya dice «más de 10 años»; Inicio y Sobre Nosotros siguen dando números distintos |

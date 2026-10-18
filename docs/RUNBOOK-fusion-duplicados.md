@@ -5,7 +5,11 @@ catálogo. **Borra filas de forma irreversible**, así que el respaldo no es
 opcional y el orden de los pasos tampoco.
 
 Ya ejecutado en **local** el 5 de octubre de 2026: 3 361 → 884 productos,
-17 086 → 4 524 unidades. Queda pendiente **producción (Neon)**.
+17 086 → 4 524 unidades. En **producción (Neon)** se aplicó el 6 de octubre de 2026
+durante el despliegue: el registro del contenedor detectó 869 grupos y el catálogo
+quedó en 884 productos (evidencia E10). La sección «Ejecución segura en Neon» y
+`scripts/fusion-duplicados-neon.sh` quedan para repetirlo ante una nueva
+reimportación.
 
 ---
 

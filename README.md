@@ -176,7 +176,7 @@ Los mensajes de commit siguen la convención
 | Componente | Estado |
 |---|:---:|
 | V1 desplegada en producción: Vercel (front), Render (API) y Neon (PostgreSQL 16) | Operativa |
-| Catálogo depurado de 3 361 a 884 productos (869 grupos duplicados fusionados; E2a, E2b) | Verificada en local; la fusión en Neon está pendiente de ejecutar |
+| Catálogo depurado de 3 361 a 884 productos (869 grupos duplicados fusionados; E2a, E2b) | Operativa en producción: 884 productos en el entorno desplegado (smoke test E10) |
 | API REST con 20 controladores y 45 migraciones | Operativa |
 | Seguridad: roles, doble factor y auditoría | Operativa |
 | Panel administrativo con 13 vistas | Operativa |
