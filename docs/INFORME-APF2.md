@@ -224,8 +224,8 @@ medirlas**, y por eso se listan con la cifra.
 
 ## 6. Pruebas funcionales
 
-Suite completa: **120 pruebas, 352 aserciones, en verde** (PHPUnit 11.5.42 sobre
-PHP 8.4). Eran 107 antes de este bloque.
+Suite completa: **150 pruebas, 458 aserciones, en verde** (PHPUnit 11.5.42 sobre
+PHP 8.4.27). Eran 107 al abrir el avance y 120 tras el bloque del carrito.
 
 | Caso | RF/HU | Acción | Resultado esperado | Resultado obtenido | Evidencia |
 |---|---|---|---|---|---|
@@ -298,7 +298,7 @@ guía.
 | 10 | Atomicidad de las operaciones de inventario | RNF06 | Simulación de venta dentro de transacción, luego `ROLLBACK`, y se comprueba que no quedó rastro | Sin escritura parcial | Pedidos 184 y 185 **no existen** tras revertir | E7 |
 | 11 | Integridad referencial | RNF06 | 5 consultas `LEFT JOIN … WHERE NULL` sobre toda la base | 0 huérfanos | **0 / 0 / 0 / 0 / 0** | E7 |
 | 12 | Peso de los recursos de imagen | RNF03 | `ls` sobre `public/formas/` | — | **12 SVG, 5.5 kB en total** | E4 |
-| 13 | Suite automatizada | RNF07 | `php artisan test` | 100 % en verde | **120 pruebas, 352 aserciones** | E5a |
+| 13 | Suite automatizada | RNF07 | `php artisan test` | 100 % en verde | **150 pruebas, 458 aserciones** | E5a |
 | 14 | Compilación sin avisos | RNF07 | `pnpm type-check` y `pnpm build` | Sin errores | Limpio · build 9.15 s | E6 |
 | 15 | Vulnerabilidades de dependencias | RNF07 | `composer audit` | Reducir | **52 → 5 avisos** | E5a |
 | 16 | Movimiento reducido | RNF04 | `prefers-reduced-motion` respetado en todas las vistas animadas | Sin animación si se pide | `utils/motion.ts` | — |
@@ -363,7 +363,7 @@ Se resuelve con `subst X:`. Diagnóstico y lo que *no* funciona en
 | Sprint | Objetivo | HU | Evidencia |
 |---|---|---|---|
 | Sprint 3 | Base de datos + Back-End | HU01, HU02, HU03 | Commits, endpoints, migraciones |
-| Sprint 4 | Integrar, probar y desplegar la V1 | HU03, HU04, HU05, HU06 | E1–E8, 120 pruebas, URL pública |
+| Sprint 4 | Integrar, probar y desplegar la V1 | HU03, HU04, HU05, HU06 | E1–E8, 150 pruebas, URL pública |
 
 **Control de versiones.** Conventional Commits: `fix` 21, `feat` 15, `docs` 5,
 `chore` 4, `test` 2, `build` 1, `refactor` 1. Los mensajes describen el problema
@@ -425,7 +425,7 @@ Explicación de cada una en [`docs/EVIDENCIAS-APF2.md`](EVIDENCIAS-APF2.md).
 
 ```bash
 # Backend  (en Windows: subst X: "<ruta del proyecto>\botica-san-juan-backend" y cd X:\)
-php artisan test                                    # 120 pruebas
+php artisan test                                    # 150 pruebas, 458 aserciones
 php artisan pos:venta-demostracion --cantidad=9     # simula y revierte
 php artisan pos:venta-demostracion --cantidad=9 --aplicar
 php artisan catalogo:fusionar-duplicados            # debe decir 0 grupos

@@ -78,7 +78,7 @@ botica_san_juan/
 │   ├── app/Http/Middleware/     Rol · CORS · auditoría · cabeceras de seguridad
 │   ├── app/Services/            Integración con la SUNAT
 │   ├── database/migrations/     45 migraciones versionadas
-│   └── tests/                   107 pruebas automatizadas (última corrida registrada)
+│   └── tests/                   150 pruebas automatizadas (última corrida registrada)
 ├── botica-san-juan-frontend/    SPA en Vue 3 + TypeScript
 │   └── src/
 │       ├── admin/               Panel administrativo (13 vistas)
@@ -126,7 +126,7 @@ El sistema queda disponible en `http://localhost:5173` y la API en `http://local
 <img src="docs/assets/icons/flask.svg" width="18" align="top" />  **Pruebas**
 
 ```bash
-cd botica-san-juan-backend && php artisan test      # 107 pruebas, 298 aserciones (evidencia E5a)
+cd botica-san-juan-backend && php artisan test      # 150 pruebas, 458 aserciones (corrida del 21/10/2026)
 cd botica-san-juan-frontend && npm run type-check   # verificación de tipos
 ```
 
@@ -180,7 +180,7 @@ Los mensajes de commit siguen la convención
 | API REST con 20 controladores y 45 migraciones | Operativa |
 | Seguridad: roles, doble factor y auditoría | Operativa |
 | Panel administrativo con 13 vistas | Operativa |
-| Suite de 107 pruebas automatizadas (E5a) | Operativa |
+| Suite de 150 pruebas automatizadas (E5a) | Operativa |
 | Punto de venta con descuento de stock por lotes FEFO (E7) | Operativa y verificada |
 | Integración con la SUNAT | Parcial: envío asíncrono implementado; la emisión tributaria real sigue pendiente |
 
