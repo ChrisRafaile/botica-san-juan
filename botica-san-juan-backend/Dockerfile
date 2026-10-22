@@ -33,6 +33,21 @@
 # sin avisar, `composer.json` declara ahora `config.platform.php`: Composer
 # resuelve siempre contra la version de PHP del despliegue, no contra la del
 # equipo de quien ejecuta el comando.
+# SOBRE EL AVISO DE SEGURIDAD DEL 21 DE OCTUBRE DE 2026
+#
+# PHP publico ese dia correcciones para dos fallos criticos de ejecucion
+# remota de codigo SIN autenticar, CVE-2026-109618 y CVE-2026-109619, ambos
+# CVSS v4.0 9.2. El aviso nombra a FrankenPHP entre los entornos afectados.
+#
+# El tag se deja FLOTANTE a proposito. `1-php8.4-alpine` sigue a la ultima
+# correccion de la rama 8.4 y ya apunta a PHP 8.4.27, que es la version
+# parcheada: su digest coincide con el del tag explicito 1-php8.4.27-alpine.
+# Fijar aqui el numero de parche obligaria a acordarse de subirlo en cada
+# aviso, y la experiencia dice que eso es justo lo que no ocurre.
+#
+# Lo que un tag flotante no permite es DEMOSTRAR, leyendo el repositorio, que
+# version se ejecuta. Esa parte la cubre docker/comprobar-php-seguro.php, que
+# aborta el arranque sobre un interprete vulnerable.
 FROM dunglas/frankenphp:1-php8.4-alpine
 
 # pdo_pgsql es la unica extension imprescindible (PostgreSQL); intl la pide
@@ -45,6 +60,11 @@ RUN install-php-extensions \
         opcache \
         zip \
         gd
+
+# Endurecimiento del interprete frente a CVE-2026-109618 y CVE-2026-109619.
+# El prefijo zz- hace que se cargue despues de la configuracion de las
+# extensiones, de modo que ningun .ini posterior reabra lo que este cierra.
+COPY docker/seguridad.ini /usr/local/etc/php/conf.d/zz-seguridad.ini
 
 # La imagen de FrankenPHP NO trae Composer. Se copia el binario de la imagen
 # oficial en lugar de descargar el instalador, que obligaria a verificar el
@@ -88,7 +108,13 @@ RUN mkdir -p \
     && chmod -R 775 storage bootstrap/cache
 
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint
+COPY docker/comprobar-php-seguro.php /usr/local/bin/comprobar-php-seguro.php
 RUN chmod +x /usr/local/bin/entrypoint
+
+# La comprobacion se ejecuta tambien AQUI, durante la construccion, y no solo
+# en el arranque: asi una imagen base vulnerable rompe el build en lugar de
+# producir un contenedor que falla al desplegarse.
+RUN php /usr/local/bin/comprobar-php-seguro.php
 
 # La imagen de FrankenPHP marca su binario con CAP_NET_BIND_SERVICE para poder
 # escuchar en los puertos 80 y 443 sin ser root. Render ejecuta los

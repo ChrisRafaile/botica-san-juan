@@ -11,6 +11,16 @@ set -e
 echo "==> Botica San Juan · arranque de la API"
 
 # ---------------------------------------------------------------------------
+# Interprete
+# ---------------------------------------------------------------------------
+# Antes que nada: si el PHP de la imagen es uno de los vulnerables a
+# CVE-2026-109618 / CVE-2026-109619 (RCE sin autenticar), el contenedor no
+# arranca. Va primero porque esos fallos se disparan durante el parseo de la
+# peticion, es decir, ANTES de que corra una sola linea de la aplicacion:
+# ninguna comprobacion posterior llegaria a tiempo.
+php /usr/local/bin/comprobar-php-seguro.php
+
+# ---------------------------------------------------------------------------
 # Comprobaciones previas
 # ---------------------------------------------------------------------------
 # APP_KEY cifra las cookies y los tokens. Sin ella Laravel lanza una excepcion
