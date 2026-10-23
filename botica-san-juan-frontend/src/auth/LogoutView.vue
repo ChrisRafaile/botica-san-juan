@@ -68,6 +68,19 @@
       </h1>
 
       <!--
+        Reconocimiento del rol. No es adorno: el sistema lo usan tres perfiles
+        con permisos distintos y, en un equipo compartido entre turnos, ver con
+        qué cuenta se estaba trabajando al cerrarla evita el error de creer que
+        sigues en la tuya.
+      -->
+      <p
+        v-if="estado !== 'cerrando' && rol"
+        class="mt-1 text-sm text-texto-secundario"
+      >
+        Gracias por tu trabajo como <span class="font-semibold text-texto-marca">{{ rol }}</span>.
+      </p>
+
+      <!--
         Altura reservada: los tres mensajes tienen longitudes distintas y, sin
         reserva, la tarjeta cambia de alto al pasar de uno a otro y empuja lo
         que hay debajo justo mientras se lee.
@@ -86,18 +99,24 @@
         class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-botica-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-botica-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
       >
         <LogIn class="size-4" />
-        Volver a entrar
+        Ir al acceso ahora
       </RouterLink>
 
       <!--
-        Sin cuenta atrás que obligue a esperar. Quien quiera irse ya, pulsa; a
-        quien no haga nada se le lleva solo, pero la sesión YA está cerrada.
+        La cuenta atrás informa, no retiene: la sesión YA está cerrada cuando
+        empieza. Es la diferencia con la versión anterior, donde el contador
+        corría ANTES de cerrar nada y había que esperarlo.
+
+        `aria-live="off"` a propósito: un número que cambia cada segundo
+        anunciado por un lector de pantalla es ruido que tapa el mensaje
+        importante, que ya se anunció arriba.
       -->
       <p
         v-if="estado === 'cerrada'"
-        class="mt-3 text-xs text-texto-terciario"
+        class="mt-3 min-h-4 text-xs text-texto-terciario"
+        aria-live="off"
       >
-        Te llevamos al inicio en unos segundos.
+        Te llevamos al acceso en {{ segundos }} s.
       </p>
     </div>
   </div>
@@ -116,13 +135,26 @@ type Estado = 'cerrando' | 'cerrada' | 'error'
 const router = useRouter()
 const authStore = useAuthStore()
 
+const SEGUNDOS_DE_CORTESIA = 4
+
 const tarjeta = ref<HTMLElement | null>(null)
 const estado = ref<Estado>('cerrando')
 const nombre = ref('')
+const rol = ref('')
+const segundos = ref(SEGUNDOS_DE_CORTESIA)
 
-/* Un único temporizador, guardado para poder cancelarlo. */
+/* Un temporizador para la cuenta atrás y uno para la salida, ambos guardados
+   para poder cancelarlos. La versión anterior dejaba el suyo vivo. */
+let cuenta: ReturnType<typeof setInterval> | null = null
 let salida: ReturnType<typeof setTimeout> | null = null
 let animacion: gsap.core.Tween | null = null
+
+/** El rol que guarda la cuenta, dicho como lo diría una persona. */
+const ROLES: Record<string, string> = {
+  administrador: 'Administrador',
+  vendedor: 'Vendedor',
+  cliente: 'Cliente',
+}
 
 const titulo = computed(() => {
   if (estado.value === 'cerrando') return 'Cerrando sesión'
@@ -135,7 +167,9 @@ const mensaje = computed(() => {
   if (estado.value === 'cerrando') return 'Estamos cerrando tu sesión de forma segura.'
 
   if (estado.value === 'cerrada') {
-    return nombre.value ? `Hasta pronto, ${nombre.value}.` : 'Hasta pronto.'
+    return nombre.value
+      ? `¡Hasta pronto, ${nombre.value}! Tu sesión se cerró de forma segura.`
+      : 'Tu sesión se cerró de forma segura.'
   }
 
   /* El caso de error merece una explicación honesta: los datos locales se
@@ -151,7 +185,10 @@ const movimientoReducido = () =>
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 onMounted(async () => {
+  /* Se leen ANTES de cerrar la sesión: después, el store ya no tiene usuario
+     y la despedida saldría sin nombre ni rol. */
   nombre.value = authStore.user?.nombre?.split(' ')[0] ?? ''
+  rol.value = ROLES[authStore.user?.rol ?? ''] ?? ''
 
   /* Solo `opacity` y `transform`: son las dos propiedades que el navegador
      resuelve en el compositor sin rehacer el diseño de la página. */
@@ -172,7 +209,11 @@ onMounted(async () => {
     estado.value = 'error'
   }
 
-  salida = setTimeout(() => router.push('/login'), 2500)
+  cuenta = setInterval(() => {
+    segundos.value = Math.max(0, segundos.value - 1)
+  }, 1000)
+
+  salida = setTimeout(() => router.push('/login'), SEGUNDOS_DE_CORTESIA * 1000)
 })
 
 /* Limpieza real, no un comentario que dice que haría falta. Sin esto, salir
@@ -180,6 +221,7 @@ onMounted(async () => {
    redirigiendo a /login desde donde fuera que estuviese la persona. */
 onBeforeUnmount(() => {
   if (salida) clearTimeout(salida)
+  if (cuenta) clearInterval(cuenta)
   animacion?.kill()
 })
 </script>

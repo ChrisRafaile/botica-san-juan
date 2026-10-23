@@ -89,7 +89,7 @@
               <hr class="my-1" />
               <button
                 class="block w-full text-left px-4 py-2 text-sm text-texto-secundario hover:bg-superficie-hundida transition-colors"
-                @click="logout"
+                @click="pedirConfirmacion"
               >
                 Cerrar Sesión
               </button>
@@ -180,6 +180,17 @@
       </div>
     </nav>
   </header>
+  <DialogoConfirmacion
+    :abierto="confirmando"
+    titulo="¿Cerrar sesión?"
+    texto="Se cerrará tu sesión en este equipo. Tu carrito se conserva."
+    etiqueta-confirmar="Cerrar sesión"
+    etiqueta-cancelar="Seguir trabajando"
+    peligroso
+    id="salir"
+    @confirmar="salir"
+    @cancelar="confirmando = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -196,6 +207,7 @@ import {
 } from 'lucide-vue-next'
 
 import SelectorTema from './SelectorTema.vue'
+import DialogoConfirmacion from './DialogoConfirmacion.vue'
 const router = useRouter()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
@@ -229,10 +241,20 @@ const closeMobileMenu = () => {
   showMobileMenu.value = false
 }
 
-const logout = async () => {
-  await authStore.logout()
+/* Antes esto cerraba la sesión en el acto y mandaba al inicio, saltándose la
+   pantalla de despedida que sí usan el panel de administración y el portal
+   del cliente. Tres puertas de salida con tres comportamientos distintos. Las
+   tres pasan ahora por /logout, que es donde vive el cierre de sesión. */
+const confirmando = ref(false)
+
+const pedirConfirmacion = () => {
   showUserMenu.value = false
-  router.push('/')
+  confirmando.value = true
+}
+
+const salir = () => {
+  confirmando.value = false
+  router.push('/logout')
 }
 
 // Close menus when clicking outside

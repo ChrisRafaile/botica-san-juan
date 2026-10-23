@@ -26,6 +26,7 @@ import { useAuthStore } from '../../stores/auth'
 import AdminSidebar from '../components/AdminSidebar.vue'
 import AdminTopbar from '../components/AdminTopbar.vue'
 import AdminToastStack from '../components/AdminToastStack.vue'
+import DialogoConfirmacion from '../../components/DialogoConfirmacion.vue'
 /* Estilos heredados de las vistas del panel (.btn-primary, .admin-theme…).
    Se conserva la importación para no romper las 12 vistas existentes mientras
    se migran progresivamente a los tokens del design system. */
@@ -118,7 +119,16 @@ function irAjustes() {
   router.push('/admin/settings')
 }
 
+/* Cerrar sesión en mitad de una venta por un clic mal dado obliga a volver a
+   entrar con el cliente esperando en el mostrador. Se confirma antes. */
+const confirmandoSalida = ref(false)
+
 function cerrarSesion() {
+  confirmandoSalida.value = true
+}
+
+function salir() {
+  confirmandoSalida.value = false
   router.push('/logout')
 }
 </script>
@@ -228,4 +238,15 @@ function cerrarSesion() {
 
     <AdminToastStack />
   </div>
+  <DialogoConfirmacion
+    :abierto="confirmandoSalida"
+    titulo="¿Cerrar sesión?"
+    texto="Se cerrará tu sesión en este equipo. Si hay una venta a medio registrar, se perderá."
+    etiqueta-confirmar="Cerrar sesión"
+    etiqueta-cancelar="Seguir trabajando"
+    peligroso
+    id="salir"
+    @confirmar="salir"
+    @cancelar="confirmandoSalida = false"
+  />
 </template>
