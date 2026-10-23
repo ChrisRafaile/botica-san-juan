@@ -408,15 +408,26 @@
                       Imagen del Producto
                     </label>
                     <div class="space-y-3">
-                      <!-- Preview de imagen actual -->
+                      <!-- Preview de imagen actual.
+                           Aquí había DOS fallos, no uno. El `src` recibía la
+                           ruta tal cual la guarda la base (`images/foo.png`),
+                           que el navegador resuelve contra el origen de la
+                           PÁGINA y no contra el de la API: por eso la imagen
+                           salía rota incluso cuando el archivo existía. Y
+                           encima no había respaldo, así que el fallo se veía
+                           como el icono de archivo roto del navegador.
+                           `ImagenConRespaldo` resuelve la ruta y garantiza que
+                           debajo siempre haya algo pintado. -->
                       <div
                         v-if="currentImage"
                         class="relative"
                       >
-                        <img
-                          :src="currentImage"
-                          alt="Producto"
-                          class="w-full h-32 object-cover rounded-lg border border-borde-sutil"
+                        <ImagenConRespaldo
+                          :ruta="currentImage"
+                          :alt="`Imagen de ${form.nombre || 'el producto'}`"
+                          carga="eager"
+                          clase-contenedor="w-full h-32 rounded-lg border border-borde-sutil"
+                          clase-imagen="h-32 w-full object-cover"
                         />
                         <button
                           type="button"
@@ -571,6 +582,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
 import { X, Upload, Save, Camera } from 'lucide-vue-next'
+
+import ImagenConRespaldo from '@/components/ImagenConRespaldo.vue'
 import api from '@/services/api'
 import PhotoCapture from '@/components/PhotoCapture.vue'
 

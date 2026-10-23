@@ -324,25 +324,25 @@
             >
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
-                  <!-- El icono va debajo y la imagen encima: si el archivo no
-                       carga, se oculta y queda el icono, sin el recuadro roto
-                       que el navegador dibuja por defecto. -->
-                  <div class="shrink-0 h-10 w-10 relative">
-                    <img
-                      v-if="urlDeMedia(product.imagen)"
-                      :src="urlDeMedia(product.imagen)!"
-                      :alt="product.nombre"
-                      class="absolute inset-0 h-10 w-10 rounded-lg object-cover"
-                      loading="lazy"
-                      decoding="async"
-                      @error="ocultarSiFalla"
-                    />
-                    <div
-                      class="h-10 w-10 rounded-lg bg-botica-50 flex items-center justify-center"
-                    >
-                      <Pill class="w-5 h-5 text-texto-marca" />
-                    </div>
-                  </div>
+                  <!-- El patrón (icono debajo, imagen encima, retirada al
+                       fallar) vive ahora en ImagenConRespaldo. Aquí estaba
+                       escrito a mano y era correcto, pero repetirlo en cada
+                       vista es justamente lo que hizo que en el modal de
+                       editar producto se escribiera mal. -->
+                  <ImagenConRespaldo
+                    :ruta="product.imagen"
+                    :alt="product.nombre"
+                    clase-contenedor="shrink-0 h-10 w-10 rounded-lg"
+                    clase-imagen="h-10 w-10 rounded-lg object-cover"
+                  >
+                    <template #respaldo>
+                      <div
+                        class="h-10 w-10 rounded-lg bg-botica-50 flex items-center justify-center"
+                      >
+                        <Pill class="w-5 h-5 text-texto-marca" />
+                      </div>
+                    </template>
+                  </ImagenConRespaldo>
                   <div class="ml-4">
                     <div class="text-sm font-medium text-texto-primario">
                       {{ product.nombre }}
@@ -585,7 +585,7 @@ import CategoryModal from '@/admin/components/CategoryModal.vue'
 import CategoryManager from '@/admin/components/CategoryManager.vue'
 import SubcategoryManager from '@/admin/components/SubcategoryManager.vue'
 import SubcategoryModal from '@/admin/components/SubcategoryModal.vue'
-import { urlDeMedia, ocultarSiFalla } from '@/utils/media'
+import ImagenConRespaldo from '@/components/ImagenConRespaldo.vue'
 
 // Get router instance
 const router = useRouter()
