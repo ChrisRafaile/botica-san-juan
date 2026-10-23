@@ -14,6 +14,12 @@
 
     "module": "ESNext",
     "moduleResolution": "Bundler",
+
+    /* Sin `target` explícito TypeScript asume ES5, y entonces cualquier tipo
+       que declare campos privados con `#` —los de Vitest, por ejemplo— falla
+       con TS18028. No se notaba porque hasta ahora este proyecto de
+       configuración solo cargaba los tipos de Vite, que no los usan. */
+    "target": "ES2022",
     "lib": ["ES2022", "DOM"],
     "types": ["node"]
     ,"forceConsistentCasingInFileNames": true
