@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\VentaSinStockException;
 use App\Models\Pedido;
+use App\Services\ResumenClienteService;
 use App\Services\ResumenPedidosService;
 use App\Services\VentaService;
 use Illuminate\Http\Request;
@@ -83,6 +84,18 @@ class PedidoController extends Controller
      * Ahora cada quien solo ve lo suyo; el administrador si puede consultar el
      * de cualquiera, porque atiende en mostrador y necesita hacerlo.
      */
+    /**
+     * Resumen del cliente que pregunta, agregado en SQL.
+     *
+     * No recibe `usuario_id`: lo deduce del token, por la misma razon que los
+     * comprobantes. Un endpoint que acepta de quien son las cifras que
+     * devuelve depende de que alguien se acuerde de comprobarlo.
+     */
+    public function miResumen(Request $request, ResumenClienteService $resumen)
+    {
+        return response()->json(['data' => $resumen->resumen($request->user())]);
+    }
+
     public function getByUser(Request $request, $usuarioId)
     {
         $solicitante = $request->user();

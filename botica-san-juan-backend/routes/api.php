@@ -143,6 +143,12 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     // Mismo motivo que en productos/resumen: si fuera despues del apiResource,
     // la ruta pedidos/{pedido} capturaria "resumen" como si fuera un id.
+    /* ANTES del apiResource, y no es cosmetico: `pedidos/{pedido}` casa con
+       `pedidos/mi-resumen` tomando «mi-resumen» por un identificador, y como
+       ese recurso exige rol administrador, un cliente recibia 403 en su
+       propio resumen. Laravel resuelve por orden de declaracion. */
+    Route::get('pedidos/mi-resumen', [PedidoController::class, 'miResumen']);
+
     Route::get('pedidos/resumen', [PedidoController::class, 'resumen'])->middleware('admin');
     Route::apiResource('pedidos', PedidoController::class)->middleware('admin');
     Route::apiResource('pedido-detalles', PedidoDetalleController::class)->middleware('admin');
