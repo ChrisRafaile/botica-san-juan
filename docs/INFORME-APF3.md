@@ -143,21 +143,54 @@ gritar, no quedarse nueve días en un registro que nadie mira.
 ## 24. Solicitudes de servicio
 
 Catálogo completo en `docs/SOLICITUDES-DE-SERVICIO.md`. Seguimiento en
-[GitHub Projects · tablero 3](https://github.com/users/ChrisRafaile/projects/3),
-verificado el 23/10/2026 leyendo los campos desde la API:
+[GitHub Projects · tablero 3](https://github.com/users/ChrisRafaile/projects/3).
 
-| Código | Tipo | Estado | Fecha |
+### 24.1. El ciclo de atención, paso a paso
+
+El procedimiento sigue los siete pasos del estándar del curso. Ninguno se
+omite, y el cuarto es el que más tentación da de saltarse:
+
+| # | Paso | Qué ocurre aquí | Dónde queda registrado |
 |---|---|---|---|
-| SOL-001 | Información | Cerrada | 14/10/2026 |
-| SOL-002 | Información | Cerrada | 16/10/2026 |
-| SOL-003 | Acceso | Cerrada | 17/10/2026 |
-| SOL-004 | Acceso | **Rechazada** | 18/10/2026 |
-| SOL-005 | Estándar | Cerrada | 19/10/2026 |
-| SOL-006 | Estándar | Cerrada | 20/10/2026 |
+| 1 | **Registrar** | La petición entra como issue del repositorio con su código SOL-xxx. La issue **es** el ticket | Issues #14 a #19 |
+| 2 | **Clasificar** | Se decide si es información, acceso o estándar, y se etiqueta | Etiquetas `tipo: informacion`, `tipo: acceso`, `tipo: estandar` |
+| 3 | **Validar** | Se comprueba que es una solicitud y no un incidente ni un cambio, y que los datos están completos | Campos del ticket |
+| 4 | **Autorizar** | Si requiere aprobación, se pide. **Si la aprobación no corresponde, se rechaza o se escala; no se salta** | Campo *Aprobación* del tablero |
+| 5 | **Atender** | El responsable ejecuta la acción | Campo *Responsable de atención* |
+| 6 | **Verificar** | Se comprueba el resultado antes de dar nada por hecho | Campo *Evidencia* |
+| 7 | **Cerrar** | Se cierra con su evidencia adjunta. Una solicitud sin evidencia no se cierra | Estado final |
 
-Las seis son issues del repositorio (#14 a #19) con los doce campos exigidos.
-Se retiraron del tablero de Sprints, donde la automatización las había
-colocado, para no mezclar entregables de desarrollo con gestión del servicio.
+### 24.2. El ciclo aplicado a las seis solicitudes
+
+| Paso | SOL-001 | SOL-002 | SOL-003 | SOL-004 | SOL-005 | SOL-006 |
+|---|---|---|---|---|---|---|
+| 1 · Registrar | #14 · 14/10 | #15 · 16/10 | #16 · 17/10 | #17 · 18/10 | #18 · 19/10 | #19 · 20/10 |
+| 2 · Clasificar | Información | Información | Acceso | Acceso | Estándar | Estándar |
+| 3 · Validar | Es orientación, no una falla | Se confirma que no es un error del sistema | Datos completos del alta | Se confirma que es acceso, no incidente | Identidad por verificar | Motivo y fecha objetivo |
+| 4 · **Autorizar** | No requiere | No requiere | Propietaria **aprueba** | Propietaria **deniega** | Propietaria aprueba | Propietaria aprueba |
+| 5 · Atender | Se indica la ruta y el criterio de fecha | Se identifica el lote vencido | Cuenta con rol vendedor | — *(no se atiende lo denegado)* | Restablecimiento con cambio obligatorio | Respaldo antes de la carga |
+| 6 · Verificar | Captura de la pantalla con el rango | Consulta sobre `lotes` | Registro del usuario y su rol | La API responde 401/403 al rol cliente | Registro del acceso posterior | Conteo de filas antes y después |
+| 7 · Cerrar | Cerrada | Cerrada | Cerrada | **Rechazada** | Cerrada | Cerrada |
+
+**SOL-004 es el caso que justifica el paso 4.** Un cliente pidió acceso a los
+reportes de ventas. Conceder lo que se pide es lo cómodo; el procedimiento
+existe precisamente para los casos en que no corresponde. Se denegó por mínimo
+privilegio —los reportes contienen márgenes, costos y datos de otros
+clientes— y se ofreció la alternativa que sí le pertenece: su propio historial
+y sus comprobantes. La evidencia no es una captura de pantalla: **es el propio
+sistema devolviendo 401/403 a un token de rol cliente**, con pruebas
+automatizadas que fijan esa regla.
+
+### 24.3. Lo que el ciclo deja medible
+
+| Indicador | Resultado |
+|---|---|
+| Solicitudes registradas | 6 |
+| Reparto por tipo | 2 información · 2 acceso · 2 estándar |
+| Atendidas y cerradas | 5 |
+| Rechazadas, con motivo documentado | 1 |
+| Cerradas sin evidencia adjunta | **0** |
+| Solicitudes que requirieron aprobación | 4 de 6 |
 
 ---
 
