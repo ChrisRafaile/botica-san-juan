@@ -45,14 +45,45 @@
           </p>
         </div>
 
-        <RouterLink
-          to="/products"
-          class="inline-flex items-center gap-2 rounded-full bg-botica-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-botica-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
-        >
-          <Search class="size-4" />
-          Ver catálogo
-        </RouterLink>
+        <!--
+          El portal se quedó sin salida al reescribirlo: la versión anterior
+          tenía «Cerrar Sesión» y se perdió. Un panel al que se entra y del
+          que no se puede salir obliga a escribir la URL a mano.
+        -->
+        <div class="flex items-center gap-2">
+          <RouterLink
+            to="/products"
+            class="inline-flex items-center gap-2 rounded-full bg-botica-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-botica-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+          >
+            <Search class="size-4" />
+            Ver catálogo
+          </RouterLink>
+
+          <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-full border border-borde-control px-4 py-2.5 text-sm font-semibold text-texto-primario transition hover:bg-superficie-interactiva focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+            @click="confirmandoSalida = true"
+          >
+            <LogOut
+              class="size-4"
+              aria-hidden="true"
+            />
+            Cerrar sesión
+          </button>
+        </div>
       </header>
+
+      <DialogoConfirmacion
+        :abierto="confirmandoSalida"
+        titulo="¿Cerrar sesión?"
+        texto="Se cerrará tu sesión en este equipo. Tu carrito se conserva."
+        etiqueta-confirmar="Cerrar sesión"
+        etiqueta-cancelar="Seguir trabajando"
+        peligroso
+        id="salir-cliente"
+        @confirmar="salir"
+        @cancelar="confirmandoSalida = false"
+      />
 
       <!-- Tarjetas de resumen -->
       <section
@@ -259,13 +290,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import type { Component } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import {
   AlertCircle,
   CheckCircle2,
   Clock,
   Download,
   FileText,
+  LogOut,
   PackageCheck,
   PackageOpen,
   Receipt,
@@ -278,6 +310,7 @@ import api from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/carrito'
 import TarjetaResumen from './components/TarjetaResumen.vue'
+import DialogoConfirmacion from '@/components/DialogoConfirmacion.vue'
 
 interface Resumen {
   pedidos: { abiertos: number; completados: number; anulados: number; total: number }
@@ -300,6 +333,7 @@ interface ComprobanteFila {
   fecha_emision: string
 }
 
+const router = useRouter()
 const auth = useAuthStore()
 const carrito = useCartStore()
 
@@ -307,6 +341,7 @@ const resumen = ref<Resumen | null>(null)
 const pedidos = ref<PedidoFila[]>([])
 const comprobantes = ref<ComprobanteFila[]>([])
 const cargando = ref(true)
+const confirmandoSalida = ref(false)
 const error = ref('')
 
 const ROLES: Record<string, string> = {
@@ -376,6 +411,13 @@ const SIN_ESTADO: EstiloEstado = {
 }
 
 const estilo = (estado: string): EstiloEstado => ESTADOS[estado] ?? SIN_ESTADO
+
+/* La salida pasa por /logout, igual que en la cabecera publica y en el panel
+   de administracion: un solo sitio donde se cierra la sesion. */
+const salir = () => {
+  confirmandoSalida.value = false
+  router.push('/logout')
+}
 
 /* La descarga va contra la API, que decide con la política si el comprobante
    es de quien lo pide. El enlace no es la protección: la protección está en
