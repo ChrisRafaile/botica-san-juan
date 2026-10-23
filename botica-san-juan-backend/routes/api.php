@@ -4,6 +4,7 @@ use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\CompraController;
 use App\Http\Controllers\ComisionController;
+use App\Http\Controllers\ComprobanteClienteController;
 use App\Http\Controllers\FacturacionController;
 use App\Http\Controllers\DigemidCatalogoController;
 use App\Http\Controllers\CarritoPublicoController;
@@ -190,11 +191,33 @@ Route::post(
 
 // Documentos tributarios: exponen nombre y documento de identidad del cliente,
 // de modo que su lectura exige identidad. Antes eran de acceso anonimo.
+//
+// EXIGIR SESION NO ERA SUFICIENTE. El listado llevaba `middleware('admin')`,
+// pero la descarga del XML y la del PDF no llevaban nada: los controladores
+// hacian `findOrFail($id)` y devolvian el documento a cualquier cuenta con
+// sesion iniciada. Recorriendo identificadores, un cliente podia descargarse
+// los comprobantes de los demas con su nombre, su DNI o RUC, los productos
+// comprados y el importe.
+//
+// Es el mismo defecto que D-05 del APF2, reaparecido en otro endpoint porque
+// la regla estaba escrita a mano dentro de un controlador. Ahora la decide
+// `ComprobanteElectronicoPolicy`, que es tambien la que usa el portal del
+// cliente: una sola regla, en un solo sitio.
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('facturacion/documentos', [FacturacionController::class, 'index'])->middleware('admin');
-    Route::get('facturacion/documentos/{id}/xml', [FacturacionController::class, 'descargarXml']);
-    Route::get('facturacion/documentos/{id}/pdf', [FacturacionController::class, 'descargarPdf']);
+
+    Route::get('facturacion/documentos/{comprobante}/xml', [FacturacionController::class, 'descargarXml'])
+        ->can('view', 'comprobante');
+    Route::get('facturacion/documentos/{comprobante}/pdf', [FacturacionController::class, 'descargarPdf'])
+        ->can('view', 'comprobante');
+
     Route::get('facturacion/comisiones', [ComisionController::class, 'index'])->middleware('admin');
+
+    // Comprobantes del cliente que pregunta. No reciben `usuario_id`: lo
+    // deducen del token, de modo que no hay nada que un consumidor pueda
+    // falsear para pedir los de otra persona.
+    Route::get('comprobantes/mios', [ComprobanteClienteController::class, 'index']);
+    Route::get('comprobantes/{comprobante}', [ComprobanteClienteController::class, 'show']);
 });
 
 Route::middleware('throttle:api')->group(function () {

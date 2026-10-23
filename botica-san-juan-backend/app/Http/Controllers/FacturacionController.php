@@ -160,9 +160,16 @@ class FacturacionController extends Controller
         ], 202);
     }
 
-    public function descargarXml(string $id)
+    /**
+     * El comprobante llega inyectado por la ruta, no buscado por id dentro del
+     * metodo. La diferencia importa: asi la autorizacion (`can('view')`) puede
+     * decidir ANTES de entrar aqui, sobre el modelo ya resuelto. Mientras el
+     * controlador hacia `findOrFail($id)` por su cuenta, no habia forma de que
+     * nadie comprobara de quien era el documento, y no la habia.
+     */
+    public function descargarXml(ComprobanteElectronico $comprobante)
     {
-        $doc = ComprobanteElectronico::with('pedido.usuario')->findOrFail($id);
+        $doc = $comprobante->load('pedido.usuario');
 
         $xmlContent = $this->buildXml($doc);
         $fileName = sprintf('%s-%08d.xml', $doc->serie, $doc->numero);
@@ -179,12 +186,12 @@ class FacturacionController extends Controller
         ]);
     }
 
-    public function descargarPdf(string $id)
+    public function descargarPdf(ComprobanteElectronico $comprobante)
     {
-        $doc = ComprobanteElectronico::with([
+        $doc = $comprobante->load([
             'pedido.usuario',
             'pedido.pedidoDetalles.producto',
-        ])->findOrFail($id);
+        ]);
 
         $company = $this->resolveCompanyData();
 
