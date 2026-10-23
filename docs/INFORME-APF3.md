@@ -19,6 +19,9 @@ entregas anteriores; donde una medición es anterior se dice su fecha.
 | O-A5 | El modal «Editar producto» mostraba el icono de imagen rota | Dos fallos: la ruta no se resolvía contra el origen de la API y no había respaldo. Ambos en `ImagenConRespaldo.vue` | commit `4fea5e5`; 9 pruebas |
 | O-A6 | Cerrar sesión no invalidaba la sesión hasta pasados cinco segundos de cuenta atrás decorativa | La sesión se cierra primero; la pantalla informa del estado real | commit `454a3ac` |
 | O-A7 | El frontend no tenía ninguna herramienta de pruebas | Vitest y Vue Test Utils configurados; 34 pruebas de componente | commit `3a653b7` |
+| O-A8 | Las descargas de comprobantes no comprobaban propiedad | Política aplicada a descargas y portal | commit `2315149` |
+| O-A9 | El apartado 18.3 decía «4 524 unidades vendibles» frente a «4 501» de la Tabla 62 | **Medido**: 4 501 en las tres formas de contarlo —stock contable, unidades en lotes y unidades vendibles— con cero unidades vencidas. El 4 524 era incorrecto y se corrigió | Consulta del 23/10/2026 |
+| O-A10 | Las pantallas del Sprint 5 no tenían verificación visual | Siete capturas tomadas sobre el entorno local | `docs/evidencias/APF3-capturas/` |
 
 ### 22.2. Observaciones abiertas
 
@@ -29,9 +32,46 @@ observaciones, es una lista de logros.
 |---|---|---|---|
 | O-B1 | Las Figuras 43 y C.3 muestran ejecuciones de la suite con 98/246 y 139/421, cifras ya superadas | Pendiente | Son capturas de pantalla: hay que volver a tomarlas, no editar el texto. Reescribir el pie haría que mintiera sobre su propia imagen |
 | O-B2 | La Figura 11 rotula «26 migraciones versionadas» dentro del PNG; hoy son 46 | Pendiente | El dato está incrustado en la imagen; exige regenerar el diagrama |
-| O-B3 | El apartado 18.3 dice «4 524 unidades vendibles» y la Tabla 62 dice «4 501» | Pendiente | Una de las dos es incorrecta, o miden cosas distintas (stock contable frente a vendible). Se resuelve con una consulta, no a ojo |
-| O-B4 | Las pantallas del Sprint 5 no tienen verificación visual | Pendiente | Hay 34 pruebas de componente, que demuestran la lógica y no el aspecto. Requiere entorno local levantado |
-| O-B5 | Las cifras del portal público («más de 10 años», «8k clientes») no coinciden entre Inicio, Sobre Nosotros y el pie | Pendiente | Decisión de negocio sobre qué cifra es la correcta |
+| O-B3 | Las cifras del portal público («más de 10 años», «8k clientes») no coinciden entre Inicio, Sobre Nosotros y el pie | Pendiente | Decisión de negocio sobre qué cifra es la correcta |
+| O-B4 | Los 884 productos del catálogo apuntan a `images/default_image.png`, archivo que ya no existe | Pendiente | Todas las imágenes del catálogo responden 404. El respaldo lo disimula con dignidad, pero el catálogo sigue sin fotografías. Exige cargar las imágenes reales |
+| O-B5 | Faltan capturas de `/registro` completo y de la tabla de productos del administrador | Pendiente | Las siete tomadas cubren lo esencial; estas dos completarían el anexo |
+
+### 22.3. Matriz «Antes / Después»
+
+Las capturas están en `docs/evidencias/APF3-capturas/` y se tomaron sobre el
+entorno local en ejecución, no sobre un prototipo.
+
+| Observación | Antes | Después | Qué cambió |
+|---|---|---|---|
+| O-A5 · Imagen rota en «Editar producto» | Captura del modal con el icono de archivo roto del navegador y el texto alternativo «Producto» | `E17-modal-editar-producto-respaldo.jpg` | La ruta se resuelve contra el origen de la API y, si el archivo no existe, aparece un respaldo en lugar del icono roto |
+| O-A6 · Cierre de sesión | Tarjeta con barra de progreso decorativa; la sesión seguía abierta cinco segundos | `E16-logout-despedida-rol.jpg` | La sesión se cierra primero; la pantalla reconoce nombre y rol |
+| Confirmación de salida | No existía: un clic cerraba la sesión sin preguntar | `E15-dialogo-confirmar-salida.jpg` | Diálogo accesible con el foco en la opción segura |
+| O-A10 · Portal del cliente | 93 líneas con cuatro tarjetas de relleno sin datos | `E14-portal-cliente-escritorio.jpg` | Cifras agregadas en SQL, historial con estado y acceso a comprobantes |
+| Validación del acceso | Sin gestión de foco | `E12-login-validaciones-y-foco.jpg` | El foco va al primer campo con error y el hueco reservado evita el salto |
+
+**Comprobaciones hechas sobre el DOM, no solo a la vista:**
+
+```json
+// Diálogo de confirmación
+{ "rol": "dialog", "modal": "true", "enfocado": "Seguir trabajando" }
+
+// Acceso enviado en blanco
+{ "enfocado": "acceso-dni",
+  "invalidos": ["acceso-dni", "acceso-clave"] }
+```
+
+### 22.4. Un defecto que encontró el propio recorrido
+
+El recorrido con navegador no sirvió solo para fotografiar lo hecho: **detectó
+una regresión introducida en este mismo Sprint**. Al reescribir el portal del
+cliente desapareció el botón de cerrar sesión que tenía la versión anterior, de
+modo que se entraba al panel y no había forma de salir salvo escribiendo la URL
+a mano.
+
+Ninguna de las 34 pruebas de componente podía verlo: todas comprueban que lo
+que existe se comporta bien, y ninguna comprueba que algo que debería existir
+no falte. Es el argumento, con un caso concreto, de por qué la verificación
+visual no es un trámite para el anexo.
 
 ---
 
@@ -156,6 +196,16 @@ colocado, para no mezclar entregables de desarrollo con gestión del servicio.
 - El archivo `AdminBulkUploadView` pesa 483 kB porque incorpora el lector de
   hojas de cálculo. Solo se descarga al entrar en esa pantalla, pero es el
   candidato evidente a dividir si alguna vez estorba.
+
+---
+
+## 25.4. Evidencias visuales del rendimiento percibido
+
+Las siete capturas se tomaron con el entorno local en ejecución (API en 8083,
+Vite en 5173) y muestran el estado cargado de cada pantalla. El portal del
+cliente resuelve tres peticiones en paralelo —resumen, pedidos y
+comprobantes— y reserva la altura de tarjetas y filas antes de que lleguen,
+de modo que la respuesta de la API no desplaza nada.
 
 ---
 
