@@ -78,9 +78,9 @@ autoriza, que es lo que el procedimiento necesita.
 |---|---|---|---|---|---|
 | SOL-001 | Información | Cómo generar el reporte de ventas del mes | Baja | No | Cerrada |
 | SOL-002 | Información | El catálogo muestra menos unidades que el anaquel | Media | No | Cerrada |
-| SOL-003 | Acceso | Alta de cuenta para vendedora nueva | Media | Sí | Cerrada |
+| SOL-003 | Acceso | Alta de cuenta para vendedor nuevo | Media | Sí | Cerrada |
 | SOL-004 | Acceso | Cliente pide acceso al módulo de reportes | Baja | Sí | **Rechazada** |
-| SOL-005 | Estándar | Restablecer contraseña de vendedora | Alta | Sí | Cerrada |
+| SOL-005 | Estándar | Restablecer contraseña de vendedor | Alta | Sí | Cerrada |
 | SOL-006 | Estándar | Respaldo de la base antes de una carga masiva | Alta | Sí | Cerrada |
 
 ---
@@ -91,7 +91,7 @@ autoriza, que es lo que el procedimiento necesita.
 |---|---|
 | **Código** | SOL-001 |
 | **Fecha** | 14/10/2026 |
-| **Solicitante** | Vendedora de mostrador · turno mañana |
+| **Solicitante** | Vendedor de mostrador · turno mañana |
 | **Tipo** | Solicitud de información |
 | **Descripción** | Pide saber cómo obtener el total vendido del mes para cuadrarlo con el cuaderno de caja. |
 | **Prioridad** | Baja |
@@ -108,7 +108,7 @@ autoriza, que es lo que el procedimiento necesita.
 |---|---|
 | **Código** | SOL-002 |
 | **Fecha** | 16/10/2026 |
-| **Solicitante** | Propietaria de la botica |
+| **Solicitante** | Propietario de la botica |
 | **Tipo** | Solicitud de información |
 | **Descripción** | Observa que un producto con existencias físicas aparece con menos unidades disponibles en el portal y pregunta si el sistema está equivocado. |
 | **Prioridad** | Media |
@@ -119,19 +119,19 @@ autoriza, que es lo que el procedimiento necesita.
 | **Evidencia** | Respuesta documentada en la issue + consulta sobre `lotes` mostrando el lote vencido y su fecha. |
 | **Estado final** | Cerrada |
 
-### SOL-003 · Alta de cuenta para vendedora nueva
+### SOL-003 · Alta de cuenta para vendedor nuevo
 
 | Campo | Valor |
 |---|---|
 | **Código** | SOL-003 |
 | **Fecha** | 17/10/2026 |
-| **Solicitante** | Propietaria de la botica |
+| **Solicitante** | Propietario de la botica |
 | **Tipo** | Solicitud de acceso |
-| **Descripción** | Ingresa una vendedora al turno tarde y necesita cuenta para registrar ventas en el punto de venta. |
+| **Descripción** | Ingresa un vendedor al turno tarde y necesita cuenta para registrar ventas en el punto de venta. |
 | **Prioridad** | Media |
 | **Responsable de atención** | Administrador del sistema |
-| **¿Requiere aprobación?** | Sí. Toda alta de cuenta con acceso al punto de venta la autoriza la propietaria. |
-| **Aprobador** | Propietaria de la botica |
+| **¿Requiere aprobación?** | Sí. Toda alta de cuenta con acceso al punto de venta la autoriza el propietario. |
+| **Aprobador** | Propietario de la botica |
 | **Solución brindada** | Cuenta creada con rol **vendedor**, no administrador: puede registrar ventas y consultar inventario, y no accede a reportes, gestión de usuarios ni respaldos. La contraseña inicial se entregó en persona, de un solo uso, con cambio obligatorio en el primer ingreso. |
 | **Evidencia** | Issue cerrada + registro de la cuenta en la tabla de usuarios con su rol. **La contraseña no se registra en el ticket ni en ningún archivo del repositorio.** |
 | **Estado final** | Cerrada |
@@ -148,24 +148,24 @@ autoriza, que es lo que el procedimiento necesita.
 | **Prioridad** | Baja |
 | **Responsable de atención** | Administrador del sistema |
 | **¿Requiere aprobación?** | Sí |
-| **Aprobador** | Propietaria de la botica · **deniega** |
+| **Aprobador** | Propietario de la botica · **deniega** |
 | **Solución brindada** | **Rechazada por mínimo privilegio.** Los reportes contienen márgenes, costos de compra y datos de otros clientes; el rol cliente no los contempla y conceder el permiso expondría información del negocio y de terceros. Se ofrece la alternativa que sí corresponde: su historial de pedidos y sus comprobantes, accesibles desde su propio panel. |
 | **Evidencia** | La API ya impide el acceso por diseño: un token de rol cliente contra las rutas de gestión responde 401/403, y hay pruebas automatizadas que fijan esa regla para que no se afloje por descuido. |
 | **Estado final** | **Rechazada** |
 
-### SOL-005 · Restablecer contraseña de vendedora
+### SOL-005 · Restablecer contraseña de vendedor
 
 | Campo | Valor |
 |---|---|
 | **Código** | SOL-005 |
 | **Fecha** | 19/10/2026 |
-| **Solicitante** | Vendedora de mostrador · turno tarde |
+| **Solicitante** | Vendedor de mostrador · turno tarde |
 | **Tipo** | Solicitud estándar (modelo «Restablecer contraseña») |
 | **Descripción** | No puede iniciar sesión al comenzar su turno y el punto de venta queda sin atender. |
 | **Prioridad** | Alta · bloquea la atención en mostrador |
 | **Responsable de atención** | Administrador del sistema |
 | **¿Requiere aprobación?** | Sí. Se verifica la identidad de quien pide antes de restablecer nada: un restablecimiento concedido por teléfono a quien dice ser otra persona es un acceso regalado. |
-| **Aprobador** | Propietaria de la botica |
+| **Aprobador** | Propietario de la botica |
 | **Tiempo objetivo** | 2 horas hábiles |
 | **Solución brindada** | Identidad verificada en persona, contraseña restablecida con valor temporal y cambio obligatorio en el primer ingreso. |
 | **Evidencia** | Issue cerrada + registro del acceso posterior de la cuenta. **No se registra el valor de la contraseña en ninguna parte.** |
@@ -177,13 +177,13 @@ autoriza, que es lo que el procedimiento necesita.
 |---|---|
 | **Código** | SOL-006 |
 | **Fecha** | 20/10/2026 |
-| **Solicitante** | Propietaria de la botica |
+| **Solicitante** | Propietario de la botica |
 | **Tipo** | Solicitud estándar (modelo «Solicitar backup») |
 | **Descripción** | Antes de cargar una lista nueva de productos por carga masiva, pide un respaldo para poder volver atrás si la carga sale mal. |
 | **Prioridad** | Alta |
 | **Responsable de atención** | Administrador del sistema |
 | **¿Requiere aprobación?** | Sí |
-| **Aprobador** | Propietaria de la botica |
+| **Aprobador** | Propietario de la botica |
 | **Solución brindada** | Respaldo ejecutado **antes** de la carga y verificado por conteo de filas de las tablas principales. Es el mismo procedimiento que ya se aplicó antes de la fusión de productos duplicados, donde el respaldo previo fue lo que permitió autorizar una operación destructiva sobre 869 grupos de productos sin asumir el riesgo a ciegas. |
 | **Evidencia** | Archivo de respaldo con su fecha + registro del comando ejecutado y del conteo de filas antes y después. |
 | **Estado final** | Cerrada |
@@ -197,9 +197,9 @@ convierte en estándar y lo que permite medir si se está cumpliendo.
 
 | Modelo | Datos requeridos | Autoriza | Atiende | Tiempo objetivo | Evidencia |
 |---|---|---|---|---|---|
-| Crear cuenta de vendedor | Nombre, documento, turno, rol | Propietaria | Administrador | 8 h hábiles | Ticket + registro de usuario |
-| Restablecer contraseña | Identidad verificada del solicitante | Propietaria | Administrador | 2 h hábiles | Ticket + registro de acceso |
-| Solicitar respaldo | Motivo y fecha objetivo | Propietaria | Administrador | 4 h hábiles | Archivo de respaldo + conteos |
+| Crear cuenta de vendedor | Nombre, documento, turno, rol | Propietario | Administrador | 8 h hábiles | Ticket + registro de usuario |
+| Restablecer contraseña | Identidad verificada del solicitante | Propietario | Administrador | 2 h hábiles | Ticket + registro de acceso |
+| Solicitar respaldo | Motivo y fecha objetivo | Propietario | Administrador | 4 h hábiles | Archivo de respaldo + conteos |
 | Generar reporte de ventas | Rango de fechas | No requiere | Administrador | 1 h hábil | Reporte exportado |
 
 ## 7. Qué se mide

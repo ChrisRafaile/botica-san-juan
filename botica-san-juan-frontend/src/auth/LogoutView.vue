@@ -10,7 +10,7 @@
 
   1. La sesión seguía abierta durante cinco segundos después de pulsar «cerrar
      sesión». En un punto de venta compartido entre turnos, eso es tiempo real
-     en el que la cuenta anterior continúa activa en un equipo que su dueña ya
+     en el que la cuenta anterior continúa activa en un equipo que su dueño ya
      dio por cerrado.
 
   2. `onUnmounted` estaba vacío —con un comentario que decía «limpiar

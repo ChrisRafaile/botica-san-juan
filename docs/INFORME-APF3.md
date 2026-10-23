@@ -89,7 +89,7 @@ visual no es un trámite para el anexo.
 | Tipo | Cuándo | Autoriza | Ejemplo real del proyecto |
 |---|---|---|---|
 | **Estándar** | Repetitivo, con resultado conocido | Preaprobado | Actualizar una dependencia menor |
-| **Normal** | Afecta a funcionalidad o datos | Propietaria | Portal del cliente (Sprint 5) |
+| **Normal** | Afecta a funcionalidad o datos | Propietario | Portal del cliente (Sprint 5) |
 | **De emergencia** | Riesgo activo; esperar cuesta más que actuar | Se ejecuta y se documenta después | Parche de PHP del 21/10/2026 |
 
 ### 23.3. Flujo
@@ -113,7 +113,7 @@ conserva los despliegues anteriores y uno se reactiva desde el panel.
 | **Origen** | Aviso de seguridad de php.net: CVE-2026-109618 y CVE-2026-109619, CVSS v4.0 9.2, ejecución remota de código **sin autenticar** |
 | **Impacto si no se actúa** | El aviso nombra a FrankenPHP, que es lo que sirve esta API. El fallo se dispara durante el parseo de la petición, **antes de que corra una línea de Laravel**: ni Sanctum ni los roles intervienen |
 | **Alcance** | Imagen base del contenedor, `php.ini` de producción y PHP local de desarrollo |
-| **Autorización** | Propietaria, con el riesgo explicado. Por ser de emergencia, se ejecutó primero sobre producción y se documentó después |
+| **Autorización** | Propietario, con el riesgo explicado. Por ser de emergencia, se ejecutó primero sobre producción y se documentó después |
 | **Plan de vuelta atrás** | Reactivar el despliegue anterior desde Render. Riesgo asumido: volvería a quedar expuesto, de modo que solo se usaría ante una caída del servicio |
 | **Ejecución** | 1) Verificado que el tag `1-php8.4-alpine` ya apuntaba a 8.4.27 comparando digests con `1-php8.4.27-alpine`. 2) Redespliegue **con caché limpia**: sin eso la capa `FROM` cacheada habría reutilizado la imagen antigua y el despliegue habría *parecido* correcto. 3) Refuerzo en `docker/seguridad.ini` y comprobador de versión |
 | **Verificación** | `GET /api/salud` → 200; `X-Powered-By: PHP/8.4.27` leído del servidor; catálogo intacto en 884 productos |
@@ -167,7 +167,7 @@ omite, y el cuarto es el que más tentación da de saltarse:
 | 1 · Registrar | #14 · 14/10 | #15 · 16/10 | #16 · 17/10 | #17 · 18/10 | #18 · 19/10 | #19 · 20/10 |
 | 2 · Clasificar | Información | Información | Acceso | Acceso | Estándar | Estándar |
 | 3 · Validar | Es orientación, no una falla | Se confirma que no es un error del sistema | Datos completos del alta | Se confirma que es acceso, no incidente | Identidad por verificar | Motivo y fecha objetivo |
-| 4 · **Autorizar** | No requiere | No requiere | Propietaria **aprueba** | Propietaria **deniega** | Propietaria aprueba | Propietaria aprueba |
+| 4 · **Autorizar** | No requiere | No requiere | Propietario **aprueba** | Propietario **deniega** | Propietario aprueba | Propietario aprueba |
 | 5 · Atender | Se indica la ruta y el criterio de fecha | Se identifica el lote vencido | Cuenta con rol vendedor | — *(no se atiende lo denegado)* | Restablecimiento con cambio obligatorio | Respaldo antes de la carga |
 | 6 · Verificar | Captura de la pantalla con el rango | Consulta sobre `lotes` | Registro del usuario y su rol | La API responde 401/403 al rol cliente | Registro del acceso posterior | Conteo de filas antes y después |
 | 7 · Cerrar | Cerrada | Cerrada | Cerrada | **Rechazada** | Cerrada | Cerrada |
