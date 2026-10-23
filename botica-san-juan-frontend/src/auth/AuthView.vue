@@ -119,6 +119,7 @@
               <div class="mt-7 space-y-4">
                 <CampoTexto
                   id="acceso-dni"
+                  ref="refAccesoDni"
                   v-model="acceso.dni"
                   etiqueta="DNI"
                   :icono="IdCard"
@@ -131,6 +132,7 @@
                 />
                 <CampoTexto
                   id="acceso-clave"
+                  ref="refAccesoClave"
                   v-model="acceso.password"
                   etiqueta="Contraseña"
                   :icono="Lock"
@@ -217,6 +219,7 @@
               <div class="mt-6 space-y-3.5">
                 <CampoTexto
                   id="registro-nombre"
+                  ref="refRegNombre"
                   v-model="registro.name"
                   etiqueta="Nombre completo"
                   :icono="User"
@@ -227,6 +230,7 @@
                 />
                 <CampoTexto
                   id="registro-dni"
+                  ref="refRegDni"
                   v-model="registro.dni"
                   etiqueta="DNI"
                   :icono="IdCard"
@@ -239,6 +243,7 @@
                 />
                 <CampoTexto
                   id="registro-correo"
+                  ref="refRegCorreo"
                   v-model="registro.email"
                   etiqueta="Correo electrónico"
                   :icono="Mail"
@@ -250,6 +255,7 @@
                 />
                 <CampoTexto
                   id="registro-telefono"
+                  ref="refRegTelefono"
                   v-model="registro.telefono"
                   etiqueta="Teléfono"
                   :icono="Phone"
@@ -263,6 +269,7 @@
                 <div>
                   <CampoTexto
                     id="registro-clave"
+                    ref="refRegClave"
                     v-model="registro.password"
                     etiqueta="Contraseña"
                     :icono="Lock"
@@ -422,7 +429,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import {
   AlertCircle,
@@ -444,6 +451,19 @@ import authService from '../services/auth'
 import CampoTexto from './components/CampoTexto.vue'
 import BotonEnvio from './components/BotonEnvio.vue'
 import EspiralMarca from './components/EspiralMarca.vue'
+import { ErrorDeValidacion, traducirCampos } from '@/utils/validacionServidor'
+
+/* El servidor nombra los campos a su manera y el formulario a la suya. Sin
+   esta tabla el mensaje llega pero no encuentra dónde pintarse: se pierde en
+   silencio, que es peor que no mapearlo, porque parece que funciona. */
+const EQUIVALENCIAS_REGISTRO: Record<string, string> = {
+  nombre: 'name',
+  name: 'name',
+  dni: 'dni',
+  email: 'email',
+  telefono: 'telefono',
+  password: 'password',
+}
 
 const route = useRoute()
 const router = useRouter()
@@ -462,6 +482,73 @@ const irA = (nombre: 'login' | 'register') => {
   if (route.name === nombre) return
   router.push({ name: nombre })
 }
+
+/* -------------------------------------------------------------------- foco */
+
+/* Los campos exponen `enfocar()`. Se guardan en referencias para poder llevar
+   el foco al primero que tenga error tras un envío fallido: sin eso, quien
+   navega con teclado o con lector de pantalla se queda en el botón de enviar
+   y tiene que recorrer el formulario a ciegas buscando qué falló. */
+type CampoEnfocable = { enfocar: () => void }
+
+const refAccesoDni = ref<CampoEnfocable | null>(null)
+const refAccesoClave = ref<CampoEnfocable | null>(null)
+const refRegNombre = ref<CampoEnfocable | null>(null)
+const refRegDni = ref<CampoEnfocable | null>(null)
+const refRegCorreo = ref<CampoEnfocable | null>(null)
+const refRegTelefono = ref<CampoEnfocable | null>(null)
+const refRegClave = ref<CampoEnfocable | null>(null)
+
+/** Orden visual de los campos: el foco debe ir al primero que falle, no a uno cualquiera. */
+const ordenAcceso = () =>
+  [
+    ['dni', refAccesoDni],
+    ['password', refAccesoClave],
+  ] as const
+
+const ordenRegistro = () =>
+  [
+    ['name', refRegNombre],
+    ['dni', refRegDni],
+    ['email', refRegCorreo],
+    ['telefono', refRegTelefono],
+    ['password', refRegClave],
+  ] as const
+
+async function enfocarPrimerError(
+  orden: ReadonlyArray<readonly [string, { value: CampoEnfocable | null }]>,
+  errores: Record<string, string>,
+): Promise<void> {
+  /* `nextTick` porque los mensajes acaban de pintarse: sin esperar, el campo
+     todavía no refleja su estado de error. */
+  await nextTick()
+
+  for (const [campo, referencia] of orden) {
+    if (errores[campo]) {
+      referencia.value?.enfocar()
+      return
+    }
+  }
+}
+
+/* Foco inicial en el primer campo del formulario visible, y de nuevo al
+   cambiar de pestaña: al pasar a «Crear cuenta» el foco se quedaba en la
+   pestaña y había que tabular hasta el formulario. No se hace si la persona
+   pidió movimiento reducido por otros motivos de accesibilidad —ahí el salto
+   de foco automático también molesta— ni en pantallas estrechas, donde mover
+   el foco abre el teclado del móvil nada más entrar. */
+const pantallaAncha = () =>
+  typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches
+
+async function enfocarPrimerCampo(): Promise<void> {
+  if (!pantallaAncha()) return
+
+  await nextTick()
+  if (esRegistro.value) refRegNombre.value?.enfocar()
+  else refAccesoDni.value?.enfocar()
+}
+
+onMounted(enfocarPrimerCampo)
 
 /* ------------------------------------------------------------------ acceso */
 
@@ -490,7 +577,11 @@ const validarAcceso = (campo: 'dni' | 'password') => {
 const enviarAcceso = async () => {
   validarAcceso('dni')
   validarAcceso('password')
-  if (Object.keys(erroresAcceso.value).length > 0) return
+
+  if (Object.keys(erroresAcceso.value).length > 0) {
+    await enfocarPrimerError(ordenAcceso(), erroresAcceso.value)
+    return
+  }
 
   enviandoAcceso.value = true
   errorAcceso.value = ''
@@ -580,7 +671,10 @@ const fortaleza = computed(() => {
 const enviarRegistro = async () => {
   ;(['name', 'dni', 'email', 'telefono', 'password'] as CampoRegistro[]).forEach(validarRegistro)
 
-  if (Object.keys(erroresRegistro.value).length > 0) return
+  if (Object.keys(erroresRegistro.value).length > 0) {
+    await enfocarPrimerError(ordenRegistro(), erroresRegistro.value)
+    return
+  }
 
   if (!registro.value.aceptaTerminos) {
     errorRegistro.value = 'Debes aceptar los términos para continuar.'
@@ -603,6 +697,25 @@ const enviarRegistro = async () => {
     authService.setAuthData(respuesta)
     await entrar('Cuenta creada', '/client/home')
   } catch (e) {
+    /* El servidor valida los mismos campos y, cuando rechaza uno, dice CUÁL y
+       por qué. Antes todo eso se resumía en «No se pudo crear la cuenta»:
+       quien repetía un DNI ya registrado no tenía forma de saber cuál de los
+       seis campos corregir. Ahora el mensaje va bajo su campo. */
+    if (e instanceof ErrorDeValidacion) {
+      const { campos, sueltos } = traducirCampos(e.campos, EQUIVALENCIAS_REGISTRO)
+
+      erroresRegistro.value = { ...erroresRegistro.value, ...campos }
+
+      /* Lo que no corresponde a ningún campo visible no se tira: se muestra
+         arriba. Descartarlo en silencio dejaría el formulario rechazado sin
+         un solo mensaje, que es la peor versión de este fallo. */
+      errorRegistro.value =
+        sueltos.length > 0 ? sueltos.join(' ') : Object.keys(campos).length > 0 ? '' : e.message
+
+      await enfocarPrimerError(ordenRegistro(), erroresRegistro.value)
+      return
+    }
+
     errorRegistro.value = e instanceof Error ? e.message : 'No se pudo crear la cuenta.'
   } finally {
     enviandoRegistro.value = false
@@ -636,6 +749,12 @@ const entrar = async (mensaje: string, destino: string) => {
 watch(esRegistro, () => {
   errorAcceso.value = ''
   errorRegistro.value = ''
+
+  /* El foco acompaña al cambio de formulario. Antes se quedaba en la pestaña
+     y había que tabular hasta el primer campo del formulario que acababa de
+     aparecer, cosa que quien usa ratón ni nota y quien usa teclado paga en
+     cada cambio. */
+  void enfocarPrimerCampo()
 })
 </script>
 

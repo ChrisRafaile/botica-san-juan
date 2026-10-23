@@ -25,6 +25,7 @@
 
       <input
         :id="id"
+        ref="campo"
         :value="modelValue"
         :type="type"
         :inputmode="inputmode"
@@ -64,11 +65,17 @@
       El error se anuncia con role="alert" y se enlaza con aria-describedby:
       en un lector de pantalla, un mensaje rojo sin enlazar simplemente no
       existe.
+
+      EL HUECO SE RESERVA SIEMPRE. Antes el párrafo aparecía y desaparecía con
+      `v-if`, de modo que al validar un campo todo lo que había debajo —el
+      resto del formulario y el botón de enviar— daba un salto hacia abajo,
+      justo en el momento en que la persona está leyendo qué corregir. Con la
+      altura reservada el mensaje aparece sin mover nada. Es la misma razón por
+      la que el formulario de contacto reserva su espacio.
     -->
     <p
-      v-if="error"
       :id="`${id}-error`"
-      class="mt-1.5 text-xs text-peligro-700 dark:text-peligro-500"
+      class="mt-1.5 min-h-4 text-xs text-peligro-700 dark:text-peligro-500"
       role="alert"
     >
       {{ error }}
@@ -77,6 +84,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { Component } from 'vue'
 
 withDefaults(
@@ -102,4 +110,24 @@ defineEmits<{
   blur: []
   accion: []
 }>()
+
+const campo = ref<HTMLInputElement | null>(null)
+
+/**
+ * Lleva el foco (y la vista) a este campo.
+ *
+ * Lo expone el componente en vez de dejar que la vista busque el input por su
+ * `id`: con `document.getElementById` el formulario tendría que conocer el
+ * HTML interno de este componente, y cualquier cambio aquí lo rompería en
+ * silencio.
+ *
+ * `preventScroll` no se usa a propósito: cuando el campo con error queda
+ * fuera de la pantalla, hay que llevar la vista hasta él. Un foco invisible
+ * deja a la persona escribiendo donde no ve.
+ */
+function enfocar(): void {
+  campo.value?.focus()
+}
+
+defineExpose({ enfocar })
 </script>

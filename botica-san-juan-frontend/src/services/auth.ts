@@ -1,6 +1,7 @@
 import api from './api'
 import type { AxiosResponse } from 'axios'
 import logger from '@/utils/logger'
+import { ErrorDeValidacion, erroresPorCampo } from '@/utils/validacionServidor'
 
 // User interface based on Laravel backend structure
 export interface User {
@@ -99,6 +100,21 @@ class AuthService {
     } catch (error: unknown) {
       console.error('Error registering:', error)
       const err = error as ApiError
+
+      /* Una validación fallida (422) dice QUÉ campo está mal. Envolverla en un
+         `Error` genérico tira esa información y obliga a quien se registra a
+         adivinar cuál de los seis campos corregir. Se conserva en un error
+         propio para que el formulario pueda pintarla bajo el campo. */
+      const datos = (err.response as { data?: unknown } | undefined)?.data
+      const campos = erroresPorCampo(datos)
+
+      if (Object.keys(campos).length > 0) {
+        throw new ErrorDeValidacion(
+          err.response?.data?.message || 'Revisa los datos ingresados',
+          campos,
+        )
+      }
+
       throw new Error(err.response?.data?.message || 'Error al registrarse')
     }
   }

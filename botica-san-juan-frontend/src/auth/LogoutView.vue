@@ -1,262 +1,185 @@
+<!--
+  Cierre de sesión.
+  ===========================================================================
+  QUÉ HACÍA ANTES Y POR QUÉ SE REHIZO
+
+  La pantalla anterior mostraba una cuenta atrás de cinco segundos con una
+  barra de progreso y veinte partículas flotando, y SOLO AL TERMINAR llamaba a
+  `authStore.logout()`. Eso tenía tres problemas, y únicamente el primero era
+  estético:
+
+  1. La sesión seguía abierta durante cinco segundos después de pulsar «cerrar
+     sesión». En un punto de venta compartido entre turnos, eso es tiempo real
+     en el que la cuenta anterior continúa activa en un equipo que su dueña ya
+     dio por cerrado.
+
+  2. `onUnmounted` estaba vacío —con un comentario que decía «limpiar
+     intervalos si hace falta»— mientras un `setInterval` seguía corriendo. Si
+     alguien navegaba a otro sitio durante la cuenta atrás, el temporizador
+     continuaba, terminaba y disparaba el cierre de sesión y un salto a
+     /login desde una pantalla que no tenía nada que ver.
+
+  3. La barra no medía nada. Avanzaba con el reloj, no con el progreso de la
+     petición: marcaba el 100 % tanto si el servidor había respondido como si
+     estaba fallando.
+
+  AHORA la sesión se cierra de inmediato y la pantalla informa del estado real
+  de esa operación. Lo que se ve es consecuencia de lo que ha pasado, no un
+  adorno que corre en paralelo.
+-->
 <template>
-  <div class="min-h-screen bg-linear-to-br from-clinico-900 via-clinico-900 to-botica-900 flex items-center justify-center p-4">
-    <div class="max-w-md w-full">
-      <!-- Main logout card -->
+  <div
+    class="flex min-h-dvh items-center justify-center bg-superficie-base px-4 py-12"
+  >
+    <div
+      ref="tarjeta"
+      class="w-full max-w-sm rounded-3xl border border-borde-sutil bg-superficie-elevada p-8 text-center shadow-lg"
+    >
+      <!--
+        El estado se anuncia a los lectores de pantalla. `polite` y no
+        `assertive`: interrumpir la lectura en curso para decir «cerrando
+        sesión» no aporta nada; esperar a que termine la frase, sí.
+      -->
       <div
-        ref="logoutCard"
-        class="bg-superficie-elevada/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 text-center"
+        class="mx-auto flex size-16 items-center justify-center rounded-full"
+        :class="
+          estado === 'error'
+            ? 'bg-peligro-50 text-peligro-700 dark:bg-peligro-500/10'
+            : 'bg-botica-50 text-texto-marca'
+        "
+        aria-hidden="true"
       >
-        <!-- Logout icon with animation -->
-        <div class="mb-6">
-          <div
-            ref="iconContainer"
-            class="w-20 h-20 mx-auto bg-linear-to-r from-peligro-500 to-peligro-600 rounded-full flex items-center justify-center shadow-lg"
-          >
-            <svg
-              class="w-10 h-10 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-          </div>
-        </div>
-
-        <!-- Title -->
-        <h1
-          ref="title"
-          class="text-3xl font-bold text-white mb-4"
-        >
-          Cerrando Sesión
-        </h1>
-
-        <!-- Personalized message -->
-        <p
-          ref="message"
-          class="text-lg text-white/80 mb-6"
-        >
-          Gracias por usar nuestros servicios, {{ userName }}.
-          <br />
-          Tu sesión se cerrará en
-          <span class="font-bold text-white">{{ countdown }}</span> segundos.
-        </p>
-
-        <!-- Progress bar -->
-        <div class="mb-6">
-          <div class="w-full bg-superficie-elevada/20 rounded-full h-2">
-            <div
-              ref="progressBar"
-              class="bg-linear-to-r from-clinico-400 to-clinico-500 h-2 rounded-full transition-all duration-1000 ease-linear"
-              :style="{ width: progressWidth }"
-            ></div>
-          </div>
-        </div>
-
-        <!-- Loading animation -->
-        <div class="flex justify-center space-x-1 mb-4">
-          <div
-            v-for="dot in 3"
-            :key="dot"
-            ref="dots"
-            class="w-3 h-3 bg-superficie-elevada rounded-full animate-pulse"
-            :style="{ animationDelay: `${dot * 0.2}s` }"
-          ></div>
-        </div>
-
-        <!-- Footer message -->
-        <p class="text-sm text-white/60">
-          Redirigiendo al inicio de sesión...
-        </p>
+        <LoaderCircle
+          v-if="estado === 'cerrando'"
+          class="size-7 animate-spin"
+        />
+        <CheckCircle2
+          v-else-if="estado === 'cerrada'"
+          class="size-7"
+        />
+        <AlertCircle
+          v-else
+          class="size-7"
+        />
       </div>
 
-      <!-- Background particles -->
-      <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          v-for="particle in particles"
-          :key="particle.id"
-          class="absolute w-2 h-2 bg-superficie-elevada/20 rounded-full"
-          :style="{
-            left: particle.x + '%',
-            top: particle.y + '%',
-            animation: `float-${particle.id} ${particle.duration}s ease-in-out infinite`
-          }"
-        ></div>
-      </div>
+      <h1 class="mt-5 text-xl font-bold tracking-tight text-texto-primario">
+        {{ titulo }}
+      </h1>
+
+      <!--
+        Altura reservada: los tres mensajes tienen longitudes distintas y, sin
+        reserva, la tarjeta cambia de alto al pasar de uno a otro y empuja lo
+        que hay debajo justo mientras se lee.
+      -->
+      <p
+        class="mx-auto mt-2 min-h-10 max-w-xs text-sm text-texto-secundario"
+        role="status"
+        aria-live="polite"
+      >
+        {{ mensaje }}
+      </p>
+
+      <RouterLink
+        v-if="estado !== 'cerrando'"
+        to="/login"
+        class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-botica-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-botica-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+      >
+        <LogIn class="size-4" />
+        Volver a entrar
+      </RouterLink>
+
+      <!--
+        Sin cuenta atrás que obligue a esperar. Quien quiera irse ya, pulsa; a
+        quien no haga nada se le lleva solo, pero la sesión YA está cerrada.
+      -->
+      <p
+        v-if="estado === 'cerrada'"
+        class="mt-3 text-xs text-texto-terciario"
+      >
+        Te llevamos al inicio en unos segundos.
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import { gsap } from 'gsap'
+import { AlertCircle, CheckCircle2, LoaderCircle, LogIn } from 'lucide-vue-next'
+
 import { useAuthStore } from '../stores/auth'
 
-interface Particle {
-  id: number
-  x: number
-  y: number
-  duration: number
-}
+type Estado = 'cerrando' | 'cerrada' | 'error'
 
 const router = useRouter()
-const route = useRoute()
 const authStore = useAuthStore()
 
-// Refs
-const logoutCard = ref()
-const iconContainer = ref()
-const title = ref()
-const message = ref()
-const progressBar = ref()
-const dots = ref([])
+const tarjeta = ref<HTMLElement | null>(null)
+const estado = ref<Estado>('cerrando')
+const nombre = ref('')
 
-// Reactive data
-const countdown = ref(5)
-const progressWidth = ref('100%')
-const userName = ref('Usuario')
-const particles = ref<Particle[]>([])
+/* Un único temporizador, guardado para poder cancelarlo. */
+let salida: ReturnType<typeof setTimeout> | null = null
+let animacion: gsap.core.Tween | null = null
 
-// Generate background particles
-const generateParticles = () => {
-  particles.value = []
-  for (let i = 0; i < 20; i++) {
-    particles.value.push({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      duration: 3 + Math.random() * 4
-    })
-  }
-}
+const titulo = computed(() => {
+  if (estado.value === 'cerrando') return 'Cerrando sesión'
+  if (estado.value === 'cerrada') return 'Sesión cerrada'
 
-// Logout animation sequence
-const startLogoutSequence = async () => {
-  // Get user name from store or route params
-  userName.value = authStore.user?.nombre || route.query.name as string || 'Usuario'
-
-  // Initial animations
-  const tl = gsap.timeline()
-
-  // Card entrance
-  tl.from(logoutCard.value, {
-    scale: 0.8,
-    opacity: 0,
-    duration: 0.6,
-    ease: "back.out(1.7)"
-  })
-
-  // Icon rotation
-  tl.from(iconContainer.value, {
-    rotation: -180,
-    scale: 0,
-    duration: 0.8,
-    ease: "back.out(1.7)"
-  }, "-=0.3")
-
-  // Title and message
-  tl.from([title.value, message.value], {
-    y: 30,
-    opacity: 0,
-    duration: 0.6,
-    stagger: 0.2,
-    ease: "power2.out"
-  }, "-=0.4")
-
-  // Countdown timer
-  const countdownInterval = setInterval(() => {
-    countdown.value--
-    progressWidth.value = `${(countdown.value / 5) * 100}%`
-
-    // Animate progress bar
-    gsap.to(progressBar.value, {
-      scaleX: countdown.value / 5,
-      duration: 1,
-      ease: "power2.out",
-      transformOrigin: "left"
-    })
-
-    if (countdown.value <= 0) {
-      clearInterval(countdownInterval)
-      completeLogout()
-    }
-  }, 1000)
-
-  // Pulsing dots animation
-  gsap.to(dots.value, {
-    scale: 1.2,
-    duration: 0.6,
-    stagger: 0.1,
-    repeat: -1,
-    yoyo: true,
-    ease: "power2.inOut"
-  })
-}
-
-// Complete logout and redirect
-const completeLogout = async () => {
-  try {
-    // Perform actual logout
-    await authStore.logout()
-
-    // Exit animation
-    const tl = gsap.timeline()
-
-    tl.to(logoutCard.value, {
-      scale: 0.9,
-      opacity: 0,
-      y: -50,
-      duration: 0.5,
-      ease: "power2.in"
-    })
-
-    // Redirect after animation
-    setTimeout(() => {
-      router.push('/login')
-    }, 500)
-
-  } catch (error) {
-    console.error('Logout error:', error)
-    // Fallback redirect
-    router.push('/login')
-  }
-}
-
-onMounted(() => {
-  generateParticles()
-  startLogoutSequence()
+  return 'Sesión cerrada en este equipo'
 })
 
-onUnmounted(() => {
-  // Cleanup any intervals or animations if needed
+const mensaje = computed(() => {
+  if (estado.value === 'cerrando') return 'Estamos cerrando tu sesión de forma segura.'
+
+  if (estado.value === 'cerrada') {
+    return nombre.value ? `Hasta pronto, ${nombre.value}.` : 'Hasta pronto.'
+  }
+
+  /* El caso de error merece una explicación honesta: los datos locales se
+     borraron igualmente, así que en este equipo la sesión está cerrada, pero
+     no se pudo confirmar al servidor. Decir solo «error» dejaría a la persona
+     sin saber si tiene que volver a intentarlo. */
+  return 'No pudimos confirmarlo con el servidor, pero tus datos de acceso ya se borraron de este equipo.'
+})
+
+/** Respeta la preferencia del sistema en lugar de imponer movimiento. */
+const movimientoReducido = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+onMounted(async () => {
+  nombre.value = authStore.user?.nombre?.split(' ')[0] ?? ''
+
+  /* Solo `opacity` y `transform`: son las dos propiedades que el navegador
+     resuelve en el compositor sin rehacer el diseño de la página. */
+  if (tarjeta.value && !movimientoReducido()) {
+    animacion = gsap.from(tarjeta.value, {
+      opacity: 0,
+      scale: 0.96,
+      duration: 0.35,
+      ease: 'power2.out',
+    })
+  }
+
+  /* LO PRIMERO, sin esperar a ninguna animación. */
+  try {
+    await authStore.logout()
+    estado.value = 'cerrada'
+  } catch {
+    estado.value = 'error'
+  }
+
+  salida = setTimeout(() => router.push('/login'), 2500)
+})
+
+/* Limpieza real, no un comentario que dice que haría falta. Sin esto, salir
+   de esta pantalla antes de tiempo dejaba vivo el temporizador y acababa
+   redirigiendo a /login desde donde fuera que estuviese la persona. */
+onBeforeUnmount(() => {
+  if (salida) clearTimeout(salida)
+  animacion?.kill()
 })
 </script>
-
-<style scoped>
-@keyframes float-0 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
-@keyframes float-1 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
-@keyframes float-2 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-25px); } }
-@keyframes float-3 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
-@keyframes float-4 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-30px); } }
-@keyframes float-5 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-18px); } }
-@keyframes float-6 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-22px); } }
-@keyframes float-7 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
-@keyframes float-8 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-28px); } }
-@keyframes float-9 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-16px); } }
-@keyframes float-10 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-24px); } }
-@keyframes float-11 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-14px); } }
-@keyframes float-12 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-26px); } }
-@keyframes float-13 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
-@keyframes float-14 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-32px); } }
-@keyframes float-15 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-19px); } }
-@keyframes float-16 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-21px); } }
-@keyframes float-17 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-11px); } }
-@keyframes float-18 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-27px); } }
-@keyframes float-19 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-13px); } }
-</style>
