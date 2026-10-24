@@ -36,6 +36,11 @@ import { useAdminToast } from '../composables/useAdminToast'
 import BoticaButton from '../components/ui/BoticaButton.vue'
 import BoticaBadge from '../components/ui/BoticaBadge.vue'
 import BoticaEstadoVacio from '../components/ui/BoticaEstadoVacio.vue'
+import EstadoConexionCaja from '../components/EstadoConexionCaja.vue'
+import TicketContingencia from '../components/TicketContingencia.vue'
+import { useOfflineStore } from '@/stores/offline'
+import { reconciliarCorrelativo, siguienteNotaContingencia } from '@/offline/notaContingencia'
+import type { VentaLocal } from '@/offline/tipos'
 
 const {
   lineas, resultados, buscando, registrando, cliente, totales, carritoRecuperado,
@@ -54,7 +59,13 @@ const panelAtajos = ref(false)
 const confirmacionParcial = ref<null | { faltantes: number; total: number }>(null)
 const ultimaVenta = ref<null | { id: number; total: number }>(null)
 
+/* Contingencia: el store decide el camino del cobro y la vista solo refleja
+   su estado. */
+const offline = useOfflineStore()
+const ventaDeContingencia = ref<VentaLocal | null>(null)
+
 let temporizador: number | undefined
+let dejarDeVigilarLaRed: (() => void) | null = null
 
 /* ---------------------------------------------------------------------------
    Estado del cobro
@@ -231,34 +242,87 @@ async function cobrar(confirmarParcial = false) {
   }
 }
 
-/** Segundo paso: registrar la venta con el cobro ya decidido. */
+/**
+ * Segundo paso: registrar la venta con el cobro ya decidido.
+ *
+ * El cobro pasa SIEMPRE por el store de contingencia, que es quien decide el
+ * camino: con red va contra `POST /pos/ventas` —así se conserva la
+ * conversación de entrega parcial, que la sincronización no hace— y sin red,
+ * o si la respuesta se pierde, la venta cae en la cola local con su ticket
+ * NV. La pantalla no comprueba `navigator.onLine` por su cuenta.
+ */
 async function confirmarCobro(confirmarParcial = false) {
   if (!cobroValido.value) return
 
+  const nota = await siguienteNotaContingencia()
+
+  /* El vuelto se anuncia en el aviso porque es lo que el vendedor necesita
+     leer en ese instante, con el cliente esperando delante. */
+  const cambio = vuelto.value > 0 ? ` Vuelto: S/ ${vuelto.value.toFixed(2)}.` : ''
+
   try {
-    const venta = await registrar(confirmarParcial, armarPagos())
+    const resultado = await offline.cobrar(
+      {
+        nota_contingencia: nota,
+        registrada_en: new Date().toISOString(),
+        cliente: {
+          nombre: cliente.value.nombre || null,
+          documento: cliente.value.documento || null,
+          tipo_documento: cliente.value.tipo_documento,
+        },
+        observacion: null,
+        items: lineas.value.map((l) => ({
+          producto_id: l.producto.id,
+          unidad_venta: l.forma.unidad_venta,
+          cantidad: l.cantidad,
+          nombre: l.producto.nombre,
+          precio_unitario: l.forma.precio,
+        })),
+        pagos: armarPagos(),
+        total: totales.value.total,
+      },
+      { confirmarParcial },
+    )
 
     panelCobro.value = false
     confirmacionParcial.value = null
-    ultimaVenta.value = { id: venta.id, total: venta.total }
 
-    /* El vuelto se anuncia en el aviso porque es lo que el vendedor necesita
-       leer en ese instante, con el cliente esperando delante. */
-    const cambio = vuelto.value > 0
-      ? ` Vuelto: S/ ${vuelto.value.toFixed(2)}.`
-      : ''
+    if (resultado.via === 'servidor') {
+      const venta = resultado.venta as { id: number; total: number }
+      ultimaVenta.value = { id: venta.id, total: venta.total }
 
-    notifySuccess(
-      'Venta registrada',
-      `Comprobante interno #${venta.id} por S/ ${Number(venta.total).toFixed(2)}.${cambio}`,
-    )
+      notifySuccess(
+        'Venta registrada',
+        `Comprobante interno #${venta.id} por S/ ${Number(venta.total).toFixed(2)}.${cambio}`,
+      )
+    } else {
+      /* Sin conexión el ticket se muestra en pantalla para imprimirlo: es lo
+         único que el cliente se lleva, y si el vendedor no lo ve no lo
+         entrega. */
+      ventaDeContingencia.value = resultado.local
+      ultimaVenta.value = null
+
+      notifySuccess(
+        'Venta guardada sin conexión',
+        `${nota} por S/ ${resultado.local.total.toFixed(2)}.${cambio} Se enviará al volver la red.`,
+      )
+    }
 
     vaciar()
     termino.value = ''
-    enfocarBusqueda()
+    if (!ventaDeContingencia.value) enfocarBusqueda()
   } catch (error: unknown) {
     manejarErrorDeVenta(error)
   }
+}
+
+function imprimirTicket(): void {
+  window.print()
+}
+
+function cerrarTicket(): void {
+  ventaDeContingencia.value = null
+  enfocarBusqueda()
 }
 
 /**
@@ -343,6 +407,26 @@ onMounted(async () => {
 function alPulsar(evento: KeyboardEvent) {
   const enCampo = (evento.target as HTMLElement)?.tagName === 'INPUT'
     || (evento.target as HTMLElement)?.tagName === 'SELECT'
+
+  /* Con el ticket de contingencia en pantalla, el teclado tiene dos usos y
+     ninguno más: imprimirlo o cerrarlo. Dejar activos F2 o Supr aquí haría
+     que el vendedor empezara la venta siguiente con el papel de la anterior
+     todavía sin entregar. */
+  if (ventaDeContingencia.value) {
+    if (evento.key === 'Escape' || evento.key === 'Enter') {
+      evento.preventDefault()
+      cerrarTicket()
+      return
+    }
+
+    if (evento.key === 'F2') {
+      evento.preventDefault()
+      imprimirTicket()
+      return
+    }
+
+    return
+  }
 
   /* Con el cobro abierto el teclado le pertenece: 1-5 eligen medio y Enter
      confirma. Si los atajos generales siguieran activos, teclear el importe
@@ -446,14 +530,31 @@ function alPulsar(evento: KeyboardEvent) {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('keydown', alPulsar)
   enfocarBusqueda()
+
+  /* La caja abre el almacén local y empieza a vigilar la red. Si esto
+     fallara, cobrar en línea seguiría funcionando: la contingencia es una
+     red de seguridad, no un requisito para operar. */
+  try {
+    await offline.iniciar()
+    await reconciliarCorrelativo()
+    dejarDeVigilarLaRed = offline.vigilar()
+  } catch {
+    notifyError(
+      'Contingencia no disponible',
+      'No se pudo preparar el almacén local. Si se cae la red, no podrás cobrar.',
+    )
+  }
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', alPulsar)
   if (temporizador) window.clearTimeout(temporizador)
+  /* El temporizador de reintento vive mientras la caja está abierta. Sin
+     esto, cada entrada a la pantalla dejaría uno más corriendo. */
+  dejarDeVigilarLaRed?.()
 })
 
 const soles = (n: number) => `S/ ${n.toFixed(2)}`
@@ -472,6 +573,18 @@ const etiquetaForma: Record<string, string> = {
       class="flex min-h-0 flex-1 flex-col gap-3"
       aria-label="Productos de la venta"
     >
+      <!-- Estado de la conexión y de la cola de contingencia -->
+      <EstadoConexionCaja
+        class="shrink-0"
+        :en-linea="offline.enLinea"
+        :sincronizando="offline.sincronizando"
+        :pendientes="offline.pendientes.length"
+        :horas-de-atraso="offline.horasDeAtraso"
+        :nivel-de-atraso="offline.nivelDeAtraso"
+        :almacenamiento-degradado="offline.almacenamientoDegradado"
+        @sincronizar="offline.sincronizar()"
+      />
+
       <!-- Buscador -->
       <div class="relative shrink-0">
         <Search
@@ -1159,6 +1272,46 @@ const etiquetaForma: Record<string, string> = {
             <p class="mt-3 text-center text-xs text-texto-terciario">
               Enter confirma · 1-5 eligen medio · Esc cancela
             </p>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- ============ Ticket de contingencia (venta sin conexión) =========== -->
+    <Teleport to="body">
+      <Transition
+        enter-active-class="transition-opacity duration-150"
+        enter-from-class="opacity-0"
+        leave-active-class="transition-opacity duration-100"
+        leave-to-class="opacity-0"
+      >
+        <div
+          v-if="ventaDeContingencia"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/50 p-4 print:static print:bg-transparent print:p-0"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="titulo-ticket"
+        >
+          <div class="max-h-full w-full max-w-sm overflow-y-auto rounded-2xl bg-superficie-flotante p-5 shadow-xl print:max-w-none print:overflow-visible print:p-0 print:shadow-none">
+            <h2 id="titulo-ticket" class="mb-1 text-base font-bold text-texto-primario print:hidden">
+              Venta guardada sin conexión
+            </h2>
+            <p class="mb-4 text-sm text-texto-secundario print:hidden">
+              Entrega este ticket al cliente. La boleta se emitirá cuando vuelva la red.
+            </p>
+
+            <TicketContingencia :venta="ventaDeContingencia" />
+
+            <div class="mt-4 flex justify-end gap-2 print:hidden">
+              <BoticaButton @click="cerrarTicket">
+                Cerrar
+                <kbd class="ml-1 rounded bg-superficie-hundida px-1.5 py-0.5 font-mono text-xs">Esc</kbd>
+              </BoticaButton>
+              <BoticaButton variante="primario" @click="imprimirTicket">
+                Imprimir
+                <kbd class="ml-1 rounded bg-superficie-elevada/20 px-1.5 py-0.5 font-mono text-xs">F2</kbd>
+              </BoticaButton>
+            </div>
           </div>
         </div>
       </Transition>

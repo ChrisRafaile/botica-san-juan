@@ -235,4 +235,80 @@ describe('store offline', () => {
     expect(store.enLinea).toBe(false)
     parar()
   })
+
+  // ------------------------------------------------- cobro con y sin red
+
+  describe('cobrar()', () => {
+    const datosCobro = () => ({
+      nota_contingencia: 'NV-000010',
+      registrada_en: new Date().toISOString(),
+      cliente: { nombre: 'Consumidor final', tipo_documento: 'sin_documento' as const },
+      observacion: null,
+      items: [
+        { producto_id: 3, unidad_venta: 'unidad' as const, cantidad: 1, nombre: 'Ibuprofeno', precio_unitario: 3 },
+      ],
+      pagos: [{ medio: 'efectivo', monto: 3 }],
+      total: 3,
+    })
+
+    it('con red cobra contra el servidor y no toca la cola', async () => {
+      const store = useOfflineStore()
+      store.enLinea = true
+      post.mockResolvedValue({ data: { data: { id: 55, total: 3 } } })
+
+      const resultado = await store.cobrar(datosCobro())
+
+      expect(resultado.via).toBe('servidor')
+      expect(await almacen.ventasPendientes()).toHaveLength(0)
+
+      const [ruta, cuerpo] = post.mock.calls[0] as [string, { uuid_local: string }]
+      expect(ruta).toBe('/pos/ventas')
+      expect(cuerpo.uuid_local).toBe('11111111-2222-4333-8444-555555555555')
+    })
+
+    it('sin red guarda en la cola sin llamar al servidor', async () => {
+      const store = useOfflineStore()
+      store.enLinea = false
+
+      const resultado = await store.cobrar(datosCobro())
+
+      expect(resultado.via).toBe('cola')
+      expect(post).not.toHaveBeenCalled()
+      expect(await almacen.ventasPendientes()).toHaveLength(1)
+    })
+
+    it('si la respuesta se pierde, la venta pasa a la cola con el mismo UUID', async () => {
+      const store = useOfflineStore()
+      store.enLinea = true
+
+      /* Error sin `response`: la petición salió y no volvió nada. No sabemos
+         si el servidor la registró; por eso el UUID viaja desde el principio. */
+      post.mockRejectedValue(new Error('Network Error'))
+
+      const resultado = await store.cobrar(datosCobro())
+
+      expect(resultado.via).toBe('cola')
+      expect(store.enLinea).toBe(false)
+
+      const pendientes = await almacen.ventasPendientes()
+      expect(pendientes).toHaveLength(1)
+      expect(pendientes[0]?.uuid_local).toBe(resultado.local.uuid_local)
+    })
+
+    it('relanza los errores con respuesta HTTP en vez de encolar', async () => {
+      const store = useOfflineStore()
+      store.enLinea = true
+
+      /* 409 es la conversación de entrega parcial: la resuelve la pantalla
+         preguntando al vendedor, no la cola. */
+      post.mockRejectedValue({ response: { status: 409, data: { requiere_confirmacion: true } } })
+
+      await expect(store.cobrar(datosCobro())).rejects.toMatchObject({
+        response: { status: 409 },
+      })
+
+      expect(await almacen.ventasPendientes()).toHaveLength(0)
+      expect(store.enLinea).toBe(true)
+    })
+  })
 })

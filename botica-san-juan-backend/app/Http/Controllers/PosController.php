@@ -196,6 +196,19 @@ class PosController extends Controller
             'items.*.producto_id'      => ['required', 'integer', 'exists:productos,id'],
             'items.*.unidad_venta'     => ['required', Rule::in(['unidad', 'blister', 'caja'])],
             'items.*.cantidad'         => ['required', 'integer', 'min:1'],
+
+            /* Idempotencia del cobro en linea.
+               -----------------------------------------------------------------
+               La caja genera su UUID antes de pedir el cobro, con red o sin
+               ella. Sirve para el caso que mas duele: la peticion sale, el
+               servidor registra la venta y la respuesta se pierde por el
+               camino. Sin esta clave, la caja no sabe si la venta entro; si
+               reintenta, duplica, y si no reintenta, pierde una venta real.
+               Con ella puede reintentar o pasar la venta a la cola offline sin
+               arriesgar nada. */
+            'uuid_local'               => ['nullable', 'uuid'],
+            'nota_contingencia'        => ['nullable', 'string', 'max:20'],
+
             'cliente_nombre'           => ['nullable', 'string', 'max:255'],
             'cliente_documento'        => ['nullable', 'string', 'max:20'],
             'cliente_tipo_documento'   => ['nullable', Rule::in(['dni', 'ruc', 'ce', 'sin_documento'])],
@@ -210,6 +223,21 @@ class PosController extends Controller
             'pagos.*.monto_recibido'   => ['nullable', 'numeric', 'min:0'],
             'pagos.*.referencia'       => ['nullable', 'string', 'max:60'],
         ]);
+
+        /* Si la caja ya cobró esta misma venta, se devuelve la que existe en
+           lugar de registrar otra. Se comprueba antes que el stock: una venta
+           ya registrada no vuelve a verificarse ni vuelve a descontar. */
+        if (! empty($datos['uuid_local'])) {
+            $yaRegistrada = Pedido::where('uuid_local', $datos['uuid_local'])->first();
+
+            if ($yaRegistrada !== null) {
+                return response()->json([
+                    'message'   => 'La venta ya estaba registrada.',
+                    'duplicada' => true,
+                    'data'      => $this->formatearVenta($yaRegistrada),
+                ], 200);
+            }
+        }
 
         $verificacion = $this->ventas->verificarDisponibilidad($datos['items']);
         $faltantes    = collect($verificacion)->filter(fn ($v) => ($v['faltante'] ?? 0) > 0);
@@ -234,6 +262,18 @@ class PosController extends Controller
                 vendedorId: $request->user()?->id,
                 pagos: $datos['pagos'] ?? [],
             );
+
+            /* La marca va despues de registrar, y no dentro del servicio,
+               para no ensuciar su firma con algo que solo le importa a la
+               caja. Si dos peticiones con el mismo UUID se cruzaran, el
+               indice unico de la columna hace fallar a la segunda; el cliente
+               reintenta y entonces encuentra la primera ya registrada. */
+            if (! empty($datos['uuid_local'])) {
+                $venta->forceFill([
+                    'uuid_local'        => $datos['uuid_local'],
+                    'nota_contingencia' => $datos['nota_contingencia'] ?? null,
+                ])->save();
+            }
         } catch (VentaSinStockException $e) {
             /* Confirmar la entrega parcial no puede convertirse en aceptar una
                venta vacía: si no hay ni una unidad que entregar, no hay venta. */

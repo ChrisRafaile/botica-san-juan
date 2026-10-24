@@ -115,15 +115,7 @@ export const useOfflineStore = defineStore('offline', () => {
       intentos: 0,
     }
 
-    const almacen = await obtenerAlmacen()
-    await almacen.guardarVenta(venta)
-    await refrescarPendientes()
-
-    await bitacora.info(
-      CODIGOS.VENTA_OFFLINE,
-      `Venta ${venta.nota_contingencia} guardada en la cola local.`,
-      { uuid_local: venta.uuid_local, contexto: { lineas: venta.items.length, total: venta.total } },
-    )
+    await guardarEnCola(venta)
 
     /* Si hay red se intenta de inmediato, pero sin esperar el resultado: la
        pantalla de caja ya puede decir «cobrado» porque la venta está a
@@ -131,6 +123,106 @@ export const useOfflineStore = defineStore('offline', () => {
     if (enLinea.value) void sincronizar()
 
     return venta
+  }
+
+  /** Escribe la venta en el almacén y refresca la cola en pantalla. */
+  async function guardarEnCola(venta: VentaLocal): Promise<void> {
+    const almacen = await obtenerAlmacen()
+    await almacen.guardarVenta(venta)
+    await refrescarPendientes()
+    await avisarDelAtraso()
+
+    await bitacora.info(
+      CODIGOS.VENTA_OFFLINE,
+      `Venta ${venta.nota_contingencia} guardada en la cola local.`,
+      { uuid_local: venta.uuid_local, contexto: { lineas: venta.items.length, total: venta.total } },
+    )
+  }
+
+  /**
+   * Cobra una venta por el camino que corresponda.
+   * -------------------------------------------------------------------------
+   * Es el único punto de entrada del cobro: la pantalla de caja no decide si
+   * hay red, solo pide cobrar.
+   *
+   * CON RED SE COBRA CONTRA EL SERVIDOR, NO CONTRA LA COLA
+   *
+   * Podría parecer más limpio mandarlo todo por la cola y que el camino fuera
+   * uno solo. No lo es, y la razón es de negocio: `POST /pos/ventas` responde
+   * 409 cuando falta stock y espera a que alguien confirme la entrega
+   * parcial. Esa es la conversación que el boticario tiene con el cliente
+   * —«de los diez que pide solo quedan siete»— y la sincronización no la
+   * hace: acepta el faltante y lo convierte en incidencia, porque cuando
+   * sincroniza el cliente ya se fue. Pasar las ventas en línea por la cola
+   * borraría esa conversación sin que nadie lo pidiera.
+   *
+   * EL CASO QUE JUSTIFICA EL UUID EN LÍNEA
+   *
+   * Si la petición sale y la respuesta se pierde, no sabemos si la venta
+   * entró. Como el UUID viaja desde el principio, se puede pasar a la cola
+   * sin riesgo: si ya estaba registrada, el servidor responde «duplicada» y
+   * ahí acaba. Sin UUID habría que elegir entre duplicar o perder la venta.
+   *
+   * Los errores con respuesta HTTP (409, 422) se relanzan: son conversaciones
+   * con el vendedor, no fallos de conexión, y las resuelve la pantalla.
+   */
+  async function cobrar(
+    datos: Omit<VentaLocal, 'uuid_local' | 'estado' | 'intentos'>,
+    opciones: { confirmarParcial?: boolean } = {},
+  ): Promise<{ via: 'servidor' | 'cola'; venta?: unknown; local: VentaLocal }> {
+    const local: VentaLocal = {
+      ...datos,
+      uuid_local: crypto.randomUUID(),
+      estado: 'pendiente',
+      intentos: 0,
+    }
+
+    if (!enLinea.value) {
+      await guardarEnCola(local)
+      return { via: 'cola', local }
+    }
+
+    try {
+      const { data } = await api.post('/pos/ventas', {
+        uuid_local: local.uuid_local,
+        nota_contingencia: local.nota_contingencia,
+        items: local.items.map((i) => ({
+          producto_id: i.producto_id,
+          unidad_venta: i.unidad_venta,
+          cantidad: i.cantidad,
+        })),
+        cliente_nombre: local.cliente.nombre || null,
+        cliente_documento: local.cliente.documento || null,
+        cliente_tipo_documento: local.cliente.tipo_documento ?? 'sin_documento',
+        confirmar_parcial: opciones.confirmarParcial ?? false,
+        ...(local.pagos.length > 0 ? { pagos: local.pagos } : {}),
+      })
+
+      return { via: 'servidor', venta: data.data, local }
+    } catch (error) {
+      if (tieneRespuestaHttp(error)) throw error
+
+      /* Sin respuesta: la red se cayó entre la petición y la respuesta. La
+         venta ya se cobró en el mostrador, así que va a la cola. */
+      enLinea.value = false
+      await guardarEnCola(local)
+      await bitacora.aviso(
+        CODIGOS.SYNC_FALLIDA,
+        'El cobro no obtuvo respuesta del servidor; la venta pasó a la cola local.',
+        { uuid_local: local.uuid_local },
+      )
+
+      return { via: 'cola', local }
+    }
+  }
+
+  function tieneRespuestaHttp(error: unknown): boolean {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'response' in error &&
+      (error as { response?: unknown }).response !== undefined
+    )
   }
 
   /**
@@ -339,6 +431,7 @@ export const useOfflineStore = defineStore('offline', () => {
     iniciar,
     vigilar,
     dejarDeVigilar,
+    cobrar,
     encolarVenta,
     sincronizar,
     refrescarPendientes,

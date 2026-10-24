@@ -302,4 +302,48 @@ class SincronizacionVentasOfflineTest extends TestCase
             'ventas' => [$this->venta($this->producto(), ['uuid_local' => 'caja-01-venta-7'])],
         ])->assertStatus(422)->assertJsonValidationErrors('ventas.0.uuid_local');
     }
+
+    // ------------------------------------- idempotencia del cobro en linea
+
+    public function test_el_cobro_en_linea_con_uuid_no_se_registra_dos_veces(): void
+    {
+        $this->operador();
+        $producto = $this->producto(stock: 20, precio: 5.00);
+        $uuid     = (string) Str::uuid();
+
+        $cuerpo = [
+            'uuid_local'        => $uuid,
+            'nota_contingencia' => 'NV-000009',
+            'items'             => [
+                ['producto_id' => $producto->id, 'unidad_venta' => 'unidad', 'cantidad' => 2],
+            ],
+        ];
+
+        $primera = $this->postJson('/api/pos/ventas', $cuerpo);
+        $primera->assertStatus(201);
+
+        /* El caso que esto protege: la peticion salio, el servidor registro y
+           la respuesta se perdio. La caja reintenta con el mismo UUID. */
+        $segunda = $this->postJson('/api/pos/ventas', $cuerpo);
+        $segunda->assertStatus(200)->assertJsonPath('duplicada', true);
+
+        $this->assertSame(1, Pedido::where('uuid_local', $uuid)->count());
+        $this->assertSame(
+            18,
+            (int) $producto->fresh()->stock,
+            'El reintento no puede volver a descontar stock.',
+        );
+    }
+
+    public function test_el_cobro_en_linea_sigue_funcionando_sin_uuid(): void
+    {
+        $this->operador();
+        $producto = $this->producto(stock: 10, precio: 4.00);
+
+        $this->postJson('/api/pos/ventas', [
+            'items' => [['producto_id' => $producto->id, 'unidad_venta' => 'unidad', 'cantidad' => 1]],
+        ])->assertStatus(201);
+
+        $this->assertSame(9, (int) $producto->fresh()->stock);
+    }
 }
