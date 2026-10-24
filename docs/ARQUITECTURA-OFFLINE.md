@@ -313,7 +313,82 @@ precio local invitaría a que alguien lo tomara por válido.
 
 ---
 
-## 11. Lo que todavía no está decidido
+## 11. Prueba de continuidad del servicio · 24/10/2026
+
+Recorrido completo sobre el entorno local, con el sistema en ejecución. No es
+una prueba unitaria: es el ensayo de continuidad que respalda el apartado de
+BCP/DRP de la entrega final.
+
+**Entorno.** API Laravel 12 en `127.0.0.1:8083`, frontend Vite en
+`localhost:5173`, PostgreSQL local con los 884 productos del catálogo.
+Operador: cuenta administrativa de pruebas del entorno local.
+
+**Cómo se simuló el corte.** Se sobrescribió `navigator.onLine` y se
+despachó el evento `offline`, que es exactamente la señal que el navegador
+emite cuando la interfaz de red cae y la que el store escucha. Se eligió esto
+frente a apagar la API porque reproduce el camino que recorre el vendedor:
+con `onLine` en falso la caja ni siquiera intenta la petición. El otro camino
+—la API inalcanzable con la red aparentemente activa— está cubierto por
+pruebas automatizadas.
+
+### Lo que ocurrió, paso por paso
+
+| # | Acción | Resultado observado |
+|---|---|---|
+| 1 | Corte de red | El indicador pasó a «Sin conexión» en ámbar. La maquetación no se movió: el bloque tiene altura fija |
+| 2 | Venta 1 con F2 → Enter → F4 → Enter | `NV-000001`, S/ 9.00. Ticket en pantalla, cola «1 venta por enviar» |
+| 3 | Venta 2 con los mismos atajos | `NV-000002`, S/ 6.50. Cola «2 ventas por enviar» |
+| 4 | Reconexión | Sincronización automática, sin intervención. Indicador «En línea», cola a cero |
+| 5 | Comprobación en base | 2 pedidos, correlativos **B001-00000035** y **B001-00000036** |
+| 6 | Reenvío del mismo UUID | `duplicada`, mismo pedido y mismo comprobante. **Cero pedidos nuevos, cero comprobantes nuevos** |
+
+### Bitácora de la caja (IndexedDB)
+
+```
+warning  CAJA_RED_CAIDA            Sin conexión: las ventas se guardarán en la cola local.
+info     CAJA_VENTA_OFFLINE        Venta NV-000001 guardada en la cola local.
+info     CAJA_VENTA_OFFLINE        Venta NV-000002 guardada en la cola local.
+info     CAJA_RED_RESTABLECIDA     Conexión restablecida; se reanuda la sincronización.
+info     CAJA_SYNC_INICIADA        Enviando 2 ventas pendientes.
+info     CAJA_SYNC_COMPLETADA      Lote de 2 ventas procesado por el servidor.
+```
+
+### Bitácora del servidor (`eventos_operacion`)
+
+| Código | Nivel | Veces |
+|---|---|---|
+| `SYNC_VENTA_CREADA` | info | 2 |
+| `SYNC_LOTE_PROCESADO` | info | 2 |
+| `SYNC_VENTA_DUPLICADA` | warning | 1 |
+
+Las dos bitácoras se cruzan por `uuid_local`, que es para lo que comparten
+vocabulario.
+
+**Capturas:** `docs/evidencias/E2E-offline/`.
+
+### Lo que la prueba dejó al descubierto
+
+Dos cosas, y ninguna es cosmética:
+
+1. **La búsqueda de productos sigue necesitando la red.** El catálogo local
+   existe en la interfaz del almacén, pero la pantalla de caja no lo usa:
+   `buscar()` llama a la API. En el ensayo esto no se notó porque la API
+   seguía levantada y solo se simuló la señal de red, pero en un corte real
+   **el vendedor no podría encontrar el producto para cobrarlo**. Guardar la
+   venta sirve de poco si no se puede armar. Es lo siguiente que hay que
+   conectar, antes que cualquier trabajo visual.
+
+2. **El ticket salió con «Atendido por —».** No se le estaba pasando el
+   nombre del operador. Corregido en el mismo commit.
+
+El nombre del equipo tampoco estaba configurado (`caja-sin-identificar` en
+`dispositivo_origen`). Con una sola caja da igual; con dos, hay que fijar
+`VITE_NOMBRE_CAJA` en cada equipo antes de operar, porque es lo que distingue
+sus correlativos de contingencia.
+
+---
+
+## 12. Lo que todavía no está decidido
 
 Se deja escrito para no fingir que está resuelto:
 

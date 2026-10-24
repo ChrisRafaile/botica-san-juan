@@ -39,6 +39,7 @@ import BoticaEstadoVacio from '../components/ui/BoticaEstadoVacio.vue'
 import EstadoConexionCaja from '../components/EstadoConexionCaja.vue'
 import TicketContingencia from '../components/TicketContingencia.vue'
 import { useOfflineStore } from '@/stores/offline'
+import { useAuthStore } from '@/stores/auth'
 import { reconciliarCorrelativo, siguienteNotaContingencia } from '@/offline/notaContingencia'
 import type { VentaLocal } from '@/offline/tipos'
 
@@ -62,6 +63,7 @@ const ultimaVenta = ref<null | { id: number; total: number }>(null)
 /* Contingencia: el store decide el camino del cobro y la vista solo refleja
    su estado. */
 const offline = useOfflineStore()
+const auth = useAuthStore()
 const ventaDeContingencia = ref<VentaLocal | null>(null)
 
 let temporizador: number | undefined
@@ -1300,7 +1302,7 @@ const etiquetaForma: Record<string, string> = {
               Entrega este ticket al cliente. La boleta se emitirá cuando vuelva la red.
             </p>
 
-            <TicketContingencia :venta="ventaDeContingencia" />
+            <TicketContingencia :venta="ventaDeContingencia" :vendedor="auth.user?.nombre" />
 
             <div class="mt-4 flex justify-end gap-2 print:hidden">
               <BoticaButton @click="cerrarTicket">
