@@ -249,7 +249,71 @@ catálogo. Todo lo que toque configuración, usuarios o reportes exige conexión
 
 ---
 
-## 10. Lo que todavía no está decidido
+## 10. La capa local, pieza por pieza
+
+Construida en `src/offline/` y `src/stores/offline.ts`.
+
+| Archivo | Qué resuelve |
+|---|---|
+| `offline/tipos.ts` | La interfaz `AlmacenLocal`: ocho métodos en términos del negocio |
+| `offline/almacenIndexedDB.ts` | Driver por defecto en el navegador |
+| `offline/almacenMemoria.ts` | Último recurso y doble para las pruebas |
+| `offline/almacen.ts` | Elige el driver; aquí entrará SQLite |
+| `offline/bitacora.ts` | Diario local con los mismos códigos que el servidor |
+| `stores/offline.ts` | Cola, estado de red, reintentos y umbrales |
+
+### El orden al cobrar no es negociable
+
+**Primero se guarda en local, después se intenta enviar.** Si se enviara
+primero y la petición saliera pero la respuesta no llegara, la caja no sabría
+si la venta entró y tampoco la tendría guardada: se habría perdido una venta
+real. Guardando primero, el peor caso es un reenvío, que no cuesta nada
+porque el servidor es idempotente.
+
+### `duplicada` es un éxito, no un error
+
+Es la trampa más fácil de caer en el cliente. Si la caja tratara esa respuesta
+como fallo, la venta se quedaría en la cola reintentándose para siempre contra
+un servidor que ya la tiene. Se marca como sincronizada igual que una
+`creada`, y se le copia el correlativo que el servidor emitió entonces.
+
+### Esperar significa esperar
+
+`sincronizar()` no sale de vacío cuando ya hay un envío en curso: devuelve ese
+mismo compromiso. Con un retorno vacío, un `await sincronizar()` podría
+resolverse mientras el envío de verdad sigue a medias y el código de arriba
+daría por terminado algo que no lo está.
+
+### Umbrales de atraso
+
+El store mide las horas desde la venta pendiente **más antigua** y expone
+`nivelDeAtraso`: `ninguno`, `aviso` (24 h) y `alerta` (48 h). Cada umbral se
+anota una sola vez por venta; sin esa guarda, el reintento de cada minuto
+escribiría más de mil advertencias al día y la bitácora dejaría de servir.
+
+El sistema **avisa, no decide**. Qué hacer con una cola de 48 horas lo decide
+la persona que atiende, y los plazos legales siguen pendientes de confirmar
+con el contador (sección 6).
+
+### Cuando el almacén no está disponible
+
+IndexedDB puede fallar: ventana privada, almacenamiento bloqueado por política
+del equipo, cuota agotada. En ese caso se cae al driver de memoria para que la
+caja pueda seguir cobrando, pero **la cola se pierde al cerrar la
+aplicación**. El store lo expone en `almacenamientoDegradado` y la pantalla
+debe decirlo en voz alta. Degradar en silencio sería peor que fallar, porque
+nadie se enteraría hasta echar en falta las ventas.
+
+### Qué viaja y qué no
+
+La caja guarda nombre y precio de cada línea para poder **reimprimir el ticket
+sin conexión**, pero al servidor solo le manda `producto_id`, `unidad_venta` y
+`cantidad`. El precio bueno lo pone el servidor con su propia tabla; enviar el
+precio local invitaría a que alguien lo tomara por válido.
+
+---
+
+## 11. Lo que todavía no está decidido
 
 Se deja escrito para no fingir que está resuelto:
 
