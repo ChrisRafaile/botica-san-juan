@@ -102,6 +102,16 @@ autoriza, que es lo que el procedimiento necesita.
 | **Evidencia** | Issue cerrada con la respuesta + captura de la pantalla de reportes con el rango aplicado. |
 | **Estado final** | Cerrada |
 
+**Ciclo de atención aplicado**
+
+1. **Registrar.** La petición entra como issue [#14](https://github.com/ChrisRafaile/botica-san-juan/issues/14) el 14/10/2026 con el código SOL-001. La issue **es** el ticket.
+2. **Clasificar.** Solicitud de información; etiqueta `tipo: informacion`.
+3. **Validar.** Se comprueba que es orientación sobre una función que ya existe, no una falla ni un cambio.
+4. **Autorizar.** No requiere aprobación: la pantalla ya está dentro de los permisos del rol que la pide.
+5. **Atender.** Se indica la ruta `/admin/reportes`, el filtro de fechas y el criterio de fecha que descuadraba el conteo.
+6. **Verificar.** Captura de la pantalla de reportes con el rango aplicado.
+7. **Cerrar.** Issue cerrada con su evidencia adjunta. Estado final: cerrada.
+
 ### SOL-002 · El catálogo muestra menos unidades que el anaquel
 
 | Campo | Valor |
@@ -118,6 +128,16 @@ autoriza, que es lo que el procedimiento necesita.
 | **Solución brindada** | No es un error: el sistema distingue **stock contable** (lo que hay en el anaquel) de **stock vendible** (lo que se puede prometer a un cliente). Los lotes vencidos cuentan en el primero y se excluyen del segundo, porque están físicamente ahí pero no se pueden dispensar. Se identificó el lote vencido responsable de la diferencia y se programó su retiro. |
 | **Evidencia** | Respuesta documentada en la issue + consulta sobre `lotes` mostrando el lote vencido y su fecha. |
 | **Estado final** | Cerrada |
+
+**Ciclo de atención aplicado**
+
+1. **Registrar.** Issue [#15](https://github.com/ChrisRafaile/botica-san-juan/issues/15), abierta el 16/10/2026.
+2. **Clasificar.** Solicitud de información; etiqueta `tipo: informacion`.
+3. **Validar.** Antes de responder se confirma que no es un incidente: el dato del portal es el correcto.
+4. **Autorizar.** No requiere aprobación; no se concede permiso alguno ni se altera ningún dato.
+5. **Atender.** Se explica la distinción entre stock contable y stock vendible y se localiza el lote vencido.
+6. **Verificar.** Consulta sobre `lotes` mostrando el lote vencido y su fecha.
+7. **Cerrar.** Issue cerrada con la consulta adjunta y el retiro del lote programado. Estado final: cerrada.
 
 ### SOL-003 · Alta de cuenta para vendedor nuevo
 
@@ -136,6 +156,16 @@ autoriza, que es lo que el procedimiento necesita.
 | **Evidencia** | Issue cerrada + registro de la cuenta en la tabla de usuarios con su rol. **La contraseña no se registra en el ticket ni en ningún archivo del repositorio.** |
 | **Estado final** | Cerrada |
 
+**Ciclo de atención aplicado**
+
+1. **Registrar.** Issue [#16](https://github.com/ChrisRafaile/botica-san-juan/issues/16), abierta el 17/10/2026.
+2. **Clasificar.** Solicitud de acceso; etiqueta `tipo: acceso`.
+3. **Validar.** Se comprueba que los datos del alta están completos: nombre, documento, turno y rol previsto.
+4. **Autorizar.** **El propietario aprueba.** Ningún acceso al punto de venta se crea sin esa autorización registrada.
+5. **Atender.** Cuenta con rol **vendedor**, por mínimo privilegio, con cambio de contraseña obligatorio en el primer ingreso.
+6. **Verificar.** Registro de la cuenta en la tabla de usuarios con el rol efectivamente asignado.
+7. **Cerrar.** Issue cerrada con esa evidencia. Estado final: cerrada.
+
 ### SOL-004 · Cliente pide acceso al módulo de reportes
 
 | Campo | Valor |
@@ -152,6 +182,16 @@ autoriza, que es lo que el procedimiento necesita.
 | **Solución brindada** | **Rechazada por mínimo privilegio.** Los reportes contienen márgenes, costos de compra y datos de otros clientes; el rol cliente no los contempla y conceder el permiso expondría información del negocio y de terceros. Se ofrece la alternativa que sí corresponde: su historial de pedidos y sus comprobantes, accesibles desde su propio panel. |
 | **Evidencia** | La API ya impide el acceso por diseño: un token de rol cliente contra las rutas de gestión responde 401/403, y hay pruebas automatizadas que fijan esa regla para que no se afloje por descuido. |
 | **Estado final** | **Rechazada** |
+
+**Ciclo de atención aplicado**
+
+1. **Registrar.** Issue [#17](https://github.com/ChrisRafaile/botica-san-juan/issues/17), abierta el 18/10/2026.
+2. **Clasificar.** Solicitud de acceso; etiqueta `tipo: acceso`.
+3. **Validar.** Se confirma que es una solicitud de acceso y no un incidente: el sistema hace lo correcto al negarlo.
+4. **Autorizar.** **El propietario deniega.** Este es el paso que da sentido al procedimiento: existe para los casos en que la aprobación no corresponde.
+5. **Atender.** No se atiende lo denegado. Se comunica el motivo y se ofrece la alternativa que sí pertenece al rol cliente.
+6. **Verificar.** La evidencia no es una captura: es la API devolviendo 401/403 a un token de rol cliente, con pruebas automatizadas que fijan la regla.
+7. **Cerrar.** Issue cerrada como *not planned*, con el motivo documentado. Estado final: **rechazada**.
 
 ### SOL-005 · Restablecer contraseña de vendedor
 
@@ -171,6 +211,16 @@ autoriza, que es lo que el procedimiento necesita.
 | **Evidencia** | Issue cerrada + registro del acceso posterior de la cuenta. **No se registra el valor de la contraseña en ninguna parte.** |
 | **Estado final** | Cerrada |
 
+**Ciclo de atención aplicado**
+
+1. **Registrar.** Issue [#18](https://github.com/ChrisRafaile/botica-san-juan/issues/18), abierta el 19/10/2026.
+2. **Clasificar.** Solicitud estándar; etiqueta `tipo: estandar`, modelo «Restablecer contraseña».
+3. **Validar.** Queda pendiente verificar la identidad de quien pide; sin eso la solicitud no avanza.
+4. **Autorizar.** El propietario aprueba una vez verificada la identidad en persona.
+5. **Atender.** Restablecimiento con valor temporal y cambio obligatorio, dentro del objetivo de 2 horas hábiles.
+6. **Verificar.** Registro del acceso posterior de la cuenta.
+7. **Cerrar.** Issue cerrada con esa evidencia y sin registrar en ningún sitio el valor de la contraseña. Estado final: cerrada.
+
 ### SOL-006 · Respaldo de la base antes de una carga masiva
 
 | Campo | Valor |
@@ -187,6 +237,16 @@ autoriza, que es lo que el procedimiento necesita.
 | **Solución brindada** | Respaldo ejecutado **antes** de la carga y verificado por conteo de filas de las tablas principales. Es el mismo procedimiento que ya se aplicó antes de la fusión de productos duplicados, donde el respaldo previo fue lo que permitió autorizar una operación destructiva sobre 869 grupos de productos sin asumir el riesgo a ciegas. |
 | **Evidencia** | Archivo de respaldo con su fecha + registro del comando ejecutado y del conteo de filas antes y después. |
 | **Estado final** | Cerrada |
+
+**Ciclo de atención aplicado**
+
+1. **Registrar.** Issue [#19](https://github.com/ChrisRafaile/botica-san-juan/issues/19), abierta el 20/10/2026.
+2. **Clasificar.** Solicitud estándar; etiqueta `tipo: estandar`, modelo «Solicitar backup».
+3. **Validar.** Se comprueban los datos que el modelo exige: motivo y fecha objetivo.
+4. **Autorizar.** El propietario aprueba, por tratarse de una operación sobre la base de producción.
+5. **Atender.** Respaldo ejecutado **antes** de la carga; un respaldo posterior no sirve para volver atrás.
+6. **Verificar.** Conteo de filas de las tablas principales antes y después, más el archivo de respaldo fechado.
+7. **Cerrar.** Issue cerrada con el archivo y los conteos adjuntos. Estado final: cerrada.
 
 ---
 
