@@ -15,6 +15,7 @@ use App\Http\Controllers\PagoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ConteoController;
 use App\Http\Controllers\PosController;
+use App\Http\Controllers\SincronizacionController;
 use App\Http\Controllers\PedidoDetalleController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
@@ -321,6 +322,28 @@ Route::middleware(['auth:sanctum', 'admin', 'throttle:api'])->prefix('pos')->gro
 
 Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->prefix('pos')->group(function () {
     Route::post('/lotes/{lote}/ajustar', [PosController::class, 'ajustarLote']);
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Sincronizacion de ventas cobradas sin conexion
+|--------------------------------------------------------------------------
+|
+| La caja envia aqui su cola cuando recupera la red. El contrato completo
+| esta en docs/ARQUITECTURA-OFFLINE.md.
+|
+| Va versionada bajo /v1 porque este endpoint lo consume una aplicacion
+| instalada en el equipo de la botica, no el navegador: cuando el contrato
+| cambie habra cajas con la version anterior todavia instalada, y romperles
+| la sincronizacion significa dejarlas sin poder descargar sus ventas.
+|
+| Sin 'audit.critical' a proposito: la bitacora de este flujo la escribe el
+| propio servicio en `eventos_operacion`, con el detalle por venta que el
+| registro de auditoria generico no tiene.
+*/
+Route::middleware(['auth:sanctum', 'admin', 'throttle:api'])->prefix('v1')->group(function () {
+    Route::post('/ventas/sincronizar', [SincronizacionController::class, 'ventas']);
 });
 
 

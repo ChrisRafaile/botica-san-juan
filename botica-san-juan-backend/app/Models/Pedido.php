@@ -71,6 +71,14 @@ class Pedido extends Model
         'observacion',
         'medio_pago',
         'subtotal_inafecto',
+
+        /* Trazabilidad de la venta cobrada sin conexion. `uuid_local` es la
+           clave de idempotencia de la sincronizacion; ver
+           docs/ARQUITECTURA-OFFLINE.md. */
+        'uuid_local',
+        'nota_contingencia',
+        'registrado_offline_en',
+        'dispositivo_origen',
     ];
 
 
