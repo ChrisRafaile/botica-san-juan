@@ -1,4 +1,5 @@
 import { obtenerAlmacen } from './almacen'
+import { equipoConNombrePropio, nombreDelEquipo } from './dispositivo'
 
 /**
  * Correlativo del ticket interno de contingencia (NV-xxxxxx).
@@ -95,9 +96,13 @@ export async function siguienteNotaContingencia(): Promise<string> {
 }
 
 export function formatearNota(numero: number): string {
-  const equipo = import.meta.env.VITE_NOMBRE_CAJA
-  const serie = typeof equipo === 'string' && equipo.length > 0 ? equipo.toUpperCase() : 'NV'
-  const prefijo = serie === 'NV' ? 'NV' : `NV${serie.replace(/[^A-Z0-9]/g, '').slice(0, 3)}`
+  /* Con una sola caja el papel sale como NV-000001 a secas. Solo cuando
+     alguien le pone nombre propio al equipo se le añaden sus siglas, que es
+     cuando hacen falta: dos cajas sin red no pueden emitir el mismo papel. */
+  const siglas = equipoConNombrePropio()
+    ? nombreDelEquipo().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3)
+    : ''
+  const prefijo = siglas.length > 0 ? `NV${siglas}` : 'NV'
 
   return `${prefijo}-${String(numero).padStart(6, '0')}`
 }

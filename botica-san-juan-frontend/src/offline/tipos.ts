@@ -79,17 +79,32 @@ export interface EventoLocal {
   contexto?: Record<string, unknown> | null
 }
 
+/**
+ * Producto del catálogo maestro guardado en la caja.
+ *
+ * Lleva lo necesario para BUSCAR y PONER PRECIO sin red, y nada más. En
+ * particular **no lleva stock**: cambia con cada venta de cualquier caja, y
+ * una cifra de esta mañana invita a prometer lo que ya no hay. Sin conexión
+ * la pantalla dice «sin verificar» en lugar de inventar un número.
+ */
 export interface ProductoLocal {
   id: number
   nombre: string
   concentracion?: string | null
   presentacion?: string | null
+  laboratorio?: string | null
   principio_activo?: string | null
   codigo_barras?: string | null
+  requiere_receta: boolean
+  afecto_igv: boolean
+  tipo_afectacion_igv: '10' | '20' | '30'
+  afectacion: string
   precio: number
   precio_blister?: number | null
   precio_caja?: number | null
-  requiere_receta: boolean
+  unidades_por_blister?: number | null
+  blisters_por_caja?: number | null
+  venta_fraccionada: boolean
   actualizado_en: string
 }
 

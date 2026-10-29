@@ -346,4 +346,60 @@ class SincronizacionVentasOfflineTest extends TestCase
 
         $this->assertSame(9, (int) $producto->fresh()->stock);
     }
+
+    // ----------------------------------------- catalogo para la caja local
+
+    public function test_el_catalogo_para_la_caja_no_expone_stock(): void
+    {
+        $this->operador();
+        $this->producto(stock: 20, precio: 5.00);
+
+        $respuesta = $this->getJson('/api/pos/catalogo');
+
+        $respuesta->assertOk();
+        $respuesta->assertJsonPath('total', 1);
+
+        $primero = $respuesta->json('data.0');
+
+        /* El stock no viaja a proposito: cambia con cada venta de cualquier
+           caja y una cifra guardada invita a prometer lo que ya no hay. */
+        $this->assertArrayNotHasKey('stock', $primero);
+        $this->assertArrayNotHasKey('stock_disponible', $primero);
+        $this->assertArrayNotHasKey('stock_contable', $primero);
+
+        /* Lo que si tiene que viajar: lo necesario para buscar y poner precio. */
+        $this->assertArrayHasKey('nombre', $primero);
+        $this->assertArrayHasKey('principio_activo', $primero);
+        $this->assertArrayHasKey('codigo_barras', $primero);
+        $this->assertArrayHasKey('precio', $primero);
+        $this->assertArrayHasKey('tipo_afectacion_igv', $primero);
+    }
+
+    public function test_el_catalogo_incremental_solo_devuelve_lo_que_cambio(): void
+    {
+        $this->operador();
+        $viejo = $this->producto();
+
+        \Illuminate\Support\Facades\DB::table('productos')
+            ->where('id', $viejo->id)
+            ->update(['updated_at' => now()->subDays(3)]);
+
+        $corte = now()->subDay()->toIso8601String();
+
+        $this->getJson('/api/pos/catalogo?desde='.urlencode($corte))
+            ->assertOk()
+            ->assertJsonPath('total', 0);
+
+        $nuevo = $this->producto();
+
+        $this->getJson('/api/pos/catalogo?desde='.urlencode($corte))
+            ->assertOk()
+            ->assertJsonPath('total', 1)
+            ->assertJsonPath('data.0.id', $nuevo->id);
+    }
+
+    public function test_el_catalogo_exige_sesion(): void
+    {
+        $this->getJson('/api/pos/catalogo')->assertStatus(401);
+    }
 }

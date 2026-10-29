@@ -19,6 +19,7 @@
 
 import { computed, ref, watch } from 'vue'
 import api from '@/services/api'
+import { buscarEnCatalogoLocal } from '@/offline/catalogo'
 
 /* --------------------------------------------------------------------------
    Tipos que devuelve la API del POS
@@ -160,6 +161,9 @@ export function usePuntoVenta() {
   const lineas = ref<LineaVenta[]>(guardado?.lineas ?? [])
   const buscando = ref(false)
   const resultados = ref<ProductoPos[]>([])
+  /* Dice si lo que se ve salio del catalogo guardado en la caja. La
+     pantalla lo necesita para avisar de que el stock no esta verificado. */
+  const desdeCatalogoLocal = ref(false)
   const registrando = ref(false)
 
   /** Avisa a la pantalla de que estas líneas vienen de una sesión anterior. */
@@ -205,37 +209,86 @@ export function usePuntoVenta() {
      ------------------------------------------------------------------------ */
 
   /**
-   * Busca productos. Cancela la petición anterior si aún está en vuelo: sin
-   * esto, escribir rápido deja varias respuestas compitiendo y la lista puede
-   * terminar mostrando el resultado de una búsqueda ya obsoleta.
+   * Busca productos, con red o sin ella.
+   * -------------------------------------------------------------------------
+   * Con red manda el servidor, que es el único que sabe el stock vendible.
+   * Sin red —o si la petición no obtiene respuesta— se busca en el catálogo
+   * guardado en la caja.
+   *
+   * EL ORDEN IMPORTA Y NO ES EL OBVIO
+   *
+   * No se consulta `navigator.onLine` para decidir: se intenta la API y se
+   * cae al catálogo local cuando falla. `navigator.onLine` dice si hay
+   * interfaz de red, no si el servidor responde, y un router encendido sin
+   * salida a internet devuelve `true`. Preguntarle primero dejaría al
+   * vendedor esperando un servidor inalcanzable mientras tiene el catálogo
+   * en disco.
+   *
+   * La excepción es el caso en que la caja YA sabe que está sin red, porque
+   * el escuchador del navegador lo anunció: ahí se va directo a lo local sin
+   * gastar el intento.
+   *
+   * Cancela la petición anterior si aún está en vuelo: sin esto, escribir
+   * rápido deja varias respuestas compitiendo y la lista puede terminar
+   * mostrando el resultado de una búsqueda ya obsoleta.
    */
-  async function buscar(termino: string): Promise<void> {
+  async function buscar(termino: string, preferirLocal = false): Promise<void> {
     peticionBusqueda?.abort()
 
-    if (termino.trim().length < 2) {
+    const aguja = termino.trim()
+
+    if (aguja.length < 2) {
       resultados.value = []
+      buscando.value = false
+      desdeCatalogoLocal.value = false
+      return
+    }
+
+    buscando.value = true
+
+    if (preferirLocal) {
+      await buscarEnLocal(aguja)
       buscando.value = false
       return
     }
 
     peticionBusqueda = new AbortController()
-    buscando.value = true
 
     try {
       const { data } = await api.get<{ data: ProductoPos[] }>('/pos/productos', {
-        params: { q: termino.trim(), limit: 20 },
+        params: { q: aguja, limit: 20 },
         signal: peticionBusqueda.signal,
       })
       resultados.value = data.data
+      desdeCatalogoLocal.value = false
     } catch (error: unknown) {
       /* Una petición cancelada no es un fallo: es lo que se buscaba. */
       const cancelada = (error as { code?: string })?.code === 'ERR_CANCELED'
-      if (!cancelada) {
+      if (cancelada) return
+
+      /* Un error CON respuesta HTTP es del servidor y hay que verlo: sesión
+         caducada, permiso denegado. Caer al catálogo local lo taparía. */
+      if ((error as { response?: unknown })?.response !== undefined) {
         resultados.value = []
+        desdeCatalogoLocal.value = false
         throw error
       }
+
+      await buscarEnLocal(aguja)
     } finally {
       buscando.value = false
+    }
+  }
+
+  async function buscarEnLocal(termino: string): Promise<void> {
+    try {
+      resultados.value = await buscarEnCatalogoLocal(termino)
+      desdeCatalogoLocal.value = true
+    } catch {
+      /* Ni red ni catálogo descargado. Se deja la lista vacía; la pantalla
+         ya avisa de que está sin conexión. */
+      resultados.value = []
+      desdeCatalogoLocal.value = false
     }
   }
 
@@ -419,6 +472,7 @@ export function usePuntoVenta() {
   return {
     lineas,
     resultados,
+    desdeCatalogoLocal,
     buscando,
     registrando,
     cliente,

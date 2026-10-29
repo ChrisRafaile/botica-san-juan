@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import api from '@/services/api'
 import { obtenerAlmacen } from '@/offline/almacen'
 import { CODIGOS, bitacora } from '@/offline/bitacora'
+import { nombreDelEquipo } from '@/offline/dispositivo'
 import type { VentaLocal } from '@/offline/tipos'
 
 /**
@@ -457,10 +458,6 @@ function aPayload(venta: VentaLocal) {
     })),
     pagos: venta.pagos,
   }
-}
-
-function nombreDelEquipo(): string {
-  return import.meta.env.VITE_NOMBRE_CAJA ?? 'caja-sin-identificar'
 }
 
 function mensajeDeError(error: unknown): string {

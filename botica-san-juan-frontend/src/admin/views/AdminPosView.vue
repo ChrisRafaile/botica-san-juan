@@ -41,10 +41,11 @@ import TicketContingencia from '../components/TicketContingencia.vue'
 import { useOfflineStore } from '@/stores/offline'
 import { useAuthStore } from '@/stores/auth'
 import { reconciliarCorrelativo, siguienteNotaContingencia } from '@/offline/notaContingencia'
+import { sincronizarCatalogo } from '@/offline/catalogo'
 import type { VentaLocal } from '@/offline/tipos'
 
 const {
-  lineas, resultados, buscando, registrando, cliente, totales, carritoRecuperado,
+  lineas, resultados, desdeCatalogoLocal, buscando, registrando, cliente, totales, carritoRecuperado,
   buscar, limpiarBusqueda, agregar, cambiarCantidad, quitar, vaciar,
   verificar, registrar,
 } = usePuntoVenta()
@@ -157,7 +158,10 @@ watch(termino, (valor) => {
      vendedor percibe que la lista "va detrás" de lo que escribe. */
   temporizador = window.setTimeout(async () => {
     try {
-      await buscar(valor)
+      /* Si la caja YA sabe que no hay red, se va directo al catalogo
+         local en vez de gastar un intento contra un servidor que no
+         esta. */
+      await buscar(valor, !offline.enLinea)
       indiceMarcado.value = 0
     } catch {
       notifyError('Búsqueda fallida', 'No se pudo consultar el catálogo.')
@@ -543,6 +547,18 @@ onMounted(async () => {
     await offline.iniciar()
     await reconciliarCorrelativo()
     dejarDeVigilarLaRed = offline.vigilar()
+
+    /* El catalogo se baja en segundo plano: la caja ya es usable mientras
+       llega, y si falla solo significa que la contingencia no tendra
+       busqueda, no que no se pueda cobrar en linea. */
+    if (offline.enLinea) {
+      sincronizarCatalogo().catch(() => {
+        notifyError(
+          'Catalogo sin descargar',
+          'No se pudo guardar el catalogo local. Sin red no podras buscar productos.',
+        )
+      })
+    }
   } catch {
     notifyError(
       'Contingencia no disponible',
@@ -616,6 +632,15 @@ const etiquetaForma: Record<string, string> = {
         role="listbox"
         aria-label="Resultados de búsqueda"
       >
+        <!-- Decir de dónde salieron los resultados no es un detalle: cambia
+             lo que el vendedor puede prometerle al cliente. -->
+        <p
+          v-if="desdeCatalogoLocal"
+          class="border-b border-borde-sutil bg-alerta-50 px-4 py-1.5 text-xs text-alerta-700 dark:bg-alerta-500/15 dark:text-alerta-500"
+        >
+          Catálogo guardado en esta caja · el stock no está verificado
+        </p>
+
         <ul class="divide-y divide-borde-sutil">
           <li
             v-for="(producto, indice) in resultados"
@@ -657,7 +682,16 @@ const etiquetaForma: Record<string, string> = {
                 >
                   {{ producto.afectacion }}
                 </BoticaBadge>
-                <BoticaBadge :tono="producto.stock_disponible > 0 ? 'normal' : 'critico'">
+                <!-- Sin conexión el stock no se puede verificar. Se dice así,
+                     no con un cero: cero significaría «no hay», y lo que pasa
+                     es que no se sabe. Quien decide es el anaquel. -->
+                <BoticaBadge
+                  v-if="producto.stock_disponible < 0"
+                  tono="neutro"
+                >
+                  Stock sin verificar
+                </BoticaBadge>
+                <BoticaBadge v-else :tono="producto.stock_disponible > 0 ? 'normal' : 'critico'">
                   {{ producto.stock_disponible }} disp.
                 </BoticaBadge>
               </div>

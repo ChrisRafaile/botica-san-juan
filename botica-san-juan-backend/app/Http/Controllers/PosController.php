@@ -154,6 +154,77 @@ class PosController extends Controller
     }
 
     /**
+     * Catálogo completo para la caja sin conexión.
+     *
+     * GET /api/pos/catalogo?desde=2026-10-24T10:00:00-05:00
+     *
+     * QUE DEVUELVE Y QUE NO
+     *
+     * Devuelve lo que hace falta para BUSCAR y PONER PRECIO sin red. No
+     * devuelve stock, y es deliberado: el stock cambia con cada venta de
+     * cualquier caja, y un numero guardado esta mañana es peor que ninguno
+     * porque invita a prometer lo que ya no hay. Sin conexion la pantalla
+     * dice "sin verificar" en lugar de inventar una cifra.
+     *
+     * `desde` hace la descarga incremental. La primera vez bajan las 884
+     * filas; a partir de ahi solo lo que cambio, que en una botica son unas
+     * pocas al dia. Bajar el catalogo entero en cada inicio de sesion gasta
+     * trafico de Neon sin ninguna ganancia.
+     */
+    public function catalogo(Request $request): JsonResponse
+    {
+        $datos = $request->validate([
+            'desde' => ['nullable', 'date'],
+        ]);
+
+        $consulta = Producto::query()
+            ->select([
+                'id', 'nombre', 'concentracion', 'presentacion', 'laboratorio',
+                'principio_activo', 'codigo_barras', 'requiere_receta',
+                'afecto_igv', 'tipo_afectacion_igv',
+                'precio', 'precio_blister', 'precio_caja',
+                'unidades_por_blister', 'blisters_por_caja', 'venta_fraccionada',
+                'updated_at',
+            ])
+            ->where('precio', '>', 0)
+            ->orderBy('id');
+
+        if (! empty($datos['desde'])) {
+            $consulta->where('updated_at', '>', $datos['desde']);
+        }
+
+        $productos = $consulta->get()->map(fn (Producto $p) => [
+            'id'                   => $p->id,
+            'nombre'               => $p->nombre,
+            'concentracion'        => $p->concentracion,
+            'presentacion'         => $p->presentacion,
+            'laboratorio'          => $p->laboratorio,
+            'principio_activo'     => $p->principio_activo,
+            'codigo_barras'        => $p->codigo_barras,
+            'requiere_receta'      => (bool) $p->requiere_receta,
+            'afecto_igv'           => (bool) $p->afecto_igv,
+            'tipo_afectacion_igv'  => $p->tipo_afectacion_igv,
+            'afectacion'           => $p->etiquetaAfectacion(),
+            'precio'               => (float) $p->precio,
+            'precio_blister'       => $p->precio_blister !== null ? (float) $p->precio_blister : null,
+            'precio_caja'          => $p->precio_caja !== null ? (float) $p->precio_caja : null,
+            'unidades_por_blister' => $p->unidades_por_blister !== null ? (int) $p->unidades_por_blister : null,
+            'blisters_por_caja'    => $p->blisters_por_caja !== null ? (int) $p->blisters_por_caja : null,
+            'venta_fraccionada'    => (bool) $p->venta_fraccionada,
+            'actualizado_en'       => $p->updated_at?->toIso8601String(),
+        ]);
+
+        return response()->json([
+            'data'        => $productos,
+            'total'       => $productos->count(),
+            /* Marca de corte para el siguiente incremental. Se toma del
+               servidor y no del reloj de la caja: si el equipo va atrasado,
+               una marca local se perderia cambios. */
+            'sincronizado_en' => now()->toIso8601String(),
+        ]);
+    }
+
+    /**
      * Comprueba el carrito completo antes de cobrar.
      *
      * POST /api/pos/verificar

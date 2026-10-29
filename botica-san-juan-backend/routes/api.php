@@ -314,6 +314,9 @@ Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->
 */
 Route::middleware(['auth:sanctum', 'admin', 'throttle:api'])->prefix('pos')->group(function () {
     Route::get('/productos', [PosController::class, 'buscarProductos']);
+    /* Catalogo completo para la caja sin conexion. Ver
+       docs/ARQUITECTURA-OFFLINE.md, seccion 8. */
+    Route::get('/catalogo', [PosController::class, 'catalogo']);
     Route::get('/productos/{producto}/lotes', [PosController::class, 'lotesDeProducto']);
     Route::post('/verificar', [PosController::class, 'verificar']);
     Route::post('/ventas', [PosController::class, 'registrarVenta']);
