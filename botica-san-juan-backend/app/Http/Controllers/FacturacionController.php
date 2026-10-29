@@ -6,6 +6,7 @@ use App\Jobs\EnviarComprobanteASunat;
 use App\Models\ComprobanteElectronico;
 use App\Models\Pedido;
 use App\Services\ComprobanteService;
+use App\Services\NombreArchivoSunat;
 use App\Services\SunatClient;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -20,6 +21,7 @@ class FacturacionController extends Controller
     public function __construct(
         private readonly SunatClient $sunatClient,
         private readonly ComprobanteService $comprobantes,
+        private readonly NombreArchivoSunat $nombres,
     )
     {
     }
@@ -172,7 +174,12 @@ class FacturacionController extends Controller
         $doc = $comprobante->load('pedido.usuario');
 
         $xmlContent = $this->buildXml($doc);
-        $fileName = sprintf('%s-%08d.xml', $doc->serie, $doc->numero);
+
+        /* El nombre sigue la convencion de la SUNAT —RUC, tipo, serie y
+           correlativo— aunque el envio todavia sea simulado. Ver
+           docs/FACTURACION-SUNAT.md: adoptarla ahora es gratis, y renombrar
+           despues archivos de los que ya dependen registros guardados, no. */
+        $fileName = $this->nombres->xml($doc);
         $relativePath = 'facturacion/xml/' . $fileName;
 
         Storage::disk('local')->put($relativePath, $xmlContent);
