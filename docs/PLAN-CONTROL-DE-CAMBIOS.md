@@ -220,21 +220,56 @@ trabajo.
 
 ---
 
-## 8. Dónde este proyecto no sigue la buena práctica
+## 8. Vinculación del cambio con rama, commit y Pull Request
 
-El material recomienda trabajar en rama y revisar mediante Pull Request. Hay
-que reconocer que **esto se cumple a medias**: existe un PR real, el #13, pero
-la mayor parte del trabajo entra con commits directos a `develop` y un
+| Cambio | Rama | Commits | Pull Request |
+|---|---|---|---|
+| CAM-001 · Parche PHP | `main` (emergencia) | `cf98072` | — ejecutado directamente por urgencia |
+| CAM-002 · Propiedad de comprobantes | `develop` | `2315149` | — |
+| CAM-003 · Contingencia offline | `develop` | `3174100`, `067e333`, `429bbae`, `65a03e0` | — |
+| CAM-004 · Búsqueda sin conexión | `develop` | `0002075` | — |
+| CAM-005 · Este plan | `docs/CAM-005-plan-control-cambios` | ver PR | **sí** |
+
+### Lo que este proyecto no venía cumpliendo
+
+El material recomienda trabajar en rama y revisar mediante Pull Request. Hasta
+CAM-004 **esto se cumplía a medias**: existía un PR real —el #13, del Sprint
+3-4— pero el resto del trabajo entraba con commits directos a `develop` y un
 *fast-forward* a `main`.
 
-En un proyecto de un solo autor, un PR consigo mismo es un trámite; pero el
-procedimiento no está escrito para el caso cómodo, y el día que entre otra
-persona la costumbre ya estaría tomada. Queda anotado como mejora pendiente,
-no como un detalle resuelto.
+En un proyecto de un solo autor, un PR consigo mismo parece un trámite. El
+procedimiento, sin embargo, no está escrito para el caso cómodo: sirve para
+que el pipeline se pronuncie **antes** de que el cambio toque la rama que
+despliega, y para que exista un sitio donde quede escrito qué se revisó.
 
-Lo que sí se cumple y conviene decirlo: **ningún cambio llega a producción sin
-pasar el pipeline**, porque el despliegue de Render se dispara desde `main` y
-`main` está cubierta por CI en cada push.
+**A partir de CAM-005 el flujo cambia**: rama por cambio, Pull Request, y
+fusión solo con el pipeline en verde. Este mismo documento entra por ese
+camino, de modo que su propia evidencia demuestra el procedimiento que
+describe.
+
+Lo que sí se cumplía desde el principio: **ningún cambio llega a producción
+sin pasar el pipeline**, porque el despliegue de Render se dispara desde
+`main` y `main` está cubierta por CI en cada push.
+
+---
+
+## 9. Cambios propuestos y todavía no ejecutados
+
+Forman el embudo de entrada del procedimiento. Están registrados pero **no
+implementados**, y se distinguen del registro de la sección 6 precisamente por
+eso: un plan de control de cambios que mezcla lo hecho con lo deseado deja de
+servir para rendir cuentas.
+
+| ID | Cambio | Tipo | Riesgo | Vuelta atrás |
+|---|---|---|---|---|
+| CR-P01 | Indicador de vencimiento FEFO en los resultados del punto de venta | Normal | Medio · puede penalizar la búsqueda si se calcula por fila | Revertir el commit de la rama |
+| CR-P02 | Aviso automático de stock crítico por correo, como tarea programada | Normal | Bajo · corre en segundo plano, no toca la venta | Desactivar la tarea y revertir |
+| CR-P03 | Índice GIN sobre `principio_activo` para acelerar la búsqueda | Normal | Medio · un índice mal creado puede bloquear la tabla al crearse | `migrate:rollback` con respaldo previo |
+
+CR-P03 merece una nota: en PostgreSQL, crear un índice bloquea la tabla salvo
+que se use `CONCURRENTLY`, que a su vez no puede ir dentro de una transacción.
+Es exactamente el tipo de detalle que el paso de *Analizar* existe para
+descubrir antes y no durante la ventana de cambio.
 
 ---
 
