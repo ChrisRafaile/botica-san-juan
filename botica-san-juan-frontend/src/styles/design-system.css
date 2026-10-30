@@ -464,16 +464,30 @@
   }
 
   /* Respeta a quien pidió menos movimiento en su sistema operativo.
-     Se acorta a 0.01ms en lugar de anular: así el navegador sigue disparando
-     `animationend` y `transitionend`, y el código que espera esos eventos
-     para limpiar o desmontar no se queda colgado. */
+     --------------------------------------------------------------------
+     ANTES ESTO ACORTABA TODO A 0.01ms, Y ERA UN ERROR
+
+     Llevar cualquier transición a 0.01ms no es «quitar el movimiento»: es
+     convertirlo en un salto instantáneo. Un panel que aparece de golpe en
+     mitad de la pantalla resulta MÁS brusco que el que se desvanece en una
+     décima de segundo, que es justo lo contrario de lo que pidió quien
+     activó la preferencia.
+
+     Lo que se hace ahora es amortiguar, no cortar: las transiciones se
+     acortan a un valor breve pero perceptible y los bucles infinitos
+     —parpadeos, giros de carga— se detienen, que es lo que de verdad
+     molesta. El navegador sigue disparando `transitionend`, así que el
+     código que espera ese evento para limpiar o desmontar no se cuelga.
+
+     Los componentes que necesiten un trato distinto lo resuelven en su
+     propia regla, que es donde se ve si el cambio tiene sentido. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
-      animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+      animation-duration: var(--mov-amortiguado) !important;
+      transition-duration: var(--mov-amortiguado) !important;
       scroll-behavior: auto !important;
     }
   }
@@ -519,5 +533,159 @@
   &:has(:focus-visible) {
     outline: 2px solid var(--anillo-foco);
     outline-offset: 2px;
+  }
+}
+
+/* ============================================================================
+   7. CAPA PREMIUM — SUPERFICIES TRANSLÚCIDAS, BORDES DE PRECISIÓN Y MOVIMIENTO
+   ----------------------------------------------------------------------------
+   Añadida sobre el sistema existente, no en su lugar: la paleta, las
+   superficies en capas y los tokens de dominio siguen mandando. Aquí solo se
+   define el acabado.
+
+   SOBRE EL CRISTAL, Y POR QUÉ SE USA CON CUENTAGOTAS
+
+   `backdrop-filter: blur()` obliga al compositor a volver a desenfocar todo
+   lo que hay detrás del elemento en cada fotograma en que algo se mueve. En
+   una tarjeta gráfica dedicada no se nota; en la gráfica integrada de la AIO
+   del mostrador sí, y es precisamente el equipo donde el sistema tiene que
+   responder sin titubeos mientras hay un cliente esperando.
+
+   Por eso el cristal se reserva para superficies que FLOTAN sobre contenido
+   —barras fijas, diálogos— y nunca se aplica a elementos que se repiten en
+   una lista. Un desenfoque por fila es la forma más rápida de convertir una
+   búsqueda fluida en una pantalla que se arrastra.
+
+   SOBRE LAS PANTALLAS DE ALTA TASA DE REFRESCO
+
+   Conviene decirlo sin adornos: una transición de CSS no se «ajusta» a
+   240 Hz. El navegador la interpola por tiempo y la dibuja en cada
+   fotograma que la pantalla pida, sean 60 o 240. Lo que decide si se ve
+   fluida es que la propiedad animada no obligue a recalcular maquetación ni
+   a repintar: `opacity` y `transform` las resuelve el compositor y llegan a
+   cualquier frecuencia; `top`, `height` o `box-shadow`, no.
+
+   De ahí que los tokens de abajo sean duraciones y curvas, no «perfiles de
+   240 Hz», y que las utilidades de esta sección solo muevan opacidad y
+   transformaciones.
+   ========================================================================== */
+
+@theme {
+  /* --- Movimiento -------------------------------------------------------
+     Tres duraciones y dos curvas. Más variedad que esta no se distingue a
+     simple vista y sí hace que dos componentes parecidos se muevan distinto
+     sin motivo. */
+  --mov-instantaneo: 90ms;   /* realimentación de pulsación */
+  --mov-rapido: 150ms;       /* hover, foco, cambios de estado */
+  --mov-medio: 240ms;        /* entrada y salida de paneles */
+
+  /* Valor al que se amortigua el movimiento cuando el sistema pide menos:
+     breve, pero todavía perceptible. No es cero a propósito. */
+  --mov-amortiguado: 80ms;
+
+  /* Salida rápida y frenada suave: lo que hace que algo parezca que «llega»
+     en vez de «aparecer». */
+  --curva-salida: cubic-bezier(0.22, 1, 0.36, 1);
+  --curva-entrada: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- Micro-elevaciones ------------------------------------------------
+     Más sutiles que la escala `--shadow-*`, que está pensada para tarjetas y
+     modales. Estas sirven para separar un elemento de su fondo sin que
+     parezca que levita: una sombra corta y una línea de luz superior, que es
+     lo que el ojo lee como «material». */
+  --elev-1:
+    0 1px 1px -0.5px oklch(0.30 0.02 160 / 0.06),
+    0 1px 0 0 oklch(1 0 0 / 0.04) inset;
+  --elev-2:
+    0 2px 4px -2px oklch(0.30 0.02 160 / 0.10),
+    0 1px 0 0 oklch(1 0 0 / 0.05) inset;
+  --elev-3:
+    0 8px 16px -8px oklch(0.30 0.02 160 / 0.16),
+    0 1px 0 0 oklch(1 0 0 / 0.06) inset;
+
+  /* --- Cristal ---------------------------------------------------------- */
+  --vidrio-desenfoque: 12px;
+  --vidrio-saturacion: 140%;
+}
+
+/* El cristal cambia de receta en modo oscuro: sobre fondo claro se aclara,
+   sobre fondo oscuro se oscurece. Usar el mismo valor en los dos deja el
+   texto sin contraste en uno de ellos. */
+:root {
+  --vidrio-fondo: oklch(1 0 0 / 0.72);
+  --vidrio-borde: oklch(1 0 0 / 0.55);
+}
+
+:where(.dark) {
+  --vidrio-fondo: oklch(0.22 0.012 160 / 0.68);
+  --vidrio-borde: oklch(1 0 0 / 0.08);
+}
+
+/* ----------------------------------------------------------------------------
+   Utilidades de la capa premium
+   -------------------------------------------------------------------------- */
+
+/* Superficie translúcida para barras y paneles que FLOTAN sobre contenido.
+   No usar dentro de listas ni en elementos repetidos. */
+@utility vidrio {
+  background-color: var(--vidrio-fondo);
+  border: 1px solid var(--vidrio-borde);
+  box-shadow: var(--elev-2);
+
+  /* El desenfoque va detrás de un @supports porque sin soporte el elemento
+     debe quedarse opaco, no transparente: un panel medio transparente sin
+     desenfoque deja el texto de debajo leyéndose a través del de encima. */
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur(var(--vidrio-desenfoque)) saturate(var(--vidrio-saturacion));
+  }
+
+  /* Quien pide menos transparencia en su sistema suele hacerlo porque el
+     texto sobre fondos translúcidos le cuesta. Se le da superficie sólida. */
+  @media (prefers-reduced-transparency: reduce) {
+    background-color: var(--superficie-flotante);
+    backdrop-filter: none;
+  }
+}
+
+/* Borde de precisión: una línea exterior y un filo interior de luz.
+   Se dibuja con `box-shadow` y no con `border` a propósito, porque así
+   cambiar de estado no altera el tamaño de la caja y no hay reflujo. */
+@utility filo {
+  box-shadow:
+    0 0 0 1px var(--borde-sutil),
+    0 1px 0 0 oklch(1 0 0 / 0.05) inset;
+}
+
+@utility filo-marca {
+  box-shadow:
+    0 0 0 1px var(--borde-marca),
+    0 1px 0 0 oklch(1 0 0 / 0.06) inset;
+}
+
+/* Realimentación de pulsación para controles de uso intensivo. Solo
+   `transform`: lo resuelve el compositor y no toca la maquetación. */
+@utility pulsable {
+  transition: transform var(--mov-instantaneo) var(--curva-salida);
+
+  &:active {
+    transform: scale(0.985);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:active {
+      transform: none;
+    }
+  }
+}
+
+/* Elevación al pasar por encima, sin mover la caja. */
+@utility elevable {
+  box-shadow: var(--elev-1);
+  transition:
+    box-shadow var(--mov-rapido) var(--curva-entrada),
+    border-color var(--mov-rapido) var(--curva-entrada);
+
+  &:hover {
+    box-shadow: var(--elev-2);
   }
 }
