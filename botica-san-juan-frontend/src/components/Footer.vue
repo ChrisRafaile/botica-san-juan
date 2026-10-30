@@ -206,7 +206,7 @@ onBeforeUnmount(() => {
           </div>
 
           <p class="mb-6 leading-relaxed">
-            Más de 10 años cuidando de tu salud y la de tu familia. Farmacia certificada
+            Ocho años cuidando de tu salud y la de tu familia. Farmacia certificada
             con servicio de calidad y compromiso.
           </p>
 

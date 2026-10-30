@@ -10,10 +10,10 @@
               Nuestra Historia
             </div>
             <h2 class="text-4xl md:text-5xl font-bold text-texto-primario mb-6">
-              Más de 15 años cuidando tu salud
+              Ocho años cuidando tu salud
             </h2>
             <p class="text-lg text-texto-secundario mb-6 leading-relaxed">
-              Fundada en 2008, Botica San Juan comenzó como un pequeño establecimiento familiar
+              Fundada en 2018, Botica San Juan comenzó como un pequeño establecimiento familiar
               con el sueño de proporcionar medicamentos y productos de salud de calidad a nuestra comunidad.
             </p>
             <p class="text-lg text-texto-secundario mb-8 leading-relaxed">
@@ -23,18 +23,19 @@
             <div class="grid grid-cols-2 gap-6">
               <div class="text-center">
                 <div class="text-3xl font-bold text-botica-600 mb-2">
-                  2008
+                  2018
                 </div>
                 <div class="text-texto-secundario">
-                  Fundación
+                  Inicio de actividades
                 </div>
               </div>
+              <!-- Antes «50K+ Clientes», sin registro que lo respaldara. -->
               <div class="text-center">
                 <div class="text-3xl font-bold text-botica-600 mb-2">
-                  50K+
+                  2022
                 </div>
                 <div class="text-texto-secundario">
-                  Clientes
+                  Emisor electrónico
                 </div>
               </div>
             </div>
@@ -49,7 +50,7 @@
                       Botica San Juan
                     </p>
                     <p class="text-sm opacity-75">
-                      Desde 2008
+                      Desde 2018
                     </p>
                   </div>
                 </div>

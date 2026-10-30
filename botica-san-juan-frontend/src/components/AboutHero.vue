@@ -29,18 +29,20 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
             <div class="text-3xl font-bold mb-2">
-              15+
+              8
             </div>
             <div class="text-white/85">
               Años de Experiencia
             </div>
           </div>
+          <!-- Antes «50K+ Clientes Satisfechos», una cifra que no respaldaba
+               ningun registro. Esta consta en la ficha RUC. -->
           <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">
             <div class="text-3xl font-bold mb-2">
-              50K+
+              2022
             </div>
             <div class="text-white/85">
-              Clientes Satisfechos
+              Emisor Electrónico SUNAT
             </div>
           </div>
           <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-6 border border-white/20 stats-card">

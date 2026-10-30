@@ -7,7 +7,7 @@
           Confianza que se Construye con Resultados
         </h2>
         <p class="text-xl text-texto-secundario max-w-3xl mx-auto">
-          Más de 15 años sirviendo a la comunidad con excelencia,
+          Ocho años sirviendo a la comunidad con excelencia,
           compromiso y dedicación a tu salud.
         </p>
       </div>
@@ -20,7 +20,7 @@
             <CalendarIcon class="w-10 h-10 text-botica-600" />
           </div>
           <div class="stat-number text-4xl md:text-5xl font-bold text-botica-600 mb-2">
-            15+
+            8
           </div>
           <div class="text-lg font-semibold text-texto-primario mb-2">
             Años de Experiencia
@@ -30,19 +30,22 @@
           </p>
         </div>
 
-        <!-- Stat 2: Happy Customers -->
+        <!-- Stat 2: Emisor electronico.
+             Sustituye a un «50K+ Clientes Satisfechos» que no respaldaba
+             ningun registro. Esta cifra si es comprobable: consta en la
+             ficha RUC del contribuyente. -->
         <div class="stat-card text-center">
           <div class="w-20 h-20 bg-clinico-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <UsersIcon class="w-10 h-10 text-texto-acento" />
           </div>
           <div class="stat-number text-4xl md:text-5xl font-bold text-texto-acento mb-2">
-            50K+
+            2022
           </div>
           <div class="text-lg font-semibold text-texto-primario mb-2">
-            Clientes Satisfechos
+            Emisor Electrónico SUNAT
           </div>
           <p class="text-texto-secundario text-sm">
-            Familias que confían en nosotros para su cuidado de salud
+            Comprobantes electrónicos autorizados desde 2022
           </p>
         </div>
 
@@ -52,7 +55,7 @@
             <PackageIcon class="w-10 h-10 text-ambar-600" />
           </div>
           <div class="stat-number text-4xl md:text-5xl font-bold text-ambar-600 mb-2">
-            10K+
+            880+
           </div>
           <div class="text-lg font-semibold text-texto-primario mb-2">
             Productos Disponibles

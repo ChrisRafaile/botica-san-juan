@@ -253,12 +253,15 @@
                 Tiempo de respuesta
               </div>
             </div>
+            <!-- Antes «5K+ Pedidos entregados». El sistema lleva el registro
+                 real de pedidos y no se acerca a esa cifra, asi que se
+                 sustituye por un dato que si consta en la ficha RUC. -->
             <div class="text-center trust-stat">
               <div class="text-3xl font-bold text-texto-marca mb-2">
-                5K+
+                2022
               </div>
               <div class="text-sm text-texto-secundario">
-                Pedidos entregados
+                Emisor electrónico SUNAT
               </div>
             </div>
           </div>

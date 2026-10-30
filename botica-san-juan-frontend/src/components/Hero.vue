@@ -33,7 +33,7 @@
             <p class="text-lg sm:text-xl md:text-2xl text-white/90 max-w-2xl mx-auto lg:mx-0 text-center lg:text-left hero-description">
               En Botica San Juan, ubicada en Av. Santa Rosa 103, te ofrecemos
               medicamentos de calidad, asesoramiento profesional y servicios
-              farmacéuticos con más de 25 años de experiencia en Lima.
+              farmacéuticos con ocho años de experiencia en Lima.
             </p>
           </div>
 
@@ -41,18 +41,20 @@
           <div class="grid grid-cols-3 gap-4 sm:gap-6 max-w-sm sm:max-w-md mx-auto lg:mx-0">
             <div class="text-center hero-stat bg-black/20 backdrop-blur-sm border-white/40 hover:bg-black/30">
               <div class="text-2xl sm:text-3xl font-bold text-ambar-200">
-                25+
+                8
               </div>
               <div class="text-sm text-white/90 font-medium">
                 Años Sirviendo
               </div>
             </div>
+            <!-- Antes «5K+ Clientes Confían», sin registro detras. El numero
+                 de productos sale del catalogo real. -->
             <div class="text-center hero-stat bg-black/20 backdrop-blur-sm border-white/40 hover:bg-black/30">
               <div class="text-2xl sm:text-3xl font-bold text-ambar-200">
-                5K+
+                880+
               </div>
               <div class="text-sm text-white/90 font-medium">
-                Clientes Confían
+                Productos en Catálogo
               </div>
             </div>
             <div class="text-center hero-stat bg-black/20 backdrop-blur-sm border-white/40 hover:bg-black/30">
