@@ -29,7 +29,15 @@ return [
     /*
      * The path where your OpenAPI specification will be exported.
      */
-    'export_path' => 'api.json',
+    /* Se exporta a la carpeta docs/ del repositorio —donde vive el resto de
+       la documentación— y con el nombre que esperan las herramientas de
+       visualización (jsoncrack y similares), en lugar de dejar un api.json
+       suelto en la raíz del backend.
+
+       Se resuelve con base_path() y no con una ruta relativa, porque una ruta
+       relativa se interpreta contra el directorio desde el que se invoca el
+       comando y escribiría el archivo en otro sitio según quién lo ejecute. */
+    'export_path' => base_path('../docs/openapi.json'),
 
     /*
      * Cache configuration for the generated OpenAPI document.
@@ -177,6 +185,12 @@ return [
      *     ],
      * ],
      */
-    // 'security_strategy' => \Dedoc\Scramble\SecurityDocumentation\MiddlewareAuthSecurityStrategy::class,
-    'security_strategy' => null,
+    /* Se activa la estrategia por middleware: el documento declara el esquema
+       Bearer y marca como públicas (`security: []`) las rutas que no pasan por
+       `auth`. Sin esto, un consumidor externo no puede distinguir en el
+       documento qué necesita token y qué no, y lo averigua a base de 401.
+
+       La seguridad no se configura a mano en otro sitio, así que no hay riesgo
+       de duplicar esquemas. */
+    'security_strategy' => \Dedoc\Scramble\SecurityDocumentation\MiddlewareAuthSecurityStrategy::class,
 ];

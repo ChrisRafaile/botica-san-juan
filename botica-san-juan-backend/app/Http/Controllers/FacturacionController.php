@@ -7,6 +7,7 @@ use App\Models\ComprobanteElectronico;
 use App\Models\Pedido;
 use App\Services\ComprobanteService;
 use App\Services\NombreArchivoSunat;
+use App\Services\Sunat\ConstanciaRecepcion;
 use App\Services\SunatClient;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -22,6 +23,7 @@ class FacturacionController extends Controller
         private readonly SunatClient $sunatClient,
         private readonly ComprobanteService $comprobantes,
         private readonly NombreArchivoSunat $nombres,
+        private readonly ConstanciaRecepcion $constancias,
     )
     {
     }
@@ -190,6 +192,33 @@ class FacturacionController extends Controller
         return response($xmlContent, 200, [
             'Content-Type' => 'application/xml; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename=' . $fileName,
+        ]);
+    }
+
+    /**
+     * Constancia de recepción de un comprobante.
+     *
+     * GET /api/facturacion/documentos/{comprobante}/cdr
+     *
+     * Devuelve el ZIP tal como llegó. Es el documento que hay que poder
+     * enseñar cuando alguien pregunta si una boleta se declaró, y por eso se
+     * entrega íntegro y no una lectura resumida: el resumen ya está en
+     * `sunat_response`, pero un resumen no prueba nada.
+     */
+    public function descargarCdr(ComprobanteElectronico $comprobante)
+    {
+        $contenido = $this->constancias->contenido($comprobante);
+
+        if ($contenido === null) {
+            return response()->json([
+                'message' => 'Este comprobante todavía no tiene constancia de recepción.',
+                'estado_sunat' => $comprobante->estado_sunat,
+            ], 404);
+        }
+
+        return response($contenido, 200, [
+            'Content-Type' => 'application/zip',
+            'Content-Disposition' => 'attachment; filename=' . $this->constancias->nombreDescarga($comprobante),
         ]);
     }
 

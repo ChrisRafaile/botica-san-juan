@@ -29,6 +29,12 @@ class ComprobanteElectronico extends Model
         'fecha_envio_sunat',
         'hash_documento',
         'xml_path',
+
+        /* Constancia de recepcion. El documento vive en disco; aqui queda su
+           rastro. Ver app/Services/Sunat/ConstanciaRecepcion.php. */
+        'cdr_path',
+        'cdr_recibido_en',
+        'cdr_hash',
     ];
 
     protected $casts = [
@@ -38,6 +44,7 @@ class ComprobanteElectronico extends Model
         'sunat_response' => 'array',
         'fecha_emision' => 'datetime',
         'fecha_envio_sunat' => 'datetime',
+        'cdr_recibido_en' => 'datetime',
     ];
 
     public function pedido()

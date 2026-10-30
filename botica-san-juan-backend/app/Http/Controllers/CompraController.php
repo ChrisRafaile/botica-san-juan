@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Compra;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CompraController extends Controller
 {
@@ -73,16 +74,20 @@ class CompraController extends Controller
 
     public function update(Request $request, string $id)
     {
-        $compra = Compra::findOrFail($id);
-
+        /* Rule::unique()->ignore($id) en lugar de concatenar el id de un
+           modelo leído antes de validar: no hace falta consultar la base para
+           armar la cadena y la regla queda legible para quien lea el código
+           sin ejecutarlo, incluido el generador del documento OpenAPI. */
         $validated = $request->validate([
             'proveedor_id' => 'sometimes|required|integer|exists:proveedores,id',
-            'numero_compra' => 'sometimes|required|string|max:32|unique:compras,numero_compra,' . $compra->id,
+            'numero_compra' => ['sometimes', 'required', 'string', 'max:32', Rule::unique('compras', 'numero_compra')->ignore($id)],
             'fecha_compra' => 'sometimes|required|date',
             'estado' => 'nullable|in:borrador,emitida,recibida,anulada',
             'total' => 'sometimes|required|numeric|min:0',
             'observaciones' => 'nullable|string|max:1000',
         ]);
+
+        $compra = Compra::findOrFail($id);
 
         foreach (['proveedor_id', 'numero_compra', 'fecha_compra', 'estado', 'total', 'observaciones'] as $field) {
             if (array_key_exists($field, $validated)) {

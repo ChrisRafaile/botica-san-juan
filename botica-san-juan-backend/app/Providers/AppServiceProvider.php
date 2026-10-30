@@ -80,5 +80,59 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perHour(30)->by((string) $clave),
             ];
         });
+
+        /* El orden importa: la cabecera se registra en la configuración por
+           omisión y la referencia Scalar se clona de ella. Al revés, la
+           segunda interfaz saldría con el título de fábrica. */
+        $this->identificarDocumentoOpenApi();
+        $this->registrarReferenciaScalar();
+    }
+
+    /**
+     * Cabecera del documento OpenAPI.
+     *
+     * Sin esto el documento se titula «Laravel», porque el valor por omisión
+     * es el nombre de la aplicación en el entorno. Eso es un detalle menor en
+     * la pantalla de documentación y un problema en cuanto el archivo
+     * `openapi.json` sale del repositorio: es el nombre que aparece en el
+     * grafo de servicios y en cualquier catálogo que lo importe, y «Laravel»
+     * no dice de qué sistema se trata.
+     *
+     * Se fija aquí, en código, y no en el entorno, para que no dependa de que
+     * cada máquina tenga APP_NAME bien puesto.
+     */
+    private function identificarDocumentoOpenApi(): void
+    {
+        \Dedoc\Scramble\Scramble::extendOpenApi(function (\Dedoc\Scramble\Support\Generator\OpenApi $documento): void {
+            $documento->info->title = 'API Botica San Juan';
+
+            $documento->info
+                ->setDescription(
+                    'Servicios del sistema de gestión de la Botica San Juan: catálogo, '
+                    .'inventario, punto de venta, pedidos del portal, sincronización de '
+                    .'ventas en contingencia y facturación electrónica. '
+                    .'Las rutas protegidas esperan un token Bearer emitido por /api/login.'
+                );
+        });
+    }
+
+    /**
+     * Segunda lectura del mismo documento, en /docs/v1, con Scalar.
+     *
+     * No es una documentación aparte: es la MISMA especificación que sirve
+     * /docs/api.json, presentada con otro visor. Se registra como una API
+     * adicional de Scramble, clonada de la configuración por omisión, en vez
+     * de escribir una plantilla propia; así la plantilla, la versión del
+     * visor y el manejo del CSRF los mantiene el paquete y no este proyecto.
+     *
+     * Si las dos interfaces llegaran a mostrar cosas distintas, el problema
+     * estaría en el documento y no en los visores.
+     */
+    private function registrarReferenciaScalar(): void
+    {
+        \Dedoc\Scramble\Scramble::registerApi('v1', [
+            'renderer' => 'scalar',
+            'ui' => ['title' => 'API Botica San Juan'],
+        ])->expose(ui: 'docs/v1', document: false);
     }
 }

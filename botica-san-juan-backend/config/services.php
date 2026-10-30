@@ -79,6 +79,19 @@ return [
         'base_url' => env('SUNAT_BASE_URL'),
         'token' => env('SUNAT_TOKEN'),
         'timeout' => env('SUNAT_TIMEOUT', 20),
+
+        /* Credenciales del emisor para el envio directo. El usuario tiene que
+           ser SECUNDARIO: con el principal el servicio rechaza la peticion
+           por politica. Ver app/Services/Sunat/CredencialesSunat.php. */
+        'sol_usuario' => env('SUNAT_SOL_USUARIO'),
+        'sol_clave' => env('SUNAT_SOL_CLAVE'),
+
+        /* Endpoint del servicio. En beta se puede probar el empaquetado
+           completo sin certificado; produccion exige firma digital. */
+        'endpoint' => env(
+            'SUNAT_ENDPOINT',
+            'https://e-beta.sunat.gob.pe/ol-ti-itcpfegem-beta/billService'
+        ),
     ],
 
 ];

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Proveedor;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ProveedorController extends Controller
 {
@@ -71,11 +72,15 @@ class ProveedorController extends Controller
 
     public function update(Request $request, string $id)
     {
-        $proveedor = Proveedor::findOrFail($id);
-
+        /* La regla de unicidad se arma con Rule::unique()->ignore($id) y no
+           concatenando el id de un modelo leído antes de validar. Con la
+           concatenación hacía falta consultar la base solo para construir la
+           cadena, y la regla quedaba invisible para cualquier herramienta que
+           lea el código sin ejecutarlo —entre ellas el generador de OpenAPI,
+           que la omitía del documento publicado—. */
         $validated = $request->validate([
             'nombre' => 'sometimes|required|string|max:160',
-            'ruc' => 'nullable|string|size:11|unique:proveedores,ruc,' . $proveedor->id,
+            'ruc' => ['nullable', 'string', 'size:11', Rule::unique('proveedores', 'ruc')->ignore($id)],
             'contacto' => 'nullable|string|max:140',
             'telefono' => 'nullable|string|max:40',
             'email' => 'nullable|email|max:160',
@@ -83,6 +88,8 @@ class ProveedorController extends Controller
             'dias_credito' => 'nullable|integer|min:0|max:90',
             'activo' => 'nullable|boolean',
         ]);
+
+        $proveedor = Proveedor::findOrFail($id);
 
         if (array_key_exists('nombre', $validated)) {
             $proveedor->nombre = trim($validated['nombre']);
