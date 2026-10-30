@@ -628,7 +628,7 @@ const etiquetaForma: Record<string, string> = {
       <!-- Resultados de búsqueda -->
       <div
         v-if="resultados.length"
-        class="max-h-72 shrink-0 overflow-y-auto rounded-xl border border-borde-sutil bg-superficie-elevada"
+        class="max-h-72 shrink-0 overflow-y-auto rounded-xl border border-borde-sutil bg-superficie-elevada shadow-[var(--elev-2)]"
         role="listbox"
         aria-label="Resultados de búsqueda"
       >
@@ -647,7 +647,7 @@ const etiquetaForma: Record<string, string> = {
             :key="producto.id"
             role="option"
             :aria-selected="indice === indiceMarcado"
-            class="cursor-pointer px-4 py-2.5 transition-colors"
+            class="cursor-pointer px-4 py-2.5 transition-colors duration-[var(--mov-rapido)] ease-[var(--curva-entrada)]"
             :class="indice === indiceMarcado ? 'bg-superficie-interactiva-activa' : 'hover:bg-superficie-interactiva'"
             @mouseenter="indiceMarcado = indice"
             @click="agregarProducto(producto)"
@@ -1002,7 +1002,7 @@ const etiquetaForma: Record<string, string> = {
           aria-labelledby="titulo-parcial"
           @click.self="confirmacionParcial = null"
         >
-          <div class="w-full max-w-md rounded-2xl border border-borde-sutil bg-superficie-flotante p-5 shadow-2xl">
+          <div class="vidrio w-full max-w-md rounded-2xl p-5">
             <div class="flex items-start gap-3">
               <span
                 class="grid size-10 shrink-0 place-items-center rounded-xl bg-alerta-50 text-alerta-700 dark:bg-alerta-500/15 dark:text-alerta-500"
@@ -1073,7 +1073,7 @@ const etiquetaForma: Record<string, string> = {
           aria-modal="true"
           @click.self="panelAtajos = false"
         >
-          <div class="w-full max-w-sm rounded-2xl border border-borde-sutil bg-superficie-flotante p-5 shadow-2xl">
+          <div class="vidrio w-full max-w-sm rounded-2xl p-5">
             <h2 class="font-display text-lg font-semibold text-texto-primario">
               Atajos de teclado
             </h2>
@@ -1130,7 +1130,7 @@ const etiquetaForma: Record<string, string> = {
           aria-labelledby="titulo-cobro"
           @click.self="panelCobro = false"
         >
-          <div class="w-full max-w-lg rounded-2xl border border-borde-sutil bg-superficie-flotante p-5 shadow-2xl">
+          <div class="vidrio w-full max-w-lg rounded-2xl p-5">
             <div class="flex items-baseline justify-between gap-4">
               <h2
                 id="titulo-cobro"

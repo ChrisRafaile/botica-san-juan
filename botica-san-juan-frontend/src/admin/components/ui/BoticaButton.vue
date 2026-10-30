@@ -57,7 +57,7 @@ const inactivo = computed(() => props.disabled || props.cargando)
     :disabled="inactivo"
     :aria-busy="cargando || undefined"
     :aria-label="etiquetaAccesible"
-    class="inline-flex shrink-0 items-center justify-center rounded-lg font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco disabled:cursor-not-allowed disabled:opacity-55"
+    class="pulsable inline-flex shrink-0 items-center justify-center rounded-lg font-medium transition-colors duration-[var(--mov-rapido)] ease-[var(--curva-entrada)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco disabled:cursor-not-allowed disabled:opacity-55"
     :class="[VARIANTES[variante], TAMANOS[tamano]]"
   >
     <LoaderCircle
