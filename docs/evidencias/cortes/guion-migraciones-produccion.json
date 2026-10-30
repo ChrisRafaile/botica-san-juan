@@ -11,10 +11,6 @@
   ],
   [
    "info",
-   "2026_09_16_100500_seed_lotes_iniciales_desde_stock ........ [1] Ran"
-  ],
-  [
-   "info",
    "2026_09_18_110000_create_conteos_table .................... [1] Ran"
   ],
   [
@@ -58,12 +54,16 @@
    "2026_10_24_090100_create_eventos_operacion_table .......... [4] Ran"
   ],
   [
+   "info",
+   "2026_10_30_090000_add_cdr_to_comprobantes_table ........... [5] Ran"
+  ],
+  [
    "tenue",
    ""
   ],
   [
    "ok",
-   "  48 migraciones: todas Ran, ninguna Pending"
+   "  49 migraciones: todas Ran, ninguna Pending"
   ]
  ]
 }
