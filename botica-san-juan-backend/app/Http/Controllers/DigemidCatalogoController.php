@@ -6,6 +6,7 @@ use App\Models\DigemidCatalogo;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class DigemidCatalogoController extends Controller
@@ -73,10 +74,12 @@ class DigemidCatalogoController extends Controller
 
     public function update(Request $request, string $id)
     {
-        $record = DigemidCatalogo::findOrFail($id);
-
+        /* Rule::unique()->ignore($id) en lugar de concatenar el id de un
+           modelo leído antes de validar: no hace falta consultar la base para
+           armar la cadena y la regla queda legible para quien lea el código
+           sin ejecutarlo, incluido el generador del documento OpenAPI. */
         $validated = $request->validate([
-            'codigo_digemid' => 'sometimes|required|string|max:64|unique:digemid_catalogos,codigo_digemid,' . $record->id,
+            'codigo_digemid' => ['sometimes', 'required', 'string', 'max:64', Rule::unique('digemid_catalogos', 'codigo_digemid')->ignore($id)],
             'nombre_producto' => 'sometimes|required|string|max:255',
             'principio_activo' => 'nullable|string|max:255',
             'laboratorio_fabricante' => 'nullable|string|max:255',
@@ -84,6 +87,8 @@ class DigemidCatalogoController extends Controller
             'precio_maximo_regulado' => 'nullable|numeric|min:0',
             'activo' => 'nullable|boolean',
         ]);
+
+        $record = DigemidCatalogo::findOrFail($id);
 
         foreach (['codigo_digemid', 'nombre_producto', 'principio_activo', 'laboratorio_fabricante', 'requiere_receta', 'precio_maximo_regulado', 'activo'] as $field) {
             if (array_key_exists($field, $validated)) {

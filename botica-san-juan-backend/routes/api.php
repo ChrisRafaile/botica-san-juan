@@ -217,6 +217,11 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         ->can('view', 'comprobante');
     Route::get('facturacion/documentos/{comprobante}/pdf', [FacturacionController::class, 'descargarPdf'])
         ->can('view', 'comprobante');
+    /* La constancia de recepcion se entrega integra y con la misma regla de
+       propiedad que el XML y el PDF: es un documento del titular, no un dato
+       publico del sistema. */
+    Route::get('facturacion/documentos/{comprobante}/cdr', [FacturacionController::class, 'descargarCdr'])
+        ->can('view', 'comprobante');
 
     Route::get('facturacion/comisiones', [ComisionController::class, 'index'])->middleware('admin');
 

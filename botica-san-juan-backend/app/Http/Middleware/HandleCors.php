@@ -21,6 +21,26 @@ class HandleCors
         return (array) config('cors.allowed_origins', []);
     }
 
+    /**
+     * Dice si la ruta pertenece al carril publico de interoperabilidad.
+     *
+     * Ese carril existe para que un sistema de terceros pueda consumir el
+     * catalogo o registrar una venta desde un navegador sin figurar en la
+     * lista de origenes. No afloja ninguna proteccion: CORS no autoriza
+     * nada, solo decide si el navegador deja leer la respuesta. Quien no
+     * traiga token sigue recibiendo 401.
+     */
+    private function esRutaPublica(Request $request): bool
+    {
+        foreach ((array) config('cors.rutas_publicas', []) as $patron) {
+            if ($request->is($patron)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function resolveOrigin(Request $request): ?string
     {
         $origin = (string) $request->headers->get('Origin', '');
@@ -46,12 +66,14 @@ class HandleCors
      *
      * @return array<string, string>
      */
-    private function cabecerasComunes(): array
+    private function cabecerasComunes(bool $publica = false): array
     {
+        $credenciales = ! $publica && config('cors.supports_credentials');
+
         return [
             'Access-Control-Allow-Methods'     => implode(', ', (array) config('cors.allowed_methods', [])),
             'Access-Control-Allow-Headers'     => implode(', ', (array) config('cors.allowed_headers', [])),
-            'Access-Control-Allow-Credentials' => config('cors.supports_credentials') ? 'true' : 'false',
+            'Access-Control-Allow-Credentials' => $credenciales ? 'true' : 'false',
         ];
     }
 
@@ -62,11 +84,16 @@ class HandleCors
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $allowedOrigin = $this->resolveOrigin($request);
+        $publica = $this->esRutaPublica($request);
+
+        /* En el carril publico el origen se refleja como '*' y las
+           credenciales se desactivan. El navegador rechaza esa pareja si se
+           anuncian juntas, asi que no es una eleccion de estilo. */
+        $allowedOrigin = $publica ? '*' : $this->resolveOrigin($request);
 
         // Handle preflight OPTIONS requests
         if ($request->getMethod() === 'OPTIONS') {
-            $response = response('', 200)->withHeaders($this->cabecerasComunes());
+            $response = response('', 200)->withHeaders($this->cabecerasComunes($publica));
 
             if ($allowedOrigin !== null) {
                 $response->headers->set('Access-Control-Allow-Origin', $allowedOrigin);
@@ -82,7 +109,7 @@ class HandleCors
             $response->headers->set('Vary', 'Origin');
         }
 
-        foreach ($this->cabecerasComunes() as $nombre => $valor) {
+        foreach ($this->cabecerasComunes($publica) as $nombre => $valor) {
             $response->headers->set($nombre, $valor);
         }
 

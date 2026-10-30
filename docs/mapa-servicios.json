@@ -1,0 +1,779 @@
+{
+    "sistema": "API Botica San Juan",
+    "version": "0.0.1",
+    "generado": "2026-10-30T04:29:03+00:00",
+    "resumen": {
+        "dominios": 23,
+        "operaciones": 120,
+        "operaciones_con_token": 100,
+        "operaciones_publicas": 20
+    },
+    "dominios": {
+        "Carrito": [
+            {
+                "operacion": "Display a listing of the resource",
+                "metodo": "GET",
+                "ruta": "/api/carrito",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Store a newly created resource in storage",
+                "metodo": "POST",
+                "ruta": "/api/carrito",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Display the specified resource",
+                "metodo": "GET",
+                "ruta": "/api/carrito/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Update the specified resource in storage",
+                "metodo": "PUT",
+                "ruta": "/api/carrito/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Remove the specified resource from storage",
+                "metodo": "DELETE",
+                "ruta": "/api/carrito/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Get cart items for a specific user",
+                "metodo": "GET",
+                "ruta": "/api/carrito/usuario/{usuarioId}",
+                "acceso": "token Bearer"
+            }
+        ],
+        "CarritoPublico": [
+            {
+                "operacion": "POST /api/carrito/cotizar   (público)",
+                "metodo": "POST",
+                "ruta": "/api/carrito/cotizar",
+                "acceso": "publico"
+            }
+        ],
+        "Categoria": [
+            {
+                "operacion": "categorias.index",
+                "metodo": "GET",
+                "ruta": "/api/categorias",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "categoria.store",
+                "metodo": "POST",
+                "ruta": "/api/categorias",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "categorias.show",
+                "metodo": "GET",
+                "ruta": "/api/categorias/{id}",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "categoria.update_79",
+                "metodo": "PUT",
+                "ruta": "/api/categorias/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "categoria.update_80",
+                "metodo": "PATCH",
+                "ruta": "/api/categorias/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "categoria.destroy",
+                "metodo": "DELETE",
+                "ruta": "/api/categorias/{id}",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Comision": [
+            {
+                "operacion": "comision.index",
+                "metodo": "GET",
+                "ruta": "/api/facturacion/comisiones",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "comision.registrar",
+                "metodo": "POST",
+                "ruta": "/api/facturacion/documentos/{comprobanteId}/comision",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "comision.liquidar",
+                "metodo": "POST",
+                "ruta": "/api/facturacion/comisiones/{id}/liquidar",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Compra": [
+            {
+                "operacion": "compras.index",
+                "metodo": "GET",
+                "ruta": "/api/compras",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "compra.store",
+                "metodo": "POST",
+                "ruta": "/api/compras",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "compras.show",
+                "metodo": "GET",
+                "ruta": "/api/compras/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "compra.update_91",
+                "metodo": "PUT",
+                "ruta": "/api/compras/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "compra.update_92",
+                "metodo": "PATCH",
+                "ruta": "/api/compras/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "compra.destroy",
+                "metodo": "DELETE",
+                "ruta": "/api/compras/{id}",
+                "acceso": "token Bearer"
+            }
+        ],
+        "ComprobanteCliente": [
+            {
+                "operacion": "Lista los comprobantes de la cuenta que pregunta",
+                "metodo": "GET",
+                "ruta": "/api/comprobantes/mios",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Devuelve un comprobante con el detalle necesario para imprimirlo",
+                "metodo": "GET",
+                "ruta": "/api/comprobantes/{comprobante}",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Contacto": [
+            {
+                "operacion": "Store a newly created resource in storage",
+                "metodo": "POST",
+                "ruta": "/api/contacto",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "Display a listing of the resource",
+                "metodo": "GET",
+                "ruta": "/api/contacto",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Display the specified resource",
+                "metodo": "GET",
+                "ruta": "/api/contacto/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Update the specified resource in storage",
+                "metodo": "PUT",
+                "ruta": "/api/contacto/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Remove the specified resource from storage",
+                "metodo": "DELETE",
+                "ruta": "/api/contacto/{id}",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Conteo": [
+            {
+                "operacion": "GET /api/conteos — historial, el más reciente primero",
+                "metodo": "GET",
+                "ruta": "/api/conteos",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "POST /api/conteos — abre una sesión y propone qué contar",
+                "metodo": "POST",
+                "ruta": "/api/conteos",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "GET /api/conteos/abierto — la sesión en curso, si la hay",
+                "metodo": "GET",
+                "ruta": "/api/conteos/abierto",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "GET /api/conteos/{conteo}",
+                "metodo": "GET",
+                "ruta": "/api/conteos/{conteo}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "PUT /api/conteos/{conteo}/detalles/{detalle} — anota lo contado",
+                "metodo": "PUT",
+                "ruta": "/api/conteos/{conteo}/detalles/{detalle}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "POST /api/conteos/{conteo}/cerrar — aplica los ajustes",
+                "metodo": "POST",
+                "ruta": "/api/conteos/{conteo}/cerrar",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "POST /api/conteos/{conteo}/anular",
+                "metodo": "POST",
+                "ruta": "/api/conteos/{conteo}/anular",
+                "acceso": "token Bearer"
+            }
+        ],
+        "DigemidCatalogo": [
+            {
+                "operacion": "digemidCatalogo.alertasCumplimiento",
+                "metodo": "GET",
+                "ruta": "/api/digemid-catalogo/alertas-cumplimiento",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "digemid-catalogo.index",
+                "metodo": "GET",
+                "ruta": "/api/digemid-catalogo",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "digemidCatalogo.store",
+                "metodo": "POST",
+                "ruta": "/api/digemid-catalogo",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "digemid-catalogo.show",
+                "metodo": "GET",
+                "ruta": "/api/digemid-catalogo/{id}",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "digemidCatalogo.update_96",
+                "metodo": "PUT",
+                "ruta": "/api/digemid-catalogo/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "digemidCatalogo.update_97",
+                "metodo": "PATCH",
+                "ruta": "/api/digemid-catalogo/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "digemidCatalogo.destroy",
+                "metodo": "DELETE",
+                "ruta": "/api/digemid-catalogo/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "digemidCatalogo.import",
+                "metodo": "POST",
+                "ruta": "/api/digemid-catalogo/import",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Facturacion": [
+            {
+                "operacion": "facturacion.index",
+                "metodo": "GET",
+                "ruta": "/api/facturacion/documentos",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "El comprobante llega inyectado por la ruta, no buscado por id dentro del\nmetodo. La diferencia importa: asi la autorizacion (`can('view')`) puede\ndecidir ANTES de entrar aqui, sobre el modelo ya resuelto. Mientras el\ncontrolador hacia `findOrFail($id)` por su cuenta, no habia forma de que\nnadie comprobara de quien era el documento, y no la habia",
+                "metodo": "GET",
+                "ruta": "/api/facturacion/documentos/{comprobante}/xml",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "facturacion.descargarPdf",
+                "metodo": "GET",
+                "ruta": "/api/facturacion/documentos/{comprobante}/pdf",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Constancia de recepción de un comprobante",
+                "metodo": "GET",
+                "ruta": "/api/facturacion/documentos/{comprobante}/cdr",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "facturacion.generarDesdePedidos",
+                "metodo": "POST",
+                "ruta": "/api/facturacion/generar-desde-pedidos",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "facturacion.enviarSunat",
+                "metodo": "POST",
+                "ruta": "/api/facturacion/documentos/{id}/enviar-sunat",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Encola el envio del comprobante al operador de servicios electronicos",
+                "metodo": "POST",
+                "ruta": "/api/facturacion/documentos/{id}/enviar-sunat-async",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Pago": [
+            {
+                "operacion": "Prepara el cobro de un pedido y devuelve al navegador lo justo para\ndesplegar el formulario del proveedor: el token de formulario y la\nllave publica. La llave privada nunca sale del backend",
+                "metodo": "POST",
+                "ruta": "/api/pedidos/{pedidoId}/pago",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Estado real del pago. Es lo que consulta la pantalla de procesamiento:\nel frontend nunca decide por si mismo que una compra fue exitosa",
+                "metodo": "GET",
+                "ruta": "/api/pagos/{referencia}/estado",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Valida el retorno del formulario del proveedor al navegador",
+                "metodo": "POST",
+                "ruta": "/api/pagos/validar-retorno",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Notificacion servidor a servidor de la pasarela",
+                "metodo": "POST",
+                "ruta": "/api/pagos/notificacion/{secreto}",
+                "acceso": "publico"
+            }
+        ],
+        "Pedido": [
+            {
+                "operacion": "Confirma una venta: crea el pedido con su detalle y descuenta el stock\ndentro de una unica transaccion",
+                "metodo": "POST",
+                "ruta": "/api/pedidos/confirmar",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "Resumen del cliente que pregunta, agregado en SQL",
+                "metodo": "GET",
+                "ruta": "/api/pedidos/mi-resumen",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Cifras de cabecera de la pantalla de pedidos",
+                "metodo": "GET",
+                "ruta": "/api/pedidos/resumen",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Display a listing of the resource",
+                "metodo": "GET",
+                "ruta": "/api/pedidos",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Store a newly created resource in storage",
+                "metodo": "POST",
+                "ruta": "/api/pedidos",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Display the specified resource",
+                "metodo": "GET",
+                "ruta": "/api/pedidos/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Update the specified resource in storage",
+                "metodo": "PUT",
+                "ruta": "/api/pedidos/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Remove the specified resource from storage",
+                "metodo": "DELETE",
+                "ruta": "/api/pedidos/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "pedido.getByUser",
+                "metodo": "GET",
+                "ruta": "/api/pedidos/usuario/{usuarioId}",
+                "acceso": "token Bearer"
+            }
+        ],
+        "PedidoDetalle": [
+            {
+                "operacion": "Display a listing of the resource",
+                "metodo": "GET",
+                "ruta": "/api/pedido-detalles",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Store a newly created resource in storage",
+                "metodo": "POST",
+                "ruta": "/api/pedido-detalles",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Display the specified resource",
+                "metodo": "GET",
+                "ruta": "/api/pedido-detalles/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Update the specified resource in storage",
+                "metodo": "PUT",
+                "ruta": "/api/pedido-detalles/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Remove the specified resource from storage",
+                "metodo": "DELETE",
+                "ruta": "/api/pedido-detalles/{id}",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Pos": [
+            {
+                "operacion": "Búsqueda de productos para el mostrador",
+                "metodo": "GET",
+                "ruta": "/api/pos/productos",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Catálogo completo para la caja sin conexión",
+                "metodo": "GET",
+                "ruta": "/api/pos/catalogo",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Lotes de un producto, para consulta desde el mostrador",
+                "metodo": "GET",
+                "ruta": "/api/pos/productos/{producto}/lotes",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Comprueba el carrito completo antes de cobrar",
+                "metodo": "POST",
+                "ruta": "/api/pos/verificar",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Registra la venta",
+                "metodo": "POST",
+                "ruta": "/api/pos/ventas",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Detalle de una venta, con su desglose por lotes",
+                "metodo": "GET",
+                "ruta": "/api/pos/ventas/{pedido}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Corrección de stock desde el mostrador",
+                "metodo": "POST",
+                "ruta": "/api/pos/lotes/{lote}/ajustar",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Producto": [
+            {
+                "operacion": "producto.resumen",
+                "metodo": "GET",
+                "ruta": "/api/productos/resumen",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Valores disponibles para los filtros del catálogo, con su recuento",
+                "metodo": "GET",
+                "ruta": "/api/productos/facetas",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "Display a listing of the resource",
+                "metodo": "GET",
+                "ruta": "/api/productos",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "Store a newly created resource in storage",
+                "metodo": "POST",
+                "ruta": "/api/productos",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Display the specified resource",
+                "metodo": "GET",
+                "ruta": "/api/productos/{id}",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "Update the specified resource in storage",
+                "metodo": "PUT",
+                "ruta": "/api/productos/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Update the specified resource in storage",
+                "metodo": "PATCH",
+                "ruta": "/api/productos/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Baja de un producto del catálogo",
+                "metodo": "DELETE",
+                "ruta": "/api/productos/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Store multiple products in bulk",
+                "metodo": "POST",
+                "ruta": "/api/productos/bulk",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Proveedor": [
+            {
+                "operacion": "proveedores.index",
+                "metodo": "GET",
+                "ruta": "/api/proveedores",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "proveedor.store",
+                "metodo": "POST",
+                "ruta": "/api/proveedores",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "proveedores.show",
+                "metodo": "GET",
+                "ruta": "/api/proveedores/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "proveedor.update_87",
+                "metodo": "PUT",
+                "ruta": "/api/proveedores/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "proveedor.update_88",
+                "metodo": "PATCH",
+                "ruta": "/api/proveedores/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "proveedor.destroy",
+                "metodo": "DELETE",
+                "ruta": "/api/proveedores/{id}",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Reporte": [
+            {
+                "operacion": "reporte.ventas",
+                "metodo": "GET",
+                "ruta": "/api/reportes/ventas",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "reporte.gerencial",
+                "metodo": "GET",
+                "ruta": "/api/reportes/gerencial",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "reporte.exportGerencialCsv",
+                "metodo": "GET",
+                "ruta": "/api/reportes/gerencial/export/csv",
+                "acceso": "token Bearer"
+            }
+        ],
+        "ReporteContable": [
+            {
+                "operacion": "GET /api/reportes/registro-ventas?desde=&hasta=",
+                "metodo": "GET",
+                "ruta": "/api/reportes/registro-ventas",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "GET /api/reportes/registro-ventas/csv?desde=&hasta=",
+                "metodo": "GET",
+                "ruta": "/api/reportes/registro-ventas/csv",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Sincronizacion": [
+            {
+                "operacion": "sincronizacion.ventas",
+                "metodo": "POST",
+                "ruta": "/api/v1/ventas/sincronizar",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Subcategoria": [
+            {
+                "operacion": "subcategorias.index",
+                "metodo": "GET",
+                "ruta": "/api/subcategorias",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "subcategoria.store",
+                "metodo": "POST",
+                "ruta": "/api/subcategorias",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "subcategorias.show",
+                "metodo": "GET",
+                "ruta": "/api/subcategorias/{id}",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "subcategoria.update_83",
+                "metodo": "PUT",
+                "ruta": "/api/subcategorias/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "subcategoria.update_84",
+                "metodo": "PATCH",
+                "ruta": "/api/subcategorias/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "subcategoria.destroy",
+                "metodo": "DELETE",
+                "ruta": "/api/subcategorias/{id}",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Tablero": [
+            {
+                "operacion": "tablero.index",
+                "metodo": "GET",
+                "ruta": "/api/tablero",
+                "acceso": "token Bearer"
+            }
+        ],
+        "Usuario": [
+            {
+                "operacion": "Login user",
+                "metodo": "POST",
+                "ruta": "/api/login",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "usuario.register",
+                "metodo": "POST",
+                "ruta": "/api/register",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "Logout user",
+                "metodo": "POST",
+                "ruta": "/api/logout",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "usuario.mfaSetup",
+                "metodo": "POST",
+                "ruta": "/api/mfa/setup",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "usuario.mfaEnable",
+                "metodo": "POST",
+                "ruta": "/api/mfa/enable",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "usuario.mfaDisable",
+                "metodo": "POST",
+                "ruta": "/api/mfa/disable",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Display a listing of the resource",
+                "metodo": "GET",
+                "ruta": "/api/usuarios",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Store a newly created resource in storage",
+                "metodo": "POST",
+                "ruta": "/api/usuarios",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Display the specified resource",
+                "metodo": "GET",
+                "ruta": "/api/usuarios/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Update the specified resource in storage",
+                "metodo": "PUT",
+                "ruta": "/api/usuarios/{id}",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "Remove the specified resource from storage",
+                "metodo": "DELETE",
+                "ruta": "/api/usuarios/{id}",
+                "acceso": "token Bearer"
+            }
+        ],
+        "sin-clasificar": [
+            {
+                "operacion": "/user",
+                "metodo": "GET",
+                "ruta": "/api/user",
+                "acceso": "token Bearer"
+            },
+            {
+                "operacion": "/test",
+                "metodo": "GET",
+                "ruta": "/api/test",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "/health",
+                "metodo": "GET",
+                "ruta": "/api/health",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "/health/db",
+                "metodo": "GET",
+                "ruta": "/api/health/db",
+                "acceso": "publico"
+            },
+            {
+                "operacion": "/salud",
+                "metodo": "GET",
+                "ruta": "/api/salud",
+                "acceso": "publico"
+            }
+        ]
+    }
+}

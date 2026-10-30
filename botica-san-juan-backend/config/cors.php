@@ -46,4 +46,32 @@ return [
 
     'supports_credentials' => true,
 
+    /*
+     | Carril publico para interoperabilidad
+     |--------------------------------------------------------------------------
+     |
+     | Las rutas de esta lista responden con Access-Control-Allow-Origin: *
+     | y SIN credenciales, para que un sistema de terceros pueda consumirlas
+     | desde un navegador sin estar en la lista de origenes.
+     |
+     | Las dos cosas van juntas por obligacion del navegador: '*' y
+     | credenciales son incompatibles. Y es lo correcto, ademas: estas rutas
+     | se consumen con un token en la cabecera Authorization, no con la cookie
+     | de sesion del panel.
+     |
+     | CONVIENE NO CONFUNDIR CORS CON AUTORIZACION. Abrir el carril no expone
+     | nada: quien no tenga token sigue recibiendo 401. Lo unico que cambia es
+     | que el navegador deja de bloquear la respuesta por el origen. La
+     | proteccion la siguen haciendo Sanctum y el middleware de rol.
+     */
+    'rutas_publicas' => [
+        'api/health',
+        'api/health/db',
+        'api/salud',
+        'api/pos/catalogo',
+        'api/pos/ventas',
+        'api/v1/*',
+        'docs/*',
+    ],
+
 ];
