@@ -1,0 +1,69 @@
+{
+ "titulo": "Estado de las migraciones en el entorno desplegado",
+ "lineas": [
+  [
+   "prompt",
+   "php artisan migrate:status   (entorno desplegado)"
+  ],
+  [
+   "tenue",
+   "  ..."
+  ],
+  [
+   "info",
+   "2026_09_18_110000_create_conteos_table .................... [1] Ran"
+  ],
+  [
+   "info",
+   "2026_09_18_110100_create_conteo_detalles_table ............ [1] Ran"
+  ],
+  [
+   "info",
+   "2026_09_18_120000_create_pedido_pagos_table ............... [1] Ran"
+  ],
+  [
+   "info",
+   "2026_09_18_130000_add_afectacion_igv_a_productos_y_ventas ... [1] Ran"
+  ],
+  [
+   "info",
+   "2026_10_05_110000_fusionar_duplicados_antes_del_indice_unico ... [2] Ran"
+  ],
+  [
+   "info",
+   "2026_10_05_120000_add_identidad_unique_to_productos_table ... [2] Ran"
+  ],
+  [
+   "info",
+   "2026_10_06_190000_restringir_borrado_de_lotes_con_movimientos ... [2] Ran"
+  ],
+  [
+   "info",
+   "2026_10_06_191000_add_cliente_telefono_to_pedidos_table ... [2] Ran"
+  ],
+  [
+   "info",
+   "2026_10_18_100000_create_series_comprobante_table ......... [3] Ran"
+  ],
+  [
+   "info",
+   "2026_10_24_090000_add_trazabilidad_offline_to_pedidos_table ... [4] Ran"
+  ],
+  [
+   "info",
+   "2026_10_24_090100_create_eventos_operacion_table .......... [4] Ran"
+  ],
+  [
+   "info",
+   "2026_10_30_090000_add_cdr_to_comprobantes_table ........... [5] Ran"
+  ],
+  [
+   "tenue",
+   ""
+  ],
+  [
+   "ok",
+   "  49 migraciones: todas Ran, ninguna Pending"
+  ]
+ ]
+}

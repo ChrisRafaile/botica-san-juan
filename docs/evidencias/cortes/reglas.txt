@@ -1,0 +1,26 @@
+
+########## pos:probar ##########
+
+RESULTADO: todas las reglas de negocio se cumplen.
+
+exit=0
+########## pos:probar-presentaciones ##########
+
+RESULTADO: las tres presentaciones funcionan con datos reales.
+
+exit=0
+########## conteo:probar ##########
+
+RESULTADO: todas las reglas del conteo se cumplen.
+
+exit=0
+########## igv:probar ##########
+
+RESULTADO: el IGV se aplica por producto, no por presentación.
+
+exit=0
+########## pedidos:probar ##########
+
+RESULTADO: todas las reglas de pedidos se cumplen.
+
+exit=0
