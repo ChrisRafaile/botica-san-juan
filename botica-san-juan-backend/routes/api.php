@@ -22,6 +22,7 @@ use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\SubcategoriaController;
 use App\Http\Controllers\TableroController;
 use App\Http\Controllers\IndicadoresController;
+use App\Http\Controllers\InteraccionesController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\DB;
@@ -138,6 +139,20 @@ Route::post('/carrito/cotizar', [CarritoPublicoController::class, 'cotizar'])
    descuenta inventario no puede quedar bajo el limite general. */
 Route::post('/pedidos/confirmar', [PedidoController::class, 'confirmar'])
     ->middleware('throttle:checkout');
+/*
+|--------------------------------------------------------------------------
+| Consultor de interacciones
+|--------------------------------------------------------------------------
+|
+| Publico a proposito: el carrito del portal funciona sin cuenta, y exigir
+| sesion dejaria sin aviso justo al visitante que compra sin registrarse. No
+| lee ni escribe datos del cliente; recibe identificadores de producto.
+|
+| Limitador propio porque recorre catalogo y reglas en cada llamada.
+*/
+Route::post('/interacciones/evaluar', [InteraccionesController::class, 'evaluar'])
+    ->middleware('throttle:contacto');
+
 Route::post('/logout', [UsuarioController::class, 'logout'])->middleware(['auth:sanctum', 'throttle:api']);
 
 /*
