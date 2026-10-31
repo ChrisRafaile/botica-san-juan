@@ -9,6 +9,18 @@ class Producto extends Model
 {
     protected $table = 'productos';
 
+    /**
+     * Perfil clínico del producto.
+     *
+     * Separado de la identidad comercial —nombre y laboratorio— porque son
+     * dos cosas distintas: el cliente pide la marca y el consultor de
+     * interacciones razona sobre el principio activo.
+     */
+    public function principioActivo(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(PrincipioActivo::class, 'principio_activo_id');
+    }
+
     protected $fillable = [
         'nombre',
         'concentracion',
@@ -32,6 +44,10 @@ class Producto extends Model
         'codigo_barras',
         'codigo_digemid',
         'principio_activo',
+        /* Vínculo al perfil clínico. Lo escriben el normalizador, el
+           importador del padrón o el químico farmacéutico; nunca llega
+           desde una petición del cliente. */
+        'principio_activo_id',
         'requiere_receta',
         'laboratorio_fabricante',
         'afecto_igv',

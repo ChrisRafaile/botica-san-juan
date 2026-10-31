@@ -276,6 +276,14 @@
           </li>
         </ul>
 
+        <!-- Revisión de interacciones. Va bajo las líneas y no en el resumen
+             a propósito: pertenece a lo que la persona lleva, no al dinero, y
+             tiene que leerse antes de mirar el total. -->
+        <ConsultorInteracciones
+          :producto-ids="idsDelCarrito"
+          class="lg:col-start-1"
+        />
+
         <!-- Resumen -->
         <aside class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-6 lg:sticky lg:top-24">
           <h2 class="text-lg font-semibold text-texto-primario">Resumen</h2>
@@ -659,6 +667,7 @@ import { ref, computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
+import ConsultorInteracciones from '@/components/ConsultorInteracciones.vue'
 import { useCartStore, type LineaCotizada } from '@/stores/carrito'
 import { useAuthStore } from '@/stores/auth'
 import { urlDeMedia } from '@/utils/media'
@@ -688,6 +697,12 @@ import {
 } from 'lucide-vue-next'
 
 const carrito = useCartStore()
+
+/* Identificadores de lo que hay en el carrito, para la revisión de
+   interacciones. Se recalcula solo cuando cambian las líneas, de modo que
+   ajustar una cantidad no vuelve a pedir la revisión: lo que importa es QUÉ
+   se lleva, no cuánto. */
+const idsDelCarrito = computed(() => carrito.lineas.map((l) => l.producto_id))
 const confirmarVaciado = ref(false)
 const copiado = ref(false)
 
