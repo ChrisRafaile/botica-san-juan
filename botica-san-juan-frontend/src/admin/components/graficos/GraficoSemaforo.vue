@@ -34,6 +34,11 @@ const COLORES: Record<string, string> = {
   exito: 'var(--color-exito-600)',
 }
 
+/* Respaldo con tipo `string` cerrado. Con la indexación estricta, leer de un
+   Record devuelve `string | undefined` aunque la clave exista, y encadenar
+   `?? COLORES.exito` no cierra el tipo porque ese acceso también es opcional. */
+const COLOR_POR_DEFECTO = 'var(--color-exito-600)'
+
 /** Alto de cada fila y separación, en unidades del viewBox. */
 const FILA = 34
 const SEPARACION = 10
@@ -55,7 +60,7 @@ const barras = computed<Barra[]>(() => {
       etiqueta: t.etiqueta,
       lotes: t.lotes,
       unidades: t.unidades,
-      color: COLORES[t.color] ?? COLORES.exito,
+      color: COLORES[t.color] ?? COLOR_POR_DEFECTO,
       destacada: false,
     })),
     {

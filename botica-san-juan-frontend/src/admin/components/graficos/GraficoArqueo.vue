@@ -22,13 +22,18 @@ const props = defineProps<{
 /* Paleta de la botica, en orden de uso. Si hubiera más medios que colores se
    reutiliza la lista: es preferible repetir un tono a inventar uno que no
    pertenece al sistema de diseño. */
+/* `as const` más el respaldo explícito de abajo: con la indexación estricta
+   activada, `PALETA[i % PALETA.length]` es `string | undefined` para el
+   compilador aunque el módulo nunca pueda salirse del rango. */
 const PALETA = [
   'var(--color-botica-600)',
   'var(--color-clinico-600)',
   'var(--color-ambar-600)',
   'var(--color-botica-800)',
   'var(--color-clinico-800)',
-]
+] as const
+
+const COLOR_POR_DEFECTO = 'var(--color-botica-600)'
 
 const RADIO = 42
 const CIRCUNFERENCIA = 2 * Math.PI * RADIO
@@ -51,7 +56,7 @@ const sectores = computed<Sector[]>(() => {
     const largo = (m.porcentaje / 100) * CIRCUNFERENCIA
     const sector: Sector = {
       ...m,
-      color: PALETA[i % PALETA.length],
+      color: PALETA[i % PALETA.length] ?? COLOR_POR_DEFECTO,
       dash: `${largo} ${CIRCUNFERENCIA - largo}`,
       desfase: -acumulado,
     }
