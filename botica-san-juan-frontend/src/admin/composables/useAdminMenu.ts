@@ -73,6 +73,15 @@ export const MENU_ADMIN: ElementoMenu[] = [
     seccion: 'operacion',
   },
   {
+    /* Va junto al tablero y no bajo Reportes: se consulta a diario, igual
+       que el tablero, mientras que un reporte se emite de vez en cuando. */
+    id: 'indicadores',
+    etiqueta: 'Indicadores',
+    icono: BarChart3,
+    ruta: '/admin/indicadores',
+    seccion: 'operacion',
+  },
+  {
     id: 'productos',
     etiqueta: 'Productos',
     icono: Pill,

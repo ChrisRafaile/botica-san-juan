@@ -21,6 +21,7 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\SubcategoriaController;
 use App\Http\Controllers\TableroController;
+use App\Http\Controllers\IndicadoresController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\DB;
@@ -185,6 +186,11 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
         ->middleware('admin');
     // Tablero: todas las cifras se calculan en la base, no en el navegador.
     Route::get('tablero', [TableroController::class, 'index'])->middleware('admin');
+
+    /* Indicadores gerenciales. Van aparte del tablero a proposito: este
+       recorre el historico y es mas caro, y separarlos deja que la pantalla
+       pinte lo urgente sin esperar a los graficos. */
+    Route::get('tablero/indicadores', [IndicadoresController::class, 'index'])->middleware('admin');
 
     Route::get('reportes/ventas', [ReporteController::class, 'ventas'])->middleware('admin');
 

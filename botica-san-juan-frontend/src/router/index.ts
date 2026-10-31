@@ -144,6 +144,14 @@ const router = createRouter({
           component: () => import('../admin/AdminHomeView.vue'),
         },
         {
+          /* Panel gerencial. Separado del tablero porque responde otra
+             pregunta: el tablero dice como va el dia, este dice como va el
+             negocio. */
+          path: 'indicadores',
+          name: 'admin-indicadores',
+          component: () => import('../admin/views/AdminIndicadoresView.vue'),
+        },
+        {
           path: 'products',
           name: 'admin-products',
           component: () => import('../admin/views/AdminProductsView.vue'),
