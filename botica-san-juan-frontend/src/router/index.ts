@@ -45,6 +45,14 @@ const router = createRouter({
       name: 'coverage',
       component: () => import('../client/CoverageView.vue'),
     },
+    /* El menú de usuario del portal enlazaba aquí desde hacía tiempo y la
+       ruta no existía: «Mi Perfil» llevaba a la pantalla de no encontrado. */
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('../client/ProfileView.vue'),
+      meta: { requiresAuth: true },
+    },
     /* Acceso y registro comparten pantalla: AuthView desliza un panel entre
        los dos formularios segun la ruta activa. Se mantienen las dos rutas
        para que los enlaces externos y el boton atras sigan funcionando. */

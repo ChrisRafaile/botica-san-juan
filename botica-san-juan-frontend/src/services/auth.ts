@@ -152,7 +152,10 @@ class AuthService {
   // Update user profile
   async updateProfile(userData: Partial<User>): Promise<User> {
     try {
-      const response: AxiosResponse<User> = await api.put('/profile', userData)
+      /* Antes apuntaba a `/profile`, que nunca existió en la API: cualquier
+         intento de guardar el perfil devolvía 404 en silencio. La ruta real
+         es `/perfil` y actúa sobre quien presenta el token. */
+      const response: AxiosResponse<User> = await api.put('/perfil', userData)
       return response.data
     } catch (error: unknown) {
       console.error('Error updating profile:', error)
@@ -164,12 +167,12 @@ class AuthService {
   // Upload profile photo
   async uploadProfilePhoto(formData: FormData): Promise<User> {
     try {
-      const response: AxiosResponse<User> = await api.post('/profile/photo', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      return response.data
+      /* Ruta corregida —`/profile/photo` no existía— y sin fijar el
+         `Content-Type`: el navegador tiene que ponerlo él para incluir el
+         `boundary` del multipart. Escribirlo a mano produce un cuerpo que el
+         servidor no sabe partir. */
+      const response: AxiosResponse<{ usuario: User }> = await api.post('/perfil/foto', formData)
+      return response.data.usuario
     } catch (error: unknown) {
       console.error('Error uploading photo:', error)
       const err = error as ApiError

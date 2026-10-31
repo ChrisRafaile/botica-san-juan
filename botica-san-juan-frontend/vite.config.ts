@@ -40,6 +40,20 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
+
+        /* Los archivos subidos —fotos de perfil, recetas— los sirve Laravel
+           desde /storage. En desarrollo `VITE_API_URL` vale `/api`, así que
+           `urlDeMedia` produce rutas sin origen y el navegador las pide al
+           servidor de Vite, que no las tiene: la foto recién subida salía
+           rota y el avatar caía a las iniciales.
+
+           En producción no hace falta porque allí `VITE_API_URL` es una URL
+           absoluta y la ruta sale ya apuntando al origen de la API. */
+        '/storage': {
+          target: destinoApi,
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
   }

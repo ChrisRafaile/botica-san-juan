@@ -84,6 +84,19 @@ class AppServiceProvider extends ServiceProvider
         /* El orden importa: la cabecera se registra en la configuración por
            omisión y la referencia Scalar se clona de ella. Al revés, la
            segunda interfaz saldría con el título de fábrica. */
+        /* Subida de foto de perfil. El límite general —120 por minuto— es
+           razonable para formularios de texto y demasiado generoso para un
+           canal que acepta archivos de 2 MB: a ese ritmo se escriben 240 MB
+           por minuto y por cuenta. Nadie cambia su foto seis veces por hora. */
+        RateLimiter::for('subida-foto', function (Request $request) {
+            $clave = $request->user()?->id ?: $request->ip();
+
+            return [
+                Limit::perMinute(3)->by((string) $clave),
+                Limit::perHour(20)->by((string) $clave),
+            ];
+        });
+
         $this->identificarDocumentoOpenApi();
         $this->registrarReferenciaScalar();
     }

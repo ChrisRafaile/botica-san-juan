@@ -29,12 +29,19 @@ import {
   Settings as IconoAjustes,
 } from 'lucide-vue-next'
 import AdminBreadcrumbs from './AdminBreadcrumbs.vue'
+import BoticaAvatar from './ui/BoticaAvatar.vue'
+import { urlDeMedia } from '@/utils/media'
 import { useTheme, type PreferenciaTema } from '../../composables/useTheme'
 
 const props = defineProps<{
   rutaActual: string
   colapsada: boolean
-  usuario?: { nombre?: string; rol?: string } | null
+  usuario?: {
+    nombre?: string
+    rol?: string
+    foto_perfil?: string | null
+    foto?: string | null
+  } | null
   notificaciones?: number
 }>()
 
@@ -51,15 +58,20 @@ const menuAbierto = ref(false)
 const contenedorMenu = useTemplateRef<HTMLElement>('contenedorMenu')
 const botonMenu = useTemplateRef<HTMLButtonElement>('botonMenu')
 
-const iniciales = computed(() => {
-  const nombre = props.usuario?.nombre?.trim()
-  if (!nombre) return 'AD'
-  return nombre
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((parte) => parte.charAt(0).toUpperCase())
-    .join('')
-})
+/**
+ * Foto del usuario, resuelta contra el origen de la API.
+ *
+ * Se prefiere `foto_perfil`, que es el campo que escribe la pantalla de
+ * perfil, y se cae a `foto` para las cuentas antiguas que todavía lo usan.
+ * Mismo criterio que el lateral: si las dos vistas resolvieran la foto de
+ * forma distinta, acabarían mostrando cosas distintas de la misma persona.
+ *
+ * Las iniciales ya no se calculan aquí: de eso se encarga BoticaAvatar, que
+ * además las usa como respaldo cuando el archivo ya no está en el servidor.
+ */
+const fotoPerfil = computed(
+  () => urlDeMedia(props.usuario?.foto_perfil || props.usuario?.foto),
+)
 
 const opcionesTema: { valor: PreferenciaTema; etiqueta: string; icono: typeof Sun }[] = [
   { valor: 'claro', etiqueta: 'Claro', icono: Sun },
@@ -210,10 +222,11 @@ onUnmounted(() => {
         aria-haspopup="menu"
         @click="menuAbierto = !menuAbierto"
       >
-        <span
-          class="grid size-8 place-items-center rounded-full bg-botica-700 text-xs font-semibold text-white"
-          aria-hidden="true"
-        >{{ iniciales }}</span>
+        <BoticaAvatar
+          :nombre="usuario?.nombre"
+          :foto="fotoPerfil"
+          tamano="sm"
+        />
         <span class="hidden text-left leading-tight lg:block">
           <span class="block max-w-32 truncate text-sm font-medium text-texto-primario">
             {{ usuario?.nombre || 'Administrador' }}
@@ -235,13 +248,20 @@ onUnmounted(() => {
           class="absolute right-0 top-full z-50 mt-2 w-56 origin-top-right overflow-hidden rounded-xl border border-borde-sutil bg-superficie-flotante shadow-lg"
           role="menu"
         >
-          <div class="border-b border-borde-sutil px-3 py-2.5">
-            <p class="truncate text-sm font-medium text-texto-primario">
-              {{ usuario?.nombre || 'Administrador' }}
-            </p>
-            <p class="truncate text-xs text-texto-terciario">
-              {{ usuario?.rol || 'Sin rol asignado' }}
-            </p>
+          <div class="flex items-center gap-2.5 border-b border-borde-sutil px-3 py-2.5">
+            <BoticaAvatar
+              :nombre="usuario?.nombre"
+              :foto="fotoPerfil"
+              tamano="md"
+            />
+            <div class="min-w-0">
+              <p class="truncate text-sm font-medium text-texto-primario">
+                {{ usuario?.nombre || 'Administrador' }}
+              </p>
+              <p class="truncate text-xs text-texto-terciario">
+                {{ usuario?.rol || 'Sin rol asignado' }}
+              </p>
+            </div>
           </div>
 
           <div class="p-1">

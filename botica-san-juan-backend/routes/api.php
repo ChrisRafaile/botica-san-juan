@@ -21,6 +21,7 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\SubcategoriaController;
 use App\Http\Controllers\TableroController;
+use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -137,6 +138,29 @@ Route::post('/carrito/cotizar', [CarritoPublicoController::class, 'cotizar'])
 Route::post('/pedidos/confirmar', [PedidoController::class, 'confirmar'])
     ->middleware('throttle:checkout');
 Route::post('/logout', [UsuarioController::class, 'logout'])->middleware(['auth:sanctum', 'throttle:api']);
+
+/*
+|--------------------------------------------------------------------------
+| Perfil de la cuenta en sesion
+|--------------------------------------------------------------------------
+|
+| Ninguna de estas rutas lleva identificador: siempre operan sobre quien
+| presenta el token. Por eso valen igual para cliente y administrador y no
+| necesitan el middleware `admin`.
+|
+| La subida tiene su propio limitador. El general permite 120 peticiones por
+| minuto, que para un formulario de texto esta bien y para un canal que acepta
+| archivos de 2 MB es una invitacion a llenar el disco.
+*/
+Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('perfil')->group(function () {
+    Route::get('/', [PerfilController::class, 'mostrar']);
+    Route::put('/', [PerfilController::class, 'actualizar']);
+    Route::put('/contrasena', [PerfilController::class, 'cambiarContrasena']);
+    Route::delete('/foto', [PerfilController::class, 'eliminarFoto']);
+});
+
+Route::post('/perfil/foto', [PerfilController::class, 'subirFoto'])
+    ->middleware(['auth:sanctum', 'throttle:subida-foto']);
 
 // API Routes for resources (protected)
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
