@@ -139,6 +139,11 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     isLoading,
     isAuthenticated,
+    /* Se expone para que las pantallas de perfil puedan refrescar la cuenta
+       con lo que devuelve el servidor tras guardar. Sin esto, la foto nueva
+       se subía pero el avatar del encabezado seguía mostrando la anterior
+       hasta recargar la página. */
+    setUser,
     login,
     register,
     logout,

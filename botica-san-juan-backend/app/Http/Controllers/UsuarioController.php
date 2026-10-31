@@ -65,8 +65,8 @@ class UsuarioController extends Controller
             'password' => 'required|string|min:8',
             'rol' => 'nullable|in:cliente,administrador',
             'telefono' => 'nullable|string|max:255',
-            'foto_perfil' => 'nullable|string|max:255',
-            'foto_portada' => 'nullable|string|max:255',
+            /* Sin foto al crear: la cuenta nace con iniciales y su dueño sube
+               la imagen desde su perfil. Ver PerfilController. */
         ]);
 
         $usuario = Usuario::create([
@@ -76,8 +76,6 @@ class UsuarioController extends Controller
             'password' => Hash::make($request->password),
             'rol' => $request->rol ?? 'cliente',
             'telefono' => $request->telefono,
-            'foto_perfil' => $request->foto_perfil,
-            'foto_portada' => $request->foto_portada,
         ]);
 
         return response()->json($usuario, 201);
@@ -106,11 +104,15 @@ class UsuarioController extends Controller
             'password' => 'sometimes|required|string|min:8',
             'rol' => 'sometimes|required|in:cliente,administrador',
             'telefono' => 'nullable|string|max:255',
-            'foto_perfil' => 'nullable|string|max:255',
-            'foto_portada' => 'nullable|string|max:255',
+            /* `foto_perfil` y `foto_portada` ya NO se aceptan como texto.
+               Eran cadenas libres: quien llamara podía apuntar el avatar de
+               cualquier cuenta a la ruta que quisiera, y como nada subía
+               archivos, el campo terminaba señalando ficheros inexistentes.
+               El único camino para escribirlos es PerfilController::subirFoto,
+               que recibe un archivo de verdad y lo guarda él. */
         ]);
 
-        $data = $request->only(['nombre', 'dni', 'email', 'rol', 'telefono', 'foto_perfil', 'foto_portada']);
+        $data = $request->only(['nombre', 'dni', 'email', 'rol', 'telefono']);
 
         if ($request->has('password')) {
             $data['password'] = Hash::make($request->password);

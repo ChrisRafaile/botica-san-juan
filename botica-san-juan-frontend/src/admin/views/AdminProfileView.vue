@@ -9,6 +9,22 @@
       </p>
     </div>
 
+    <!-- Foto. Mismo componente que usa el portal del cliente: las reglas de
+         tamaño y los mensajes de error no pueden divergir entre los dos
+         roles, porque el servidor los valida con una sola regla. -->
+    <section class="rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
+      <h2 class="mb-4 text-lg font-semibold text-texto-primario">
+        Foto de perfil
+      </h2>
+      <ZonaDeFoto
+        :nombre="authStore.user?.nombre"
+        :foto-actual="fotoPerfil"
+        :subiendo="subiendoFoto"
+        @seleccionar="alSeleccionarFoto"
+        @eliminar="alQuitarFoto"
+      />
+    </section>
+
     <section class="rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
       <div class="grid gap-4 md:grid-cols-2">
         <div>
@@ -63,13 +79,46 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
+import { urlDeMedia } from '@/utils/media'
+import { eliminarFoto, subirFoto } from '@/services/perfil'
+import { erroresPorCampo } from '@/utils/validacionServidor'
+import ZonaDeFoto from '@/components/ZonaDeFoto.vue'
 import { useAdminToast } from '../composables/useAdminToast'
 
 const authStore = useAuthStore()
 const { notifyError, notifySuccess } = useAdminToast()
+
+const fotoPerfil = computed(
+  () => urlDeMedia(authStore.user?.foto_perfil || authStore.user?.foto),
+)
+const subiendoFoto = ref(false)
+
+async function alSeleccionarFoto(archivo: File) {
+  subiendoFoto.value = true
+  try {
+    authStore.setUser(await subirFoto(archivo))
+    notifySuccess('Perfil', 'Foto actualizada.')
+  } catch (error) {
+    notifyError('Perfil', erroresPorCampo(error).foto ?? 'No se pudo subir la foto.')
+  } finally {
+    subiendoFoto.value = false
+  }
+}
+
+async function alQuitarFoto() {
+  subiendoFoto.value = true
+  try {
+    authStore.setUser(await eliminarFoto())
+    notifySuccess('Perfil', 'Foto eliminada.')
+  } catch {
+    notifyError('Perfil', 'No se pudo eliminar la foto.')
+  } finally {
+    subiendoFoto.value = false
+  }
+}
 
 const form = reactive({
   nombre: authStore.user?.nombre ?? '',

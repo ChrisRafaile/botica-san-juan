@@ -62,7 +62,11 @@
               class="flex items-center space-x-2 p-2 rounded-lg hover:bg-superficie-interactiva transition-colors duration-200"
               @click="toggleUserMenu"
             >
-              <UserIcon class="w-6 h-6 text-texto-secundario" />
+              <BoticaAvatar
+                :nombre="usuario?.nombre"
+                :foto="fotoPerfil"
+                tamano="sm"
+              />
               <ChevronDownIcon
                 class="w-4 h-4 text-texto-terciario transition-transform"
                 :class="{ 'rotate-180': showUserMenu }"
@@ -208,6 +212,8 @@ import {
 
 import SelectorTema from './SelectorTema.vue'
 import DialogoConfirmacion from './DialogoConfirmacion.vue'
+import BoticaAvatar from '@/admin/components/ui/BoticaAvatar.vue'
+import { urlDeMedia } from '@/utils/media'
 const router = useRouter()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
@@ -228,6 +234,15 @@ const navigation = [
    que no es lo que nadie espera de la insignia de un carrito. */
 const cartItemCount = computed(() => cartStore.totalUnidades)
 const isAuthenticated = computed(() => authStore.isAuthenticated)
+
+/* Cliente autenticado: el portal mostraba un icono genérico, de modo que la
+   foto que la persona acababa de subir en su perfil no aparecía en ningún
+   sitio del portal. Se reutiliza el mismo avatar del panel para que la cara
+   sea la misma en los dos lados y el respaldo a iniciales se comporte igual. */
+const usuario = computed(() => authStore.user)
+const fotoPerfil = computed(
+  () => urlDeMedia(usuario.value?.foto_perfil || usuario.value?.foto),
+)
 
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
