@@ -52,9 +52,9 @@ class DepuracionSentryTest extends TestCase
         /* La clave es FICTICIA y se nota a simple vista. Una cadena con pinta
            de clave real en un repositorio publico la marcan los escaneres de
            secretos, y quien la lea dentro de un ano no podra saber si lo era. */
-        $limpio = Depurador::texto('Rechazado por el proveedor con la clave re_ESTO_ES_FICTICIO_000000');
+        $limpio = Depurador::texto('Rechazado por el proveedor con la clave re_test_mock_secret_key');
 
-        $this->assertStringNotContainsString('re_ESTO_ES_FICTICIO_000000', (string) $limpio);
+        $this->assertStringNotContainsString('re_test_mock_secret_key', (string) $limpio);
         $this->assertStringContainsString('[clave]', (string) $limpio);
     }
 
@@ -65,9 +65,9 @@ class DepuracionSentryTest extends TestCase
            GitHub igual que el codigo. Lo que la prueba comprueba es el
            PATRON —11 digitos con prefijo 10 o 20—, y para eso un numero
            inventado sirve exactamente igual. */
-        $limpio = (string) Depurador::texto('Emisor 10111222333, contacto 987654321');
+        $limpio = (string) Depurador::texto('Emisor 20000000001, contacto 987654321');
 
-        $this->assertStringNotContainsString('10111222333', $limpio);
+        $this->assertStringNotContainsString('20000000001', $limpio);
         $this->assertStringNotContainsString('987654321', $limpio);
     }
 

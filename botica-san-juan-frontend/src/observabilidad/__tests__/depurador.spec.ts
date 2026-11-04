@@ -50,16 +50,21 @@ describe('depuración de texto', () => {
     /* Clave FICTICIA, y que se note. Una cadena con pinta de clave real en un
        repositorio público la marcan los escáneres de secretos, y quien la lea
        dentro de un año no podrá saber si lo era. */
-    const limpio = limpiarTexto('Rechazado con la clave re_ESTO_ES_FICTICIO_000000')
+    const limpio = limpiarTexto('Rechazado con la clave re_test_mock_secret_key')
 
-    expect(limpio).not.toContain('re_ESTO_ES_FICTICIO_000000')
+    expect(limpio).not.toContain('re_test_mock_secret_key')
     expect(limpio).toContain('[clave]')
   })
 
   it('enmascara el RUC y el teléfono', () => {
-    const limpio = limpiarTexto('Emisor 10075148297, contacto 987654321')
+    /* RUC FICTICIO. El del emisor real no se escribe en ningún archivo
+       versionado, ni siquiera como dato de prueba: este archivo acaba en
+       GitHub igual que el código. Lo que la prueba comprueba es el PATRÓN
+       —11 dígitos con prefijo 10 o 20—, y para eso un número inventado
+       sirve exactamente igual. */
+    const limpio = limpiarTexto('Emisor 20000000001, contacto 987654321')
 
-    expect(limpio).not.toContain('10075148297')
+    expect(limpio).not.toContain('20000000001')
     expect(limpio).not.toContain('987654321')
   })
 
