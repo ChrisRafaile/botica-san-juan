@@ -1,0 +1,37 @@
+
+ RUN  v3.2.4 C:/tareas universitarios/TAREAS U/Tareas Univ/Ciclo 5/Taller de programacion Web/botica_san_juan/botica-san-juan-frontend
+
+(node:41732) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de texto > no deja pasar un DNI 1ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de texto > no deja pasar un correo 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de texto > no deja pasar un token de Sanctum 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de texto > no deja pasar una clave de API 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de texto > enmascara el RUC y el teléfono 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de texto > no destroza un mensaje sin datos personales 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de URL > el término de búsqueda de un medicamento no viaja 1ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de URL > tapa los parámetros de búsqueda con cualquiera de sus nombres 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de URL > un parámetro nuevo que nadie añadió a la lista se depura igual 1ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de URL > el enlace firmado de recuperación de contraseña no viaja 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de URL > agrupa los identificadores numéricos en lugar de dispersarlos 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de URL > tira el fragmento 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de URL > una cadena malformada pero interpretable se depura igual 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > depuración de URL > una URL que de verdad no se puede analizar se descarta entera 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > rutas que no se graban > /perfil no es grabable porque lleva nombre, DNI, correo y la foto de la persona 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > rutas que no se graban > /cart no es grabable porque las líneas del carrito dicen qué medicamentos compra 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > rutas que no se graban > /restablecer-contrasena no es grabable porque la pantalla tiene la contraseña escrita 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > rutas que no se graban > /verificar-correo no es grabable porque lleva el enlace firmado en la dirección 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > rutas que no se graban > /auth/google no es grabable porque es el retorno del proveedor, con el código de intercambio 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > rutas que no se graban > las rutas hijas de una prohibida tampoco se graban 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > rutas que no se graban > el catálogo y el inicio sí se graban 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > propiedades de un evento de analítica > el título de la página se descarta entero 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > propiedades de un evento de analítica > la URL actual y el referente se depuran 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > propiedades de un evento de analítica > las URL iniciales de la sesión también 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > propiedades de un evento de analítica > una propiedad cualquiera con datos personales se limpia 0ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts > propiedades de un evento de analítica > no inventa propiedades ni pierde las que no estorban 0ms
+
+ Test Files  1 passed (1)
+      Tests  26 passed (26)
+   Start at  14:36:27
+   Duration  1.13s (transform 31ms, setup 13ms, collect 25ms, tests 8ms, environment 308ms, prepare 81ms)
+

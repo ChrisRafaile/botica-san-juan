@@ -7,6 +7,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/auth'
+import { iniciarObservabilidad } from './observabilidad'
 
 const app = createApp(App)
 
@@ -20,5 +21,16 @@ app.use(createPinia())
 const authStore = useAuthStore()
 authStore.checkAuth().finally(() => {
   app.use(router)
+
+  /* La observabilidad se inicia DESPUÉS del router y antes de montar.
+     Después del router porque PostHog se engancha a `afterEach` para mandar
+     la vista de página con la URL ya limpia; antes de montar para que un
+     error durante el primer render tenga a Sentry escuchando.
+
+     No se espera a que termine: son dos importaciones dinámicas contra
+     servidores de terceros, y la aplicación no puede quedarse en blanco
+     porque uno de ellos tarde. Si fallan, no se cargan y ya está. */
+  void iniciarObservabilidad(app, router)
+
   app.mount('#app')
 })
