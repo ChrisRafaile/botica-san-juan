@@ -67,16 +67,13 @@ services:
       - key: QUEUE_CONNECTION
         value: database
 
-      # Publica /docs/api y /docs/v1 en produccion. Sin esto responden 403,
-      # porque fuera del entorno `local` Scramble exige la autorizacion
-      # `viewApiDocs` y, si nadie la concede, Laravel la deniega.
-      #
-      # Se activa a proposito: el curso de SOA pide que otros proyectos
-      # puedan leer y consumir estos servicios, y una API que no se puede
-      # leer no se puede consumir. No abre ningun endpoint. Ver
-      # docs/API-PUBLICA.md.
-      - key: SCRAMBLE_DOCUMENTACION_PUBLICA
-        value: "true"
+      # /docs/api y /docs/v1 quedan abiertas SIN declarar nada: el valor por
+      # omision de config/scramble.php ya es true, justamente para que
+      # publicarlas no dependa de acordarse de anadir una variable en el
+      # panel. Se deja escrita y comentada para que se vea que existe y como
+      # se cierra. Ver docs/API-PUBLICA.md.
+      # - key: SCRAMBLE_DOCUMENTACION_PUBLICA
+      #   value: "false"
 
       # --- Se cargan a mano en el panel. No se versionan. ---
       - key: APP_KEY
