@@ -169,15 +169,30 @@ return [
      | consulta la autorización `viewApiDocs`, que AppServiceProvider resuelve
      | con este valor. En falso, /docs/api y /docs/v1 responden 403.
      |
-     | Se pone en verdadero en producción a propósito, para que otros
-     | proyectos puedan leer y consumir estos servicios. No abre ningún
-     | endpoint: lo que exige token lo sigue exigiendo. Lo que sí hace es
-     | enseñar el mapa completo de rutas, administración incluida, y eso es
-     | el intercambio que se acepta aquí.
+     | EL VALOR POR OMISIÓN ES `true`, Y ES UNA DECISIÓN
+     |
+     | Lo normal sería cerrar por omisión y abrir donde haga falta. Aquí es al
+     | revés porque el objetivo declarado de este servicio es que otros
+     | proyectos lo consuman, y una API que no se puede leer no se puede
+     | consumir. Con el valor por omisión en falso, publicar la documentación
+     | dependía de acordarse de declarar una variable en el panel del
+     | proveedor; es decir, lo más probable era que siguiera cerrada.
+     |
+     | Para cerrarla basta declarar `SCRAMBLE_DOCUMENTACION_PUBLICA=false`.
+     | El ayudante `env()` convierte esa cadena en el booleano, así que la
+     | variable funciona tal cual se escribe en el `.env`.
+     |
+     | QUÉ SE ACEPTA AL ABRIRLA
+     |
+     | No abre ningún endpoint: lo que exige token lo sigue exigiendo. Lo que
+     | sí hace es enseñar el mapa completo de rutas, administración incluida.
+     | Eso no es una vulnerabilidad, pero sí le ahorra trabajo a quien quiera
+     | buscar una. Es el intercambio que se acepta aquí, a propósito y por
+     | escrito.
      |
      | Ver app/Providers/AppServiceProvider.php::decidirQuienVeLaDocumentacion.
      */
-    'documentacion_publica' => (bool) env('SCRAMBLE_DOCUMENTACION_PUBLICA', false),
+    'documentacion_publica' => (bool) env('SCRAMBLE_DOCUMENTACION_PUBLICA', true),
 
     'extensions' => [],
 

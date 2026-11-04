@@ -249,6 +249,34 @@ class CatalogoPublicoTest extends TestCase
         $this->getJson('/api/catalogo/loquesea')->assertStatus(404);
     }
 
+    // ------------------------------------------------- documentacion
+
+    public function test_la_documentacion_esta_abierta_por_omision(): void
+    {
+        /* En produccion /docs/api y /docs/v1 respondian 403: fuera del
+           entorno `local`, Scramble consulta la autorizacion `viewApiDocs` y,
+           sin nadie que la defina, Laravel la deniega.
+
+           El valor por omision es `true` a proposito. Con el cerrado,
+           publicar la documentacion dependia de acordarse de declarar una
+           variable en el panel del proveedor, o sea que lo mas probable era
+           que siguiera cerrada. */
+        $this->assertTrue(config('scramble.documentacion_publica'));
+
+        $this->assertTrue(
+            \Illuminate\Support\Facades\Gate::allows('viewApiDocs'),
+            'La autorizacion viewApiDocs deberia concederse con el valor por omision.',
+        );
+    }
+
+    public function test_la_documentacion_se_puede_cerrar(): void
+    {
+        /* Abrir por omision no significa no poder cerrarlo. */
+        config(['scramble.documentacion_publica' => false]);
+
+        $this->assertFalse(\Illuminate\Support\Facades\Gate::allows('viewApiDocs'));
+    }
+
     // ------------------------------------------------- CORS
 
     public function test_un_origen_cualquiera_puede_leer_el_catalogo(): void
