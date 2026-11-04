@@ -46,6 +46,7 @@ se entiende sin abrirlo; `captura2.jpg` no.
 | `SOA` | `soa/` | Interoperabilidad y documentación de la API | 11 |
 | `OFF` | `E2E-offline/` | Venta en contingencia de punta a punta | 4 |
 | `O` | `observabilidad/` | Sentry, PostHog y privacidad | 4 |
+| `EVT` | `eventos/` | Bitácora de operación · punto 30 de la rúbrica | 4 |
 | `CI` | `CI-CD/` | Integración continua | 3 |
 | `I` | `interacciones/` | Consultor de interacciones | 3 |
 | `K` | `kpis/` | Panel de indicadores | 3 |
@@ -113,6 +114,13 @@ reconectar.
 El contrato de privacidad del monitoreo: las pruebas de los dos lados y la
 medición de cuánto pesa el paquete con y sin claves. Criterios en
 `docs/OBSERVABILIDAD.md`.
+
+### `EVT` · `eventos/`
+El visor de la bitácora con los tres niveles que pide el punto 30, el filtro
+por nivel y el detalle con su contexto. `EVT-04` es el acta: qué pide la
+rúbrica, qué había antes —la tabla existía y no había forma de verla—, los
+ejemplos reales de cada nivel y cómo reproducirlo. En las capturas se ve que
+el depurador tapa un correo en la propia pantalla.
 
 ### `CI` · `CI-CD/`
 Historial de ejecuciones, los checks de un PR y —a propósito— también las
