@@ -1,0 +1,118 @@
+EVIDENCIA EVT-04 · Punto 30 de la rubrica · Gestion de eventos
+Sistema Web de Gestion Botica San Juan · 2026-11-04
+===============================================================================
+
+LO QUE PIDE LA RUBRICA
+-----------------------------------------------------------------------------
+  «30. Gestion de eventos: ejemplos de info, warning y error.»
+  (Trabajo_Final.pdf, seccion V)
+
+
+LO QUE HABIA ANTES
+-----------------------------------------------------------------------------
+El modelo EventoOperacion ya tenia los tres niveles —info, warning y error—,
+diez puntos del codigo que registraban eventos y su tabla eventos_operacion
+recibiendolos desde la semana 13.
+
+Pero NO HABIA FORMA DE VERLOS. Ni endpoint ni pantalla. La unica evidencia
+posible era una consulta SQL contra la base, que demuestra que el dato existe,
+no que se gestione.
+
+
+LO QUE SE CONSTRUYO
+-----------------------------------------------------------------------------
+  GET /api/eventos          listado con filtros, paginado
+  GET /api/eventos/resumen  recuento por nivel y por codigo
+
+  /admin/eventos            visor en el panel, seccion Sistema
+
+Las dos rutas exigen sesion Y rol de administrador: la bitacora enlaza
+usuarios con pedidos y con dispositivos de caja, o sea que es un mapa de quien
+hizo que.
+
+NO hay forma de crear, editar ni borrar un evento desde la interfaz. Una
+bitacora que se puede editar deja de servir como evidencia de lo que paso; los
+eventos los escribe el codigo que los provoca.
+
+
+LOS TRES NIVELES, VISTOS EN PANTALLA
+-----------------------------------------------------------------------------
+Captura EVT-01. Recuentos sobre la tabla entera, no sobre la pagina visible:
+
+  Informacion   11
+  Advertencia    3
+  Error          2
+
+Ejemplos reales de cada nivel, con el codigo que los produce en el sistema:
+
+  info     SYNC_VENTA_CREADA        Venta de caja NV-000012 registrada con su
+                                    correlativo oficial
+  info     SYNC_LOTE_PROCESADO      Lote de 4 ventas sincronizado sin
+                                    incidencias
+  warning  SYNC_VENTA_DUPLICADA     Se reenvio una venta que ya existia; no se
+                                    duplico el comprobante
+  warning  SYNC_STOCK_INSUFICIENTE  La venta se registro aunque el stock
+                                    central ya no alcanzaba
+  error    SYNC_VENTA_RECHAZADA     La venta no se pudo registrar: el lote
+                                    referido no existe
+  error    CORREO_NO_ENVIADO        No se pudo avisar a [correo] tras el
+                                    cambio de correo
+
+Reproducible con:
+    php artisan db:seed --class=BitacoraDemostracionSeeder
+
+
+FILTRO POR NIVEL
+-----------------------------------------------------------------------------
+Captura EVT-02. Al pulsar la pastilla «Error», la lista queda en los dos
+eventos de ese nivel y aparece «2 evento(s) con estos filtros».
+
+Las pastillas son botones a proposito: ver «2 errores» y tener que escribirlo
+en un formulario para verlos seria absurdo.
+
+
+DETALLE Y CONTEXTO
+-----------------------------------------------------------------------------
+Captura EVT-03. SYNC_VENTA_RECHAZADA con su origen (caja), su dispositivo
+(CAJA-02) y su contexto { "motivo": "lote_inexistente" }.
+
+
+LA PRIVACIDAD SE VE EN LA PROPIA PANTALLA
+-----------------------------------------------------------------------------
+En EVT-01 y EVT-02, el evento CORREO_NO_ENVIADO se lee:
+
+    «No se pudo avisar a [correo] tras el cambio de correo»
+
+El mensaje se registro con la direccion completa. El mismo depurador que
+limpia lo que viaja a Sentry la tapa antes de devolverla, porque `mensaje` y
+`contexto` son campos libres: los rellena cada sitio que registra un evento,
+y no se puede saber de antemano que llevan dentro.
+
+Esto no es una captura preparada: es lo que devuelve el endpoint.
+
+
+PRUEBAS
+-----------------------------------------------------------------------------
+  php artisan test --filter=BitacoraDeOperacionTest
+  Tests: 16 passed (41 assertions)
+
+  De esas, las que importan para este punto:
+    - los tres niveles quedan registrados y se distinguen
+    - se puede filtrar por nivel / por codigo
+    - un nivel inventado se rechaza (422), en vez de devolver una lista vacia
+      que pareceria «no hubo eventos»
+    - el filtro de fecha incluye el dia pedido ENTERO
+    - un dni en el mensaje no se devuelve en crudo
+    - el contexto libre tampoco
+    - no se puede escribir en la bitacora desde la interfaz (405)
+    - la bitacora vacia responde sin romperse
+
+  Suite completa: 379 passed (1 068 assertions)
+
+
+COMO REPRODUCIRLO
+-----------------------------------------------------------------------------
+  php artisan db:seed --class=BitacoraDemostracionSeeder
+  php artisan serve --port=8083
+  pnpm dev
+  Entrar al panel como administrador -> Sistema -> Bitacora

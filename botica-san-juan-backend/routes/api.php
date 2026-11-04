@@ -11,6 +11,7 @@ use App\Http\Controllers\ComisionController;
 use App\Http\Controllers\ComprobanteClienteController;
 use App\Http\Controllers\FacturacionController;
 use App\Http\Controllers\DigemidCatalogoController;
+use App\Http\Controllers\EventoOperacionController;
 use App\Http\Controllers\CarritoPublicoController;
 use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\ReporteContableController;
@@ -320,6 +321,19 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
        recorre el historico y es mas caro, y separarlos deja que la pantalla
        pinte lo urgente sin esperar a los graficos. */
     Route::get('tablero/indicadores', [IndicadoresController::class, 'index'])->middleware('admin');
+
+    /* Bitacora de operacion. SOLO LECTURA y solo administracion: no hay forma
+       de crear, editar ni borrar un evento desde la interfaz, porque una
+       bitacora que se puede editar deja de servir como evidencia de lo que
+       paso. Los eventos los escribe el codigo que los provoca.
+
+       Exige rol de administrador porque la bitacora enlaza usuarios con
+       pedidos y con dispositivos de caja: es un mapa de quien hizo que.
+
+       `resumen` va antes que el listado y en su propia ruta: responde otra
+       pregunta —cuanto de cada cosa, no que paso— y se consulta primero. */
+    Route::get('eventos/resumen', [EventoOperacionController::class, 'resumen'])->middleware('admin');
+    Route::get('eventos', [EventoOperacionController::class, 'index'])->middleware('admin');
 
     Route::get('reportes/ventas', [ReporteController::class, 'ventas'])->middleware('admin');
 
