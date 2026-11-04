@@ -94,12 +94,12 @@ TEXTOS = [
 ]
 
 # rId -> archivo. La C.1 recupera una captura del entorno desplegado.
-IMAGENES = {"rId54": "evidencias/cortes/migraciones-produccion-48.png"}
+IMAGENES = {"rId54": "evidencias/cortes/CRT-07-migraciones-produccion-48.png"}
 
 # La imagen que la primera pasada inserto para la Figura 50 venia de la base
 # local. Se sustituye por la de produccion, que es lo que el pie promete.
 PIE_FIGURA_50 = "Figura 50. Migraciones aplicadas sobre la base de producción"
-IMAGEN_FIGURA_50 = "evidencias/cortes/migraciones-produccion-48.png"
+IMAGEN_FIGURA_50 = "evidencias/cortes/CRT-07-migraciones-produccion-48.png"
 
 cambios: list[str] = []
 fallos: list[str] = []

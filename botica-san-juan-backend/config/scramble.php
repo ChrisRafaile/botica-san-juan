@@ -161,6 +161,24 @@ return [
         RestrictedDocsAccess::class,
     ],
 
+    /*
+     | ¿La documentación interactiva es pública?
+     |--------------------------------------------------------------------------
+     |
+     | `RestrictedDocsAccess` deja pasar siempre en `local`; fuera de ahí
+     | consulta la autorización `viewApiDocs`, que AppServiceProvider resuelve
+     | con este valor. En falso, /docs/api y /docs/v1 responden 403.
+     |
+     | Se pone en verdadero en producción a propósito, para que otros
+     | proyectos puedan leer y consumir estos servicios. No abre ningún
+     | endpoint: lo que exige token lo sigue exigiendo. Lo que sí hace es
+     | enseñar el mapa completo de rutas, administración incluida, y eso es
+     | el intercambio que se acepta aquí.
+     |
+     | Ver app/Providers/AppServiceProvider.php::decidirQuienVeLaDocumentacion.
+     */
+    'documentacion_publica' => (bool) env('SCRAMBLE_DOCUMENTACION_PUBLICA', false),
+
     'extensions' => [],
 
     /*

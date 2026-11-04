@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\ContrasenaController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\VerificacionController;
 use App\Http\Controllers\CarritoController;
+use App\Http\Controllers\CatalogoPublicoController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\CompraController;
 use App\Http\Controllers\ComisionController;
@@ -390,6 +391,36 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('comprobantes/{comprobante}', [ComprobanteClienteController::class, 'show']);
 });
 
+/*
+|--------------------------------------------------------------------------
+| Catalogo publico · fachada para consumo externo (SOA)
+|--------------------------------------------------------------------------
+|
+| Solo lectura y SIN token, a proposito: el curso de Arquitectura Orientada a
+| Servicios pide que otros proyectos puedan consumir estos datos igual que se
+| consume PokeAPI.
+|
+| NO es un alias de /api/productos. Aquel devuelve la fila entera —stock,
+| stock minimo, unidades por blister— y puede cambiar de forma cuando cambie
+| el modelo. Este es un CONTRATO: forma corta, estable y sin datos internos,
+| fijada campo a campo por CatalogoPublicoTest.
+|
+| El orden de las rutas importa: `destacados` va ANTES de `{producto}`, y
+| ademas el parametro esta restringido a digitos. Sin las dos cosas, la
+| palabra «destacados» se tomaria como identificador y PostgreSQL devolveria
+| un 500 al intentar convertirla en entero. Es exactamente lo que pasaba en
+| /api/productos/destacados antes de este bloque.
+|
+| El limitador es `publico` y no `api`: aqui no hay usuario, asi que se cuenta
+| por IP y con un tope mas alto, porque quien consume es un programa que
+| pagina y no una persona pulsando botones.
+*/
+Route::middleware('throttle:publico')->prefix('catalogo')->group(function () {
+    Route::get('/', [CatalogoPublicoController::class, 'index']);
+    Route::get('destacados', [CatalogoPublicoController::class, 'destacados']);
+    Route::get('{producto}', [CatalogoPublicoController::class, 'show'])->whereNumber('producto');
+});
+
 Route::middleware('throttle:api')->group(function () {
     // Read-only catalog and reporting endpoints
     //
@@ -401,7 +432,16 @@ Route::middleware('throttle:api')->group(function () {
        Va ANTES del apiResource por el mismo motivo que resumen: si no,
        productos/{producto} capturaria "facetas" como si fuera un id. */
     Route::get('productos/facetas', [ProductoController::class, 'facetas']);
-    Route::apiResource('productos', ProductoController::class)->only(['index', 'show']);
+
+    /* `whereNumber` no es cosmetico. Sin el, CUALQUIER segmento que no sea un
+       id cae aqui: `/api/productos/destacados` llegaba a `show('destacados')`,
+       PostgreSQL intentaba convertir esa palabra en entero y la respuesta era
+       un 500 «Server Error» en una ruta publica. Con la restriccion, lo que
+       no es un numero simplemente no casa con esta ruta y devuelve 404, que
+       es la verdad: ese producto no existe. */
+    Route::apiResource('productos', ProductoController::class)
+        ->only(['index', 'show'])
+        ->whereNumber('producto');
     Route::apiResource('categorias', CategoriaController::class)->only(['index', 'show']);
     Route::apiResource('subcategorias', SubcategoriaController::class)->only(['index', 'show']);
     Route::apiResource('proveedores', ProveedorController::class)->only(['index', 'show'])->middleware(['auth:sanctum', 'admin']);
@@ -420,9 +460,17 @@ Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->
 
     // Admin mutation routes
     Route::post('productos', [ProductoController::class, 'store']);
-    Route::put('productos/{producto}', [ProductoController::class, 'update']);
-    Route::patch('productos/{producto}', [ProductoController::class, 'update']);
-    Route::delete('productos/{producto}', [ProductoController::class, 'destroy']);
+    /* Mismo `whereNumber` que en las de lectura, y por dos motivos.
+       El evidente: un identificador que no es un numero revienta el casteo de
+       PostgreSQL con un 500 en lugar de devolver 404.
+       El que no se ve: mientras ESTAS rutas acepten cualquier cadena, la URI
+       `productos/destacados` sigue casando con alguna ruta, asi que un GET a
+       esa direccion devuelve 405 «metodo no permitido» en vez del 404 que
+       corresponde. Restringir solo las de lectura arreglaba el 500 y dejaba
+       el 405. */
+    Route::put('productos/{producto}', [ProductoController::class, 'update'])->whereNumber('producto');
+    Route::patch('productos/{producto}', [ProductoController::class, 'update'])->whereNumber('producto');
+    Route::delete('productos/{producto}', [ProductoController::class, 'destroy'])->whereNumber('producto');
     Route::post('productos/bulk', [ProductoController::class, 'bulkStore']);
 
     Route::post('categorias', [CategoriaController::class, 'store']);
