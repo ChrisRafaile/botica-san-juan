@@ -186,9 +186,59 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        $this->forzarHttpsFueraDeLocal();
         $this->identificarDocumentoOpenApi();
         $this->registrarReferenciaScalar();
         $this->decidirQuienVeLaDocumentacion();
+    }
+
+    /**
+     * Todo lo que esta aplicación publique como URL va en https.
+     *
+     * EL SÍNTOMA QUE LO DESTAPÓ
+     *
+     * La documentación publicada anunciaba el servidor como
+     * `http://botica-san-juan-api.onrender.com/api`. Quien pulse «Try it» en
+     * Scalar, o copie el fragmento de código, se lleva una URL con `http`.
+     * Funciona de milagro —Render redirige a https—, pero un cliente que no
+     * siga redirecciones falla, y el ejemplo que copian otros proyectos
+     * queda mal desde el primer día.
+     *
+     * LA CAUSA
+     *
+     * `APP_URL` está declarada con `http://` en el entorno del proveedor, y
+     * Scramble construye el servidor a partir de ella. Además, el proxy de
+     * Render termina el TLS y habla con el contenedor por HTTP plano, así
+     * que `$request->getScheme()` también dice `http`: cualquier URL
+     * absoluta que genere Laravel —enlaces firmados de verificación de
+     * correo, entre otros— nace con el esquema equivocado.
+     *
+     * POR QUÉ SE ARREGLA AQUÍ Y NO SOLO EN LA VARIABLE
+     *
+     * Corregir `APP_URL` en el panel es necesario y hay que hacerlo, pero
+     * depende de que alguien se acuerde. Esto lo cierra en el código: fuera
+     * de `local`, ninguna URL generada puede salir en texto plano, venga de
+     * donde venga la configuración.
+     *
+     * Se excluye `local` a propósito: en desarrollo se sirve por http y
+     * forzar https rompería todos los enlaces.
+     */
+    private function forzarHttpsFueraDeLocal(): void
+    {
+        if ($this->app->environment('local', 'testing')) {
+            return;
+        }
+
+        \Illuminate\Support\Facades\URL::forceScheme('https');
+
+        /* Scramble no pasa por el generador de URL de Laravel: lee
+           `app.url` directamente. Se normaliza el esquema para que el
+           documento publicado anuncie el servidor correcto. */
+        $configurada = (string) config('app.url');
+
+        if (str_starts_with($configurada, 'http://')) {
+            config(['app.url' => 'https://'.substr($configurada, 7)]);
+        }
     }
 
     /**
