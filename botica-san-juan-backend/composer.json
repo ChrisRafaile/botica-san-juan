@@ -15,7 +15,10 @@
         "dedoc/scramble": "^0.13.47",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.2",
-        "laravel/tinker": "^2.10.1"
+        "laravel/socialite": "^5.31",
+        "laravel/tinker": "^2.10.1",
+        "resend/resend-laravel": "^1.7",
+        "sentry/sentry-laravel": "^4.29"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

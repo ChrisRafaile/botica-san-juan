@@ -18,8 +18,35 @@ return [
         'token' => env('POSTMARK_TOKEN'),
     ],
 
+    /* El paquete resend-laravel lee primero config('resend.api_key') y cae a
+       esta entrada. Se apunta a la MISMA variable para que no existan dos
+       nombres distintos para la misma clave: con dos nombres, definir el que
+       no se lee da un fallo que parece de red y es de configuracion. */
     'resend' => [
-        'key' => env('RESEND_KEY'),
+        'key' => env('RESEND_API_KEY'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Acceso con Google (OAuth 2.0)
+    |--------------------------------------------------------------------------
+    |
+    | `redirect` tiene que coincidir EXACTAMENTE con uno de los «URI de
+    | redireccionamiento autorizados» del cliente de OAuth en Google Cloud
+    | Console: Google compara la cadena completa, sin tolerancia. Una barra de
+    | más al final, `localhost` donde se registró `127.0.0.1`, o http donde se
+    | registró https, y la respuesta es redirect_uri_mismatch.
+    |
+    | Apunta a la API, no al portal: es la API la que tiene el secreto del
+    | cliente y la que puede canjear el código por el perfil.
+    |
+    | Ver docs/GOOGLE-OAUTH.md para los valores de cada entorno.
+    |
+    */
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
     'ses' => [

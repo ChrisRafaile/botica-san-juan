@@ -55,7 +55,8 @@
 
         <!-- Description -->
         <p class="text-texto-secundario text-center mb-8">
-          Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+          Escribe tu correo electrónico. Si hay una cuenta con esa dirección,
+          te llegará un enlace para elegir una contraseña nueva.
         </p>
 
         <!-- Form -->
@@ -187,8 +188,24 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * LO QUE ESTA PANTALLA HACÍA ANTES
+ *
+ * Esperaba dos segundos con un `setTimeout` y respondía «Se ha enviado un
+ * enlace de recuperación a tu correo electrónico». No se enviaba nada: no
+ * había endpoint detrás. Quien usaba la pantalla esperaba un correo que nunca
+ * iba a llegar, y la sensación era peor que la de un formulario roto, porque
+ * un formulario roto al menos avisa.
+ *
+ * Ahora llama al endpoint real. Y el mensaje de éxito ya no afirma que el
+ * correo salió: el servidor responde lo mismo exista o no la cuenta —para no
+ * convertir el formulario en un verificador de clientes de la botica— y por
+ * eso el texto dice «si existe una cuenta». Es la única redacción que es
+ * cierta en los dos casos.
+ */
 import { ref, onMounted } from 'vue'
 import { gsap } from 'gsap'
+import { solicitarEnlace } from '@/services/correos'
 
 // Reactive data
 const email = ref('')
@@ -208,14 +225,21 @@ const handleForgotPassword = async () => {
   successMessage.value = ''
 
   try {
-    // TODO: Implement actual forgot password API call
-    // For now, just show success message
-    await new Promise(resolve => setTimeout(resolve, 2000)) // Simulate API call
-
-    successMessage.value = 'Se ha enviado un enlace de recuperación a tu correo electrónico.'
+    /* El mensaje lo redacta el backend. Reescribirlo aquí arriesga prometer
+       un envío que quizá no ocurrió. */
+    successMessage.value = await solicitarEnlace(email.value)
     email.value = ''
-  } catch {
-    errorMessage.value = 'Ha ocurrido un error. Por favor, inténtalo de nuevo.'
+  } catch (error: unknown) {
+    const datos = (error as { response?: { data?: { message?: string } } }).response?.data
+
+    /* El 429 del limitador merece su propio texto: «ha ocurrido un error»
+       haría reintentar justo a quien tiene que esperar. */
+    const estado = (error as { response?: { status?: number } }).response?.status
+
+    errorMessage.value =
+      estado === 429
+        ? 'Has pedido varios enlaces seguidos. Espera unos minutos antes de volver a intentarlo.'
+        : (datos?.message ?? 'No pudimos procesar la solicitud. Inténtalo de nuevo.')
   } finally {
     isLoading.value = false
   }
