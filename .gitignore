@@ -97,3 +97,9 @@ botica-san-juan-frontend/aud-*.json
 
 # Espacio de trabajo de subagent-driven-development (efimero)
 .superpowers/
+
+# Bytecode de Python. Lo genera cualquier `python -m py_compile` o un import
+# de los scripts de docs/scripts, y no tiene nada que hacer en el repositorio:
+# es binario, depende de la version del interprete y cambia solo.
+__pycache__/
+*.py[cod]
