@@ -107,3 +107,29 @@ codigo tapa el sintoma, la variable es la causa.
       await (await fetch('https://botica-san-juan-api.onrender.com/api/catalogo')).json()
 
   El servicio duerme tras quince minutos: la primera peticion tarda ~50 s.
+
+
+===============================================================================
+ADENDA · 2026-11-04 18:49 UTC · el esquema https, ya corregido
+===============================================================================
+
+Despliegue: dep-dblnrotg1s2s73d6boi0 · commit e76b41a (Merge PR #37) · live
+
+  GET /docs/openapi.json
+      "servers":[{"url":"https://botica-san-juan-api.onrender.com/api"}]
+
+  /docs/v1   Scalar     Server: https://botica-san-juan-api.onrender.com/api
+  /docs/api  Stoplight  Live Server: https://botica-san-juan-api.onrender.com/api
+
+Capturas: SOA-10 (Scalar) y SOA-11 (Stoplight).
+
+QUE HIZO FALTA PARA QUE SE VIERA EL CAMBIO
+-----------------------------------------------------------------------------
+Corregir APP_URL en el panel no bastaba por si solo mientras el codigo no
+estuviera desplegado, y el codigo no lo estaba: el PR #37 seguia ABIERTO. El
+reinicio por el cambio de variable se aplico a las 18:45 y el documento seguia
+anunciando http. Al fusionar el PR y desplegar, paso a https.
+
+Con las dos cosas en su sitio, el esquema correcto ya no depende de que nadie
+se acuerde: `AppServiceProvider::forzarHttpsFueraDeLocal` lo normaliza aunque
+la variable vuelva a quedar mal.
