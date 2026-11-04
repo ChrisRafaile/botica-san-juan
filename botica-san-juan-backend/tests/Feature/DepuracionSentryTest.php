@@ -163,7 +163,21 @@ class DepuracionSentryTest extends TestCase
     public function test_sin_dsn_el_monitoreo_queda_inactivo(): void
     {
         /* El estado por omisión y el de desarrollo. Activarlo es un acto
-           deliberado por entorno, no algo que ocurre por instalar. */
-        $this->assertNull(config('sentry.dsn'));
+           deliberado por entorno, no algo que ocurre por instalar.
+
+           Se comprueba que esté VACÍO, no que sea exactamente `null`. Las dos
+           cosas significan lo mismo para el SDK, pero no llegan igual: sin la
+           variable, `env()` devuelve null; con la variable declarada y sin
+           valor —que es como la deja `.env.example`, y por tanto como queda
+           en integración continua— devuelve la cadena vacía.
+
+           La primera versión de esta prueba afirmaba `assertNull` y pasaba en
+           local y fallaba en CI por esa diferencia. El fallo estaba en la
+           prueba: afirmaba un detalle de cómo llega el dato en lugar del
+           contrato, que es «no hay DSN, así que no se envía nada». */
+        $this->assertTrue(
+            blank(config('sentry.dsn')),
+            'El DSN de Sentry deberia estar vacio por omision.',
+        );
     }
 }
