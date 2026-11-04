@@ -43,7 +43,7 @@ se entiende sin abrirlo; `captura2.jpg` no.
 | `R` | `recetas/` | Recetas médicas, de alta a entrega | 9 |
 | `UI` | `ui/` | Interfaz del punto de venta | 6 |
 | `COR` | `correos/` | Correo transaccional | 6 |
-| `SOA` | `soa/` | Interoperabilidad y documentación de la API | 5 |
+| `SOA` | `soa/` | Interoperabilidad y documentación de la API | 9 |
 | `OFF` | `E2E-offline/` | Venta en contingencia de punta a punta | 4 |
 | `O` | `observabilidad/` | Sentry, PostHog y privacidad | 4 |
 | `CI` | `CI-CD/` | Integración continua | 3 |
@@ -98,7 +98,11 @@ contraseña, cierre de las demás sesiones y confirmación del correo.
 `COR-06` lleva el texto íntegro de los dos correos.
 
 ### `SOA` · `soa/`
-Interoperabilidad: el PR 25 de SUNAT y la documentación interactiva con Scalar.
+Interoperabilidad. `SOA-01`–`SOA-03`, el PR 25 de SUNAT. `SOA-04`–`SOA-05`, la
+documentación con Scalar. `SOA-06`–`SOA-09`, la verificación **en producción**
+de la API pública: Scalar y Stoplight accesibles, la respuesta JSON real y el
+acta `SOA-08` con los diez códigos de respuesta, el contrato campo a campo y la
+comprobación de CORS hecha desde otro dominio.
 
 ### `OFF` · `E2E-offline/`
 Dos ventas emitidas sin conexión, con sus correlativos, y la cola vaciándose al

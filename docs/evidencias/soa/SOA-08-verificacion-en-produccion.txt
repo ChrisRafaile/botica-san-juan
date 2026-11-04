@@ -1,0 +1,109 @@
+EVIDENCIA SOA-08 · Verificacion de la API publica en PRODUCCION
+Sistema Web de Gestion Botica San Juan · 2026-11-04 05:28 UTC
+===============================================================================
+
+Despliegue verificado: dep-dblc2k7b9u1s73b9r4fg
+Commit:                63b71d7 (Merge PR #36)
+Estado:                live
+URL:                   https://botica-san-juan-api.onrender.com
+
+
+1 · CODIGOS DE RESPUESTA
+-----------------------------------------------------------------------------
+  200  /api/salud                          {"ok":true,"base":true,...}
+  200  /api/catalogo?per_page=2            contrato completo
+  200  /api/catalogo/destacados?limite=3   3 productos + criterio
+  200  /api/catalogo/21                    detalle
+  404  /api/catalogo/999999                no existe
+  422  /api/catalogo?per_page=5000         tope de pagina
+  404  /api/productos/destacados           ANTES ERA 500
+  200  /docs/v1                            Scalar
+  200  /docs/api                           Stoplight Elements
+  200  /docs/openapi.json                  OpenAPI 3.1.0
+
+Las tres ultimas respondian 403, 403 y 200 antes de este bloque.
+
+
+2 · EL 500 QUE YA NO ESTA
+-----------------------------------------------------------------------------
+/api/productos/destacados devolvia «Server Error» en produccion: la palabra
+«destacados» caia en productos/{producto} y PostgreSQL reventaba al
+convertirla en entero. Ahora devuelve 404, que es la verdad: ese producto no
+existe.
+
+
+3 · CONTRATO JSON, VERIFICADO CONTRA LA RESPUESTA REAL
+-----------------------------------------------------------------------------
+GET /api/catalogo/destacados?limite=3
+
+  {"datos":[{"id":1,"nombre":"A FOLIC","concentracion":"0.5 mg",
+   "presentacion":"Caja Envase Blister Tabletas","laboratorio":"IQ FARMA",
+   "principio_activo":null,"categoria":"Medicamentos",
+   "categoria_slug":"medicamentos","precio":1.5,"moneda":"PEN",
+   "requiere_receta":false,"disponible":true,
+   "imagen":"images/default_image.png"}, ...],
+   "criterio":"Productos con existencias y de venta sin receta, ordenados por nombre."}
+
+  Claves: las 13 del contrato, en orden, ni una mas.
+  NO aparece "stock" en ninguna respuesta. Si aparece "disponible".
+  El criterio de los destacados viene DECLARADO en la respuesta.
+
+
+4 · CORS, COMPROBADO DESDE OTRO ORIGEN DE VERDAD
+-----------------------------------------------------------------------------
+No basta leer la cabecera desde el mismo origen: ahi el navegador la expone
+siempre. La comprobacion se hizo cargando https://example.com y lanzando el
+fetch DESDE esa pagina.
+
+  origen de la pagina: https://example.com
+  fetch a /api/catalogo/destacados?limite=1  ->  200, 1 producto, "A FOLIC"
+
+  fetch a /api/productos/destacados          ->  BLOQUEADO (Failed to fetch)
+
+El contraste es la prueba. La ruta del carril publico se lee desde cualquier
+dominio; la que NO esta en el carril la bloquea el navegador. Si faltara la
+cabecera en la primera, habria fallado igual que la segunda.
+
+NOTA SOBRE LA LECTURA DE LA CABECERA: desde otro origen,
+`res.headers.get('access-control-allow-origin')` devuelve null aunque la
+cabecera este presente. No es un fallo: el navegador solo expone a JavaScript
+las cabeceras de la lista segura, y esa no esta. Por eso la prueba valida es
+que el fetch NO se bloquee, no leer el valor.
+
+
+5 · DEFECTO ENCONTRADO Y CORREGIDO EN EL MISMO ACTO
+-----------------------------------------------------------------------------
+Las dos interfaces anunciaban el servidor como
+
+    http://botica-san-juan-api.onrender.com/api      <- http, no https
+
+Quien pulse «Try it» en Scalar o copie el fragmento de codigo se lleva una URL
+en texto plano. Funciona de milagro porque Render redirige, pero un cliente
+que no siga redirecciones falla, y es el ejemplo que van a copiar otros
+proyectos.
+
+Causa doble: APP_URL esta declarada con http:// en el entorno del proveedor, y
+el proxy de Render termina el TLS y habla con el contenedor por HTTP plano, de
+modo que el propio Laravel cree que la peticion es insegura.
+
+Corregido en codigo (AppServiceProvider::forzarHttpsFueraDeLocal) para que no
+dependa de acordarse de arreglar la variable. CONVIENE ARREGLARLA IGUAL: el
+codigo tapa el sintoma, la variable es la causa.
+
+
+6 · CAPTURAS
+-----------------------------------------------------------------------------
+  SOA-06  Scalar en /docs/v1, con CatalogoPublico en el indice
+  SOA-07  Stoplight Elements en /docs/api
+  SOA-09  Respuesta JSON de /api/catalogo/destacados
+
+
+7 · COMO REPRODUCIRLO
+-----------------------------------------------------------------------------
+  curl -i https://botica-san-juan-api.onrender.com/api/catalogo/destacados
+  curl -i https://botica-san-juan-api.onrender.com/api/salud
+
+  Desde la consola de CUALQUIER pagina que no sea la API:
+      await (await fetch('https://botica-san-juan-api.onrender.com/api/catalogo')).json()
+
+  El servicio duerme tras quince minutos: la primera peticion tarda ~50 s.
