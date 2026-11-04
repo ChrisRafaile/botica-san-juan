@@ -72,6 +72,18 @@ return [
         'api/pos/ventas',
         'api/v1/*',
         'docs/*',
+
+        /*
+         | Catalogo publico (SOA). Es el carril pensado para que el frontend
+         | de OTRO proyecto haga fetch desde su propio dominio sin que el
+         | navegador bloquee la respuesta.
+         |
+         | Aqui el '*' no afloja nada: son rutas de solo lectura, sin token y
+         | sin datos internos, con los mismos datos que cualquiera ve entrando
+         | al portal. Lo que esta detras de sesion sigue exigiendo sesion.
+         */
+        'api/catalogo',
+        'api/catalogo/*',
     ],
 
 ];

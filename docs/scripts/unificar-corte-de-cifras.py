@@ -100,14 +100,14 @@ TEXTOS = [
 # --- reemplazo de imagenes -------------------------------------------------
 # rId -> archivo nuevo
 IMAGENES = {
-    "rId49": "evidencias/cortes/suite-198.png",       # Figura 43
-    "rId115": "evidencias/cortes/suite-198.png",      # Figura C.3
-    "rId54": "evidencias/cortes/migraciones-49.png",  # Figura C.1
+    "rId49": "evidencias/cortes/CRT-02-suite-198.png",       # Figura 43
+    "rId115": "evidencias/cortes/CRT-02-suite-198.png",      # Figura C.3
+    "rId54": "evidencias/cortes/CRT-05-migraciones-49.png",  # Figura C.1
 }
 
 # Pie de figura que se quedo SIN imagen y hay que dotar de una.
 PIE_HUERFANO = "Figura 50. Migraciones aplicadas sobre la base de producción"
-IMAGEN_HUERFANA = "evidencias/cortes/migraciones-49.png"
+IMAGEN_HUERFANA = "evidencias/cortes/CRT-05-migraciones-49.png"
 
 cambios: list[str] = []
 fallos: list[str] = []

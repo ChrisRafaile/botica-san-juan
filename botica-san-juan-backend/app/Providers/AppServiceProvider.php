@@ -38,6 +38,23 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        /* Catalogo publico, para consumo externo sin token.
+         *
+         * Mas generoso que `api` —120 por minuto es para una persona usando
+         * el portal; aqui el cliente es un programa que pagina— pero con
+         * tope, porque sin el un bucle mal escrito en el proyecto de otro
+         * tumba la instancia gratuita de Render para todos.
+         *
+         * Se limita SIEMPRE por IP: estas rutas no tienen usuario, asi que
+         * `$request->user()?->id` seria null y todas las peticiones del mundo
+         * compartirian un unico cubo.
+         */
+        RateLimiter::for('publico', function (Request $request) {
+            return [
+                Limit::perMinute(300)->by('publico|'.$request->ip()),
+            ];
+        });
+
         RateLimiter::for('login', function (Request $request) {
             $dni = (string) $request->input('dni', 'anon');
 
@@ -171,6 +188,39 @@ class AppServiceProvider extends ServiceProvider
 
         $this->identificarDocumentoOpenApi();
         $this->registrarReferenciaScalar();
+        $this->decidirQuienVeLaDocumentacion();
+    }
+
+    /**
+     * Quién puede abrir /docs/api y /docs/v1.
+     *
+     * EL PROBLEMA QUE RESUELVE
+     *
+     * `RestrictedDocsAccess` deja pasar solo en el entorno `local` y, fuera de
+     * ahí, consulta la autorización `viewApiDocs`. Si nadie la define, Laravel
+     * la deniega: en producción las dos interfaces respondían **403**, y el
+     * único modo de leer la API era descargar el `openapi.json` a mano.
+     *
+     * POR QUÉ UNA VARIABLE DE ENTORNO Y NO SIMPLEMENTE ABRIRLO
+     *
+     * Publicar la documentación no abre ningún endpoint —lo que exige token lo
+     * sigue exigiendo—, pero sí enseña el mapa completo de rutas, incluidas
+     * las de administración. Eso no es una vulnerabilidad; es información que
+     * le ahorra trabajo a quien quiera buscar una. Aquí se acepta ese
+     * intercambio a propósito, porque el objetivo es que otros proyectos
+     * consuman estos servicios, y una API que no se puede leer no se puede
+     * consumir.
+     *
+     * Aceptarlo a propósito y poder revertirlo cambiando una variable es
+     * distinto de que ocurra por descuido, que es lo que pasaría abriéndolo
+     * sin condición.
+     */
+    private function decidirQuienVeLaDocumentacion(): void
+    {
+        \Illuminate\Support\Facades\Gate::define(
+            'viewApiDocs',
+            fn ($usuario = null) => (bool) config('scramble.documentacion_publica', false),
+        );
     }
 
     /**
