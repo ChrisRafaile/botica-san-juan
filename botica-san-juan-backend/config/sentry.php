@@ -1,8 +1,6 @@
 <?php
 
-use App\Support\Observabilidad\Depurador;
-use Sentry\Event;
-use Sentry\EventHint;
+use App\Support\Observabilidad\FiltroDeEnvio;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,55 +62,17 @@ return [
     |----------------------------------------------------------------------
     |
     | Se ejecuta para CADA evento, justo antes del envío. Devolver `null`
-    | descarta el evento entero.
+    | descarta el evento entero. La lógica vive en la clase y NO aquí como
+    | closure, por un motivo que costó un despliegue:
     |
+    |     `config:cache` serializa esta configuración con `var_export`, y un
+    |     closure no se puede exportar. El contenedor moría al arrancar con
+    |     «Call to undefined method Closure::__set_state()», Render mantenía
+    |     viva la versión anterior, y el servicio seguía respondiendo 200 con
+    |     código de hacía cuatro días.
+    |
+    | Ver app/Support/Observabilidad/FiltroDeEnvio.php.
     */
-    'before_send' => function (Event $evento, ?EventHint $pista): ?Event {
-        /* El mensaje de una excepción es texto libre escrito por quien la
-           lanzó: «No se encontró el usuario 47382910» es perfectamente
-           posible. Se limpia con los mismos patrones que todo lo demás. */
-        foreach ($evento->getExceptions() as $excepcion) {
-            $excepcion->setValue((string) Depurador::texto($excepcion->getValue()));
-        }
-
-        if ($evento->getMessage() !== null) {
-            $evento->setMessage((string) Depurador::texto($evento->getMessage()));
-        }
-
-        $peticion = $evento->getRequest();
-
-        if ($peticion !== []) {
-            $evento->setRequest(Depurador::peticion($peticion));
-        }
-
-        /* El usuario se reduce a su identificador. Sin correo, sin nombre,
-           sin DNI y sin IP: con el id basta para saber si un fallo afecta a
-           una cuenta o a muchas, que es la única pregunta que un panel de
-           errores necesita responder sobre personas. */
-        $usuario = $evento->getUser();
-
-        if ($usuario !== null) {
-            $evento->setUser(\Sentry\UserDataBag::createFromArray([
-                'id' => $usuario->getId(),
-            ]));
-        }
-
-        /* Los datos extra y las etiquetas los pone el código de la
-           aplicación: se limpian uno a uno porque nada impide que alguien
-           adjunte ahí el pedido entero. */
-        $extra = [];
-
-        foreach ($evento->getExtra() as $clave => $valor) {
-            $extra[$clave] = is_string($valor) ? Depurador::texto($valor) : $valor;
-        }
-
-        $evento->setExtra($extra);
-
-        foreach ($evento->getTags() as $clave => $valor) {
-            $evento->setTag($clave, (string) Depurador::texto($valor));
-        }
-
-        return $evento;
-    },
+    'before_send' => new FiltroDeEnvio,
 
 ];

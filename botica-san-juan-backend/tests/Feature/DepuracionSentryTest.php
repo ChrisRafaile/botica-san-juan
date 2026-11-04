@@ -152,6 +152,57 @@ class DepuracionSentryTest extends TestCase
         $this->assertArrayNotHasKey('query_string', $limpia);
     }
 
+    // ------------------------------------------- la configuracion se cachea
+
+    public function test_la_configuracion_se_puede_cachear(): void
+    {
+        /* LA PRUEBA QUE FALTABA, Y QUE COSTO UN DESPLIEGUE.
+         *
+         * `before_send` era un closure escrito dentro de config/sentry.php.
+         * En desarrollo la configuracion no se cachea nunca, asi que las 357
+         * pruebas pasaban en verde. El entrypoint de produccion si ejecuta
+         * `config:cache`, que serializa la configuracion con `var_export`, y
+         * un closure no se puede exportar:
+         *
+         *     Your configuration files could not be serialized because the
+         *     value at "sentry.before_send" is non-serializable.
+         *
+         * El contenedor moria al arrancar. Y como Render mantiene viva la
+         * version anterior cuando un despliegue falla, el servicio seguia
+         * respondiendo 200 con codigo de hacia cuatro dias: desde fuera no se
+         * veia nada.
+         *
+         * Esta prueba ejecuta el comando de verdad. Es la unica forma de
+         * comprobarlo: cualquier afirmacion sobre el contenido del arreglo
+         * habria pasado igual con el closure dentro.
+         */
+        $codigo = $this->artisan('config:cache')->run();
+
+        try {
+            $this->assertSame(
+                0,
+                $codigo,
+                'config:cache fallo. Alguna clave de configuracion no es serializable '
+                .'—tipicamente un closure dentro de un archivo de config/—.',
+            );
+        } finally {
+            /* Se limpia SIEMPRE. Un bootstrap/cache/config.php olvidado deja
+               las pruebas siguientes leyendo una configuracion congelada, y
+               el fallo aparece lejos de aqui. */
+            $this->artisan('config:clear')->run();
+        }
+    }
+
+    public function test_el_filtro_de_envio_sigue_siendo_invocable(): void
+    {
+        /* Mover la logica a una clase solo vale si Sentry puede seguir
+           llamandola. El SDK espera un `callable`. */
+        $filtro = config('sentry.before_send');
+
+        $this->assertIsCallable($filtro);
+        $this->assertInstanceOf(\App\Support\Observabilidad\FiltroDeEnvio::class, $filtro);
+    }
+
     // ------------------------------------------------------ configuración
 
     public function test_sentry_no_envia_datos_personales_por_omision(): void
