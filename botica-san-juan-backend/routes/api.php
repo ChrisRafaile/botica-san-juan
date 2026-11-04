@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Auth\ContrasenaController;
+use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\VerificacionController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\CompraController;
@@ -19,6 +22,7 @@ use App\Http\Controllers\SincronizacionController;
 use App\Http\Controllers\PedidoDetalleController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\RecetaController;
 use App\Http\Controllers\SubcategoriaController;
 use App\Http\Controllers\TableroController;
 use App\Http\Controllers\IndicadoresController;
@@ -103,6 +107,43 @@ Route::get('/salud', function () {
 Route::post('/login', [UsuarioController::class, 'login'])->middleware('throttle:login');
 Route::post('/register', [UsuarioController::class, 'register'])->middleware('throttle:register');
 
+/*
+|--------------------------------------------------------------------------
+| Correo transaccional: verificacion de cuenta y recuperacion de contrasena
+|--------------------------------------------------------------------------
+|
+| Las tres primeras son PUBLICAS por necesidad, no por descuido:
+|
+|   - quien verifica su correo llega desde el buzon, a menudo en otro
+|     dispositivo, y no tiene sesion abierta. Lo que autentica el enlace es la
+|     firma temporal (`signed`), no una sesion;
+|   - quien ha olvidado su contrasena no puede iniciar sesion por definicion.
+|
+| La cuarta —reenviar la verificacion— SI exige sesion: aceptando un correo
+| arbitrario seria un motor de envio gratuito contra terceros.
+|
+| Las cuatro llevan limitador. Cada peticion aceptada escribe en el buzon de
+| alguien, y el buzon no siempre es de quien pulsa el boton.
+*/
+/* Sin el middleware `signed`: la firma se comprueba dentro del controlador
+   para poder redirigir al portal en vez de escupir la pagina de error de
+   Laravel a alguien que viene de su bandeja de entrada. */
+Route::get('/email/verificar/{id}/{hash}', [VerificacionController::class, 'verificar'])
+    ->middleware('throttle:6,1')
+    ->name('verificacion.verificar');
+
+Route::post('/password/olvide', [ContrasenaController::class, 'solicitar'])
+    ->middleware('throttle:correo-contrasena');
+
+/* Este NO comparte limitador con el anterior, y la diferencia importa: aqui
+   no se envia ningun correo, y una contrasena rechazada por la validacion
+   —demasiado corta, confirmacion que no coincide— consumiria cupo. Con el
+   limite de envio, tres tecleos torpes dejarian a la persona fuera de su
+   propio restablecimiento. Lo que protege este punto es el token: de un solo
+   uso, guardado como hash y con caducidad. */
+Route::post('/password/restablecer', [ContrasenaController::class, 'restablecer'])
+    ->middleware('throttle:restablecer-contrasena');
+
 /* El formulario de contacto del portal es PUBLICO: exigir sesion para
    escribir a la botica deja fuera justo a quien todavia no es cliente, que es
    la mitad del sentido de tener un formulario de contacto.
@@ -173,10 +214,82 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('perfil')->group(fun
     Route::put('/', [PerfilController::class, 'actualizar']);
     Route::put('/contrasena', [PerfilController::class, 'cambiarContrasena']);
     Route::delete('/foto', [PerfilController::class, 'eliminarFoto']);
+
+    /* Desvincular Google. DELETE porque quita algo, y sin identificador
+       porque siempre opera sobre quien presenta el token.
+
+       El controlador comprueba que quede otra via de acceso antes de hacerlo.
+       Esa comprobacion NO puede vivir aqui: depende del estado de la cuenta
+       —contrasena propia y correo verificado—, no de la ruta. */
+    Route::delete('/google', [PerfilController::class, 'desvincularGoogle']);
 });
 
 Route::post('/perfil/foto', [PerfilController::class, 'subirFoto'])
     ->middleware(['auth:sanctum', 'throttle:subida-foto']);
+
+/*
+|--------------------------------------------------------------------------
+| Acceso con Google (OAuth 2.0)
+|--------------------------------------------------------------------------
+|
+| Las tres son PUBLICAS por necesidad: quien entra con Google todavia no
+| tiene sesion, que es justamente lo que viene a conseguir.
+|
+| Lo que las protege no es la autenticacion sino el flujo: el parametro
+| `state` ata la vuelta con la ida, y el codigo del intercambio es de un
+| solo uso y vive 60 segundos.
+|
+| `callback` NO lleva limitador: lo invoca el navegador de la persona al
+| volver de Google, una sola vez por intento, y un 429 ahi dejaria a alguien
+| fuera de su propia sesion por culpa del trafico de otro en la misma IP.
+| Lo que si se limita es pedir la URL y canjear el codigo.
+*/
+Route::get('/auth/google/redirect', [GoogleController::class, 'redirigir'])
+    ->middleware('throttle:acceso-google');
+
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])
+    ->name('google.callback');
+
+Route::post('/auth/google/intercambio', [GoogleController::class, 'intercambiar'])
+    ->middleware('throttle:acceso-google');
+
+/*
+|--------------------------------------------------------------------------
+| Recetas medicas
+|--------------------------------------------------------------------------
+|
+| Todas exigen sesion, y ademas comprobacion de propiedad DENTRO del
+| controlador: exigir identidad no es exigir propiedad. Esa distincion es la
+| que falto en las descargas de comprobantes (defecto D-05) y dejo los
+| documentos de todos abiertos a cualquier cuenta autenticada.
+|
+| El archivo NO se sirve desde /storage. Vive en el disco privado y sale por
+| su propia ruta, que vuelve a comprobar quien pide en cada peticion.
+*/
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/pedidos/{pedido}/receta', [RecetaController::class, 'mostrar'])
+        ->middleware('throttle:api');
+
+    Route::get('/pedidos/{pedido}/receta/archivo', [RecetaController::class, 'archivo'])
+        ->middleware('throttle:api');
+
+    /* Limitador propio: acepta archivos de 8 MB, diez veces el tamano que
+       admite la foto de perfil. Con el limite general —120 por minuto— una
+       sola cuenta podria escribir casi un gigabyte por minuto en el disco. */
+    Route::post('/pedidos/{pedido}/receta', [RecetaController::class, 'subir'])
+        ->middleware('throttle:subida-receta');
+
+    Route::put('/pedidos/{pedido}/receta/revision', [RecetaController::class, 'revisar'])
+        ->middleware(['admin', 'throttle:api']);
+
+    Route::get('/recetas/pendientes', [RecetaController::class, 'pendientes'])
+        ->middleware(['admin', 'throttle:api']);
+});
+
+/* Reenvio del correo de verificacion. Aqui si hace falta sesion: el destino
+   no lo elige quien llama, sale de la cuenta autenticada. */
+Route::post('/email/verificacion/reenviar', [VerificacionController::class, 'reenviar'])
+    ->middleware(['auth:sanctum', 'throttle:correo-verificacion']);
 
 // API Routes for resources (protected)
 Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {

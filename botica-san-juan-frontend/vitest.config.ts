@@ -33,6 +33,10 @@ export default defineConfig({
 
     include: ['src/**/__tests__/**/*.spec.ts'],
 
+    /* Devuelve el `localStorage` de jsdom al objeto global, que Node 26 tapa
+       con uno propio sin inicializar. Ver vitest.setup.ts. */
+    setupFiles: ['./vitest.setup.ts'],
+
     /* Sin `globals`. `describe`, `it` y `expect` se importan explícitamente en
        cada archivo: cuesta una línea y a cambio el verificador de tipos no
        necesita tipos globales inyectados, de modo que una prueba mal escrita

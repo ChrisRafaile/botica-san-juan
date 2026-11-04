@@ -1,0 +1,28 @@
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AccesoDocumentosTributariosTest::test_sin_token_los_documentos_tributarios_devuelven_401(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AutorizacionRolTest::test_con_rol_cliente_las_lecturas_de_gestion_devuelven_403(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AutorizacionRolTest::test_sin_token_las_rutas_administrativas_devuelven_401(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AutorizacionRolTest::test_con_rol_cliente_las_rutas_administrativas_devuelven_403(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   PASS  Tests\Feature\DepuracionSentryTest
+  ✓ el dni no sobrevive en un mensaje                                                                            0.20s  
+  ✓ el correo tampoco                                                                                            0.02s  
+  ✓ un token de sanctum no viaja                                                                                 0.02s  
+  ✓ una clave de api no viaja                                                                                    0.02s  
+  ✓ el ruc y el telefono se enmascaran                                                                           0.02s  
+  ✓ no destroza un mensaje sin datos personales                                                                  0.02s  
+  ✓ el cuerpo de la peticion se descarta entero                                                                  0.02s  
+  ✓ la cabecera de autorizacion desaparece                                                                       0.02s  
+  ✓ la busqueda de medicamentos no viaja                                                                         0.02s  
+  ✓ la url pierde su cadena de consulta                                                                          0.02s  
+  ✓ las cookies y el entorno se quitan                                                                           0.02s  
+  ✓ una consulta sin analizar se descarta                                                                        0.02s  
+  ✓ sentry no envia datos personales por omision                                                                 0.02s  
+  ✓ sin dsn el monitoreo queda inactivo                                                                          0.02s  
+
+  Tests:    14 passed (23 assertions)
+  Duration: 0.61s
+

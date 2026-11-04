@@ -8,12 +8,45 @@ export interface User {
   id: number
   nombre: string
   email: string
-  dni: string
+  /**
+   * Puede ser nulo.
+   *
+   * Una cuenta creada con Google nace sin DNI: Google acredita un correo y no
+   * sabe el documento de nadie. El portal lo pide al emitir el comprobante, o
+   * lo completa desde el perfil. Marcarlo como obligatorio aquí haría que el
+   * verificador de tipos diera por presente algo que el servidor devuelve
+   * nulo, que es justo el error que hay que evitar.
+   */
+  dni: string | null
   telefono?: string
   foto?: string
   foto_perfil?: string
   foto_portada?: string
   rol?: string
+  /** Fecha de confirmación del correo, o null si todavía no se confirmó. */
+  email_verified_at?: string | null
+  /**
+   * ¿Esta cuenta entra con Google?
+   *
+   * El backend expone esto y NO el identificador de Google: al portal le
+   * basta saber que el botón funciona para esta cuenta.
+   */
+  tiene_google?: boolean
+  /**
+   * ¿Existe una contraseña que esta persona conozca?
+   *
+   * No es lo mismo que «tiene la columna rellena»: una cuenta nacida con
+   * Google lleva un hash aleatorio que nadie ha visto nunca.
+   */
+  tiene_contrasena?: boolean
+  /**
+   * ¿Se puede quitar Google sin dejar la cuenta sin acceso?
+   *
+   * Lo decide el backend —hace falta contraseña propia y correo verificado— y
+   * el portal lo consulta ANTES de ofrecer el botón. Averiguarlo intentándolo
+   * significaría que la única forma de saberlo es un error.
+   */
+  puede_desvincular_google?: boolean
   created_at?: string
   updated_at?: string
 }

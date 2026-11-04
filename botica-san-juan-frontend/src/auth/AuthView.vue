@@ -181,6 +181,11 @@
                 Entrar
               </BotonEnvio>
 
+              <!-- Va DESPUÉS del botón de entrar, no antes: quien ya tiene
+                   cuenta con DNI y contraseña es la mayoría, y poner la
+                   alternativa primero le hace leer de más cada vez. -->
+              <BotonGoogle />
+
               <p class="mt-6 text-center text-sm text-texto-secundario lg:hidden">
                 ¿No tienes cuenta?
                 <button
@@ -331,6 +336,11 @@
                 Crear cuenta
               </BotonEnvio>
 
+              <!-- El mismo botón sirve para entrar y para darse de alta: en
+                   OAuth no hay dos flujos. El rótulo cambia porque aquí la
+                   expectativa es crear algo, no volver. -->
+              <BotonGoogle rotulo="Crear cuenta con Google" />
+
               <p class="mt-6 text-center text-sm text-texto-secundario lg:hidden">
                 ¿Ya tienes cuenta?
                 <button
@@ -451,6 +461,7 @@ import authService from '../services/auth'
 import CampoTexto from './components/CampoTexto.vue'
 import BotonEnvio from './components/BotonEnvio.vue'
 import EspiralMarca from './components/EspiralMarca.vue'
+import BotonGoogle from '@/components/BotonGoogle.vue'
 import { ErrorDeValidacion, traducirCampos } from '@/utils/validacionServidor'
 
 /* El servidor nombra los campos a su manera y el formulario a la suya. Sin

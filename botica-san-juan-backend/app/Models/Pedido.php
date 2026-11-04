@@ -152,6 +152,32 @@ class Pedido extends Model
         return $this->belongsTo(Usuario::class, 'vendedor_id');
     }
 
+    /** Receta médica adjunta, si la hay. Como mucho una por pedido. */
+    public function receta()
+    {
+        return $this->hasOne(Receta::class, 'pedido_id');
+    }
+
+    /**
+     * ¿Este pedido lleva algún producto de venta bajo receta?
+     *
+     * Se pregunta al CATÁLOGO, no a una marca guardada en el pedido, y eso
+     * tiene una consecuencia que conviene conocer: si mañana un producto deja
+     * de requerir receta, los pedidos antiguos dejan de exigirla también.
+     *
+     * Es lo correcto para lo que se usa aquí —decidir si hace falta pedirle
+     * la receta al cliente ahora— y sería incorrecto para un registro
+     * tributario, donde la foto del momento de la venta es lo que vale. Si
+     * algún día se necesita lo segundo, hay que guardar la marca en la línea,
+     * como ya se hace con `tipo_afectacion_igv`.
+     */
+    public function requiereReceta(): bool
+    {
+        return $this->pedidoDetalles()
+            ->whereHas('producto', fn ($q) => $q->where('requiere_receta', true))
+            ->exists();
+    }
+
     /** Faltantes registrados durante esta venta. */
     public function incidencias()
     {

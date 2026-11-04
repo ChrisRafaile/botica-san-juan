@@ -69,14 +69,19 @@ class UsuarioController extends Controller
                la imagen desde su perfil. Ver PerfilController. */
         ]);
 
-        $usuario = Usuario::create([
+        /* La contraseña no va en el arreglo: la escribe `establecerContrasena`,
+           que es el único camino para `password` cuando el valor lo eligió
+           alguien, y que además deja la marca correspondiente. Ver Usuario. */
+        $usuario = new Usuario([
             'nombre' => $request->nombre,
             'dni' => $request->dni,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
             'rol' => $request->rol ?? 'cliente',
             'telefono' => $request->telefono,
         ]);
+
+        $usuario->establecerContrasena($request->password);
+        $usuario->save();
 
         return response()->json($usuario, 201);
     }
@@ -115,10 +120,11 @@ class UsuarioController extends Controller
         $data = $request->only(['nombre', 'dni', 'email', 'rol', 'telefono']);
 
         if ($request->has('password')) {
-            $data['password'] = Hash::make($request->password);
+            $usuario->establecerContrasena($request->password);
         }
 
-        $usuario->update($data);
+        $usuario->fill($data);
+        $usuario->save();
 
         return response()->json($usuario);
     }
@@ -138,22 +144,51 @@ class UsuarioController extends Controller
     {
         $validated = $request->validated();
 
-        $usuario = Usuario::create([
+        $usuario = new Usuario([
             'nombre' => $validated['nombre'],
             'dni' => $validated['dni'],
             'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
             'telefono' => $validated['telefono'] ?? null,
             'foto_perfil' => $validated['foto_perfil'] ?? null,
             'foto_portada' => $validated['foto_portada'] ?? null,
         ]);
 
+        /* Ver UsuarioController::store y Usuario::establecerContrasena: la
+           contraseña y su marca se escriben juntas, siempre por el mismo
+           camino. */
+        $usuario->establecerContrasena($validated['password']);
+        $usuario->save();
+
         $token = $usuario->createToken('API Token')->plainTextToken;
+
+        /* El correo de verificacion NO puede tumbar el registro.
+           `sendEmailVerificationNotification` habla con un servicio externo;
+           si Resend no responde, la cuenta ya esta creada en la base y
+           devolver 500 dejaria al cliente creyendo que su registro fallo
+           cuando en realidad existe —y con la contrasena que acaba de elegir,
+           que no volvera a ver—. Se registra el fallo y se sigue: la cuenta
+           queda sin verificar y el reenvio esta a un boton de distancia.
+
+           En el log va el id, no el correo: un log de aplicacion no es el
+           sitio donde deben acumularse direcciones de clientes. */
+        $verificacionEnviada = true;
+
+        try {
+            $usuario->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            $verificacionEnviada = false;
+
+            Log::warning('No se pudo enviar el correo de verificacion', [
+                'usuario_id' => $usuario->id,
+                'excepcion' => $e::class,
+            ]);
+        }
 
         return response()->json([
             'user' => $usuario,
             'token' => $token,
             'token_type' => 'Bearer',
+            'verificacion_enviada' => $verificacionEnviada,
             'message' => 'Usuario registrado exitosamente'
         ], 201);
     }

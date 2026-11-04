@@ -1,0 +1,79 @@
+EVIDENCIA O03 · Lo que pesa la observabilidad segun si hay claves
+Sistema Web de Gestion Botica San Juan · 2026-11-03
+===============================================================================
+
+QUE SE MIDE Y POR QUE
+-----------------------------------------------------------------------------
+La promesa de la seccion 3 de docs/OBSERVABILIDAD.md es que "sin clave no se
+carga nada". Una promesa asi no vale como comentario en un archivo: o se mide
+en el paquete compilado o no esta.
+
+Se compilo dos veces el mismo codigo, con la unica diferencia de las variables
+de entorno, y se comparo el resultado.
+
+
+COMPILACION 1 · SIN CLAVES (estado por omision y de desarrollo)
+-----------------------------------------------------------------------------
+  VITE_SENTRY_DSN   (vacia)
+  VITE_POSTHOG_KEY  (vacia)
+
+  Fragmento de entrada .............. assets/index-CZ_lflhG.js    191 413 bytes
+  Fragmentos de Sentry .............. NINGUNO
+  Fragmentos de PostHog ............. NINGUNO
+
+  Busqueda de cadenas delatoras en LOS 132 FRAGMENTOS del paquete:
+
+    "maskTextSelector" .... 0 coincidencias
+    "ph-no-capture" ....... 0 coincidencias
+    "[dni]" ............... 0 coincidencias
+    "eu.i.posthog" ........ 0 coincidencias
+
+  NO QUEDA NI UNA LINEA. Vite sustituye `import.meta.env.VITE_*` por su valor
+  en tiempo de compilacion, asi que `if (!dsn) return` se convierte en
+  `if (!undefined) return` y todo lo que viene detras es codigo muerto que
+  Rollup elimina. El depurador se va con el resto porque nadie lo llama.
+
+  Esto es mas fuerte que lo prometido: no es que las herramientas no se
+  activen, es que su codigo NO EXISTE en lo que se sirve al navegador.
+
+
+COMPILACION 2 · CON CLAVES DE EJEMPLO
+-----------------------------------------------------------------------------
+  VITE_SENTRY_DSN=https://ejemplo@o0.ingest.sentry.io/0
+  VITE_POSTHOG_KEY=phc_ejemplo
+
+  Fragmento de entrada .............. assets/index-DqE8nQEc.js    194 392 bytes
+  Sentry (carga diferida) ........... assets/index-Bo9oq4uh.js    438 843 bytes
+  PostHog (carga diferida) .......... assets/module-BbVsRaE2.js   332 385 bytes
+
+  "maskTextSelector" .... presente, como corresponde
+
+
+LA CIFRA QUE IMPORTA
+-----------------------------------------------------------------------------
+  Entrada sin claves ....... 191 413 bytes
+  Entrada con claves ....... 194 392 bytes
+  DIFERENCIA ...............  +2 979 bytes  (+1,6 %)
+
+Los 771 KB de las dos herramientas NO estan en la ruta critica: son
+importaciones dinamicas que se piden despues de montar la aplicacion y no
+bloquean el primer render. Lo unico que crece en el arranque son los ~3 KB del
+depurador y del codigo de arranque.
+
+Esto cumple la norma del Sprint 5 de no inflar el paquete: el usuario que
+visita el portal con la configuracion por omision descarga exactamente los
+mismos bytes que antes de este bloque.
+
+
+COMO REPRODUCIRLO
+-----------------------------------------------------------------------------
+  cd botica-san-juan-frontend
+  .\node_modules\.bin\vite.cmd build
+  Select-String -Path "dist\assets\*.js" -Pattern "maskTextSelector" -List
+
+  $env:VITE_SENTRY_DSN="https://ejemplo@o0.ingest.sentry.io/0"
+  $env:VITE_POSTHOG_KEY="phc_ejemplo"
+  .\node_modules\.bin\vite.cmd build --outDir dist-probe
+  Select-String -Path "dist-probe\assets\*.js" -Pattern "maskTextSelector" -List
+
+El directorio dist-probe se borro despues de medir; no se versiona.
