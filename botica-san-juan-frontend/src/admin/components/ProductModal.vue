@@ -6,7 +6,7 @@
     >
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-neutro-950/60 p-4 backdrop-blur-sm"
         @click.self="closeModal"
       >
         <Transition
@@ -19,10 +19,30 @@
         >
           <div
             v-if="isOpen"
-            class="bg-superficie-elevada rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden"
+            class="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-superficie-elevada shadow-2xl"
           >
+            <!--
+              COLUMNA FLEXIBLE, NO ALTURAS CALCULADAS A MANO
+              ---------------------------------------------------------------
+              Esto estaba resuelto con `max-h-[calc(90vh-140px)]` en el
+              formulario: una constante que daba por hecho que el encabezado y
+              el pie sumaban 140 px. Suman cerca de 190 —cada uno lleva `p-6`,
+              el encabezado tiene dos líneas de texto y el pie un botón—, así
+              que los tres hijos pedían más de 90vh dentro de un contenedor con
+              `overflow-hidden`. Lo que sobraba se recortaba por abajo, y lo
+              que sobraba era justamente el pie con «Cancelar» y «Actualizar».
+
+              Ahora la aritmética la hace el navegador: encabezado y pie no se
+              encogen, y el formulario se queda con lo que reste. El día que
+              alguien añada una línea al encabezado, el reparto se ajusta solo.
+
+              `min-h-0` en el formulario no es decorativo: un hijo de flex
+              tiene `min-height: auto`, de modo que se niega a encogerse por
+              debajo de su contenido y el desplazamiento interno nunca llega a
+              activarse. Sin esa clase, este arreglo no funciona.
+            -->
             <!-- Header -->
-            <div class="flex items-center justify-between p-6 border-b border-borde-sutil">
+            <div class="flex shrink-0 items-center justify-between border-b border-borde-sutil p-6">
               <div>
                 <h2 class="text-2xl font-bold text-texto-primario">
                   {{ props.readonly ? 'Detalles del Producto' : (isEditing ? 'Editar Producto' : 'Nuevo Producto') }}
@@ -41,7 +61,8 @@
 
             <!-- Form -->
             <form
-              class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]"
+              id="formulario-producto"
+              class="min-h-0 flex-1 overflow-y-auto p-6"
               @submit.prevent="handleSubmit"
             >
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -503,8 +524,8 @@
               </div>
             </form>
 
-            <!-- Footer -->
-            <div class="flex items-center justify-end gap-3 p-6 border-t border-borde-sutil bg-superficie-hundida">
+            <!-- Footer. `shrink-0`: nunca cede espacio, así que no se recorta. -->
+            <div class="flex shrink-0 items-center justify-end gap-3 border-t border-borde-sutil bg-superficie-hundida p-6">
               <button
                 type="button"
                 class="px-6 py-2 text-texto-secundario bg-superficie-elevada border border-borde-base rounded-lg hover:bg-superficie-hundida transition-colors font-medium"
@@ -512,11 +533,19 @@
               >
                 {{ props.readonly ? 'Cerrar' : 'Cancelar' }}
               </button>
+              <!--
+                `type="submit"` con `form=` en lugar de un `@click` suelto: el
+                botón vive fuera del <form> porque está en el pie, y sin el
+                atributo no era un botón de envío. Consecuencia práctica: pulsar
+                Intro en cualquier campo no guardaba, y el navegador no aplicaba
+                la validación nativa del formulario.
+              -->
               <button
                 v-if="!props.readonly"
+                type="submit"
+                form="formulario-producto"
                 class="px-6 py-2 bg-botica-700 text-white rounded-lg hover:bg-botica-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
                 :disabled="loading || !isFormValid"
-                @click="handleSubmit"
               >
                 <Save
                   v-if="!loading"

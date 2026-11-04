@@ -44,11 +44,24 @@ const props = withDefaults(
     claseContenedor?: string
     /** Clases de la imagen y del respaldo. */
     claseImagen?: string
+    /**
+     * Fuente ya resuelta, para imágenes que no viven en /storage.
+     *
+     * La receta médica es el caso: no se sirve por URL pública —lleva el
+     * nombre del paciente y su diagnóstico—, sino que se descarga con la
+     * sesión y se pinta desde un object URL en memoria. Esa cadena no hay
+     * que pasarla por `urlDeMedia`, que le antepondría el origen de la API
+     * y la rompería.
+     *
+     * Tiene prioridad sobre `ruta`. Las dos a la vez no tiene sentido.
+     */
+    fuenteDirecta?: string | null
     /** `loading` de la imagen. En listas conviene `lazy`; en un modal, `eager`. */
     carga?: 'lazy' | 'eager'
   }>(),
   {
     ruta: null,
+    fuenteDirecta: null,
     claseContenedor: '',
     claseImagen: 'h-full w-full object-cover',
     carga: 'lazy',
@@ -57,14 +70,14 @@ const props = withDefaults(
 
 const fallo = ref(false)
 
-const fuente = computed(() => urlDeMedia(props.ruta))
+const fuente = computed(() => props.fuenteDirecta || urlDeMedia(props.ruta))
 
-/* Si cambia la ruta hay que volver a intentarlo: sin esto, una imagen que
+/* Si cambia la fuente hay que volver a intentarlo: sin esto, una imagen que
    falló deja marcado el componente para siempre y la siguiente —que puede
    existir perfectamente— ya no se pinta nunca. Pasa al navegar entre
    productos con el mismo modal abierto. */
 watch(
-  () => props.ruta,
+  () => [props.ruta, props.fuenteDirecta],
   () => {
     fallo.value = false
   },
