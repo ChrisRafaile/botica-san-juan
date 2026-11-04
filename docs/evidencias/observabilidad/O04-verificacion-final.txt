@@ -1,0 +1,63 @@
+EVIDENCIA O04 · Verificacion final del bloque de observabilidad
+Sistema Web de Gestion Botica San Juan · 2026-11-03
+===============================================================================
+
+1 · SUITE DEL BACKEND (PHPUnit)
+-----------------------------------------------------------------------------
+  php artisan test
+
+  Tests:    325 passed (947 assertions)
+  Duration: 37.92s
+
+  De esas, 14 son el contrato de privacidad del monitoreo
+  (Tests\Feature\DepuracionSentryTest, 23 assertions). Ver O01.
+
+
+2 · SUITE DEL FRONTEND (Vitest)
+-----------------------------------------------------------------------------
+  vitest run
+
+  Test Files  12 passed (12)
+  Tests       110 passed (110)
+
+  De esas, 26 son el contrato de privacidad del cliente
+  (src/observabilidad/__tests__/depurador.spec.ts). Ver O02.
+
+
+3 · VERIFICADOR DE TIPOS
+-----------------------------------------------------------------------------
+  vue-tsc --build --force
+
+  Sin salida, codigo de estado 0.
+
+  Nota: `sendDefaultPii` NO se pasa en el init del navegador. La opcion no
+  existe en el SDK de navegador, solo en los de servidor; intentarlo da
+  TS2353. El navegador no adjunta IP ni datos de usuario por su cuenta, y lo
+  unico que puede identificar a alguien es lo que esta aplicacion ponga con
+  `setUser`, que `beforeSend` recorta al id. Queda dicho en el codigo porque
+  la ausencia de la opcion invita a pensar que falta algo.
+
+
+4 · COMPILACION DE PRODUCCION
+-----------------------------------------------------------------------------
+  vite build
+
+  132 fragmentos, compilado en 5,44 s, sin advertencias nuevas.
+  Peso del fragmento de entrada identico al de antes de este bloque: ver O03.
+
+
+5 · LO QUE SE DEJO INTACTO
+-----------------------------------------------------------------------------
+  El APF3 y los documentos del informe no se tocaron en este bloque. Lo unico
+  que se escribio en docs/ fue el archivo nuevo OBSERVABILIDAD.md y esta
+  carpeta de evidencias.
+
+
+6 · PENDIENTE, Y NO ES DE CODIGO
+-----------------------------------------------------------------------------
+  La direccion IP la ve el servicio de todos modos a nivel de red, por el
+  simple hecho de que el navegador se conecta a el. Eso no se desactiva con
+  una opcion del SDK: se desactiva en la configuracion del proyecto, en el
+  panel del proveedor. Queda como paso de administracion cuando se decida
+  activar las herramientas en un entorno real. Mientras las claves esten
+  vacias, la cuestion no se plantea porque no hay conexion.

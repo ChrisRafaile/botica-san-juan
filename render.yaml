@@ -21,7 +21,17 @@
 #   3. Antes de desplegar, cargar en Environment las cuatro variables
 #      marcadas abajo como sync: false. Los valores estan en el panel de
 #      Neon (usar el endpoint DIRECTO, no el -pooler).
-#   4. Desplegar. El entrypoint aplica las migraciones antes de escuchar.
+#   4. Desplegar. Antes de escuchar, el entrypoint cachea la configuracion,
+#      aplica las migraciones, siembra las cuentas de demostracion y crea el
+#      enlace public/storage. No hay buildCommand: todo eso vive en
+#      docker/entrypoint.sh, que corre en CADA arranque y no solo al construir.
+#
+# AVISO SOBRE LOS ARCHIVOS SUBIDOS
+#
+# El disco de este contenedor es efimero. El enlace de storage hace que los
+# archivos del disco publico se SIRVAN, no que PERSISTAN: una foto subida
+# desde el panel desaparece en el siguiente despliegue. Para que persista hace
+# falta almacenamiento de objetos. Ver docker/entrypoint.sh.
 
 services:
   - type: web
@@ -56,6 +66,14 @@ services:
         value: database
       - key: QUEUE_CONNECTION
         value: database
+
+      # /docs/api y /docs/v1 quedan abiertas SIN declarar nada: el valor por
+      # omision de config/scramble.php ya es true, justamente para que
+      # publicarlas no dependa de acordarse de anadir una variable en el
+      # panel. Se deja escrita y comentada para que se vea que existe y como
+      # se cierra. Ver docs/API-PUBLICA.md.
+      # - key: SCRAMBLE_DOCUMENTACION_PUBLICA
+      #   value: "false"
 
       # --- Se cargan a mano en el panel. No se versionan. ---
       - key: APP_KEY

@@ -1,0 +1,110 @@
+EVIDENCIA C02 · Desvincular Google sin quedarse fuera de la cuenta
+Sistema Web de Gestion Botica San Juan · 2026-11-03
+===============================================================================
+
+EL FALLO QUE SE EVITA
+-----------------------------------------------------------------------------
+La columna `password` NUNCA es nula. Una cuenta creada con Google lleva un
+hash aleatorio de 64 caracteres que nadie ha visto nunca: GoogleController lo
+genera porque la columna es obligatoria.
+
+Por tanto `password !== null` NO responde la pregunta que importa:
+
+    ¿Hay alguna contrasena que esta persona CONOZCA?
+
+Un endpoint que se limitara a borrar `google_id` dejaria a esa cuenta sin
+ninguna via de entrada. Y lo peor es CUANDO se nota: la sesion en curso sigue
+abierta, asi que al pulsar el boton todo parece correcto. El problema aparece
+al dia siguiente, cuando ya no se puede arreglar desde dentro.
+
+
+LA MARCA QUE LO RESUELVE
+-----------------------------------------------------------------------------
+Migracion 2026_11_03_100000_registrar_cuando_se_establecio_la_contrasena:
+columna `contrasena_establecida_en`, nula mientras nadie haya elegido una
+contrasena.
+
+Se escribe por un UNICO camino, Usuario::establecerContrasena(), por el que
+pasan los cinco sitios que antes escribian `password` cada uno a su manera:
+
+    UsuarioController::store      (alta desde administracion)
+    UsuarioController::update     (edicion desde administracion)
+    UsuarioController::register   (registro publico)
+    PerfilController::cambiarContrasena
+    ContrasenaController::restablecer
+    UsuariosDemostracionSeeder
+
+La contrasena aleatoria de GoogleController NO pasa por ahi, a proposito:
+marcarla seria mentir.
+
+RELLENO DE LAS FILAS EXISTENTES, Y QUE DEJA FUERA
+-----------------------------------------------------------------------------
+  google_id IS NULL      -> se rellena con `created_at`. La cuenta se registro
+                            por el formulario, asi que su dueno eligio la
+                            contrasena, y la fecha correcta es esa, no «ahora».
+
+  google_id IS NOT NULL  -> queda en nulo, AUNQUE algunas de esas cuentas si
+                            tengan contrasena propia (las que existian antes y
+                            luego vincularon Google).
+
+No hay forma fiable de distinguirlas: en las dos, `google_vinculado_en` y
+`created_at` pueden estar a segundos de distancia. El criterio es conservador
+a proposito. Equivocarse por este lado cuesta que a alguien se le pida
+recuperar su contrasena por correo antes de desvincular. Equivocarse por el
+otro lado cuesta una cuenta sin acceso. La asimetria decide.
+
+
+LAS DOS CONDICIONES, Y POR QUE NO SON INTERCAMBIABLES
+-----------------------------------------------------------------------------
+  Sin contrasena propia      -> al quitar Google no queda ninguna credencial.
+  Sin correo verificado      -> si queda credencial, pero no queda forma de
+                                RECUPERARLA: el enlace de «olvide mi
+                                contrasena» iria a una direccion que nadie ha
+                                confirmado. Es la misma cuenta perdida, solo
+                                que mas tarde.
+
+
+LA VIA DE ESCAPE, Y LA PRUEBA QUE LA PROTEGE
+-----------------------------------------------------------------------------
+Sin salida, el 422 seria un callejon: la cuenta nacida con Google no puede
+usar «cambiar contrasena» del perfil porque ese formulario exige la contrasena
+ACTUAL, que no conoce.
+
+La salida real es «olvide mi contrasena», que va al correo que Google ya
+verifico. La prueba
+
+    test_restablecer_la_contrasena_habilita_la_desvinculacion
+
+recorre el circulo entero: cuenta de Google -> no puede desvincular -> pide el
+restablecimiento -> ya puede -> desvincula. Si ese camino se rompiera, el
+bloqueo se volveria permanente y nadie se enteraria.
+
+
+RESULTADO DE LAS PRUEBAS
+-----------------------------------------------------------------------------
+  php artisan test --filter=DesvincularGoogleTest
+  Tests: 12 passed (31 assertions)
+
+  vitest run src/client/__tests__/desvincular-google.spec.ts
+  Tests: 6 passed
+
+De las 18, ONCE comprueban que el sistema se NIEGA o que no ofrece el boton.
+Es la proporcion correcta para una funcion cuyo modo de fallo es dejar a
+alguien fuera de su cuenta.
+
+
+DECISION DE INTERFAZ
+-----------------------------------------------------------------------------
+Cuando no se puede desvincular, el portal NO muestra un boton desactivado:
+muestra qué falta y cómo resolverlo. Un boton gris no explica nada, y dejar
+pulsar para que el backend responda 422 convertiria la unica forma de
+enterarse en un error.
+
+La regla vive en un solo sitio —Usuario::motivoParaNoDesvincularGoogle()— y el
+portal la consulta via `puede_desvincular_google`. No se reimplementa en el
+cliente: dos versiones de la misma condicion y una se queda atras.
+
+Tampoco se pide la contrasena actual, a diferencia de cambiarla. Esta accion
+RESTA una via de acceso en lugar de abrir una, asi que el peor caso de un
+equipo desatendido es una molestia reversible: el dueno vuelve a pulsar
+«entrar con Google».

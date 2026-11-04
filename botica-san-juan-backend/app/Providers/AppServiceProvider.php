@@ -6,6 +6,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,6 +35,23 @@ class AppServiceProvider extends ServiceProvider
 
             return [
                 Limit::perMinute(120)->by((string) $key),
+            ];
+        });
+
+        /* Catalogo publico, para consumo externo sin token.
+         *
+         * Mas generoso que `api` —120 por minuto es para una persona usando
+         * el portal; aqui el cliente es un programa que pagina— pero con
+         * tope, porque sin el un bucle mal escrito en el proyecto de otro
+         * tumba la instancia gratuita de Render para todos.
+         *
+         * Se limita SIEMPRE por IP: estas rutas no tienen usuario, asi que
+         * `$request->user()?->id` seria null y todas las peticiones del mundo
+         * compartirian un unico cubo.
+         */
+        RateLimiter::for('publico', function (Request $request) {
+            return [
+                Limit::perMinute(300)->by('publico|'.$request->ip()),
             ];
         });
 
@@ -97,8 +115,112 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        /* Acceso con Google. Cubre pedir la URL y canjear el codigo.
+
+           El canje es el que importa: el codigo tiene 48 caracteres
+           aleatorios y vive 60 segundos, asi que adivinarlo a ciegas no es
+           viable, pero un limitador convierte «no viable» en «ni se intenta»
+           y ademas evita que alguien use el endpoint para sondear. */
+        RateLimiter::for('acceso-google', function (Request $request) {
+            return [
+                Limit::perMinute(10)->by((string) $request->ip()),
+                Limit::perHour(40)->by((string) $request->ip()),
+            ];
+        });
+
+        /* Subida de receta medica. Acepta hasta 8 MB, diez veces lo que la
+           foto de perfil, porque una foto de movil o un PDF escaneado pesan
+           eso. A 120 peticiones por minuto —el limite general— una sola
+           cuenta escribiria casi un gigabyte por minuto en el disco.
+
+           El limite por hora es bajo a proposito: adjuntar la receta de un
+           pedido es algo que se hace una vez, y como mucho se repite si la
+           rechazan. Seis intentos por hora cubren de sobra el caso real. */
+        RateLimiter::for('subida-receta', function (Request $request) {
+            $clave = (string) ($request->user()?->id ?: $request->ip());
+
+            return [
+                Limit::perMinute(3)->by($clave),
+                Limit::perHour(6)->by($clave),
+            ];
+        });
+
+        /* Correo transaccional. Cada peticion aceptada aqui manda un correo
+           real a una direccion que elige quien llama, asi que el limitador no
+           protege al servidor: protege la bandeja de entrada de un tercero y
+           la reputacion del dominio que firma los envios.
+
+           Se cuenta por IP Y por correo, las dos. Solo por IP, cualquiera con
+           direcciones rotativas castiga a un buzon ajeno; solo por correo, una
+           sola IP puede barrer miles de direcciones distintas. */
+        RateLimiter::for('correo-contrasena', function (Request $request) {
+            $destino = Str::lower((string) $request->input('email'));
+
+            return [
+                Limit::perMinute(2)->by('ip:'.$request->ip()),
+                Limit::perHour(10)->by('ip:'.$request->ip()),
+                /* Sin correo en la peticion la validacion la rechazara de
+                   todos modos; se usa la IP para no agrupar bajo una clave
+                   vacia peticiones de distinta procedencia. */
+                Limit::perHour(5)->by('correo:'.($destino !== '' ? sha1($destino) : $request->ip())),
+            ];
+        });
+
+        /* Fijar la contrasena nueva. Mas holgado que el envio porque aqui no
+           se manda ningun correo y una validacion fallida consume cupo. */
+        RateLimiter::for('restablecer-contrasena', function (Request $request) {
+            return [
+                Limit::perMinute(10)->by((string) $request->ip()),
+                Limit::perHour(30)->by((string) $request->ip()),
+            ];
+        });
+
+        /* Reenvio de la verificacion. Exige sesion, de modo que la clave es la
+           cuenta: quien insiste solo se castiga a si mismo. */
+        RateLimiter::for('correo-verificacion', function (Request $request) {
+            $clave = (string) ($request->user()?->id ?: $request->ip());
+
+            return [
+                Limit::perMinute(1)->by($clave),
+                Limit::perHour(6)->by($clave),
+            ];
+        });
+
         $this->identificarDocumentoOpenApi();
         $this->registrarReferenciaScalar();
+        $this->decidirQuienVeLaDocumentacion();
+    }
+
+    /**
+     * Quién puede abrir /docs/api y /docs/v1.
+     *
+     * EL PROBLEMA QUE RESUELVE
+     *
+     * `RestrictedDocsAccess` deja pasar solo en el entorno `local` y, fuera de
+     * ahí, consulta la autorización `viewApiDocs`. Si nadie la define, Laravel
+     * la deniega: en producción las dos interfaces respondían **403**, y el
+     * único modo de leer la API era descargar el `openapi.json` a mano.
+     *
+     * POR QUÉ UNA VARIABLE DE ENTORNO Y NO SIMPLEMENTE ABRIRLO
+     *
+     * Publicar la documentación no abre ningún endpoint —lo que exige token lo
+     * sigue exigiendo—, pero sí enseña el mapa completo de rutas, incluidas
+     * las de administración. Eso no es una vulnerabilidad; es información que
+     * le ahorra trabajo a quien quiera buscar una. Aquí se acepta ese
+     * intercambio a propósito, porque el objetivo es que otros proyectos
+     * consuman estos servicios, y una API que no se puede leer no se puede
+     * consumir.
+     *
+     * Aceptarlo a propósito y poder revertirlo cambiando una variable es
+     * distinto de que ocurra por descuido, que es lo que pasaría abriéndolo
+     * sin condición.
+     */
+    private function decidirQuienVeLaDocumentacion(): void
+    {
+        \Illuminate\Support\Facades\Gate::define(
+            'viewApiDocs',
+            fn ($usuario = null) => (bool) config('scramble.documentacion_publica', false),
+        );
     }
 
     /**

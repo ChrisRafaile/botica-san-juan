@@ -161,6 +161,39 @@ return [
         RestrictedDocsAccess::class,
     ],
 
+    /*
+     | ¿La documentación interactiva es pública?
+     |--------------------------------------------------------------------------
+     |
+     | `RestrictedDocsAccess` deja pasar siempre en `local`; fuera de ahí
+     | consulta la autorización `viewApiDocs`, que AppServiceProvider resuelve
+     | con este valor. En falso, /docs/api y /docs/v1 responden 403.
+     |
+     | EL VALOR POR OMISIÓN ES `true`, Y ES UNA DECISIÓN
+     |
+     | Lo normal sería cerrar por omisión y abrir donde haga falta. Aquí es al
+     | revés porque el objetivo declarado de este servicio es que otros
+     | proyectos lo consuman, y una API que no se puede leer no se puede
+     | consumir. Con el valor por omisión en falso, publicar la documentación
+     | dependía de acordarse de declarar una variable en el panel del
+     | proveedor; es decir, lo más probable era que siguiera cerrada.
+     |
+     | Para cerrarla basta declarar `SCRAMBLE_DOCUMENTACION_PUBLICA=false`.
+     | El ayudante `env()` convierte esa cadena en el booleano, así que la
+     | variable funciona tal cual se escribe en el `.env`.
+     |
+     | QUÉ SE ACEPTA AL ABRIRLA
+     |
+     | No abre ningún endpoint: lo que exige token lo sigue exigiendo. Lo que
+     | sí hace es enseñar el mapa completo de rutas, administración incluida.
+     | Eso no es una vulnerabilidad, pero sí le ahorra trabajo a quien quiera
+     | buscar una. Es el intercambio que se acepta aquí, a propósito y por
+     | escrito.
+     |
+     | Ver app/Providers/AppServiceProvider.php::decidirQuienVeLaDocumentacion.
+     */
+    'documentacion_publica' => (bool) env('SCRAMBLE_DOCUMENTACION_PUBLICA', true),
+
     'extensions' => [],
 
     /*

@@ -1,11 +1,31 @@
 # Configuración de pnpm · Botica San Juan (frontend)
 #
+# ------------------------------------------------------------------------
+# POR QUÉ APARECIÓ `packages`
+#
+# Con un pnpm-workspace.yaml presente, pnpm 10 trata el directorio como raíz
+# de un espacio de trabajo; sin esa lista, cualquier `pnpm add` aborta con
+# «packages field missing or empty». Es la razón por la que instalar
+# dependencias nuevas no funcionaba en este proyecto y se acabó invocando los
+# binarios a mano desde node_modules/.bin.
+#
+# Este repositorio tiene un único paquete, así que la lista es ese punto.
+# ------------------------------------------------------------------------
+
+packages:
+  - '.'
+
 # Desde pnpm 10 los scripts de instalación de las dependencias están
 # bloqueados por defecto: una dependencia comprometida ya no puede ejecutar
-# código en el equipo con sólo instalarla. Aquí se declaran, una por una, las
-# excepciones legítimas.
+# código en el equipo con sólo instalarla. Aquí se decide, paquete por
+# paquete, cuál puede ejecutar el suyo.
 #
-# esbuild: Vite lo usa como transpilador. Su script de instalación enlaza el
-# binario nativo del sistema operativo correspondiente.
+# esbuild: Vite lo usa como transpilador y su script enlaza el binario nativo
+#   del sistema operativo. Sin él, Vite no arranca.
+#
+# core-js: su script solo imprime un mensaje de financiación. No hace falta
+#   para nada, así que no se le da permiso. Negarlo no rompe nada y es una
+#   superficie menos.
 allowBuilds:
+  core-js: false
   esbuild: true

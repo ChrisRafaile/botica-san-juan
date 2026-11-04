@@ -26,7 +26,18 @@ if (import.meta.env.DEV) {
 }
 
 /** Rutas publicas donde no se debe forzar el cierre de sesion. */
-const RUTAS_DE_AUTENTICACION = ['/login', '/register', '/forgot-password']
+const RUTAS_DE_AUTENTICACION = [
+  '/login',
+  '/register',
+  '/forgot-password',
+  /* Quien llega desde un correo no tiene sesion, y es lo normal: forzar el
+     cierre de sesion ahi expulsaria de la pantalla justo a quien esta
+     intentando recuperar su cuenta. */
+  '/verificar-correo',
+  '/restablecer-contrasena',
+  /* El retorno de Google: se llega sin sesion y se sale con una. */
+  '/auth/google',
+]
 
 /**
  * Lleva al login sin recargar la pagina.
@@ -137,6 +148,22 @@ api.interceptors.response.use(
 
     // La peticion se cancelo de forma deliberada: no es un error del usuario.
     if (axios.isCancel(error)) {
+      return Promise.reject(error)
+    }
+
+    /* Peticiones que preguntan, no que ejecutan.
+       --------------------------------------------------------------------
+       Algunas llamadas existen solo para averiguar si algo esta disponible,
+       y su fallo es una respuesta valida, no una averia. El sondeo del boton
+       de Google es el caso: responde 503 cuando no hay credenciales
+       configuradas, que es exactamente lo que el boton necesita saber para
+       no mostrarse.
+
+       Sin esta salida, ese 503 disparaba el aviso rojo «Error en el servidor»
+       en la pantalla de acceso de un entorno donde Google simplemente no esta
+       configurado. El error se devuelve igual a quien llamo: lo que se omite
+       es el aviso, no el fallo. */
+    if (error.config?.headers?.['X-Silenciar-Aviso'] === '1') {
       return Promise.reject(error)
     }
 

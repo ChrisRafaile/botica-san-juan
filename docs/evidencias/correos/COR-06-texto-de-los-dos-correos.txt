@@ -1,0 +1,35 @@
+Correos transaccionales · texto renderizado
+Generado por storage/app/revisar-correos.php con el transporte `log`.
+Los enlaces son de un ensayo local; sus firmas y tokens ya caducaron.
+
+============================================================================
+VERIFICACION DE CUENTA
+============================================================================
+ASUNTO: Confirma tu correo · Botica San Juan
+
+Botica San Juan
+Hola Ana,
+Creaste una cuenta en el portal de Botica San Juan. Para terminar, confirma que este correo es tuyo.
+Confirmar mi correo
+El enlace vence en 60 minutos. Si vence, puedes pedir otro desde tu perfil.
+Confirmar tu correo nos permite avisarte del estado de tus pedidos y recuperar tu cuenta si olvidas la contraseña.
+Si no creaste ninguna cuenta, no hace falta que hagas nada: sin confirmar, la cuenta no se activa.
+Botica San Juan
+Si el botón «Confirmar mi correo» no funciona, copia y pega esta dirección en tu navegador: http://localhost/api/email/verificar/14/e61c3b17e1398aa8920cf99177c5cb5a9c7f6cff?expires=1793470778&signature=62966188a4c715f9b4750413bc59e87252c533fd8c7790d2dea7f8122ec561b6
+© 2026 Botica San Juan. Todos los derechos reservados.
+
+============================================================================
+RECUPERACION DE CONTRASENA
+============================================================================
+ASUNTO: Restablece tu contraseña · Botica San Juan
+
+Botica San Juan
+Hola,
+Alguien pidió restablecer la contraseña de la cuenta asociada a este correo.
+Elegir una contraseña nueva
+El enlace vence en 60 minutos y sirve una sola vez.
+Si no lo pediste, ignora este mensaje: tu contraseña actual no ha cambiado y nadie puede cambiarla sin este enlace.
+Botica San Juan
+Si el botón «Elegir una contraseña nueva» no funciona, copia y pega esta dirección en tu navegador: http://localhost:5173/restablecer-contrasena?token=TOKEN-DE-ENSAYO-CADUCADO&correo=ana.evidencia%40prueba.test
+© 2026 Botica San Juan. Todos los derechos reservados.
+

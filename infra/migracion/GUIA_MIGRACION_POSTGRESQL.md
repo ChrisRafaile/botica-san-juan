@@ -89,7 +89,10 @@ php artisan cache:clear
 php artisan migrate --force
 ```
 
-Las 26 migraciones son compatibles con PostgreSQL. Dos notas sobre la traducción que hace Laravel:
+Las 54 migraciones del repositorio son compatibles con PostgreSQL. (La cifra
+cambia conforme crece el esquema; la que manda es
+`ls database/migrations/*.php | Measure-Object`, no este párrafo.) Dos notas
+sobre la traducción que hace Laravel:
 
 | Elemento | En SQLite | En PostgreSQL |
 |---|---|---|

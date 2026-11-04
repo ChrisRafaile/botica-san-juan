@@ -232,7 +232,7 @@
 
             <div class="mt-3 space-y-1 text-sm text-texto-secundario">
               <p>{{ nombreCliente(pedido) }}</p>
-              <p>{{ pedido.pedidoDetalles?.length || 0 }} producto(s)</p>
+              <p>{{ lineasDe(pedido).length }} producto(s)</p>
               <p class="font-semibold text-texto-primario">
                 S/ {{ dinero(pedido.total) }}
               </p>
@@ -310,7 +310,7 @@
                 </td>
                 <td class="px-6 py-4">
                   <p class="text-sm font-medium text-texto-primario">
-                    {{ pedido.pedidoDetalles?.length || 0 }} producto(s)
+                    {{ lineasDe(pedido).length }} producto(s)
                   </p>
                   <p class="max-w-md truncate text-sm text-texto-terciario">
                     {{ resumenProductos(pedido) }}
@@ -323,6 +323,26 @@
                   <BoticaBadge :tono="ESTADOS[pedido.estado]?.tono ?? 'neutro'">
                     {{ ESTADOS[pedido.estado]?.rotulo ?? pedido.estado }}
                   </BoticaBadge>
+
+                  <!-- Distintivo de receta, debajo del estado del pedido y no
+                       en una columna propia: una columna vacía en el 95 % de
+                       las filas gasta ancho sin decir nada.
+
+                       Es un botón porque abre el detalle en la receta: el
+                       boticario que ve «Por revisar» quiere mirarla, no leer
+                       una etiqueta. -->
+                  <button
+                    v-if="pedido.requiere_receta"
+                    type="button"
+                    class="mt-1.5 block rounded transition-opacity hover:opacity-80"
+                    :aria-label="`Ver la receta del pedido ${pedido.id}`"
+                    @click="abrirDetalle(pedido)"
+                  >
+                    <DistintivoReceta
+                      :estado="pedido.receta_estado ?? null"
+                      compacto
+                    />
+                  </button>
                 </td>
                 <td class="whitespace-nowrap px-6 py-4 text-right">
                   <div class="inline-flex items-center gap-2">
@@ -449,7 +469,7 @@
                     Ítems
                   </p>
                   <p class="mt-2 text-xl font-bold tabular-nums text-texto-primario">
-                    {{ detalle.pedidoDetalles?.length || 0 }}
+                    {{ lineasDe(detalle).length }}
                   </p>
                 </div>
               </div>
@@ -459,7 +479,7 @@
                   Productos
                 </h3>
                 <div
-                  v-if="(detalle.pedidoDetalles?.length || 0) === 0"
+                  v-if="lineasDe(detalle).length === 0"
                   class="rounded-2xl border border-dashed border-borde-base px-4 py-6 text-center text-sm text-texto-terciario"
                 >
                   Este registro no tiene líneas de detalle.
@@ -469,7 +489,7 @@
                   class="space-y-3"
                 >
                   <div
-                    v-for="linea in detalle.pedidoDetalles || []"
+                    v-for="linea in lineasDe(detalle)"
                     :key="linea.id"
                     class="flex items-center justify-between gap-4 rounded-2xl border border-borde-base px-4 py-3"
                   >
@@ -486,6 +506,48 @@
                     </p>
                   </div>
                 </div>
+              </div>
+
+              <!-- Receta médica.
+                   Va DENTRO del detalle del pedido y no en una pantalla
+                   aparte: la pregunta que se hace el boticario no es «¿qué
+                   recetas hay?», es «¿puedo entregar este pedido?». La
+                   respuesta tiene que estar donde está el pedido. -->
+              <div
+                v-if="detalle.requiere_receta"
+                class="border-t border-borde-sutil pt-4"
+              >
+                <h4 class="mb-3 text-sm font-semibold uppercase tracking-wide text-texto-terciario">
+                  Receta médica
+                </h4>
+
+                <p
+                  v-if="cargandoReceta"
+                  class="text-sm text-texto-secundario"
+                >
+                  Consultando…
+                </p>
+
+                <!-- Sin receta todavía: se dice qué falta y de quién depende. -->
+                <div
+                  v-else-if="!recetaDetalle"
+                  class="rounded-2xl border border-alerta-500/40 bg-alerta-50 p-4 dark:bg-alerta-500/10"
+                >
+                  <p class="text-sm font-medium text-texto-primario">
+                    Este pedido lleva medicamentos de venta bajo receta y el
+                    cliente todavía no ha adjuntado ninguna.
+                  </p>
+                  <p class="mt-1 text-sm text-texto-secundario">
+                    No se puede marcar como completado hasta que haya una receta validada.
+                  </p>
+                </div>
+
+                <VisorDeReceta
+                  v-else
+                  :pedido-id="detalle.id"
+                  :receta="recetaDetalle"
+                  @revisada="alRevisarReceta"
+                />
               </div>
 
               <div class="flex justify-end">
@@ -570,6 +632,9 @@ import BoticaBadge from '../components/ui/BoticaBadge.vue'
 import BoticaButton from '../components/ui/BoticaButton.vue'
 import BoticaEstadoVacio from '../components/ui/BoticaEstadoVacio.vue'
 import BoticaStat from '../components/ui/BoticaStat.vue'
+import DistintivoReceta from '@/components/DistintivoReceta.vue'
+import VisorDeReceta from '../components/VisorDeReceta.vue'
+import { estadoDeReceta, type EstadoReceta, type Receta } from '@/services/recetas'
 
 /* ---------------------------------------------------------------------------
  * ESTADOS
@@ -683,7 +748,17 @@ interface Pedido {
   cliente_nombre?: string | null
   cliente_documento?: string | null
   usuario?: { id: number; nombre: string; email: string } | null
+  /* La API lo serializa en snake_case: Eloquent convierte el nombre de la
+     relación `pedidoDetalles()` a `pedido_detalles` al pasar a JSON. Esta
+     pantalla llevaba la clave en camelCase y por eso TODA fila decía
+     «0 producto(s)» y «Sin productos», con las líneas cargadas y todo.
+     Se admiten las dos por si algún endpoint devuelve la otra forma. */
+  pedido_detalles?: LineaPedido[]
   pedidoDetalles?: LineaPedido[]
+  /* Los calcula el servidor sobre las relaciones ya cargadas. Vienen en la
+     lista para poder pintar el distintivo sin una petición por fila. */
+  requiere_receta?: boolean
+  receta_estado?: EstadoReceta | null
 }
 
 interface RespuestaPaginada<T> {
@@ -795,8 +870,28 @@ const nombreCliente = (pedido: Pedido) =>
 const contactoCliente = (pedido: Pedido) =>
   pedido.usuario?.email?.trim() || pedido.cliente_documento?.trim() || 'Sin documento'
 
+/**
+ * Líneas del pedido, venga la clave como venga.
+ *
+ * FALLO CORREGIDO: la pantalla leía `pedido.pedidoDetalles` y la API devuelve
+ * `pedido_detalles`. Eloquent pasa el nombre de la relación a snake_case al
+ * serializar, así que la clave en camelCase era SIEMPRE `undefined`: cada
+ * fila de la lista decía «0 producto(s)» y «Sin productos», y el detalle del
+ * pedido mostraba el aviso de pedido vacío, con las líneas perfectamente
+ * cargadas en la respuesta.
+ *
+ * Se descubrió al añadir el distintivo de receta: el pedido de ensayo tenía
+ * una línea de amoxicilina y la pantalla decía que no tenía ninguna.
+ *
+ * Se aceptan las dos formas en lugar de cambiar solo la clave, porque este
+ * componente se alimenta de dos rutas distintas y así ninguna puede volver a
+ * romperlo en silencio.
+ */
+const lineasDe = (pedido: Pedido): LineaPedido[] =>
+  pedido.pedido_detalles ?? pedido.pedidoDetalles ?? []
+
 const resumenProductos = (pedido: Pedido) =>
-  (pedido.pedidoDetalles || []).map(linea => linea.producto?.nombre || 'Producto').join(', ') || 'Sin productos'
+  lineasDe(pedido).map(linea => linea.producto?.nombre || 'Producto').join(', ') || 'Sin productos'
 
 const accionesDe = (pedido: Pedido): Accion[] => TRANSICIONES[pedido.estado] ?? []
 
@@ -861,8 +956,46 @@ const cambiarOrigen = async (nuevo: Origen) => {
   await cargarPedidos(1)
 }
 
-const abrirDetalle = (pedido: Pedido) => {
+/* La receta completa se pide al abrir el detalle, no con la lista.
+   La lista solo necesita el estado para el distintivo; traer el resto —nombre
+   del archivo, motivo de rechazo, quién revisó— de los veinte pedidos de la
+   página sería cargar datos clínicos que casi nunca se miran. */
+const recetaDetalle = ref<Receta | null>(null)
+const cargandoReceta = ref(false)
+
+const abrirDetalle = async (pedido: Pedido) => {
   detalle.value = pedido
+  recetaDetalle.value = null
+
+  if (!pedido.requiere_receta) return
+
+  cargandoReceta.value = true
+
+  try {
+    recetaDetalle.value = (await estadoDeReceta(pedido.id)).receta
+  } catch {
+    /* Se deja en nulo: la tarjeta dirá que no hay receta adjunta, que es el
+       lado seguro de equivocarse. Inventar una validada abriría la puerta a
+       entregar el medicamento. */
+    recetaDetalle.value = null
+  } finally {
+    cargandoReceta.value = false
+  }
+}
+
+/** Tras validar o rechazar: se refresca la tarjeta y el distintivo de la fila. */
+const alRevisarReceta = (receta: Receta) => {
+  recetaDetalle.value = receta
+
+  const fila = pedidos.value.find((p) => p.id === detalle.value?.id)
+  if (fila) fila.receta_estado = receta.estado
+  if (detalle.value) detalle.value.receta_estado = receta.estado
+
+  notifySuccess(
+    receta.estado === 'validada'
+      ? 'Receta validada.'
+      : 'Receta rechazada. El cliente verá el motivo y podrá adjuntar otra.',
+  )
 }
 
 const pedirConfirmacion = (pedido: Pedido, accion: Accion) => {

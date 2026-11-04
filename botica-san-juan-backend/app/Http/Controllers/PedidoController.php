@@ -30,7 +30,12 @@ class PedidoController extends Controller
     public function index()
     {
         $request = request();
-        $query = Pedido::with(['usuario', 'pedidoDetalles.producto'])->orderByDesc('fecha_pedido');
+
+        /* `receta` se carga aquí, en una sola consulta para toda la página.
+           La pantalla necesita pintar el distintivo en cada fila: pedirlo por
+           pedido serían veinte peticiones para dibujar una lista. */
+        $query = Pedido::with(['usuario', 'pedidoDetalles.producto', 'receta'])
+            ->orderByDesc('fecha_pedido');
 
         if ($request->filled('status') && $request->input('status') !== 'all') {
             $query->where('estado', $request->input('status'));
@@ -62,12 +67,35 @@ class PedidoController extends Controller
         }
 
         $shouldPaginate = $request->has('page') || $request->has('per_page') || $request->boolean('paginate');
+
         if ($shouldPaginate) {
             $perPage = (int) $request->input('per_page', 10);
-            return $query->paginate(max(1, min($perPage, 100)));
+            $pagina = $query->paginate(max(1, min($perPage, 100)));
+
+            $pagina->getCollection()->each($this->anotarReceta(...));
+
+            return $pagina;
         }
 
-        return $query->get();
+        return $query->get()->each($this->anotarReceta(...));
+    }
+
+    /**
+     * Añade al pedido si necesita receta y en qué estado está la suya.
+     *
+     * Se calcula sobre las relaciones YA cargadas, sin tocar la base otra
+     * vez. Llamar a `requiereReceta()` del modelo aquí dispararía una
+     * consulta por fila, que es el patrón que ya costó caro al contar
+     * pedidos en el navegador en lugar de en SQL.
+     */
+    private function anotarReceta(Pedido $pedido): void
+    {
+        $pedido->setAttribute(
+            'requiere_receta',
+            $pedido->pedidoDetalles->contains(fn ($linea) => (bool) $linea->producto?->requiere_receta),
+        );
+
+        $pedido->setAttribute('receta_estado', $pedido->receta?->estado);
     }
 
     /**
@@ -106,7 +134,22 @@ class PedidoController extends Controller
             ], 403);
         }
 
-        return Pedido::with(['pedidoDetalles.producto'])->where('usuario_id', $usuarioId)->get();
+        $pedidos = Pedido::with(['pedidoDetalles.producto', 'receta'])
+            ->where('usuario_id', $usuarioId)
+            ->get();
+
+        /* Se añaden dos datos que el portal necesita para decidir si enseña
+           el bloque de receta, y se calculan AQUÍ y no en la pantalla.
+
+           La alternativa era que el portal pidiera el estado de la receta de
+           cada pedido por separado: con veinte pedidos en el historial son
+           veinte peticiones para pintar una lista. El mismo error que ya se
+           corrigió contando pedidos en el navegador en vez de en la base.
+
+           `requiere_receta` sale de los productos ya cargados, sin consulta
+           extra: `requiereReceta()` del modelo iría a la base una vez por
+           pedido. */
+        return $pedidos->each($this->anotarReceta(...));
     }
 
     /**
@@ -127,6 +170,19 @@ class PedidoController extends Controller
         $cliente = auth('sanctum')->user();
         $esInvitado = $cliente === null;
 
+        /* Quien entró con Google no tiene DNI, y el comprobante lo exige.
+           ----------------------------------------------------------------
+           Google acredita un correo; no sabe el documento de nadie. Una
+           cuenta creada por ahí nace sin DNI, de modo que `$cliente?->dni`
+           sería nulo y el pedido saldría sin documento: una boleta sin
+           adquirente.
+
+           En lugar de inventar un número o de añadir una pantalla nueva, se
+           trata a esa cuenta igual que a un invitado PARA ESTE CAMPO: se le
+           pide el documento aquí, que es exactamente donde hace falta y
+           donde el formulario ya sabe pedirlo. */
+        $faltaDocumento = $esInvitado || $cliente->necesitaCompletarDni();
+
         $validado = $request->validate([
             'items' => ['required', 'array', 'min:1'],
             'items.*.producto_id' => ['required', 'integer', 'exists:productos,id'],
@@ -138,7 +194,7 @@ class PedidoController extends Controller
                Se exigen SOLO al invitado; quien inició sesión ya los tiene. */
             'cliente_nombre'   => [$esInvitado ? 'required' : 'nullable', 'string', 'max:255'],
             'cliente_documento' => [
-                $esInvitado ? 'required' : 'nullable',
+                $faltaDocumento ? 'required' : 'nullable',
                 'string',
                 /* DNI (8) o RUC (11). El tipo de comprobante se decide con esto:
                    RUC → factura, DNI → boleta. */
@@ -276,6 +332,35 @@ class PedidoController extends Controller
                no significan nada para el resto del sistema. */
             'estado' => ['sometimes', 'required', Rule::in(Pedido::ESTADOS)],
         ]);
+
+        /* Un pedido con medicamentos de venta bajo receta no se completa sin
+           una receta validada.
+           ----------------------------------------------------------------
+           Esta comprobación está aquí, en el servidor, y no solo en el botón
+           de la pantalla. La pantalla puede deshabilitar el botón —y lo
+           hace—, pero esta misma ruta la puede llamar cualquiera con sesión
+           de administrador desde fuera de la aplicación. Dispensar sin receta
+           lo que la ley exige con receta no es un error de interfaz.
+
+           Se bloquea el paso a 'completado', que es el estado en el que el
+           producto sale del mostrador. 'confirmado' sí se permite: preparar
+           el pedido mientras se revisa la receta es justamente el flujo
+           normal de la botica. */
+        $pasaACompletado = ($datos['estado'] ?? null) === Pedido::ESTADO_COMPLETADO
+            && $pedido->estado !== Pedido::ESTADO_COMPLETADO;
+
+        if ($pasaACompletado && $pedido->requiereReceta()) {
+            $receta = $pedido->receta;
+
+            if ($receta === null || ! $receta->estaValidada()) {
+                return response()->json([
+                    'message' => $receta === null
+                        ? 'Este pedido lleva productos de venta bajo receta y no tiene receta adjunta.'
+                        : 'La receta de este pedido todavía no está validada.',
+                    'errors' => ['estado' => ['Falta la receta validada para poder entregar el pedido.']],
+                ], 422);
+            }
+        }
 
         /* `$request->all()` dejaba escribir cualquier columna del `fillable`,
            incluidos los importes fiscales de una venta ya emitida. Solo se
