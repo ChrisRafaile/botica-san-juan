@@ -1,0 +1,131 @@
+EVIDENCIA CON-03 · Acta del simulacro de restauracion
+Punto 32 de la rubrica · RNF08 del APF1
+Sistema Web de Gestion Botica San Juan · 2026-11-04 16:10 (hora de Lima)
+===============================================================================
+
+LO QUE COMPROMETIA EL RNF08
+-----------------------------------------------------------------------------
+  «El sistema debera contar con respaldo diario automatizado, con RPO de 24
+   horas y RTO de 60 minutos.»
+   Verificacion declarada: simulacro de restauracion con verificacion por hash.
+
+Hasta hoy esa verificacion NUNCA se habia ejecutado. El RTO de 60 minutos era
+una estimacion, no un dato.
+
+
+1 · EL SIMULACRO QUE YA EXISTIA, Y POR QUE NO BASTABA
+-----------------------------------------------------------------------------
+infra/backup/run_restore_drill.ps1 estaba escrito desde hacia semanas. Se
+ejecuto y paso:
+
+    BACKUP_DRILL_OK
+    db_sha256_before = db_sha256_after = backup_sha256
+    = 9D1ACD0299AE7E5C2BE619524909A0A9F717EC6D1DDF665C9FA00E78F897A164
+
+Evidencia: CON-02.
+
+Pero tiene DOS LIMITACIONES que conviene decir antes de presentarlo como
+prueba de nada:
+
+  a) Opera sobre database.sqlite, que es la base de CONTINGENCIA del
+     mostrador. Produccion corre PostgreSQL en Neon. Un simulacro que nunca
+     toca el motor real no demuestra que se pueda restaurar la base que
+     importa.
+
+  b) NO PUEDE FALLAR. Copia la base, restaura la copia encima del original y
+     comprueba que los tres hashes coinciden. Si la restauracion no hiciera
+     absolutamente nada, los hashes coincidirian igual.
+
+Un simulacro que no puede fallar no verifica: tranquiliza.
+
+
+2 · EL SIMULACRO QUE SI PUEDE FALLAR
+-----------------------------------------------------------------------------
+Se escribio infra/backup/run_restore_drill_postgres.ps1, que sigue la
+secuencia de un desastre de verdad:
+
+    1. Respaldar el origen.
+    2. Restaurar en una base de ensayo.
+    3. ROMPER la base de ensayo a proposito.
+    4. Restaurar otra vez desde el respaldo.
+    5. Comprobar que lo borrado VOLVIO.
+
+El paso 3 es el que lo convierte en una prueba. Sin el, el paso 5 se cumple
+solo.
+
+NUNCA TOCA PRODUCCION. Trabaja contra la base local y restaura en
+botica_staging, que se recrea en cada corrida. Las credenciales de Neon no
+intervienen, y el script aborta si la base de ensayo coincide con la de
+origen.
+
+
+3 · UN HALLAZGO QUE NO SE BUSCABA
+-----------------------------------------------------------------------------
+El primer intento simulaba el dano borrando 50 productos. El motor lo rechazo:
+
+    ERROR: update o delete en «lotes» viola la llave foranea
+    «pedido_detalle_lotes_lote_id_foreign»
+    DETALLE: La llave (id)=(4) todavia es referida desde «pedido_detalle_lotes».
+
+Es decir: LA INTEGRIDAD REFERENCIAL IMPIDE PERDER UN PRODUCTO QUE YA FIGURA EN
+UNA VENTA. Eso es exactamente lo que debe hacer, y demuestra el RNF06
+—operaciones de inventario con integridad— mejor que cualquier captura.
+
+El dano se traslado a una tabla hoja: el padron DIGEMID, sin dependientes, que
+ademas es informacion de cumplimiento cuya perdida importa de verdad.
+
+
+4 · RESULTADO MEDIDO
+-----------------------------------------------------------------------------
+  Motor                      PostgreSQL 16.15
+  Base de origen             botica_san_juan
+  Base de ensayo             botica_staging
+  Respaldo                   0,16 MB
+  SHA-256 del respaldo       3C2D1D6C28118CE080AEF570FD13AC49BCD69EBE4F3087F6135CB0598491F920
+
+  Respaldo                   0,19 s
+  Restauracion inicial       0,73 s
+  Dano simulado              padron DIGEMID: 5 -> 0 filas
+  Recuperacion               0,74 s
+  Filas recuperadas          5 de 5
+  Productos intactos         884 de 884
+  Pedidos                    50
+  Usuarios                   9
+
+  RECUPERACION CORRECTA      SI
+  RTO MEDIDO                 0,93 s
+  RTO COMPROMETIDO           3 600 s (60 min)
+  CUMPLE                     SI, con tres ordenes de magnitud de margen
+
+Evidencia completa en CON-01 (JSON generado por el propio script).
+
+
+5 · LO QUE ESTE NUMERO NO DICE
+-----------------------------------------------------------------------------
+El RTO de 0,93 s se midio sobre una base de 0,16 MB en la MISMA maquina. No es
+el tiempo de una recuperacion real, y presentarlo como tal seria enganoso. Lo
+que demuestra es que el procedimiento FUNCIONA y que el respaldo es
+restaurable; el tiempo crecera con el tamano y con la latencia de red hacia
+Neon.
+
+Lo honesto para el informe: el procedimiento esta verificado, el RTO
+comprometido tiene margen sobrado para este volumen, y la cifra hay que volver
+a medirla si la base crece en un orden de magnitud.
+
+Sobre el RPO de 24 horas: los scripts de respaldo existen y el simulacro
+confirma que lo que producen se puede restaurar, PERO LA PROGRAMACION DIARIA
+NO ESTA ACTIVA. Mientras nadie ejecute el respaldo a diario, el RPO de 24
+horas es una intencion. Es la diferencia entre poder y hacer, y queda anotada
+como pendiente en el plan del informe final.
+
+
+6 · COMO REPETIRLO
+-----------------------------------------------------------------------------
+  $env:PGPASSWORD = "<contrasena local>"
+  pwsh -File .\infra\backup\run_restore_drill_postgres.ps1
+
+  Salida esperada:
+      DRILL_OK · RTO medido <n> s (comprometido: 3600 s)
+
+  El script termina con codigo 1 y escribe «Recuperacion INCORRECTA» si las
+  filas no vuelven. Esa es la diferencia con el simulacro anterior.

@@ -47,6 +47,7 @@ se entiende sin abrirlo; `captura2.jpg` no.
 | `OFF` | `E2E-offline/` | Venta en contingencia de punta a punta | 4 |
 | `O` | `observabilidad/` | Sentry, PostHog y privacidad | 4 |
 | `EVT` | `eventos/` | Bitácora de operación · punto 30 de la rúbrica | 4 |
+| `CON` | `continuidad/` | Simulacro de restauración · punto 32 y RNF08 | 3 |
 | `CI` | `CI-CD/` | Integración continua | 3 |
 | `I` | `interacciones/` | Consultor de interacciones | 3 |
 | `K` | `kpis/` | Panel de indicadores | 3 |
@@ -121,6 +122,13 @@ por nivel y el detalle con su contexto. `EVT-04` es el acta: qué pide la
 rúbrica, qué había antes —la tabla existía y no había forma de verla—, los
 ejemplos reales de cada nivel y cómo reproducirlo. En las capturas se ve que
 el depurador tapa un correo en la propia pantalla.
+
+### `CON` · `continuidad/`
+El simulacro de restauración, ejecutado por primera vez. `CON-01` es el JSON
+que genera el script de PostgreSQL; `CON-02`, el del simulacro de SQLite que
+ya existía; `CON-03` es el acta, que explica por qué el segundo no bastaba —no
+puede fallar— y qué apareció al escribir el primero: la integridad referencial
+impide borrar un producto que ya figura en una venta.
 
 ### `CI` · `CI-CD/`
 Historial de ejecuciones, los checks de un PR y —a propósito— también las
