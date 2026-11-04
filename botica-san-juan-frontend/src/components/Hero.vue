@@ -33,7 +33,7 @@
             <p class="text-lg sm:text-xl md:text-2xl text-white/90 max-w-2xl mx-auto lg:mx-0 text-center lg:text-left hero-description">
               En Botica San Juan, ubicada en Av. Santa Rosa 103, te ofrecemos
               medicamentos de calidad, asesoramiento profesional y servicios
-              farmacéuticos con ocho años de experiencia en Lima.
+              farmacéuticos con más de 8 años de servicio en San Juan de Lurigancho.
             </p>
           </div>
 
@@ -51,10 +51,10 @@
                  de productos sale del catalogo real. -->
             <div class="text-center hero-stat bg-black/20 backdrop-blur-sm border-white/40 hover:bg-black/30">
               <div class="text-2xl sm:text-3xl font-bold text-ambar-200">
-                880+
+                +800
               </div>
               <div class="text-sm text-white/90 font-medium">
-                Productos en Catálogo
+                Productos Farmacéuticos
               </div>
             </div>
             <div class="text-center hero-stat bg-black/20 backdrop-blur-sm border-white/40 hover:bg-black/30">

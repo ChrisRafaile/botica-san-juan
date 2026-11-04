@@ -10,7 +10,7 @@
               Nuestra Historia
             </div>
             <h2 class="text-4xl md:text-5xl font-bold text-texto-primario mb-6">
-              Ocho años cuidando tu salud
+              Más de 8 años cuidando tu salud
             </h2>
             <p class="text-lg text-texto-secundario mb-6 leading-relaxed">
               Fundada en 2018, Botica San Juan comenzó como un pequeño establecimiento familiar

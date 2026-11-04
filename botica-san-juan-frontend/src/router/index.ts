@@ -174,6 +174,15 @@ const router = createRouter({
           component: () => import('../admin/views/AdminIndicadoresView.vue'),
         },
         {
+          /* Bitacora de operacion. Responde una tercera pregunta, distinta de
+             las otras dos pantallas de arriba: el tablero dice como va el
+             dia, indicadores dice como va el negocio, y esta dice que esta
+             haciendo el sistema. Se abre cuando algo va mal. */
+          path: 'eventos',
+          name: 'admin-eventos',
+          component: () => import('../admin/views/AdminEventosView.vue'),
+        },
+        {
           path: 'products',
           name: 'admin-products',
           component: () => import('../admin/views/AdminProductsView.vue'),

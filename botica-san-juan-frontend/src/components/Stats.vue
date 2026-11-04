@@ -7,7 +7,7 @@
           Confianza que se Construye con Resultados
         </h2>
         <p class="text-xl text-texto-secundario max-w-3xl mx-auto">
-          Ocho años sirviendo a la comunidad con excelencia,
+          Más de 8 años de servicio en San Juan de Lurigancho, con
           compromiso y dedicación a tu salud.
         </p>
       </div>
@@ -55,10 +55,10 @@
             <PackageIcon class="w-10 h-10 text-ambar-600" />
           </div>
           <div class="stat-number text-4xl md:text-5xl font-bold text-ambar-600 mb-2">
-            880+
+            +800
           </div>
           <div class="text-lg font-semibold text-texto-primario mb-2">
-            Productos Disponibles
+            Productos Farmacéuticos
           </div>
           <p class="text-texto-secundario text-sm">
             Amplio catálogo de medicamentos y productos de salud

@@ -206,8 +206,8 @@ onBeforeUnmount(() => {
           </div>
 
           <p class="mb-6 leading-relaxed">
-            Ocho años cuidando de tu salud y la de tu familia. Farmacia certificada
-            con servicio de calidad y compromiso.
+            Más de 8 años de servicio en San Juan de Lurigancho. Atención directa en
+            nuestro local principal y delivery local.
           </p>
 
           <!-- El número era 51999999999, relleno: el enlace abría una

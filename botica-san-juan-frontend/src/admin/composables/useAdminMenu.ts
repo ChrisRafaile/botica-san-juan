@@ -23,6 +23,7 @@ import {
   ReceiptText,
   Truck,
   BarChart3,
+  ScrollText,
   Settings,
 } from 'lucide-vue-next'
 
@@ -161,6 +162,15 @@ export const MENU_ADMIN: ElementoMenu[] = [
       { id: 'reportes-ventas', etiqueta: 'Ventas', ruta: '/admin/reports/sales' },
       { id: 'reportes-inventario', etiqueta: 'Inventario', ruta: '/admin/reports/inventory' },
     ],
+  },
+  {
+    /* Bajo Sistema y no bajo Operación diaria: no se consulta a diario, se
+       consulta cuando algo va mal o cuando hay que reconstruir qué pasó. */
+    id: 'eventos',
+    etiqueta: 'Bitácora',
+    icono: ScrollText,
+    ruta: '/admin/eventos',
+    seccion: 'sistema',
   },
   {
     id: 'configuracion',
