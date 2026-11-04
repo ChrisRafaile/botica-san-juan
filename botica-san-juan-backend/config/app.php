@@ -56,6 +56,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Base del portal (frontend)
+    |--------------------------------------------------------------------------
+    |
+    | La API y el portal viven en origenes distintos. Los enlaces que viajan
+    | en un correo los abre una persona en su navegador, asi que tienen que
+    | apuntar al portal y no a la API: un enlace a la API devolveria JSON.
+    |
+    */
+
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |
