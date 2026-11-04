@@ -45,15 +45,21 @@ class UsuariosDemostracionSeeder extends Seeder
             /* updateOrCreate y no create: el seeder debe poder ejecutarse en
                cada despliegue sin duplicar cuentas ni fallar por el indice
                unico del DNI. */
-            Usuario::updateOrCreate(
-                ['dni' => $cuenta['dni']],
-                [
-                    'nombre'   => $cuenta['nombre'],
-                    'email'    => $cuenta['email'],
-                    'rol'      => $cuenta['rol'],
-                    'password' => $cuenta['password'],
-                ]
-            );
+            $usuario = Usuario::firstOrNew(['dni' => $cuenta['dni']]);
+
+            $usuario->fill([
+                'nombre' => $cuenta['nombre'],
+                'email'  => $cuenta['email'],
+                'rol'    => $cuenta['rol'],
+            ]);
+
+            /* La contraseña pasa por `establecerContrasena` como en todos los
+               demás sitios: viene de una variable de entorno, o sea que
+               alguien la eligió y la conoce. Si se escribiera directamente en
+               `password`, estas cuentas quedarían marcadas como «sin
+               contraseña propia» y no podrían desvincular Google. */
+            $usuario->establecerContrasena($cuenta['password']);
+            $usuario->save();
 
             $this->command->info("Cuenta lista: {$cuenta['dni']} ({$cuenta['rol']})");
         }

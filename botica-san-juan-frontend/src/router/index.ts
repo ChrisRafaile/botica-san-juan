@@ -71,6 +71,28 @@ const router = createRouter({
       name: 'forgot-password',
       component: () => import('../auth/ForgotPasswordView.vue'),
     },
+    /* Las dos pantallas de correo son PUBLICAS por necesidad: a una se llega
+       desde el buzon recien registrado, a otra precisamente porque no se puede
+       iniciar sesion. Exigir sesion aqui dejaria los enlaces del correo sin
+       destino util. */
+    {
+      path: '/verificar-correo',
+      name: 'verificar-correo',
+      component: () => import('../auth/VerificarCorreoView.vue'),
+    },
+    {
+      path: '/restablecer-contrasena',
+      name: 'restablecer-contrasena',
+      component: () => import('../auth/RestablecerContrasenaView.vue'),
+    },
+    /* Aterrizaje del retorno de Google. Publica por la misma razon que las
+       dos de arriba: quien llega todavia no tiene sesion, que es justamente
+       lo que viene a conseguir. */
+    {
+      path: '/auth/google',
+      name: 'auth-google',
+      component: () => import('../auth/GoogleCallbackView.vue'),
+    },
     {
       path: '/logout',
       name: 'logout',

@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\EventoOperacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 
@@ -53,11 +55,59 @@ class PerfilController extends Controller
             ],
             /* El rol NO se acepta aquí a propósito. Si se aceptara, cualquier
                cliente podría ascenderse a administrador editando su perfil.
-               Lo mismo con el DNI, que identifica a la persona ante la SUNAT
-               y no es algo que se corrija desde una pantalla de perfil. */
+
+               El DNI tampoco se CAMBIA: identifica a la persona ante la SUNAT
+               y ya figura en los comprobantes emitidos.
+
+               Pero sí se puede COMPLETAR una vez, y solo si está vacío. Ese
+               es el caso de quien entró con Google: Google acredita un correo
+               y no sabe el documento de nadie, así que esas cuentas nacen sin
+               DNI. Sin esta puerta, la única forma de ponerlo sería tecleando
+               el documento en cada compra, para siempre.
+
+               `sometimes` + la comprobación de abajo: la regla de validación
+               no puede por sí sola distinguir «vacío» de «ya tiene uno». */
+            'dni' => ['sometimes', 'required', 'string', 'size:8', 'regex:/^\d{8}$/', Rule::unique('usuarios', 'dni')],
         ]);
 
-        $usuario->fill($validado)->save();
+        if (array_key_exists('dni', $validado) && ! $usuario->necesitaCompletarDni()) {
+            return response()->json([
+                'message' => 'Tu DNI ya está registrado y no se puede cambiar desde aquí. Si hay un error, avísanos en el mostrador.',
+                'errors' => ['dni' => ['El DNI no se puede modificar.']],
+            ], 422);
+        }
+
+        /* Si cambia el correo, la verificacion anterior deja de significar
+           algo: acreditaba la direccion VIEJA. Mantener la marca permitiria
+           registrarse con un correo propio, confirmarlo, y despues apuntar la
+           cuenta a una direccion que nadie ha comprobado conservando el sello
+           de verificada.
+
+           Se compara en minusculas porque cambiar solo la caja no es cambiar
+           de buzon, y obligaria a reverificar sin motivo. */
+        $correoNuevo = isset($validado['email'])
+            && Str::lower($validado['email']) !== Str::lower((string) $usuario->email);
+
+        $usuario->fill($validado);
+
+        if ($correoNuevo) {
+            $usuario->email_verified_at = null;
+        }
+
+        $usuario->save();
+
+        if ($correoNuevo) {
+            /* Igual que en el registro: un fallo del servicio de correo no
+               debe tumbar el guardado, que ya ocurrio. */
+            try {
+                $usuario->sendEmailVerificationNotification();
+            } catch (\Throwable $e) {
+                Log::warning('No se pudo enviar la verificacion tras cambiar el correo', [
+                    'usuario_id' => $usuario->id,
+                    'excepcion' => $e::class,
+                ]);
+            }
+        }
 
         return response()->json($usuario->fresh());
     }
@@ -158,7 +208,11 @@ class PerfilController extends Controller
             ], 422);
         }
 
-        $usuario->forceFill(['password' => Hash::make($validado['contrasena'])])->save();
+        /* `establecerContrasena` escribe el hash Y la marca de que la eligió
+           una persona. Esa marca es la que después permite desvincular Google
+           sin dejar la cuenta sin acceso. Ver Usuario. */
+        $usuario->establecerContrasena($validado['contrasena']);
+        $usuario->save();
 
         /* Se cierran las demás sesiones: si la contraseña se cambia porque se
            sospecha que alguien más la tenía, dejar sus tokens vivos vacía el
@@ -183,6 +237,61 @@ class PerfilController extends Controller
         );
 
         return response()->json(['mensaje' => 'Contraseña actualizada.']);
+    }
+
+    /**
+     * Desvincula la cuenta de Google.
+     *
+     * LA REGLA QUE PROTEGE ESTE ENDPOINT
+     *
+     * Una cuenta nacida con Google tiene en `password` un hash aleatorio de 64
+     * caracteres que nadie ha visto. Quitarle Google sin más la deja sin
+     * ninguna vía de entrada: el botón ya no la reconoce y la contraseña no
+     * existe para nadie. No es un error que se note al instante —la sesión en
+     * curso sigue abierta— sino al día siguiente, cuando ya no se puede
+     * arreglar desde dentro.
+     *
+     * Por eso el permiso se consulta al modelo, que exige contraseña propia y
+     * correo verificado, y devuelve el motivo concreto cuando falta algo. Ver
+     * Usuario::motivoParaNoDesvincularGoogle.
+     *
+     * NO SE PIDE LA CONTRASEÑA ACTUAL, y es deliberado: a diferencia de
+     * cambiarla, esto no da acceso a nada. Resta una vía de entrada en lugar
+     * de abrir una, así que el peor caso de un equipo desatendido es una
+     * molestia reversible: el dueño vuelve a pulsar «entrar con Google».
+     */
+    public function desvincularGoogle(Request $request)
+    {
+        $usuario = $request->user();
+
+        $motivo = $usuario->motivoParaNoDesvincularGoogle();
+
+        if ($motivo !== null) {
+            return response()->json([
+                'message' => $motivo,
+                'errors' => ['google' => [$motivo]],
+            ], 422);
+        }
+
+        $usuario->forceFill([
+            'google_id' => null,
+            'google_vinculado_en' => null,
+        ])->save();
+
+        /* En la bitácora va el identificador, no el correo: un registro de
+           operación no es el sitio donde deben acumularse direcciones. Y se
+           anota porque perder una vía de acceso es exactamente el tipo de
+           cambio que alguien querrá reconstruir después. */
+        EventoOperacion::info(
+            'PERFIL_GOOGLE_DESVINCULADO',
+            "El usuario {$usuario->id} desvinculó su cuenta de Google.",
+            ['usuario_id' => $usuario->id],
+        );
+
+        return response()->json([
+            'mensaje' => 'Google desvinculado. A partir de ahora entra con tu correo y contraseña.',
+            'usuario' => $usuario->fresh(),
+        ]);
     }
 
     /**

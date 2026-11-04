@@ -19,6 +19,12 @@ storage/framework/sessions/*
 storage/framework/views/*
 storage/app/public/*
 
+# El enlace public/storage lo crea el entrypoint en cada arranque. Si entrara
+# en la imagen seria un enlace creado en OTRA maquina, apuntando a una ruta
+# que dentro del contenedor puede no existir: un enlace roto que `storage:link`
+# no podria rehacer sin --force y que servia 404 sin explicar por que.
+public/storage
+
 tests/
 phpunit.xml
 .phpunit.result.cache

@@ -165,38 +165,75 @@
               <li
                 v-for="pedido in pedidos"
                 :key="pedido.id"
-                class="flex h-20 items-center gap-4 border-b border-borde-sutil px-4 last:border-0"
+                class="border-b border-borde-sutil px-4 last:border-0"
               >
-                <span
-                  class="flex size-9 shrink-0 items-center justify-center rounded-full"
-                  :class="estilo(pedido.estado).fondo"
-                  aria-hidden="true"
-                >
-                  <component
-                    :is="estilo(pedido.estado).icono"
-                    class="size-4"
-                  />
-                </span>
+                <div class="flex h-20 items-center gap-4">
+                  <span
+                    class="flex size-9 shrink-0 items-center justify-center rounded-full"
+                    :class="estilo(pedido.estado).fondo"
+                    aria-hidden="true"
+                  >
+                    <component
+                      :is="estilo(pedido.estado).icono"
+                      class="size-4"
+                    />
+                  </span>
 
-                <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-semibold text-texto-primario">
-                    Pedido #{{ pedido.id }}
-                  </p>
-                  <p class="text-xs text-texto-secundario">
-                    {{ fecha(pedido.fecha) }}
-                  </p>
+                  <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-semibold text-texto-primario">
+                      Pedido #{{ pedido.id }}
+                    </p>
+                    <p class="text-xs text-texto-secundario">
+                      {{ fecha(pedido.fecha) }}
+                    </p>
+                  </div>
+
+                  <div class="text-right">
+                    <p class="text-sm font-semibold text-texto-primario">
+                      {{ dinero(Number(pedido.total)) }}
+                    </p>
+                    <span
+                      class="text-xs font-medium"
+                      :class="estilo(pedido.estado).texto"
+                    >
+                      {{ estilo(pedido.estado).rotulo }}
+                    </span>
+                  </div>
                 </div>
 
-                <div class="text-right">
-                  <p class="text-sm font-semibold text-texto-primario">
-                    {{ dinero(Number(pedido.total)) }}
-                  </p>
-                  <span
-                    class="text-xs font-medium"
-                    :class="estilo(pedido.estado).texto"
+                <!-- Receta. Solo en los pedidos que la necesitan: un bloque
+                     que diga «no necesita receta» obliga a leer para
+                     descubrir que no hay nada que hacer.
+
+                     Plegado por omisión salvo cuando la pelota está en el
+                     tejado del cliente —falta adjuntarla o se la rechazaron—,
+                     que es justo cuando no debe pasar desapercibida. -->
+                <div
+                  v-if="pedido.requiere_receta"
+                  class="pb-4"
+                >
+                  <button
+                    type="button"
+                    class="flex w-full items-center gap-2 rounded-lg px-1 py-1.5 text-left transition-colors hover:bg-superficie-hundida"
+                    :aria-expanded="recetaAbierta === pedido.id"
+                    @click="alternarReceta(pedido)"
                   >
-                    {{ estilo(pedido.estado).rotulo }}
-                  </span>
+                    <DistintivoReceta
+                      :estado="pedido.receta_estado ?? null"
+                      compacto
+                    />
+                    <span class="text-xs text-texto-secundario">
+                      {{ recetaAbierta === pedido.id ? 'Ocultar' : 'Gestionar receta' }}
+                    </span>
+                  </button>
+
+                  <RecetaDelPedido
+                    v-if="recetaAbierta === pedido.id"
+                    :key="pedido.id"
+                    :pedido-id="pedido.id"
+                    class="mt-3"
+                    @cambio="(r) => (pedido.receta_estado = r?.estado ?? null)"
+                  />
                 </div>
               </li>
             </ul>
@@ -311,6 +348,9 @@ import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/carrito'
 import TarjetaResumen from './components/TarjetaResumen.vue'
 import DialogoConfirmacion from '@/components/DialogoConfirmacion.vue'
+import DistintivoReceta from '@/components/DistintivoReceta.vue'
+import RecetaDelPedido from '@/components/RecetaDelPedido.vue'
+import type { EstadoReceta } from '@/services/recetas'
 
 interface Resumen {
   pedidos: { abiertos: number; completados: number; anulados: number; total: number }
@@ -324,6 +364,10 @@ interface PedidoFila {
   fecha: string
   estado: string
   total: number | string
+  /** Lo calcula el servidor sobre los productos del pedido. */
+  requiere_receta?: boolean
+  /** `null` o ausente si todavía no se ha adjuntado ninguna. */
+  receta_estado?: EstadoReceta | null
 }
 
 interface ComprobanteFila {
@@ -339,6 +383,15 @@ const carrito = useCartStore()
 
 const resumen = ref<Resumen | null>(null)
 const pedidos = ref<PedidoFila[]>([])
+
+/* Qué receta está desplegada. Uno a la vez: con varias abiertas la lista se
+   vuelve una columna de formularios y se pierde de vista a qué pedido
+   pertenece cada uno. */
+const recetaAbierta = ref<number | null>(null)
+
+function alternarReceta(pedido: PedidoFila) {
+  recetaAbierta.value = recetaAbierta.value === pedido.id ? null : pedido.id
+}
 const comprobantes = ref<ComprobanteFila[]>([])
 const cargando = ref(true)
 const confirmandoSalida = ref(false)

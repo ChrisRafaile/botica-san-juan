@@ -6,6 +6,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -94,6 +95,77 @@ class AppServiceProvider extends ServiceProvider
             return [
                 Limit::perMinute(3)->by((string) $clave),
                 Limit::perHour(20)->by((string) $clave),
+            ];
+        });
+
+        /* Acceso con Google. Cubre pedir la URL y canjear el codigo.
+
+           El canje es el que importa: el codigo tiene 48 caracteres
+           aleatorios y vive 60 segundos, asi que adivinarlo a ciegas no es
+           viable, pero un limitador convierte «no viable» en «ni se intenta»
+           y ademas evita que alguien use el endpoint para sondear. */
+        RateLimiter::for('acceso-google', function (Request $request) {
+            return [
+                Limit::perMinute(10)->by((string) $request->ip()),
+                Limit::perHour(40)->by((string) $request->ip()),
+            ];
+        });
+
+        /* Subida de receta medica. Acepta hasta 8 MB, diez veces lo que la
+           foto de perfil, porque una foto de movil o un PDF escaneado pesan
+           eso. A 120 peticiones por minuto —el limite general— una sola
+           cuenta escribiria casi un gigabyte por minuto en el disco.
+
+           El limite por hora es bajo a proposito: adjuntar la receta de un
+           pedido es algo que se hace una vez, y como mucho se repite si la
+           rechazan. Seis intentos por hora cubren de sobra el caso real. */
+        RateLimiter::for('subida-receta', function (Request $request) {
+            $clave = (string) ($request->user()?->id ?: $request->ip());
+
+            return [
+                Limit::perMinute(3)->by($clave),
+                Limit::perHour(6)->by($clave),
+            ];
+        });
+
+        /* Correo transaccional. Cada peticion aceptada aqui manda un correo
+           real a una direccion que elige quien llama, asi que el limitador no
+           protege al servidor: protege la bandeja de entrada de un tercero y
+           la reputacion del dominio que firma los envios.
+
+           Se cuenta por IP Y por correo, las dos. Solo por IP, cualquiera con
+           direcciones rotativas castiga a un buzon ajeno; solo por correo, una
+           sola IP puede barrer miles de direcciones distintas. */
+        RateLimiter::for('correo-contrasena', function (Request $request) {
+            $destino = Str::lower((string) $request->input('email'));
+
+            return [
+                Limit::perMinute(2)->by('ip:'.$request->ip()),
+                Limit::perHour(10)->by('ip:'.$request->ip()),
+                /* Sin correo en la peticion la validacion la rechazara de
+                   todos modos; se usa la IP para no agrupar bajo una clave
+                   vacia peticiones de distinta procedencia. */
+                Limit::perHour(5)->by('correo:'.($destino !== '' ? sha1($destino) : $request->ip())),
+            ];
+        });
+
+        /* Fijar la contrasena nueva. Mas holgado que el envio porque aqui no
+           se manda ningun correo y una validacion fallida consume cupo. */
+        RateLimiter::for('restablecer-contrasena', function (Request $request) {
+            return [
+                Limit::perMinute(10)->by((string) $request->ip()),
+                Limit::perHour(30)->by((string) $request->ip()),
+            ];
+        });
+
+        /* Reenvio de la verificacion. Exige sesion, de modo que la clave es la
+           cuenta: quien insiste solo se castiga a si mismo. */
+        RateLimiter::for('correo-verificacion', function (Request $request) {
+            $clave = (string) ($request->user()?->id ?: $request->ip());
+
+            return [
+                Limit::perMinute(1)->by($clave),
+                Limit::perHour(6)->by($clave),
             ];
         });
 

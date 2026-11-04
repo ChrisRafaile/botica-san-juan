@@ -12,6 +12,15 @@ export interface DatosPersonales {
   nombre?: string
   email?: string
   telefono?: string | null
+  /**
+   * Solo se envía para COMPLETARLO, nunca para cambiarlo.
+   *
+   * El servidor rechaza el campo si la cuenta ya tiene DNI: identifica a la
+   * persona en los comprobantes emitidos. La única cuenta que llega aquí sin
+   * él es la creada con Google, porque Google acredita un correo y no sabe el
+   * documento de nadie.
+   */
+  dni?: string
 }
 
 export interface CambioDeContrasena {
@@ -53,4 +62,17 @@ export async function eliminarFoto(): Promise<User> {
 
 export async function cambiarContrasena(datos: CambioDeContrasena): Promise<void> {
   await api.put('/perfil/contrasena', datos)
+}
+
+/**
+ * Quita el acceso con Google de esta cuenta.
+ *
+ * El backend se niega con 422 si al hacerlo la cuenta quedaría sin ninguna vía
+ * de entrada, y el mensaje de ese 422 dice qué falta. Esa comprobación NO se
+ * duplica aquí: el portal pregunta `puede_desvincular_google` para decidir si
+ * ofrecer el botón, pero la regla vive en un solo sitio.
+ */
+export async function desvincularGoogle(): Promise<User> {
+  const { data } = await api.delete<{ usuario: User }>('/perfil/google')
+  return data.usuario
 }

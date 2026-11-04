@@ -76,6 +76,34 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Enlace de storage
+# ---------------------------------------------------------------------------
+# Crea public/storage -> storage/app/public, que es por donde se sirven los
+# archivos del disco publico (fotos de producto y de perfil).
+#
+# TIENE QUE HACERSE EN CADA ARRANQUE, no una vez. El enlace esta en
+# .gitignore y en .dockerignore, asi que no viaja ni en el repositorio ni en
+# la imagen: cada contenedor nuevo nace sin el. Sin el enlace, una peticion a
+# /storage/... devuelve 404 y la aplicacion no da ninguna pista, porque desde
+# su punto de vista el archivo existe.
+#
+# --force lo hace idempotente: si el enlace ya esta (reinicio del mismo
+# contenedor sin reconstruir), lo rehace en lugar de abortar con "the link
+# already exists", que con `set -e` tumbaria el arranque entero.
+#
+# LO QUE ESTO NO ARREGLA
+#
+# El disco del contenedor es EFIMERO. El enlace hace que los archivos se
+# sirvan; no hace que sobrevivan. Una foto que un administrador suba hoy
+# desaparece en el siguiente despliegue, junto con el contenedor que la
+# guardo. La solucion de verdad es almacenamiento de objetos (S3 o
+# equivalente) con el disco `public` apuntando ahi, y eso es un cambio de
+# infraestructura, no de este script. Mientras no exista, las imagenes del
+# catalogo son las versionadas en public/images, que si viajan en la imagen.
+echo "==> Enlazando storage"
+php artisan storage:link --force
+
+# ---------------------------------------------------------------------------
 # Servidor
 # ---------------------------------------------------------------------------
 # `php-server` monta la configuracion de Caddy equivalente a un `try_files`

@@ -1,0 +1,78 @@
+EVIDENCIA C01 · Verificacion del bloque de cierre
+Sistema Web de Gestion Botica San Juan · 2026-11-03
+===============================================================================
+
+1 · SUITE DEL BACKEND
+-----------------------------------------------------------------------------
+  php artisan test
+
+  Tests:    337 passed (978 assertions)
+  Duration: 42.96s
+
+  Antes de este bloque eran 325. Las 12 nuevas son
+  Tests\Feature\DesvincularGoogleTest.
+
+
+2 · SUITE DEL FRONTEND
+-----------------------------------------------------------------------------
+  vitest run
+
+  Test Files  13 passed (13)
+  Tests       116 passed (116)
+
+  Antes eran 110. Las 6 nuevas son
+  src/client/__tests__/desvincular-google.spec.ts.
+
+
+3 · TIPOS Y COMPILACION
+-----------------------------------------------------------------------------
+  vue-tsc --build --force   ->  sin salida, codigo 0
+  vite build                ->  compilado en 12,10 s
+
+  Fragmento de entrada: 191 420 bytes.
+  Antes de este bloque:  191 413 bytes.
+  Diferencia: +7 bytes. La tarjeta de desvinculacion no infla el paquete.
+
+
+4 · SINTAXIS DEL ARRANQUE EN PRODUCCION
+-----------------------------------------------------------------------------
+  sh -n botica-san-juan-backend/docker/entrypoint.sh  ->  OK
+
+  No se pudo ejecutar el contenedor completo desde aqui. Lo que si esta
+  comprobado es que el script no tiene errores de sintaxis y que
+  `storage:link --force` es idempotente, que era el riesgo real: con `set -e`,
+  un "the link already exists" tumbaria el arranque entero.
+
+
+5 · EL APF3 SIGUE INTACTO
+-----------------------------------------------------------------------------
+  git status --porcelain | grep -i "docx|INFORME-APF3"   ->  ninguno modificado
+
+  El .docx del APF3 no se abrio para escribir en ningun momento. La imagen de
+  la Figura 11 se EXTRAJO para poder compararla; el archivo original conserva
+  su fecha del 1 de noviembre.
+
+  La figura corregida se entrega aparte, en docs/evidencias/figura11/, con su
+  LEEME.md. Decision del usuario: el APF3 ya fue entregado y calificado, asi
+  que es un registro historico.
+
+
+6 · LO QUE NO SE PUDO COMPROBAR AQUI
+-----------------------------------------------------------------------------
+  - El enlace de storage en el contenedor REAL de Render. Hace falta un
+    despliegue para verlo.
+  - Que una foto subida sobreviva a un despliegue: NO sobrevive, y no es un
+    fallo del enlace sino del disco efimero. Queda dicho en el entrypoint, en
+    render.yaml y en el punto 7.
+
+
+7 · PENDIENTE, Y NO ES DE CODIGO
+-----------------------------------------------------------------------------
+  El disco del contenedor de Render es efimero. `storage:link` hace que los
+  archivos del disco publico se SIRVAN; no hace que PERSISTAN. Una foto que un
+  administrador suba hoy desaparece en el siguiente despliegue.
+
+  La solucion es almacenamiento de objetos (S3 o equivalente) con el disco
+  `public` apuntando ahi. Es un cambio de infraestructura, no de este script.
+  Mientras tanto, las imagenes del catalogo son las versionadas en
+  public/images, que si viajan dentro de la imagen de Docker.
