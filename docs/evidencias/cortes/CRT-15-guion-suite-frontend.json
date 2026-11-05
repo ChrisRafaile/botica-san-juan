@@ -1,0 +1,73 @@
+{
+ "titulo": "Suite de frontend con Vitest - recuento definitivo",
+ "lineas": [
+  [
+   "prompt",
+   ".\\node_modules\\.bin\\vitest.cmd run"
+  ],
+  [
+   "pass",
+   "src/utils/__tests__/validacionServidor.spec.ts  (9 tests)"
+  ],
+  [
+   "pass",
+   "src/observabilidad/__tests__/depurador.spec.ts  (26 tests)"
+  ],
+  [
+   "pass",
+   "src/offline/__tests__/catalogo.spec.ts  (9 tests)"
+  ],
+  [
+   "pass",
+   "src/offline/__tests__/notaContingencia.spec.ts  (4 tests)"
+  ],
+  [
+   "pass",
+   "src/client/__tests__/TarjetaResumen.spec.ts  (5 tests)"
+  ],
+  [
+   "pass",
+   "src/auth/__tests__/CampoTexto.spec.ts  (6 tests)"
+  ],
+  [
+   "pass",
+   "src/components/__tests__/ImagenConRespaldo.spec.ts  (9 tests)"
+  ],
+  [
+   "pass",
+   "src/stores/__tests__/offline.spec.ts  (15 tests)"
+  ],
+  [
+   "pass",
+   "src/auth/__tests__/verificar-correo.spec.ts  (5 tests)"
+  ],
+  [
+   "pass",
+   "src/components/__tests__/zona-de-receta.spec.ts  (9 tests)"
+  ],
+  [
+   "pass",
+   "src/auth/__tests__/restablecer-contrasena.spec.ts  (8 tests)"
+  ],
+  [
+   "pass",
+   "src/components/__tests__/DialogoConfirmacion.spec.ts  (5 tests)"
+  ],
+  [
+   "pass",
+   "src/client/__tests__/desvincular-google.spec.ts  (6 tests)"
+  ],
+  [
+   "ok",
+   "Test Files  13 passed (13)"
+  ],
+  [
+   "ok",
+   "Tests  116 passed (116)"
+  ],
+  [
+   "tenue",
+   "Duration  3.03s"
+  ]
+ ]
+}

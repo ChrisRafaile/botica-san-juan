@@ -1,6 +1,6 @@
 # Índice de evidencias
 
-Mapa de códigos para citar en el informe final. 118 archivos en 16 carpetas.
+Mapa de códigos para citar en el informe final. 139 archivos en 18 carpetas.
 
 ---
 
@@ -39,7 +39,7 @@ se entiende sin abrirlo; `captura2.jpg` no.
 | `E1`–`E10` | *(raíz)* | Evidencias del APF2 | 27 |
 | `E11`–`E25` | `APF3-capturas/` | Capturas del APF3 | 15 |
 | `PER` | `perfil/` | Foto de perfil y cabeceras | 13 |
-| `CRT` | `cortes/` | Cortes de datos: suites y migraciones | 10 |
+| `CRT` | `cortes/` | Cortes de datos: suites y migraciones | 17 |
 | `R` | `recetas/` | Recetas médicas, de alta a entrega | 9 |
 | `UI` | `ui/` | Interfaz del punto de venta | 6 |
 | `COR` | `correos/` | Correo transaccional | 6 |
@@ -84,6 +84,13 @@ Salidas literales con su guion de reproducción en JSON al lado: la suite, el
 recuento de migraciones en desarrollo y en producción, y las reglas de negocio.
 Van en pares *(imagen, guion)* para que la cifra de la captura se pueda volver a
 obtener.
+
+`CRT-11`–`CRT-17` son el **recuento definitivo** que cierra la observación
+O-B1: 379 pruebas de backend y 116 de frontend, con las dos salidas literales,
+sus guiones y sus figuras. `CRT-17` es el acta, y explica por qué `CRT-01`–`CRT-03`
+—las 198 pruebas que cita el APF2— **no se sustituyen**: romperían un índice al
+que apunta un documento ya calificado, y borrarían la única prueba de que la
+suite creció.
 
 ### `R` · `recetas/`
 El flujo clínico completo y en orden: pedido que exige receta, zona de
