@@ -103,7 +103,7 @@ Son los comandos reales, con las rutas que funcionan en esta máquina. `pnpm`
 por corepack está roto aquí, así que se invocan los binarios directamente.
 
 ```powershell
-# Backend (337 pruebas)
+# Backend (379 pruebas, 1068 aserciones)
 cd botica-san-juan-backend
 php artisan test
 

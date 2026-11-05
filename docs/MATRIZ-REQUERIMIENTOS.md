@@ -65,9 +65,9 @@ verificado, por mucho que el código parezca correcto.
 | **RNF05** | Disponibilidad mínima del 99 % en horario de atención | Monitoreo cada cinco minutos | **Pendiente** | `infra/monitoring/healthcheck_monitor.ps1` existe pero no está programado. Y hay un impedimento real: la capa gratuita de Render **duerme el servicio tras quince minutos** sin tráfico, con unos 50 s de arranque. Con esa infraestructura, el 99 % no es alcanzable ni medible honestamente |
 | **RNF06** | Toda operación que afecte el inventario se ejecuta en transacción atómica | Prueba de interrupción forzada | **Implementado**, verificación parcial | `DB::transaction` con `lockForUpdate` en venta, sincronización y vinculación de cuentas; `SincronizacionVentasOfflineTest` cubre el rechazo que no arrastra al lote. No se hizo la **interrupción forzada** que pedía la verificación |
 | **RNF07** | El código supera el análisis estático sin errores; el esquema evoluciona por migraciones versionadas | Ejecución del pipeline de CI | **Parcial** | 54 migraciones versionadas y reversibles ✓. El pipeline corre pruebas, `vue-tsc` y un escáner de secretos; **no ejecuta análisis estático de PHP** (Pint/PHPStan) ni ESLint. `CI-01`–`CI-03` |
-| **RNF08** | Respaldo diario automatizado, RPO 24 h y RTO 60 min | Simulacro de restauración con verificación por hash | **Pendiente** | `infra/backup/` tiene respaldo y restauración para PostgreSQL y SQLite, y `run_restore_drill.ps1`. **El simulacro nunca se ha ejecutado**, así que el RTO de 60 minutos es una estimación, no un dato |
+| **RNF08** | Respaldo diario automatizado, RPO 24 h y RTO 60 min | Simulacro de restauración con verificación por hash | **Parcial** | **El simulacro se ejecutó** sobre PostgreSQL 16 y recuperó las 5 filas borradas a propósito; RTO medido **0,93 s** frente a los 3 600 s comprometidos (`CON-01`, `CON-03`). Lo que sigue pendiente es el RPO: **la programación diaria no está activa**, así que las 24 horas son una intención, no un hecho |
 
-**1 implementado y verificado, 4 parciales, 3 pendientes.**
+**1 implementado y verificado, 5 parciales, 2 pendientes.**
 
 ---
 
@@ -86,9 +86,14 @@ informe final:
 
 | Qué falta | Cierra | Esfuerzo |
 |---|---|---|
-| Ejecutar `run_restore_drill.ps1` y guardar la salida | RNF08 | Bajo: el script existe |
+| ~~Ejecutar el simulacro de restauración~~ | ~~RNF08~~ | **Hecho** (`CON-03`) |
+| Programar el respaldo diario y guardar su código de salida | RNF08 (el RPO) | Bajo: el script existe |
 | Prueba de carga con percentil 95 | RNF03 | Medio |
 | Añadir Pint y ESLint al pipeline | RNF07 | Bajo |
+
+Los umbrales con los que se vigilan estos requerimientos en operación están en
+**`docs/MONITOREO-Y-UMBRALES.md`** (punto 29 de la rúbrica), reconciliados fila
+a fila con las Tablas 33 y 34 del APF1.
 
 **RNF05 no se cierra con trabajo, se cierra con una decisión.** El 99 % de
 disponibilidad es incompatible con una instancia que se duerme. Lo honesto en
