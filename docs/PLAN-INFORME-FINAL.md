@@ -147,8 +147,8 @@ a buscarlo. Hay que recuperar los RF/RNF del APF1 y confrontarlos uno a uno,
 incluidos los que no se hicieron — que los hay, y decirlo cuesta menos que
 justificar una matriz toda en verde.
 
-Materia prima disponible: 363 pruebas de backend, 116 de frontend, el sistema
-en producción, la API pública consumible y 125 archivos de evidencia.
+Materia prima disponible: 379 pruebas de backend, 116 de frontend, el sistema
+en producción, la API pública consumible y 139 archivos de evidencia.
 
 ---
 

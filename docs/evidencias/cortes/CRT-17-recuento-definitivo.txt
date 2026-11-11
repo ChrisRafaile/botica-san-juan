@@ -1,0 +1,74 @@
+EVIDENCIA CRT-17 · Recuento definitivo de la suite automatizada
+Observacion O-B1 del informe final
+Sistema Web de Gestion Botica San Juan · 2026-11-04 22:03 (hora de Lima)
+===============================================================================
+
+POR QUE EXISTE ESTA EVIDENCIA
+-----------------------------------------------------------------------------
+La observacion O-B1 señalaba que las capturas de la suite que acompañan al
+informe muestran 198 pruebas (CRT-02), cifra correcta cuando se tomo y
+desfasada desde entonces. Distintos documentos del repositorio llegaron a
+citar 198, 337, 357 y 363. Ninguna estaba mal en su momento; todas estan mal
+hoy.
+
+Esta evidencia fija el numero y deja las dos salidas literales al lado para
+que no haya que creer en la cifra: se puede volver a obtener.
+
+
+RECUENTO MEDIDO
+-----------------------------------------------------------------------------
+  BACKEND   php artisan test
+            379 passed (1068 assertions)
+            32 clases de prueba
+            45,08 s sobre PostgreSQL 16
+
+  FRONTEND  .\node_modules\.bin\vitest.cmd run
+            116 passed (116)
+            13 archivos de prueba
+            3,03 s
+
+  TOTAL     495 pruebas automatizadas
+
+
+ARCHIVOS DE ESTA EVIDENCIA
+-----------------------------------------------------------------------------
+  CRT-11  Salida literal del backend, completa, con las advertencias de
+          PHPUnit sobre metadatos en doc-comment incluidas. No se limpio:
+          una salida recortada ya no es una salida.
+  CRT-12  Guion de la figura del backend.
+  CRT-13  Salida literal del frontend.
+  CRT-14  Figura del backend (379).
+  CRT-15  Guion de la figura del frontend.
+  CRT-16  Figura del frontend (116).
+
+Las figuras las compone docs/scripts/render_terminal.py a partir del guion,
+que solo contiene texto copiado de la salida. El renderizador elige tipografia
+y color; no redacta ni corrige. Si una cifra de la imagen no coincidiera con
+la de CRT-11 o CRT-13, el error estaria en el guion.
+
+
+LO QUE NO SE TOCO
+-----------------------------------------------------------------------------
+CRT-01 a CRT-03 (las 198 pruebas) SE CONSERVAN. Son la evidencia que cita el
+APF2 entregado por su nombre. Sustituirlas romperia un indice al que apunta un
+documento ya calificado, y ademas borraria la unica prueba de que el proyecto
+crecio: 198 -> 379 en el backend es, en si mismo, un dato del informe.
+
+Lo que corrige O-B1 es una evidencia NUEVA, no una sobreescritura.
+
+
+COMO REPRODUCIRLO
+-----------------------------------------------------------------------------
+  cd botica-san-juan-backend
+  php artisan test
+
+  cd botica-san-juan-frontend
+  .\node_modules\.bin\vitest.cmd run
+
+  # Volver a componer las figuras
+  python docs/scripts/render_terminal.py `
+      docs/evidencias/cortes/CRT-12-guion-suite-379.json `
+      docs/evidencias/cortes/CRT-14-suite-379.png
+
+pnpm por corepack esta roto en esta maquina; por eso se invoca el binario de
+vitest directamente.
