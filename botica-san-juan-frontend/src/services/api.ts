@@ -107,6 +107,29 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`
     }
 
+    /* Un FormData jamas puede viajar como JSON.
+       Esta instancia fija `Content-Type: application/json` por omision, y
+       axios 1.x mira esa cabecera ANTES de enviar: en
+       lib/defaults/index.js, si `hasJSONContentType` es cierto y el cuerpo es
+       un FormData, lo pasa por `formDataToJSON` y manda texto. El archivo se
+       quedaba en el navegador y Laravel respondia «Elige una imagen», que
+       senala al usuario en vez de a la causa.
+       Borrar la cabecera deja que el navegador escriba la suya con el
+       `boundary`, que es la unica forma de que el multipart se pueda partir.
+       Esto tambien sustituye al `multipart/form-data` escrito a mano en
+       ProductModal y AdminSupplyView, que esquivaba el problema sin boundary. */
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      const cabeceras = config.headers as unknown as {
+        delete?: (nombre: string) => void
+      } & Record<string, unknown>
+
+      if (typeof cabeceras.delete === 'function') {
+        cabeceras.delete('Content-Type')
+      } else {
+        delete cabeceras['Content-Type']
+      }
+    }
+
     logger.debug('Peticion HTTP', {
       method: config.method?.toUpperCase(),
       url: `${config.baseURL ?? ''}${config.url ?? ''}`,

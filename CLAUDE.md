@@ -94,6 +94,15 @@ cueste una segunda.
   así.
 - **`sendDefaultPii` no existe en el SDK de navegador de Sentry**, solo en los
   de servidor. Pasarlo da TS2353.
+- **axios convierte un `FormData` a JSON si la cabecera dice
+  `application/json`.** La instancia de `services/api.ts` la fija por omisión,
+  y axios la mira antes de enviar (`hasJSONContentType` → `formDataToJSON`, en
+  `lib/defaults/index.js`). El archivo salía como `'{"foto":{}}'` y Laravel
+  contestaba «Elige una imagen», que señala al usuario en vez de a la causa:
+  se diagnosticó como problema de peso y de dimensiones antes de mirar el
+  cuerpo real. El interceptor de petición borra la cabecera cuando el cuerpo
+  es un `FormData`; no escribir `multipart/form-data` a mano, porque entonces
+  falta el `boundary`.
 
 ---
 
@@ -107,7 +116,7 @@ por corepack está roto aquí, así que se invocan los binarios directamente.
 cd botica-san-juan-backend
 php artisan test
 
-# Frontend (116 pruebas)
+# Frontend (120 pruebas)
 cd botica-san-juan-frontend
 .\node_modules\.bin\vitest.cmd run
 
