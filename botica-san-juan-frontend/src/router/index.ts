@@ -45,6 +45,23 @@ const router = createRouter({
       name: 'coverage',
       component: () => import('../client/CoverageView.vue'),
     },
+    {
+      /* Libro de Reclamaciones virtual, exigido por la normativa peruana INDECOPI. */
+      path: '/libro-de-reclamaciones',
+      name: 'libro-de-reclamaciones',
+      component: () => import('../client/LibroReclamacionesView.vue'),
+    },
+    {
+      /* Ficha de detalle de producto en /catalogo/:id */
+      path: '/catalogo/:id',
+      name: 'catalogo-detalle',
+      component: () => import('../client/ProductoDetalleView.vue'),
+    },
+    {
+      /* Redirección o alias para enlaces que provengan de /products/:id */
+      path: '/products/:id',
+      redirect: (to) => `/catalogo/${to.params.id}`,
+    },
     /* El menú de usuario del portal enlazaba aquí desde hacía tiempo y la
        ruta no existía: «Mi Perfil» llevaba a la pantalla de no encontrado. */
     {
