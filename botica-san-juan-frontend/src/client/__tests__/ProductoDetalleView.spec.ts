@@ -108,6 +108,12 @@ describe('ProductoDetalleView.vue (Ficha de Producto en /catalogo/:id)', () => {
     // Existencias y precio
     expect(wrapper.text()).toContain('En stock (24 disponibles)')
     expect(wrapper.text()).toContain('S/ 18.50')
+
+    // Desplazamiento accesible al montar/cambiar de producto
+    expect(window.scrollTo).toHaveBeenCalledWith({
+      top: 0,
+      behavior: 'smooth',
+    })
   })
 
   it('permite modificar la cantidad y agregar al carrito con feedback visual', async () => {

@@ -3,13 +3,18 @@ import { mount } from '@vue/test-utils'
 import TarjetaBancariaVisual from '../TarjetaBancariaVisual.vue'
 
 describe('TarjetaBancariaVisual.vue', () => {
-  it('renderiza el estado inicial de la tarjeta con placeholders accesibles', () => {
+  it('renderiza el estado inicial de la tarjeta con placeholders accesibles y máscara de cuatro puntos por bloque', () => {
     const wrapper = mount(TarjetaBancariaVisual)
 
     expect(wrapper.find('[data-testid="logo-desconocida"]').exists()).toBe(true)
-    expect(wrapper.find('[data-testid="numero-tarjeta-visual"]').text()).toContain('••••')
+    // Máscara vacía por omisión fijada en exactamente cuatro puntos por bloque
+    expect(wrapper.find('[data-testid="numero-tarjeta-visual"]').text()).toBe('•••• •••• •••• ••••')
     expect(wrapper.find('[data-testid="titular-visual"]').text()).toBe('NOMBRE Y APELLIDO')
     expect(wrapper.find('[data-testid="vencimiento-visual"]').text()).toBe('MM/AA')
+
+    // Verifica que la transición se limite a propiedades compuestas por GPU (transform y opacity)
+    const contenedorTarjeta = wrapper.find('[role="region"]')
+    expect(contenedorTarjeta.classes()).toContain('transition-[transform,opacity]')
   })
 
   it('detecta Visa con prefijo 4 y actualiza el número en tiempo real', async () => {

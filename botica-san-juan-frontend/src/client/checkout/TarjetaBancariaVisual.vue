@@ -57,7 +57,7 @@ const numeroVisual = computed(() => {
   if (!formateado) {
     return marca.value === 'amex'
       ? '•••• •••••• •••••'
-      : '•••• ••••• •••• ••••'
+      : '•••• •••• •••• ••••'
   }
 
   // Si es Amex completamos hasta 15 dígitos con esquema 4-6-5
@@ -82,7 +82,7 @@ const longitudMaxCvv = computed(() => (marca.value === 'amex' ? 4 : 3))
   <div class="space-y-6">
     <!-- Tarjeta visual interactiva -->
     <div
-      class="relative mx-auto w-full max-w-md overflow-hidden rounded-2xl border border-white/20 bg-linear-to-br from-botica-800 via-botica-900 to-clinico-950 p-6 text-white shadow-xl transition-all duration-300"
+      class="relative mx-auto w-full max-w-md overflow-hidden rounded-2xl border border-white/20 bg-linear-to-br from-botica-800 via-botica-900 to-clinico-950 p-6 text-white shadow-xl transition-[transform,opacity] duration-300"
       aria-label="Vista previa interactiva de tarjeta bancaria"
       role="region"
     >

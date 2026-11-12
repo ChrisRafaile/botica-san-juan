@@ -12,6 +12,7 @@ import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 import { DIRECCION, CORREO, TELEFONO_FIJO } from '@/datos/botica'
 import { CheckCircleIcon, BookOpenIcon, SendIcon } from 'lucide-vue-next'
+import { prefiereMenosMovimiento } from '@/utils/motion'
 
 const tipoDocumento = ref('DNI')
 const numeroDocumento = ref('')
@@ -43,7 +44,10 @@ function generarCodigo() {
 function enviarReclamacion() {
   codigoReclamacion.value = generarCodigo()
   enviado.value = true
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  window.scrollTo({
+    top: 0,
+    behavior: prefiereMenosMovimiento() ? 'auto' : 'smooth',
+  })
 }
 </script>
 

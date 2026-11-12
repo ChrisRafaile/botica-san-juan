@@ -214,7 +214,10 @@ watch(
   (nuevoId) => {
     if (nuevoId) {
       void cargarProducto(Number(nuevoId))
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      window.scrollTo({
+        top: 0,
+        behavior: prefiereMenosMovimiento() ? 'auto' : 'smooth',
+      })
     }
   },
   { immediate: true },
