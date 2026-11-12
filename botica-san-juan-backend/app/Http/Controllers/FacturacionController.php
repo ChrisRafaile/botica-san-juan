@@ -8,12 +8,9 @@ use App\Models\Pedido;
 use App\Services\ComprobanteService;
 use App\Services\NombreArchivoSunat;
 use App\Services\Sunat\ConstanciaRecepcion;
+use App\Services\Sunat\RepresentacionImpresa;
 use App\Services\SunatClient;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
-use chillerlan\QRCode\Common\EccLevel;
-use chillerlan\QRCode\QRCode;
-use chillerlan\QRCode\QROptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,6 +21,7 @@ class FacturacionController extends Controller
         private readonly ComprobanteService $comprobantes,
         private readonly NombreArchivoSunat $nombres,
         private readonly ConstanciaRecepcion $constancias,
+        private readonly RepresentacionImpresa $representacion,
     )
     {
     }
@@ -222,40 +220,17 @@ class FacturacionController extends Controller
         ]);
     }
 
+    /**
+     * Representación impresa del comprobante.
+     *
+     * El controlador solo entrega: qué se imprime y cómo cuadra lo decide
+     * `RepresentacionImpresa`, para que la misma composición sirva el día que
+     * el PDF se adjunte a un correo o se guarde junto al XML.
+     */
     public function descargarPdf(ComprobanteElectronico $comprobante)
     {
-        $doc = $comprobante->load([
-            'pedido.usuario',
-            'pedido.pedidoDetalles.producto',
-        ]);
-
-        $company = $this->resolveCompanyData();
-
-        $items = $this->resolveDocumentItems($doc);
-        $total = (float) $doc->total;
-        $subtotal = (float) collect($items)->sum('subtotal');
-        if ($subtotal <= 0.0) {
-            $subtotal = $total;
-        }
-
-        $baseImponible = round($total / 1.18, 2);
-        $igv = round($total - $baseImponible, 2);
-
-        $pdf = Pdf::loadView('pdf.comprobante', [
-            'documento' => $doc,
-            'items' => $items,
-            'subtotal' => $subtotal,
-            'baseImponible' => $baseImponible,
-            'igv' => $igv,
-            'total' => $total,
-            'company' => $company,
-            'logoDataUri' => $this->resolveLogoDataUri(),
-            'qrDataUri' => $this->resolveQrDataUri($doc, $company),
-            'documentNumber' => sprintf('%s-%08d', $doc->serie, $doc->numero),
-        ])->setPaper('a4');
-
-        $fileName = sprintf('%s-%08d.pdf', $doc->serie, $doc->numero);
-        return $pdf->download($fileName);
+        return $this->representacion->pdf($comprobante)
+            ->download($this->representacion->nombreDeArchivo($comprobante));
     }
 
     /**
@@ -364,97 +339,5 @@ class FacturacionController extends Controller
             . "  <EstadoSunat>{$doc->estado_sunat}</EstadoSunat>\n"
             . "  <FechaEmision>{$issuedAt}</FechaEmision>\n"
             . "</ComprobanteElectronico>\n";
-    }
-
-    private function resolveDocumentItems(ComprobanteElectronico $doc): array
-    {
-        $detalles = $doc->pedido?->pedidoDetalles ?? collect();
-        if ($detalles->isEmpty()) {
-            return [[
-                'descripcion' => 'Venta general',
-                'unidad' => 'unidad',
-                'cantidad' => 1,
-                'precio_unitario' => (float) $doc->total,
-                'subtotal' => (float) $doc->total,
-            ]];
-        }
-
-        return $detalles->map(function ($detalle) {
-            $cantidad = (float) ($detalle->cantidad ?? 0);
-            $precioUnitario = (float) ($detalle->precio_unitario ?? $detalle->precio ?? 0);
-            $subtotal = (float) ($detalle->subtotal ?? ($cantidad * $precioUnitario));
-
-            return [
-                'descripcion' => (string) ($detalle->producto->nombre ?? ('Producto #' . ($detalle->producto_id ?? 'N/A'))),
-                'unidad' => (string) ($detalle->unidad_venta ?? 'unidad'),
-                'cantidad' => $cantidad,
-                'precio_unitario' => $precioUnitario,
-                'subtotal' => $subtotal,
-            ];
-        })->values()->all();
-    }
-
-    private function resolveLogoDataUri(): ?string
-    {
-        $candidates = [
-            config('company.logo_path') ? public_path((string) config('company.logo_path')) : null,
-            public_path('images/logo.png'),
-            public_path('images/default_image.png'),
-        ];
-
-        foreach ($candidates as $path) {
-            if (!$path || !is_file($path)) {
-                continue;
-            }
-
-            $content = @file_get_contents($path);
-            if ($content === false) {
-                continue;
-            }
-
-            $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-            $mime = $extension === 'png' ? 'image/png' : 'image/jpeg';
-            return 'data:' . $mime . ';base64,' . base64_encode($content);
-        }
-
-        return null;
-    }
-
-    private function resolveCompanyData(): array
-    {
-        return [
-            'ruc' => (string) config('company.ruc', '20123456789'),
-            'razon_social' => (string) config('company.razon_social', 'Botica San Juan SAC'),
-            'direccion' => (string) config('company.direccion', 'Av. Principal 123 - Lima'),
-            'telefono' => (string) config('company.telefono', ''),
-            'email' => (string) config('company.email', ''),
-        ];
-    }
-
-    private function resolveQrDataUri(ComprobanteElectronico $doc, array $company): ?string
-    {
-        try {
-            $docNumber = sprintf('%s-%08d', $doc->serie, $doc->numero);
-            $qrPayload = implode('|', [
-                $company['ruc'] ?: '-',
-                strtoupper((string) $doc->tipo_comprobante),
-                $docNumber,
-                number_format((float) $doc->total, 2, '.', ''),
-                $doc->sunat_ticket ?: '-',
-                $doc->hash_documento ?: '-',
-            ]);
-
-            $options = new QROptions([
-                'outputType' => 'png',
-                'eccLevel' => EccLevel::M,
-                'scale' => 5,
-                'imageBase64' => false,
-            ]);
-
-            $pngData = (new QRCode($options))->render($qrPayload);
-            return 'data:image/png;base64,' . base64_encode($pngData);
-        } catch (\Throwable) {
-            return null;
-        }
     }
 }

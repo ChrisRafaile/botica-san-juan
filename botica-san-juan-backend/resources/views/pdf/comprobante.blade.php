@@ -1,244 +1,305 @@
+{{--
+    Representación impresa de la boleta y de la factura electrónica.
+
+    Esta plantilla NO calcula: todo llega resuelto desde
+    App\Services\Sunat\RepresentacionImpresa. Una cifra recalculada aquí
+    podría separarse por un céntimo de la que va dentro del QR.
+
+    La maquetación es con tablas y no con flex ni grid porque quien dibuja es
+    dompdf, que no implementa ninguno de los dos.
+--}}
+@php
+    $dinero = fn ($importe) => number_format((float) $importe, 2, '.', ',');
+    $simbolo = $comprobante['simbolo'];
+@endphp
 <!doctype html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <title>Comprobante {{ $documento->serie }}-{{ str_pad((string) $documento->numero, 8, '0', STR_PAD_LEFT) }}</title>
-    @php
-        $isFactura = $documento->tipo_comprobante === 'factura';
-    @endphp
+    <title>{{ $comprobante['denominacion'] }} {{ $comprobante['identificador'] }}</title>
     <style>
+        @page { margin: 28px 30px; }
+
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 12px;
+            font-size: 10.5px;
+            line-height: 1.35;
             color: #0f172a;
-            margin: 24px;
+            margin: 0;
         }
-        .header {
-            display: table;
-            width: 100%;
-            margin-bottom: 18px;
+
+        table { width: 100%; border-collapse: collapse; }
+        td, th { vertical-align: top; }
+
+        .derecha { text-align: right; }
+        .centro { text-align: center; }
+        .tenue { color: #475569; }
+
+        /* --- Cabecera: emisor a la izquierda, recuadro fiscal a la derecha --- */
+        .emisor { width: 58%; padding-right: 18px; }
+        .emisor .logo { height: 46px; margin-bottom: 6px; }
+        .emisor .marca {
+            font-size: 21px;
+            font-weight: bold;
+            color: #1e40af;
+            letter-spacing: 0.3px;
+            line-height: 1.1;
         }
-        .header-left,
-        .header-right {
-            display: table-cell;
-            vertical-align: top;
-        }
-        .header-right {
-            text-align: right;
-        }
-        .logo {
-            width: 62px;
-            height: 62px;
-            object-fit: cover;
+        .emisor .razon { font-size: 11px; font-weight: bold; margin-top: 3px; }
+        .emisor .dato { font-size: 9.5px; color: #475569; }
+
+        .fiscal { width: 42%; }
+        .recuadro {
+            border: 2px solid #1e40af;
             border-radius: 8px;
-            border: 1px solid #cbd5e1;
+            text-align: center;
         }
-        .title {
-            font-size: 20px;
+        .recuadro .ruc {
+            font-size: 14px;
             font-weight: bold;
-            margin: 4px 0;
+            padding: 10px 8px 8px;
         }
-        .muted {
-            color: #475569;
-            font-size: 11px;
-        }
-        .box {
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 10px;
-        }
-        .doc-chip {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 10px;
+        .recuadro .denominacion {
+            background: #1e40af;
+            color: #ffffff;
+            font-size: 12px;
             font-weight: bold;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-            color: #fff;
+            letter-spacing: 0.4px;
+            padding: 8px 6px;
         }
-        .doc-chip.factura {
-            background: #0f766e;
-        }
-        .doc-chip.boleta {
-            background: #1d4ed8;
-        }
-        .document-box.factura {
-            border: 2px solid #0f766e;
-        }
-        .document-box.boleta {
-            border: 2px solid #1d4ed8;
-        }
-        .grid {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .grid th,
-        .grid td {
-            border: 1px solid #cbd5e1;
-            padding: 8px;
-        }
-        .grid th {
-            background: #f1f5f9;
-            text-align: left;
-            font-size: 11px;
-        }
-        .right {
-            text-align: right;
-        }
-        .totals {
-            width: 44%;
-            margin-left: auto;
-            margin-top: 12px;
-            border-collapse: collapse;
-        }
-        .totals td {
-            border: 1px solid #cbd5e1;
-            padding: 6px 8px;
-        }
-        .totals .label {
-            background: #f8fafc;
+        .recuadro .numero {
+            font-size: 15px;
             font-weight: bold;
+            padding: 8px 8px 10px;
         }
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 999px;
-            font-size: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-            border: 1px solid #cbd5e1;
-        }
-        .footer {
+
+        /* --- Datos del adquirente y de la operación --- */
+        .datos {
             margin-top: 16px;
-            font-size: 11px;
-            color: #334155;
-            border-top: 1px dashed #94a3b8;
-            padding-top: 10px;
-        }
-        .meta-row {
-            margin-top: 8px;
-            font-size: 11px;
-            color: #334155;
-        }
-        .qr-block {
-            margin-top: 14px;
-            display: table;
-            width: 100%;
-        }
-        .qr-left,
-        .qr-right {
-            display: table-cell;
-            vertical-align: top;
-        }
-        .qr-right {
-            width: 120px;
-            text-align: right;
-        }
-        .qr {
-            width: 110px;
-            height: 110px;
             border: 1px solid #cbd5e1;
             border-radius: 6px;
-            padding: 4px;
+        }
+        .datos td { padding: 9px 12px; }
+        .datos .operacion { width: 36%; border-left: 1px solid #cbd5e1; }
+        .par { margin-bottom: 3px; }
+        .par .etiqueta {
+            font-size: 8.5px;
+            font-weight: bold;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        /* --- Detalle --- */
+        .detalle { margin-top: 14px; }
+        .detalle th {
+            background: #1e40af;
+            color: #ffffff;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: 7px 8px;
+            text-align: left;
+        }
+        .detalle th.derecha { text-align: right; }
+        .detalle th.centro { text-align: center; }
+        .detalle td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .detalle tr.par-fila td { background: #f8fafc; }
+
+        /* --- Cierre: letras y QR a la izquierda, totales a la derecha --- */
+        .cierre { margin-top: 14px; }
+        .cierre .izquierda { width: 58%; padding-right: 18px; }
+        .cierre .totales-celda { width: 42%; }
+
+        .letras {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .qr-tabla { margin-top: 12px; }
+        .qr-tabla .qr-celda { width: 112px; }
+        .qr { width: 104px; height: 104px; }
+        .qr-texto { padding-left: 10px; font-size: 9px; color: #475569; }
+        .qr-texto .titulo { font-weight: bold; color: #0f172a; font-size: 9.5px; }
+        .hash { font-size: 8px; word-wrap: break-word; }
+
+        .totales td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .totales .concepto { color: #475569; }
+        .totales tr.total td {
+            background: #1e40af;
+            color: #ffffff;
+            font-size: 12.5px;
+            font-weight: bold;
+            border-bottom: none;
+            padding: 9px 10px;
+        }
+
+        .pie {
+            margin-top: 18px;
+            padding-top: 8px;
+            border-top: 1px solid #cbd5e1;
+            font-size: 8.5px;
+            color: #475569;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-left">
-            @if($logoDataUri)
-                <img class="logo" src="{{ $logoDataUri }}" alt="Logo">
-            @endif
-            <div class="title">{{ $company['razon_social'] }}</div>
-            <div class="muted">RUC: {{ $company['ruc'] }}</div>
-            <div class="muted">Dir: {{ $company['direccion'] }}</div>
-            @if(!empty($company['telefono']))
-                <div class="muted">Tel: {{ $company['telefono'] }}</div>
-            @endif
-            @if(!empty($company['email']))
-                <div class="muted">Email: {{ $company['email'] }}</div>
-            @endif
-        </div>
-        <div class="header-right">
-            <div class="box document-box {{ $isFactura ? 'factura' : 'boleta' }}">
-                <div class="doc-chip {{ $isFactura ? 'factura' : 'boleta' }}">{{ $isFactura ? 'Factura Electrónica' : 'Boleta Electrónica' }}</div>
-                <div style="font-weight: bold; font-size: 14px; text-transform: uppercase;">{{ $documento->tipo_comprobante }}</div>
-                <div style="font-size: 16px; font-weight: bold; margin-top: 4px;">
-                    {{ $documentNumber }}
+    <table>
+        <tr>
+            <td class="emisor">
+                @if($logo)
+                    <img class="logo" src="{{ $logo }}" alt="">
+                @endif
+                <div class="marca">{{ $emisor['nombre_comercial'] ?: $emisor['razon_social'] }}</div>
+                <div class="razon">{{ $emisor['razon_social'] }}</div>
+                <div class="dato">{{ $emisor['direccion'] }}</div>
+                @if($emisor['telefono'] !== '')
+                    <div class="dato">Teléfono: {{ $emisor['telefono'] }}</div>
+                @endif
+                @if($emisor['email'] !== '')
+                    <div class="dato">{{ $emisor['email'] }}</div>
+                @endif
+            </td>
+            <td class="fiscal">
+                <div class="recuadro">
+                    <div class="ruc">RUC {{ $emisor['ruc'] }}</div>
+                    <div class="denominacion">{{ $comprobante['denominacion'] }}</div>
+                    <div class="numero">{{ $comprobante['identificador'] }}</div>
                 </div>
-                <div class="muted" style="margin-top: 6px;">Emision: {{ optional($documento->fecha_emision)->format('d/m/Y H:i') }}</div>
-            </div>
-        </div>
-    </div>
+            </td>
+        </tr>
+    </table>
 
-    <div class="box">
-        <div><strong>Cliente:</strong> {{ $documento->cliente_nombre }}</div>
-        <div><strong>Documento:</strong> {{ $documento->cliente_documento ?: 'Sin documento' }}</div>
-        <div><strong>Pedido:</strong> #{{ $documento->pedido_id }}</div>
-        <div class="meta-row"><strong>Hash:</strong> {{ $documento->hash_documento ?: 'No generado' }}</div>
-        <div>
-            <strong>SUNAT:</strong>
-            <span class="badge">{{ $documento->estado_sunat }}</span>
-            @if($documento->sunat_ticket)
-                <span class="muted"> Ticket: {{ $documento->sunat_ticket }}</span>
-            @endif
-        </div>
-    </div>
+    <table class="datos">
+        <tr>
+            <td>
+                <div class="par">
+                    <span class="etiqueta">{{ $comprobante['tipo'] === 'factura' ? 'Razón social' : 'Cliente' }}:</span>
+                    {{ $cliente['nombre'] }}
+                </div>
+                <div class="par">
+                    <span class="etiqueta">{{ $cliente['etiqueta_documento'] }}:</span>
+                    {{ $cliente['numero_documento'] }}
+                </div>
+                @if($cliente['direccion'])
+                    <div class="par">
+                        <span class="etiqueta">Dirección:</span>
+                        {{ $cliente['direccion'] }}
+                    </div>
+                @endif
+            </td>
+            <td class="operacion">
+                <div class="par">
+                    <span class="etiqueta">Fecha de emisión:</span>
+                    {{ $comprobante['fecha_emision'] }} {{ $comprobante['hora_emision'] }}
+                </div>
+                <div class="par">
+                    <span class="etiqueta">Moneda:</span>
+                    {{ $comprobante['moneda_nombre'] }} ({{ $comprobante['moneda'] }})
+                </div>
+                <div class="par">
+                    <span class="etiqueta">Medio de pago:</span>
+                    {{ $comprobante['medio_pago'] }}
+                </div>
+            </td>
+        </tr>
+    </table>
 
-    <table class="grid">
+    <table class="detalle">
         <thead>
             <tr>
-                <th style="width: 45%;">Descripcion</th>
-                <th style="width: 12%;">Unidad</th>
-                <th style="width: 12%;" class="right">Cant.</th>
-                <th style="width: 15%;" class="right">P. Unit</th>
-                <th style="width: 16%;" class="right">Subtotal</th>
+                <th class="centro" style="width: 8%;">Cant.</th>
+                <th style="width: 11%;">Unidad</th>
+                <th>Descripción</th>
+                <th class="derecha" style="width: 13%;">V. unit.</th>
+                <th class="derecha" style="width: 13%;">P. unit.</th>
+                <th class="derecha" style="width: 14%;">Importe</th>
             </tr>
         </thead>
         <tbody>
             @foreach($items as $item)
-                <tr>
-                    <td>{{ $item['descripcion'] }}</td>
+                <tr class="{{ $loop->even ? 'par-fila' : '' }}">
+                    <td class="centro">{{ $item['cantidad'] }}</td>
                     <td>{{ $item['unidad'] }}</td>
-                    <td class="right">{{ number_format((float) $item['cantidad'], 2, '.', '') }}</td>
-                    <td class="right">S/ {{ number_format((float) $item['precio_unitario'], 2, '.', '') }}</td>
-                    <td class="right">S/ {{ number_format((float) $item['subtotal'], 2, '.', '') }}</td>
+                    <td>{{ $item['descripcion'] }}</td>
+                    <td class="derecha">{{ $dinero($item['valor_unitario']) }}</td>
+                    <td class="derecha">{{ $dinero($item['precio_unitario']) }}</td>
+                    <td class="derecha">{{ $dinero($item['importe']) }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
 
-    <table class="totals">
+    <table class="cierre">
         <tr>
-            <td class="label">Valor venta</td>
-            <td class="right">S/ {{ number_format((float) $baseImponible, 2, '.', '') }}</td>
-        </tr>
-        <tr>
-            <td class="label">IGV (18%)</td>
-            <td class="right">S/ {{ number_format((float) $igv, 2, '.', '') }}</td>
-        </tr>
-        <tr>
-            <td class="label">Total</td>
-            <td class="right"><strong>S/ {{ number_format((float) $total, 2, '.', '') }}</strong></td>
+            <td class="izquierda">
+                <div class="letras">{{ $importe_en_letras }}</div>
+
+                <table class="qr-tabla">
+                    <tr>
+                        @if($qr['imagen'])
+                            <td class="qr-celda">
+                                <img class="qr" src="{{ $qr['imagen'] }}" alt="Código QR del comprobante">
+                            </td>
+                        @endif
+                        <td class="qr-texto">
+                            <div class="titulo">{{ $leyenda }}</div>
+                            <div>El código QR contiene los datos del comprobante en el formato establecido por la SUNAT.</div>
+                            @if($comprobante['hash'])
+                                <div class="hash" style="margin-top: 5px;">
+                                    <strong>Código hash:</strong> {{ $comprobante['hash'] }}
+                                </div>
+                            @endif
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td class="totales-celda">
+                <table class="totales">
+                    <tr>
+                        <td class="concepto">Op. Gravada</td>
+                        <td class="derecha">{{ $simbolo }} {{ $dinero($totales['gravada']) }}</td>
+                    </tr>
+                    {{-- Exonerado e inafecto solo se imprimen si los hay: en
+                         la mayoría de las ventas serían dos filas a cero. --}}
+                    @if($totales['exonerada'] > 0)
+                        <tr>
+                            <td class="concepto">Op. Exonerada</td>
+                            <td class="derecha">{{ $simbolo }} {{ $dinero($totales['exonerada']) }}</td>
+                        </tr>
+                    @endif
+                    @if($totales['inafecta'] > 0)
+                        <tr>
+                            <td class="concepto">Op. Inafecta</td>
+                            <td class="derecha">{{ $simbolo }} {{ $dinero($totales['inafecta']) }}</td>
+                        </tr>
+                    @endif
+                    <tr>
+                        <td class="concepto">IGV {{ rtrim(rtrim(number_format($totales['tasa_igv'] * 100, 2, '.', ''), '0'), '.') }} %</td>
+                        <td class="derecha">{{ $simbolo }} {{ $dinero($totales['igv']) }}</td>
+                    </tr>
+                    <tr class="total">
+                        <td>Total a Pagar</td>
+                        <td class="derecha">{{ $simbolo }} {{ $dinero($totales['total']) }}</td>
+                    </tr>
+                </table>
+            </td>
         </tr>
     </table>
 
-    <div class="qr-block">
-        <div class="qr-left">
-            <div class="muted">Código de validación (RUC | Tipo | Número | Total | Ticket | Hash)</div>
-        </div>
-        <div class="qr-right">
-            @if($qrDataUri)
-                <img class="qr" src="{{ $qrDataUri }}" alt="QR">
-            @endif
-        </div>
-    </div>
-
-    <div class="footer">
-        Representacion impresa del comprobante electronico.
-        El documento tributario oficial para SUNAT se transmite en formato XML firmado.
+    <div class="pie">
+        Los precios unitarios incluyen IGV.
     </div>
 </body>
 </html>
