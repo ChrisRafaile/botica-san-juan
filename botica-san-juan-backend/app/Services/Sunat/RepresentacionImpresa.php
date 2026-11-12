@@ -323,11 +323,16 @@ class RepresentacionImpresa
             return self::TIPOS_INTERNOS[$declarado];
         }
 
-        /* Sin tipo declarado se deduce por la forma, como hace la emisión. */
+        /* Sin tipo declarado se deduce por la forma, como hace la emisión.
+           Un número que no es DNI ni RUC sigue siendo un documento: imprimir
+           «sin documento» junto a un adquirente que sí se identificó sería
+           falso. El catálogo 06 no tiene un código genérico de identidad (el
+           «0» es para no domiciliados), y de los tipos que el sistema acepta
+           el único que queda es el carné de extranjería. */
         return match (strlen(preg_replace('/\D/', '', $numero) ?? '')) {
             8       => self::DOC_DNI,
             11      => self::DOC_RUC,
-            default => self::DOC_SIN_DOCUMENTO,
+            default => self::DOC_CARNE_EXTRANJ,
         };
     }
 

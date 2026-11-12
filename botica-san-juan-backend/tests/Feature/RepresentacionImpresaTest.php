@@ -324,6 +324,46 @@ class RepresentacionImpresaTest extends TestCase
         );
     }
 
+    /**
+     * El mostrador puede registrar el número sin elegir el tipo. Nueve
+     * cifras no son DNI ni RUC, pero el cliente sí se identificó: no puede
+     * salir como «sin documento».
+     */
+    public function test_un_carne_de_extranjeria_sin_tipo_declarado_no_sale_como_sin_documento(): void
+    {
+        $comprobante = $this->vender(
+            [[$this->producto('AMOXICILINA', '500 mg', 12.50), 3]],
+            [
+                'cliente_nombre'    => 'María Fernanda Rojas Pérez',
+                'cliente_documento' => '001234567',
+            ],
+        );
+
+        $cliente = $this->representacion()->datos($comprobante)['cliente'];
+
+        $this->assertSame('4', $cliente['tipo_documento']);
+        $this->assertSame('CARNÉ DE EXTRANJERÍA', $cliente['etiqueta_documento']);
+        $this->assertSame('001234567', $cliente['numero_documento']);
+        $this->assertSame(
+            '20123456789|03|B001|00000001|5.72|37.50|2026-11-11|4|001234567|',
+            $this->representacion()->cadenaQr($comprobante),
+        );
+    }
+
+    public function test_sin_numero_alguno_el_cliente_se_imprime_como_sin_documento(): void
+    {
+        $comprobante = $this->vender(
+            [[$this->producto('PARACETAMOL', '500 mg', 0.50), 10]],
+            ['cliente_nombre' => 'Cliente de mostrador'],
+        );
+
+        $cliente = $this->representacion()->datos($comprobante)['cliente'];
+
+        $this->assertSame('-', $cliente['tipo_documento']);
+        $this->assertSame('SIN DOCUMENTO', $cliente['etiqueta_documento']);
+        $this->assertSame('-', $cliente['numero_documento']);
+    }
+
     public function test_el_qr_se_incrusta_como_imagen_png(): void
     {
         $imagen = $this->representacion()->datos($this->boletaDeAmoxicilina())['qr']['imagen'];
