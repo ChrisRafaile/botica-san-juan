@@ -67,7 +67,9 @@ import {
   AwardIcon,
   LoaderCircleIcon,
   CheckIcon,
+  BookOpenIcon,
 } from 'lucide-vue-next'
+import imgLibroReclamaciones from '@/assets/images/LibroReclamaciones.jpg'
 import contactService from '@/services/contact'
 import { EASE, DUR, STAGGER, prefiereMenosMovimiento } from '@/utils/motion'
 import {
@@ -96,6 +98,7 @@ const enlacesSitio = [
   { ruta: '/about', texto: 'Sobre nosotros', icono: InfoIcon },
   { ruta: '/contact', texto: 'Contacto', icono: PhoneIcon },
   { ruta: '/coverage', texto: 'Cobertura', icono: MapPinIcon },
+  { ruta: '/libro-de-reclamaciones', texto: 'Libro de Reclamaciones', icono: BookOpenIcon },
 ] as const
 
 /* Los servicios no tienen página propia: todos llevan a /services, que es
@@ -156,7 +159,7 @@ async function suscribir() {
 let observador: IntersectionObserver | null = null
 
 onMounted(() => {
-  if (prefiereMenosMovimiento() || !raiz.value) return
+  if (prefiereMenosMovimiento() || !raiz.value || typeof IntersectionObserver === 'undefined') return
 
   const bloques = raiz.value.querySelectorAll('.bloque-pie')
   if (!bloques.length) return
@@ -376,6 +379,91 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
+    <!-- Medios de Pago y Libro de Reclamaciones -->
+    <div class="border-t border-lateral-borde">
+      <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div class="bloque-pie flex flex-col items-center justify-between gap-6 md:flex-row">
+          <!-- Métodos de pago aceptados -->
+          <div class="flex flex-col items-center md:items-start gap-2.5">
+            <span class="text-xs font-medium uppercase tracking-wider text-lateral-texto-tenue">
+              Métodos de pago aceptados
+            </span>
+            <div class="flex flex-wrap items-center justify-center gap-2" role="group" aria-label="Tarjetas y billeteras digitales aceptadas">
+              <!-- Visa -->
+              <div class="relative" title="Visa">
+                <span class="sr-only">Visa</span>
+                <svg viewBox="0 0 48 32" class="h-8 w-12 rounded border border-white/20 bg-white p-1" aria-hidden="true">
+                  <path d="M18.8 21.6l2.4-11.2h3.9l-2.4 11.2h-3.9zm14.7-10.9c-.8-.3-2-.6-3.5-.6-3.8 0-6.5 2-6.5 4.9 0 2.1 1.9 3.3 3.4 4 1.5.8 2 1.3 2 2 0 1.1-1.3 1.6-2.5 1.6-1.7 0-2.6-.3-4-.9l-.6-.3-.6 3.1c.9.4 2.6.8 4.4.8 4.1 0 6.8-2 6.8-5.1 0-1.7-1.1-3-3.5-4.1-1.4-.7-2.3-1.2-2.3-1.9 0-.7.7-1.4 2.4-1.4 1.3 0 2.3.3 3 .6l.4.2.6-2.9zm8.5 0h-3c-.9 0-1.6.3-2 1.3l-5.7 10.9h4.1l.8-2.3h5l.5 2.3h3.6l-3.3-11.2zm-4.7 6.3l1.8-4.9.9 4.9h-2.7zM14.6 10.4l-3.7 7.7-.4-2c-.7-2.3-2.9-4.8-5.3-6.1l3.5 11.6h4.1l6.1-11.2h-4.3z" fill="#1A1F71"/>
+                  <path d="M8.2 10.4H2.4l-.1.4c4.6 1.1 7.6 3.8 8.8 7.3l-1.3-6.4c-.2-.7-.8-1.2-1.6-1.3z" fill="#F7B600"/>
+                </svg>
+              </div>
+
+              <!-- Mastercard -->
+              <div class="relative" title="Mastercard">
+                <span class="sr-only">Mastercard</span>
+                <svg viewBox="0 0 48 32" class="h-8 w-12 rounded border border-white/20 bg-white p-1" aria-hidden="true">
+                  <circle cx="18" cy="16" r="10" fill="#EB001B"/>
+                  <circle cx="30" cy="16" r="10" fill="#F79E1B"/>
+                  <path d="M24 8.7a9.96 9.96 0 0 1 3.8 7.3 9.96 9.96 0 0 1-3.8 7.3 9.96 9.96 0 0 1-3.8-7.3c0-2.8 1.5-5.3 3.8-7.3z" fill="#FF5F00"/>
+                </svg>
+              </div>
+
+              <!-- American Express -->
+              <div class="relative" title="American Express">
+                <span class="sr-only">American Express</span>
+                <svg viewBox="0 0 48 32" class="h-8 w-12 rounded border border-white/20 bg-[#006FCF] p-1 text-white" aria-hidden="true">
+                  <rect width="48" height="32" rx="4" fill="#006FCF"/>
+                  <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="8.5" fill="#FFFFFF" letter-spacing="0.5">AMEX</text>
+                </svg>
+              </div>
+
+              <!-- Yape -->
+              <div class="relative" title="Yape">
+                <span class="sr-only">Yape</span>
+                <svg viewBox="0 0 48 32" class="h-8 w-12 rounded border border-white/20 bg-[#742284] p-1 text-white" aria-hidden="true">
+                  <rect width="48" height="32" rx="4" fill="#742284"/>
+                  <circle cx="15" cy="16" r="6.5" fill="#00D4B8"/>
+                  <text x="32" y="20" font-family="sans-serif" font-weight="900" font-size="9" fill="#FFFFFF" letter-spacing="0.5">YAPE</text>
+                </svg>
+              </div>
+
+              <!-- Plin -->
+              <div class="relative" title="Plin">
+                <span class="sr-only">Plin</span>
+                <svg viewBox="0 0 48 32" class="h-8 w-12 rounded border border-white/20 bg-[#00D4B8] p-1 text-white" aria-hidden="true">
+                  <rect width="48" height="32" rx="4" fill="#00D4B8"/>
+                  <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="11" fill="#FFFFFF" letter-spacing="0.5">plin</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Libro de Reclamaciones -->
+          <div class="flex items-center">
+            <RouterLink
+              to="/libro-de-reclamaciones"
+              class="foco-dentro group inline-flex items-center gap-3 rounded-xl border border-lateral-borde bg-lateral-fondo-sup p-3 transition-colors hover:border-botica-400 hover:bg-lateral-hover"
+              aria-label="Ir al Libro de Reclamaciones Virtual"
+            >
+              <img
+                :src="imgLibroReclamaciones"
+                alt="Libro de Reclamaciones"
+                width="96"
+                height="54"
+                loading="lazy"
+                decoding="async"
+                class="h-10 w-auto rounded-md object-contain"
+              />
+              <div class="text-left">
+                <p class="text-xs font-bold text-white group-hover:text-botica-300">Libro de Reclamaciones</p>
+                <p class="text-2xs text-lateral-texto-tenue">Conforme a la Ley N.° 29571</p>
+              </div>
+            </RouterLink>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Línea final -->
     <div class="border-t border-lateral-borde">
       <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -390,5 +478,19 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
+
+    <!-- Botón flotante de WhatsApp: posición fija, accesible, sin alterar CLS -->
+    <a
+      v-if="enlaceWa"
+      :href="enlaceWa"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="foco-dentro fixed bottom-6 right-6 z-40 flex size-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl shadow-black/30 transition-transform duration-200 hover:scale-105 active:scale-95"
+      aria-label="Contactar a Botica San Juan por WhatsApp (abre en nueva ventana)"
+    >
+      <svg class="size-7" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm.01 1.67c2.2 0 4.26.86 5.82 2.41a8.17 8.17 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.53c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.01-1.24-.74-.66-1.25-1.48-1.39-1.73-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.35-.77-1.85-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.78 2.71 4.3 3.8.6.26 1.07.41 1.43.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.07-.12-.23-.19-.48-.31z" />
+      </svg>
+    </a>
   </footer>
 </template>

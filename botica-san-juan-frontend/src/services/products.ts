@@ -33,22 +33,29 @@ export interface Product {
   stock: number
   /**
    * Stock REALMENTE VENDIBLE: excluye los lotes vencidos.
-   *
-   * `stock` es el contable: cuenta lo que fisicamente esta en el anaquel,
-   * vencido incluido. Mostrarlo en el portal promete unidades que el mostrador
-   * no puede entregar, asi que el controlador calcula aparte lo disponible y lo
-   * agrega a cada item del listado.
-   *
-   * Es OPCIONAL en el tipo porque no todos los endpoints lo adjuntan (el
-   * `show` de un producto, por ejemplo). `normalizar` le pone el valor de
-   * `stock` como respaldo para que la vista nunca tenga que decidir si el
-   * campo existe; declararlo obligatorio seria afirmar algo que la respuesta
-   * no garantiza, y ese tipo de mentira en el tipo ya costo una pantalla en
-   * blanco en este archivo.
    */
   stock_disponible?: number
   precio: number
   imagen: string
+  codigo_barras?: string | null
+  codigo_digemid?: string | null
+  principio_activo?: string | null
+  requiere_receta?: boolean
+  laboratorio_fabricante?: string | null
+  unidad_base?: 'unidad' | 'blister' | 'caja' | string
+  venta_fraccionada?: boolean
+  unidades_por_blister?: number | null
+  blisters_por_caja?: number | null
+  precio_blister?: number | null
+  precio_caja?: number | null
+  categoria?: { id: number; nombre: string } | null
+  subcategoria?: { id: number; nombre: string } | null
+  digemid_catalogo?: {
+    id: number
+    codigo_digemid: string
+    nombre_producto: string
+    precio_maximo_regulado: number | null
+  } | null
 }
 
 /** Lo que de verdad devuelve el servidor en los listados. */
@@ -120,6 +127,8 @@ function normalizar(p: Product): Product {
   return {
     ...p,
     precio: Number(p.precio ?? 0),
+    precio_blister: p.precio_blister != null ? Number(p.precio_blister) : undefined,
+    precio_caja: p.precio_caja != null ? Number(p.precio_caja) : undefined,
     stock: Number(p.stock ?? 0),
     /* Respaldo a `stock` si el endpoint no adjunta lo disponible: es peor
        quedarse sin dato —y pintar todo como agotado— que mostrar el contable. */

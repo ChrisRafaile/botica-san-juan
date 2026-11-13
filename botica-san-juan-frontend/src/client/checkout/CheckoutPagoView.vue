@@ -82,6 +82,9 @@
           pasarela. Botica San Juan no los recibe ni los almacena.
         </p>
 
+        <!-- Tarjeta bancaria interactiva propia con tokens del proyecto -->
+        <TarjetaBancariaVisual class="mb-6" />
+
         <!--
           Contenedor del formulario del proveedor.
 
@@ -158,6 +161,7 @@ import { useRoute, useRouter } from 'vue-router'
 import api from '@/services/api'
 import { montarFormulario, type RetornoVerificable } from '@/services/izipay'
 import { formatearMonto, iniciarPago, validarRetorno, rutaDelEstado } from '@/services/pagos'
+import TarjetaBancariaVisual from './TarjetaBancariaVisual.vue'
 
 interface LineaPedido {
   id: number

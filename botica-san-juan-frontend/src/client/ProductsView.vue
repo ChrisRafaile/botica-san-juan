@@ -30,6 +30,7 @@
  * porque el visitante concluye que la botica no tiene lo que busca.
  */
 import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue'
+import { RouterLink } from 'vue-router'
 /* El catálogo es una página del portal público como las demás, así que compone
    la misma cáscara: sin Header no hay forma de llegar al resto del sitio, y la
    reescritura anterior los perdió. */
@@ -468,7 +469,11 @@ onMounted(async () => {
           class="flex flex-col overflow-hidden rounded-2xl border border-borde-sutil bg-superficie-elevada transition-shadow hover:shadow-md"
           :class="{ 'tarjeta-diferida': diferirRender(indice) }"
         >
-          <div class="relative aspect-square bg-superficie-hundida">
+          <RouterLink
+            :to="'/catalogo/' + producto.id"
+            class="foco-dentro relative aspect-square bg-superficie-hundida block overflow-hidden"
+            :aria-label="'Ver detalle de ' + producto.nombre"
+          >
             <!-- La condición va sobre la URL RESUELTA y no sobre el campo: la
                  base guarda rutas relativas y `urlDeMedia` devuelve null si no
                  sabe resolverlas, lo que dejaría un src vacío y el icono de
@@ -481,7 +486,7 @@ onMounted(async () => {
               decoding="async"
               width="400"
               height="400"
-              class="size-full object-cover"
+              class="size-full object-cover transition-transform duration-300 hover:scale-105"
               @error="marcarImagenRota(producto.id)"
             />
 
@@ -536,11 +541,16 @@ onMounted(async () => {
             >
               Quedan {{ vendible(producto) }}
             </span>
-          </div>
+          </RouterLink>
 
           <div class="flex flex-1 flex-col p-3">
             <h2 class="lineas-2 text-sm font-semibold text-texto-primario">
-              {{ producto.nombre }}
+              <RouterLink
+                :to="'/catalogo/' + producto.id"
+                class="foco-dentro transition-colors hover:text-botica-600"
+              >
+                {{ producto.nombre }}
+              </RouterLink>
             </h2>
 
             <!-- LO QUE DISTINGUE UN PRODUCTO DE OTRO CON EL MISMO NOMBRE.
