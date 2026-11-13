@@ -1,0 +1,105 @@
+
+ RUN  v3.2.4 C:/tareas universitarios/TAREAS U/Tareas Univ/Ciclo 5/Taller de programacion Web/botica-wt-tarjeta-3d/botica-san-juan-frontend
+
+(node:64708) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39688) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55520) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:49456) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:22132) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40748) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:64232) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:46016) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:4024) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9896) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38272) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42276) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:38032) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:62344) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:53060) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42820) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:49196) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41168) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:52316) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ src/utils/__tests__/tarjetaBancaria.spec.ts (13 tests) 5ms
+ ✓ src/utils/__tests__/validacionServidor.spec.ts (9 tests) 5ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts (26 tests) 20ms
+ ✓ src/offline/__tests__/catalogo.spec.ts (9 tests) 5ms
+ ✓ src/offline/__tests__/notaContingencia.spec.ts (4 tests) 15ms
+stdout | src/services/__tests__/envio-de-archivos.spec.ts
+🟣 2026-11-13T05:08:20.455Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+ ✓ src/auth/__tests__/CampoTexto.spec.ts (6 tests) 47ms
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > manda el FormData tal cual, sin convertirlo a JSON
+🟣 2026-11-13T05:08:20.474Z [DEBUG]: Peticion HTTP { method: 'POST', url: '/api/perfil/foto', autenticada: false }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > manda el FormData tal cual, sin convertirlo a JSON
+🟣 2026-11-13T05:08:20.475Z [DEBUG]: Respuesta HTTP { status: 200, url: '/perfil/foto', method: 'POST' }
+
+ ✓ src/components/__tests__/ImagenConRespaldo.spec.ts (9 tests) 58ms
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > no deja puesto application/json cuando el cuerpo es un FormData
+🟣 2026-11-13T05:08:20.476Z [DEBUG]: Peticion HTTP { method: 'POST', url: '/api/perfil/foto', autenticada: false }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > no deja puesto application/json cuando el cuerpo es un FormData
+🟣 2026-11-13T05:08:20.476Z [DEBUG]: Respuesta HTTP { status: 200, url: '/perfil/foto', method: 'POST' }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > conserva el nombre del campo que espera el backend
+🟣 2026-11-13T05:08:20.477Z [DEBUG]: Peticion HTTP { method: 'POST', url: '/api/perfil/foto', autenticada: false }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > conserva el nombre del campo que espera el backend
+🟣 2026-11-13T05:08:20.477Z [DEBUG]: Respuesta HTTP { status: 200, url: '/perfil/foto', method: 'POST' }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > sigue mandando application/json cuando el cuerpo es un objeto
+🟣 2026-11-13T05:08:20.478Z [DEBUG]: Peticion HTTP { method: 'PUT', url: '/api/perfil', autenticada: false }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > sigue mandando application/json cuando el cuerpo es un objeto
+🟣 2026-11-13T05:08:20.478Z [DEBUG]: Respuesta HTTP { status: 200, url: '/perfil', method: 'PUT' }
+
+ ✓ src/services/__tests__/envio-de-archivos.spec.ts (4 tests) 9ms
+ ✓ src/client/__tests__/TarjetaResumen.spec.ts (5 tests) 58ms
+stdout | src/client/checkout/__tests__/CheckoutPagoView.spec.ts
+🟣 2026-11-13T05:08:20.584Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+ ✓ src/stores/__tests__/offline.spec.ts (15 tests) 188ms
+stdout | src/client/__tests__/desvincular-google.spec.ts
+🟣 2026-11-13T05:08:20.663Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+stdout | src/client/__tests__/ProductoDetalleView.spec.ts
+🟣 2026-11-13T05:08:20.681Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+ ✓ src/auth/__tests__/verificar-correo.spec.ts (5 tests) 31ms
+ ✓ src/client/checkout/__tests__/CheckoutPagoView.spec.ts (1 test) 36ms
+ ✓ src/components/__tests__/zona-de-receta.spec.ts (9 tests) 85ms
+ ✓ src/components/__tests__/DialogoConfirmacion.spec.ts (5 tests) 91ms
+ ✓ src/auth/__tests__/restablecer-contrasena.spec.ts (8 tests) 91ms
+ ✓ src/client/__tests__/desvincular-google.spec.ts (6 tests) 66ms
+stdout | src/components/__tests__/Footer.spec.ts
+🟣 2026-11-13T05:08:20.910Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+ ✓ src/components/__tests__/Footer.spec.ts (3 tests) 92ms
+ ✓ src/client/checkout/__tests__/TarjetaBancariaVisual.spec.ts (11 tests) 399ms
+ ✓ src/client/__tests__/ProductoDetalleView.spec.ts (6 tests) 212ms
+
+ Test Files  19 passed (19)
+      Tests  154 passed (154)
+   Start at  00:08:17
+   Duration  3.77s (transform 7.01s, setup 294ms, collect 16.02s, tests 1.51s, environment 30.92s, prepare 5.03s)
+

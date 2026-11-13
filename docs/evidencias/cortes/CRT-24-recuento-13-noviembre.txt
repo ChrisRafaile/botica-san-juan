@@ -1,0 +1,72 @@
+EVIDENCIA CRT-24 · Recuento de la suite automatizada tras la boleta SUNAT,
+la ficha de producto y la tarjeta interactiva del checkout
+Sistema Web de Gestion Botica San Juan · 2026-11-13 00:08 (hora de Lima)
+===============================================================================
+
+POR QUE EXISTE ESTA EVIDENCIA
+-----------------------------------------------------------------------------
+CRT-17 fijo el recuento en 379 pruebas de backend y 116 de frontend. Despues
+se fusionaron la representacion impresa de la boleta y la factura (PR 45), la
+ficha de producto con el checkout del portal (PR 46) y la tarjeta bancaria
+interactiva. Cada uno trajo sus pruebas, asi que la cifra de CRT-17 volvio a
+quedarse corta, que es justo el problema que CRT-17 habia cerrado.
+
+Esta evidencia mide de nuevo y deja las dos salidas literales al lado.
+
+
+RECUENTO MEDIDO
+-----------------------------------------------------------------------------
+  BACKEND   php artisan test
+            419 passed (1172 assertions)
+            34 clases de prueba
+            34,67 s sobre PostgreSQL 16
+
+  FRONTEND  .\node_modules\.bin\vitest.cmd run
+            154 passed (154)
+            19 archivos de prueba
+            3,77 s
+
+  TOTAL     573 pruebas automatizadas
+
+  Diferencia con CRT-17: +40 en el backend (+104 aserciones, +2 clases) y
+  +38 en el frontend (+6 archivos). +78 en total.
+
+
+ARCHIVOS DE ESTA EVIDENCIA
+-----------------------------------------------------------------------------
+  CRT-18  Salida literal del backend, completa y sin limpiar.
+  CRT-19  Guion de la figura del backend.
+  CRT-20  Salida literal del frontend.
+  CRT-21  Figura del backend (419).
+  CRT-22  Guion de la figura del frontend.
+  CRT-23  Figura del frontend (154).
+
+Los dos guiones no se escribieron a mano: se extrajeron de CRT-18 y CRT-20 con
+un script que ademas comprueba que el numero de archivos listados coincide con
+el del resumen y que la suma de pruebas por archivo da el total. Las figuras
+las compone docs/scripts/render_terminal.py.
+
+
+LO QUE NO SE TOCO
+-----------------------------------------------------------------------------
+CRT-11 a CRT-17 (379 y 116) SE CONSERVAN, por la misma razon por la que
+CRT-17 conservo CRT-01 a CRT-03: son el corte que cierra la observacion O-B1
+y el rastro de como crecio la suite (198 -> 379 -> 419 en el backend).
+
+
+COMO REPRODUCIRLO
+-----------------------------------------------------------------------------
+  cd botica-san-juan-backend
+  php artisan test
+
+  cd botica-san-juan-frontend
+  .\node_modules\.bin\vitest.cmd run
+
+  # Volver a componer las figuras
+  python docs/scripts/render_terminal.py `
+      docs/evidencias/cortes/CRT-19-guion-suite-419.json `
+      docs/evidencias/cortes/CRT-21-suite-419.png
+
+render_terminal.py busca DejaVu Sans Mono en la ruta de Linux. En Windows no
+existe: estas dos figuras se compusieron cargando el modulo y apuntando MONO y
+MONO_B a la copia de DejaVu que trae matplotlib, sin modificar el script.

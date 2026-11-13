@@ -1,6 +1,6 @@
 # Índice de evidencias
 
-Mapa de códigos para citar en el informe final. 139 archivos en 18 carpetas.
+Mapa de códigos para citar en el informe final. 149 archivos en 19 carpetas.
 
 ---
 
@@ -91,6 +91,11 @@ sus guiones y sus figuras. `CRT-17` es el acta, y explica por qué `CRT-01`–`C
 —las 198 pruebas que cita el APF2— **no se sustituyen**: romperían un índice al
 que apunta un documento ya calificado, y borrarían la única prueba de que la
 suite creció.
+
+`CRT-18`–`CRT-24` son el **corte vigente**, medido el 13-11-2026 tras la boleta
+SUNAT, la ficha de producto y la tarjeta del checkout: 419 pruebas de backend y
+154 de frontend. `CRT-24` es el acta. `CRT-11`–`CRT-17` se conservan por la
+misma razón que `CRT-01`–`CRT-03`.
 
 ### `R` · `recetas/`
 El flujo clínico completo y en orden: pedido que exige receta, zona de
