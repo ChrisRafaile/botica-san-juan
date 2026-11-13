@@ -248,4 +248,64 @@ describe('ProductoDetalleView.vue (Ficha de Producto en /catalogo/:id)', () => {
     await botonZoom.trigger('click')
     expect(botonZoom.attributes('aria-pressed')).toBe('true')
   })
+
+  it('reserva altura compartida entre el skeleton y el detalle, y mantiene placeholder mientras cargan los recomendados', async () => {
+    /* El tipo se deriva del constructor de Promise en vez de escribirse como
+       `(valor: T) => void`: la regla no-unused-vars del proyecto cuenta el
+       nombre del parámetro de un tipo de función como variable sin usar. */
+    type Resolver<T> = Parameters<ConstructorParameters<typeof Promise<T>>[0]>[0]
+    let resolverProducto!: Resolver<Product>
+    let resolverRecomendados!: Resolver<{
+      items: Product[]
+      total: number
+      pagina: number
+      porPagina: number
+      ultimaPagina: number
+    }>
+
+    vi.spyOn(productsService, 'getProductById').mockReturnValue(
+      new Promise((resolve) => {
+        resolverProducto = resolve
+      }),
+    )
+    vi.spyOn(productsService, 'listar').mockReturnValue(
+      new Promise((resolve) => {
+        resolverRecomendados = resolve
+      }),
+    )
+
+    const wrapper = montarComponente()
+    await flushPromises()
+
+    // Fase 1: cargando producto dentro del contenedor con altura reservada
+    const contenedor = wrapper.find('[data-testid="contenedor-ficha-producto"]')
+    expect(contenedor.exists()).toBe(true)
+    expect(contenedor.classes().some((c) => c.startsWith('min-h-'))).toBe(true)
+    expect(contenedor.find('[data-testid="skeleton-producto"]').exists()).toBe(true)
+    expect(contenedor.find('[data-testid="skeleton-producto"] .aspect-square').exists()).toBe(true)
+
+    // Fase 2: llega GET /api/productos/:id, recomendados sigue pendiente
+    resolverProducto(amoxicilina)
+    await flushPromises()
+
+    const mismoContenedor = wrapper.find('[data-testid="contenedor-ficha-producto"]')
+    expect(mismoContenedor.exists()).toBe(true)
+    expect(mismoContenedor.find('[data-testid="skeleton-producto"]').exists()).toBe(false)
+    expect(mismoContenedor.find('[data-testid="detalle-producto"]').exists()).toBe(true)
+    expect(mismoContenedor.find('[data-testid="seccion-recomendados"]').exists()).toBe(true)
+    expect(mismoContenedor.find('[data-testid="skeleton-recomendados"]').exists()).toBe(true)
+
+    // Fase 3: llegan los recomendados y reemplazan el placeholder dentro de la misma sección
+    resolverRecomendados({
+      items: [productoRecomendado],
+      total: 1,
+      pagina: 1,
+      porPagina: 10,
+      ultimaPagina: 1,
+    })
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid="skeleton-recomendados"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="seccion-recomendados"]').text()).toContain('Cefalexina 500 mg')
+  })
 })
