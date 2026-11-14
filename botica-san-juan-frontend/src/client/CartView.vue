@@ -422,11 +422,15 @@
       -->
       <div
         v-if="checkoutAbierto"
+        ref="panelCheckout"
         class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-neutro-950/60 p-4 backdrop-blur-xs"
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-checkout"
+        tabindex="-1"
         @click.self="cerrarCheckout"
+        @keydown.esc.prevent.stop="cerrarCheckout"
+        @keydown.tab="atraparFoco($event, panelCheckout)"
       >
         <div class="my-8 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-borde-sutil bg-superficie-elevada p-6 shadow-xl">
           <div class="flex items-start justify-between gap-3">
@@ -756,10 +760,15 @@
       <!-- Pedido confirmado (contraentrega o invitado) -->
       <div
         v-if="confirmado"
+        ref="panelConfirmado"
         class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 p-4 backdrop-blur-xs"
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-confirmado"
+        tabindex="-1"
+        @click.self="cerrarConfirmado"
+        @keydown.esc.prevent.stop="cerrarConfirmado"
+        @keydown.tab="atraparFoco($event, panelConfirmado)"
       >
         <div class="w-full max-w-md rounded-2xl border border-borde-sutil bg-superficie-elevada p-6 text-center shadow-xl">
           <CheckCircleIcon class="mx-auto size-12 text-exito-600 dark:text-exito-500" aria-hidden="true" />
@@ -882,7 +891,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, nextTick, onMounted, onBeforeUnmount, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
@@ -1006,13 +1015,119 @@ const router = useRouter()
 const autenticado = computed(() => auth.isAuthenticated)
 
 const checkoutAbierto = ref(false)
+const panelCheckout = ref<HTMLElement | null>(null)
 const enviando = ref(false)
 const errorEnvio = ref('')
 const errores = ref<Record<string, string>>({})
 const confirmado = ref<Awaited<ReturnType<typeof carrito.confirmar>> | null>(null)
+const panelConfirmado = ref<HTMLElement | null>(null)
 const metodoPago = ref<'tarjeta' | 'contraentrega'>('tarjeta')
 const descargandoPdfConfirmado = ref(false)
 const errorDescargaPdf = ref('')
+
+const SELECTOR_ENFOCABLES =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+let origenFocoCheckout: HTMLElement | null = null
+let origenFocoConfirmado: HTMLElement | null = null
+let temporizadorCopiado: ReturnType<typeof setTimeout> | null = null
+
+function obtenerEnfocables(contenedor: HTMLElement | null): HTMLElement[] {
+  if (!contenedor) return []
+  return Array.from(contenedor.querySelectorAll<HTMLElement>(SELECTOR_ENFOCABLES)).filter(
+    (el) => el.getAttribute('aria-hidden') !== 'true' && !el.closest('[inert]'),
+  )
+}
+
+function enfocarInicioDialogo(contenedor: HTMLElement | null) {
+  const lista = obtenerEnfocables(contenedor)
+  const destino = lista[0] ?? contenedor
+  destino?.focus()
+}
+
+function atraparFoco(evento: KeyboardEvent, contenedor: HTMLElement | null): void {
+  const lista = obtenerEnfocables(contenedor)
+  if (lista.length === 0) {
+    evento.preventDefault()
+    contenedor?.focus()
+    return
+  }
+
+  const primero = lista[0]!
+  const ultimo = lista[lista.length - 1]!
+  const activo = document.activeElement as HTMLElement | null
+
+  if (evento.shiftKey && (activo === primero || !contenedor?.contains(activo))) {
+    evento.preventDefault()
+    ultimo.focus()
+  } else if (!evento.shiftKey && (activo === ultimo || !contenedor?.contains(activo))) {
+    evento.preventDefault()
+    primero.focus()
+  }
+}
+
+function manejarEscapeGlobal(evento: KeyboardEvent): void {
+  if (evento.key !== 'Escape') return
+  if (confirmado.value) {
+    evento.preventDefault()
+    cerrarConfirmado()
+    return
+  }
+  if (checkoutAbierto.value) {
+    evento.preventDefault()
+    cerrarCheckout()
+  }
+}
+
+watch(checkoutAbierto, async (abierto) => {
+  if (abierto) {
+    origenFocoCheckout = document.activeElement as HTMLElement | null
+    await nextTick()
+    enfocarInicioDialogo(panelCheckout.value)
+    return
+  }
+
+  await nextTick()
+  if (!confirmado.value) {
+    origenFocoCheckout?.focus()
+    origenFocoCheckout = null
+  }
+})
+
+watch(confirmado, async (nuevo, anterior) => {
+  if (nuevo && !anterior) {
+    origenFocoConfirmado = origenFocoCheckout ?? (document.activeElement as HTMLElement | null)
+    origenFocoCheckout = null
+    await nextTick()
+    enfocarInicioDialogo(panelConfirmado.value)
+    return
+  }
+
+  if (!nuevo && anterior) {
+    await nextTick()
+    origenFocoConfirmado?.focus()
+    origenFocoConfirmado = null
+  }
+})
+
+watch(
+  () => checkoutAbierto.value || Boolean(confirmado.value),
+  (hayDialogoAbierto) => {
+    if (hayDialogoAbierto) {
+      window.addEventListener('keydown', manejarEscapeGlobal)
+    } else {
+      window.removeEventListener('keydown', manejarEscapeGlobal)
+    }
+  },
+)
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', manejarEscapeGlobal)
+  if (temporizadorCopiado !== null) {
+    clearTimeout(temporizadorCopiado)
+    temporizadorCopiado = null
+  }
+})
 
 const formulario = ref({
   modalidad_entrega: 'recojo' as 'recojo' | 'entrega',
@@ -1065,6 +1180,10 @@ function abrirCheckout() {
 function cerrarCheckout() {
   if (enviando.value) return
   checkoutAbierto.value = false
+}
+
+function cerrarConfirmado() {
+  confirmado.value = null
 }
 
 function validarFormularioCheckout(): boolean {
@@ -1185,7 +1304,13 @@ async function copiarPedido() {
   try {
     await navigator.clipboard.writeText(textoPedido.value)
     copiado.value = true
-    setTimeout(() => { copiado.value = false }, 2000)
+    if (temporizadorCopiado !== null) {
+      clearTimeout(temporizadorCopiado)
+    }
+    temporizadorCopiado = setTimeout(() => {
+      copiado.value = false
+      temporizadorCopiado = null
+    }, 2000)
   } catch {
     /* El portapapeles puede estar bloqueado por permisos o por no estar en un
        contexto seguro. No hay nada que el visitante pueda arreglar, así que no

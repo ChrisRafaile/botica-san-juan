@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount, flushPromises } from '@vue/test-utils'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { mount, flushPromises, type VueWrapper } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import CartView from '../CartView.vue'
 import api from '@/services/api'
@@ -20,6 +20,16 @@ vi.mock('vue-router', () => ({
 }))
 
 describe('CartView.vue (Checkout cliente)', () => {
+  const wrappersMontados: VueWrapper[] = []
+
+  afterEach(() => {
+    while (wrappersMontados.length > 0) {
+      wrappersMontados.pop()?.unmount()
+    }
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+  })
+
   beforeEach(() => {
     setActivePinia(createPinia())
     localStorage.clear()
@@ -91,7 +101,8 @@ describe('CartView.vue (Checkout cliente)', () => {
   })
 
   function montar() {
-    return mount(CartView, {
+    const wrapper = mount(CartView, {
+      attachTo: document.body,
       global: {
         stubs: {
           Header: true,
@@ -100,6 +111,8 @@ describe('CartView.vue (Checkout cliente)', () => {
         },
       },
     })
+    wrappersMontados.push(wrapper)
+    return wrapper
   }
 
   it('valida dirección y RUC para Factura antes de enviar y redirige a la pasarela con Tarjeta 3D', async () => {
@@ -175,5 +188,92 @@ describe('CartView.vue (Checkout cliente)', () => {
     expect(wrapper.text()).toContain('Pedido registrado')
     expect(wrapper.text()).toContain('#612')
     expect(wrapper.find('a[href="/client/home"]').exists()).toBe(true)
+
+    const dialogoConfirmado = wrapper.find('[role="dialog"][aria-labelledby="titulo-confirmado"]')
+    expect(dialogoConfirmado.exists()).toBe(true)
+    expect(dialogoConfirmado.element.contains(document.activeElement)).toBe(true)
+
+    // Tab en el último elemento enfocable del modal confirmado vuelve al primero
+    const enfocables = Array.from(
+      dialogoConfirmado.element.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+    )
+    expect(enfocables.length).toBeGreaterThanOrEqual(2)
+    enfocables[enfocables.length - 1]!.focus()
+    await dialogoConfirmado.trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(enfocables[0])
+
+    // Escape cierra el modal de pedido confirmado
+    await dialogoConfirmado.trigger('keydown', { key: 'Escape' })
+    await flushPromises()
+    expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
+  })
+
+  it('atrapa el foco en el modal de checkout, cierra con Escape y lo devuelve al disparador', async () => {
+    const wrapper = montar()
+    await flushPromises()
+
+    const btnCheckout = wrapper.findAll('button').find((b) => b.text().includes('Continuar al checkout'))!
+    ;(btnCheckout.element as HTMLElement).focus()
+    await btnCheckout.trigger('click')
+    await flushPromises()
+
+    const dialogo = wrapper.find('[role="dialog"][aria-labelledby="titulo-checkout"]')
+    expect(dialogo.exists()).toBe(true)
+    expect(dialogo.element.contains(document.activeElement)).toBe(true)
+
+    const botonCerrar = dialogo.find('button[aria-label="Cerrar checkout"]').element as HTMLElement
+    const botonEnviar = dialogo.find('button[type="submit"]').element as HTMLElement
+
+    // Tab desde el último control vuelve al primero
+    botonEnviar.focus()
+    await dialogo.trigger('keydown', { key: 'Tab' })
+    expect(document.activeElement).toBe(botonCerrar)
+
+    // Shift+Tab desde el primero vuelve al último
+    await dialogo.trigger('keydown', { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(botonEnviar)
+
+    // Escape cierra el checkout y devuelve el foco al botón que lo abrió
+    await dialogo.trigger('keydown', { key: 'Escape' })
+    await flushPromises()
+    expect(wrapper.find('[role="dialog"]').exists()).toBe(false)
+    expect(document.activeElement).toBe(btnCheckout.element)
+  })
+
+  it('limpia el temporizador de copiarPedido y los escuchadores al desmontar', async () => {
+    vi.useFakeTimers()
+    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout')
+    const removeListenerSpy = vi.spyOn(window, 'removeEventListener')
+    const descriptorOriginal = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
+
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    })
+
+    try {
+      const wrapper = montar()
+      await flushPromises()
+
+      const btnCheckout = wrapper.findAll('button').find((b) => b.text().includes('Continuar al checkout'))!
+      await btnCheckout.trigger('click')
+      await flushPromises()
+      await wrapper.find('button[aria-label="Cerrar checkout"]').trigger('click')
+      await flushPromises()
+
+      const btnCopiar = wrapper.findAll('button').find((b) => b.text().includes('Copiar pedido'))!
+      await btnCopiar.trigger('click')
+      await flushPromises()
+      expect(wrapper.text()).toContain('Pedido copiado')
+
+      wrapper.unmount()
+
+      expect(clearTimeoutSpy).toHaveBeenCalled()
+      expect(removeListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
+    } finally {
+      if (descriptorOriginal) {
+        Object.defineProperty(navigator, 'clipboard', descriptorOriginal)
+      }
+    }
   })
 })
