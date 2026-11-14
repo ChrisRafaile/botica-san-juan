@@ -4,7 +4,7 @@
       <!-- Resumen del pedido -->
       <section
         data-testid="seccion-resumen-pedido"
-        class="self-start lg:col-span-3 rounded-2xl bg-superficie-elevada/90 p-8 shadow-xl backdrop-blur-sm"
+        class="self-start lg:col-span-3 rounded-2xl border border-borde-sutil bg-superficie-elevada/95 p-8 shadow-xl backdrop-blur-sm"
         aria-labelledby="titulo-resumen"
       >
         <h1
@@ -58,18 +58,23 @@
             </div>
           </dl>
 
-          <p
-            v-if="pedido.address"
-            class="mt-6 rounded-xl bg-superficie-hundida px-4 py-3 text-sm text-texto-secundario"
+          <div
+            v-if="textoEntrega || etiquetaComprobante"
+            class="mt-6 space-y-2 rounded-xl bg-superficie-hundida px-4 py-3 text-sm text-texto-secundario"
           >
-            <span class="font-medium text-texto-secundario">Entrega:</span> {{ pedido.address }}
-          </p>
+            <p v-if="textoEntrega">
+              <span class="font-medium text-texto-primario">Entrega:</span> {{ textoEntrega }}
+            </p>
+            <p v-if="etiquetaComprobante">
+              <span class="font-medium text-texto-primario">Comprobante:</span> {{ etiquetaComprobante }}
+            </p>
+          </div>
         </template>
       </section>
 
       <!-- Pago -->
       <section
-        class="lg:col-span-2 rounded-2xl bg-superficie-elevada/90 p-8 shadow-xl backdrop-blur-sm"
+        class="lg:col-span-2 rounded-2xl border border-borde-sutil bg-superficie-elevada/95 p-8 shadow-xl backdrop-blur-sm"
         aria-labelledby="titulo-pago"
       >
         <h2
@@ -84,7 +89,10 @@
         </p>
 
         <!-- Tarjeta bancaria interactiva propia con tokens del proyecto -->
-        <TarjetaBancariaVisual class="mb-6" />
+        <TarjetaBancariaVisual
+          class="mb-6"
+          @cambio-estado="alCambiarTarjeta"
+        />
 
         <!--
           Contenedor del formulario del proveedor.
@@ -120,7 +128,7 @@
 
         <p
           v-if="error"
-          class="mt-4 rounded-lg bg-peligro-50 px-4 py-3 text-sm text-peligro-700"
+          class="mt-4 rounded-lg bg-peligro-50 px-4 py-3 text-sm text-peligro-700 dark:bg-peligro-500/10 dark:text-peligro-500"
           role="alert"
           aria-live="assertive"
         >
@@ -130,7 +138,7 @@
         <button
           v-if="!formularioMontado"
           type="button"
-          class="mt-6 w-full rounded-xl bg-linear-to-r from-clinico-600 to-clinico-600 px-6 py-3 font-medium text-white shadow-lg shadow-clinico-600/20 transition hover:from-clinico-700 hover:to-clinico-700 disabled:cursor-not-allowed disabled:opacity-60"
+          class="foco-dentro mt-6 min-h-11 w-full rounded-xl bg-clinico-600 px-6 py-3 font-medium text-white shadow-lg shadow-clinico-600/20 transition hover:bg-clinico-700 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="procesando || cargando"
           @click="pagar"
         >
@@ -161,8 +169,8 @@ import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/services/api'
 import { montarFormulario, type RetornoVerificable } from '@/services/izipay'
-import { formatearMonto, iniciarPago, validarRetorno, rutaDelEstado } from '@/services/pagos'
-import TarjetaBancariaVisual from './TarjetaBancariaVisual.vue'
+import { formatearMonto, iniciarPago, simularPago, validarRetorno, rutaDelEstado } from '@/services/pagos'
+import TarjetaBancariaVisual, { type EstadoTarjetaVisual } from './TarjetaBancariaVisual.vue'
 
 interface LineaPedido {
   id: number
@@ -178,7 +186,15 @@ interface PedidoResumen {
   total: string | number
   moneda?: string
   address?: string | null
+  observacion?: string | null
   estado_pago?: string
+  comprobante_electronico?: {
+    id: number
+    tipo_comprobante: string
+    serie: string
+    numero: number
+    estado_sunat: string
+  } | null
   pedido_detalles?: LineaPedido[]
 }
 
@@ -191,6 +207,7 @@ const procesando = ref(false)
 const error = ref('')
 const modoSimulado = ref(false)
 const formularioMontado = ref(false)
+const tarjetaEstado = ref<EstadoTarjetaVisual>({ completa: false, marca: 'desconocida' })
 
 let desmontarFormulario: (() => void) | null = null
 
@@ -198,6 +215,21 @@ const moneda = computed(() => pedido.value?.moneda ?? 'PEN')
 const total = computed(() => Number(pedido.value?.total ?? 0))
 const baseImponible = computed(() => Math.round((total.value / 1.18) * 100) / 100)
 const igv = computed(() => Math.round((total.value - baseImponible.value) * 100) / 100)
+const textoEntrega = computed(() => pedido.value?.observacion || pedido.value?.address || '')
+const etiquetaComprobante = computed(() => {
+  const c = pedido.value?.comprobante_electronico
+  if (!c) return ''
+  const tipo = c.tipo_comprobante === 'factura' ? 'Factura' : 'Boleta'
+  const correlativo = `${c.serie}-${String(c.numero).padStart(8, '0')}`
+  return `${tipo} ${correlativo}`
+})
+
+function alCambiarTarjeta(estado: EstadoTarjetaVisual) {
+  tarjetaEstado.value = estado
+  if (estado.completa && error.value.includes('tarjeta 3D')) {
+    error.value = ''
+  }
+}
 
 /**
  * Encamina la interfaz una vez que el proveedor cerró la operación.
@@ -243,10 +275,19 @@ async function pagar(): Promise<void> {
     const referencia = respuesta.pago.referencia
     modoSimulado.value = respuesta.checkout.modo === 'simulado'
 
-    // Sin credenciales el proveedor no entrega token de formulario. En ese caso
-    // se sigue el flujo hasta la pantalla de espera, que es lo que permite
-    // ejercitar la integración completa sin una cuenta comercial.
+    // Sin credenciales el proveedor no entrega token de formulario. En modo
+    // simulado validamos localmente en memoria la tarjeta 3D (sin enviar numero
+    // completo ni CVV por red) y completamos la simulacion autenticada.
     if (modoSimulado.value || !respuesta.checkout.form_token) {
+      if (!tarjetaEstado.value.completa) {
+        error.value = 'Completa los datos en la tarjeta 3D antes de confirmar el pago.'
+        return
+      }
+
+      await simularPago(referencia, {
+        resultado: 'aprobar',
+        marca_tarjeta: tarjetaEstado.value.marca,
+      })
       await encaminar(referencia)
       return
     }
@@ -275,7 +316,7 @@ onMounted(async () => {
   }
 
   try {
-    const { data } = await api.get<PedidoResumen>(`/pedidos/${id}`)
+    const { data } = await api.get<PedidoResumen>(`/pedidos/${id}/mi-pedido`)
     pedido.value = data
 
     // Un pedido ya resuelto no vuelve a la pantalla de pago.

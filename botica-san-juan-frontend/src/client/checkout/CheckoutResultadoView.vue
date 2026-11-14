@@ -1,9 +1,9 @@
 <template>
   <main
-    class="min-h-screen bg-linear-to-br from-clinico-50 to-clinico-100 flex items-center justify-center px-4 py-12"
+    class="flex min-h-screen items-center justify-center bg-superficie-fondo bg-linear-to-br from-clinico-50 to-clinico-100 px-4 py-12 text-texto-primario dark:from-superficie-fondo dark:to-superficie-hundida"
   >
     <section
-      class="w-full max-w-xl bg-superficie-elevada/90 backdrop-blur-sm rounded-2xl shadow-xl p-10"
+      class="w-full max-w-xl rounded-2xl border border-borde-sutil bg-superficie-elevada/95 p-10 shadow-xl backdrop-blur-sm"
       aria-labelledby="titulo-resultado"
     >
       <div
@@ -84,8 +84,19 @@
             <dt class="text-sm text-texto-terciario">
               Total
             </dt>
-            <dd class="text-sm font-semibold text-texto-primario">
+            <dd class="cifras-tabulares text-sm font-semibold text-texto-primario">
               {{ formatearMonto(pago.monto, pago.moneda) }}
+            </dd>
+          </div>
+          <div
+            v-if="comprobante"
+            class="flex justify-between px-5 py-3"
+          >
+            <dt class="text-sm text-texto-terciario">
+              {{ comprobante.tipo === 'factura' ? 'Factura electrónica' : 'Boleta de venta' }}
+            </dt>
+            <dd class="cifras-tabulares text-sm font-semibold text-texto-primario">
+              {{ comprobante.identificador }}
             </dd>
           </div>
           <div
@@ -112,27 +123,47 @@
           </div>
         </dl>
 
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <p
+          v-if="errorPdf"
+          class="mt-4 rounded-xl bg-peligro-50 px-4 py-2.5 text-center text-xs text-peligro-700 dark:bg-peligro-500/10 dark:text-peligro-500"
+          role="alert"
+        >
+          {{ errorPdf }}
+        </p>
+
+        <div class="mt-8 flex flex-col flex-wrap gap-3 sm:flex-row sm:justify-center">
+          <button
+            v-if="visual === 'PAYMENT_SUCCESS' && comprobante?.id"
+            type="button"
+            :disabled="descargandoPdf"
+            class="foco-dentro inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-borde-control bg-superficie-base px-5 py-3 text-center text-sm font-semibold text-texto-primario transition hover:bg-superficie-interactiva disabled:opacity-60"
+            @click="descargarPdf"
+          >
+            <LoaderCircle v-if="descargandoPdf" class="size-4 animate-spin" aria-hidden="true" />
+            <Download v-else class="size-4" aria-hidden="true" />
+            {{ descargandoPdf ? 'Descargando…' : `Descargar ${comprobante.tipo === 'factura' ? 'Factura' : 'Boleta'} PDF` }}
+          </button>
+
           <RouterLink
             v-if="visual === 'PAYMENT_SUCCESS'"
             to="/client/home"
-            class="rounded-xl bg-linear-to-r from-clinico-600 to-clinico-600 px-6 py-3 text-center font-medium text-white shadow-lg shadow-clinico-600/20 transition hover:from-clinico-700 hover:to-clinico-700"
+            class="foco-dentro min-h-11 rounded-xl bg-botica-600 px-6 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-botica-600/20 transition hover:bg-botica-700"
           >
-            Ver mi pedido
+            Ver mis pedidos
           </RouterLink>
 
           <button
             v-if="visual === 'PAYMENT_ERROR' || visual === 'PAYMENT_CANCELLED'"
             type="button"
-            class="rounded-xl bg-linear-to-r from-clinico-600 to-clinico-600 px-6 py-3 font-medium text-white shadow-lg shadow-clinico-600/20 transition hover:from-clinico-700 hover:to-clinico-700"
+            class="foco-dentro min-h-11 rounded-xl bg-clinico-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-clinico-600/20 transition hover:bg-clinico-700"
             @click="reintentar"
           >
             Intentar nuevamente
           </button>
 
           <RouterLink
-            to="/"
-            class="rounded-xl border border-borde-sutil bg-superficie-elevada px-6 py-3 text-center font-medium text-texto-secundario transition hover:bg-superficie-hundida"
+            to="/products"
+            class="foco-dentro min-h-11 rounded-xl border border-borde-sutil bg-superficie-elevada px-6 py-3 text-center text-sm font-medium text-texto-secundario transition hover:bg-superficie-hundida"
           >
             Continuar comprando
           </RouterLink>
@@ -145,12 +176,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { Download, LoaderCircle } from 'lucide-vue-next'
+import { descargarPdfComprobante } from '@/services/comprobantes'
 import {
   consultarEstado,
   describirMedio,
   formatearMonto,
   aEstadoVisual,
   rutaDelEstado,
+  type ComprobanteResumenPago,
   type EstadoVisual,
   type Pago,
 } from '@/services/pagos'
@@ -161,6 +195,9 @@ const router = useRouter()
 const cargando = ref(true)
 const pago = ref<Pago | null>(null)
 const pedidoId = ref<number | null>(null)
+const comprobante = ref<ComprobanteResumenPago | null>(null)
+const descargandoPdf = ref(false)
+const errorPdf = ref('')
 
 /**
  * El estado visual proviene siempre de lo que responde el backend, nunca de la
@@ -172,33 +209,33 @@ const visual = computed<EstadoVisual>(() => aEstadoVisual(pago.value?.estado))
 const ASPECTOS: Record<EstadoVisual, { titulo: string; detalle: string; fondoIcono: string; colorIcono: string }> = {
   PAYMENT_SUCCESS: {
     titulo: '¡Compra realizada con éxito!',
-    detalle: 'Recibirás tu comprobante electrónico en unos minutos.',
-    fondoIcono: 'bg-botica-50',
-    colorIcono: 'text-botica-600',
+    detalle: 'Tu pedido quedó confirmado y tu comprobante electrónico ya está listo.',
+    fondoIcono: 'bg-botica-50 dark:bg-botica-500/15',
+    colorIcono: 'text-botica-600 dark:text-botica-300',
   },
   PAYMENT_ERROR: {
     titulo: 'El pago no pudo completarse',
     detalle: 'Tu banco o proveedor de pagos rechazó la transacción. No se realizó ningún cargo.',
-    fondoIcono: 'bg-peligro-50',
-    colorIcono: 'text-peligro-600',
+    fondoIcono: 'bg-peligro-50 dark:bg-peligro-500/15',
+    colorIcono: 'text-peligro-600 dark:text-peligro-500',
   },
   PAYMENT_CANCELLED: {
     titulo: 'Cancelaste el pago',
     detalle: 'Tu pedido sigue guardado. Puedes retomarlo cuando quieras.',
-    fondoIcono: 'bg-ambar-50',
-    colorIcono: 'text-ambar-600',
+    fondoIcono: 'bg-ambar-50 dark:bg-ambar-500/15',
+    colorIcono: 'text-ambar-600 dark:text-ambar-400',
   },
   PAYMENT_PENDING: {
     titulo: 'Tu pago está pendiente',
     detalle: 'Algunos medios de pago requieren que completes una operación adicional. Te avisaremos al confirmarse.',
-    fondoIcono: 'bg-ambar-50',
-    colorIcono: 'text-ambar-600',
+    fondoIcono: 'bg-ambar-50 dark:bg-ambar-500/15',
+    colorIcono: 'text-ambar-600 dark:text-ambar-400',
   },
   PAYMENT_PROCESSING: {
     titulo: 'Seguimos verificando tu pago',
     detalle: 'Aún no tenemos una respuesta definitiva del proveedor.',
-    fondoIcono: 'bg-clinico-50',
-    colorIcono: 'text-clinico-600',
+    fondoIcono: 'bg-clinico-50 dark:bg-clinico-500/15',
+    colorIcono: 'text-clinico-600 dark:text-clinico-300',
   },
   PAYMENT_REFUNDED: {
     titulo: 'Pago reembolsado',
@@ -216,6 +253,20 @@ function reintentar(): void {
   }
 }
 
+async function descargarPdf(): Promise<void> {
+  if (!comprobante.value?.id || descargandoPdf.value) return
+  descargandoPdf.value = true
+  errorPdf.value = ''
+
+  try {
+    await descargarPdfComprobante(comprobante.value.id, comprobante.value.identificador)
+  } catch {
+    errorPdf.value = 'No pudimos descargar el PDF ahora. También lo encontrarás en Mis comprobantes.'
+  } finally {
+    descargandoPdf.value = false
+  }
+}
+
 onMounted(async () => {
   const referencia = String(route.query.ref ?? '')
 
@@ -228,6 +279,7 @@ onMounted(async () => {
     const datos = await consultarEstado(referencia)
     pago.value = datos.pago
     pedidoId.value = datos.pedido_id
+    comprobante.value = datos.comprobante ?? null
 
     // Si la ruta no corresponde al estado real, se corrige la URL.
     const rutaCorrecta = rutaDelEstado(datos.pago.estado)

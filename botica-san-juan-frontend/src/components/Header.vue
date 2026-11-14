@@ -85,7 +85,7 @@
                 Mi Perfil
               </router-link>
               <router-link
-                to="/orders"
+                to="/client/home"
                 class="block px-4 py-2 text-sm text-texto-secundario hover:bg-superficie-hundida transition-colors"
               >
                 Mis Pedidos

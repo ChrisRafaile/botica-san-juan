@@ -347,7 +347,7 @@
           >
             <LoaderCircleIcon v-if="enviando" class="size-5 animate-spin" aria-hidden="true" />
             <ReceiptIcon v-else class="size-5" aria-hidden="true" />
-            {{ enviando ? 'Registrando…' : 'Confirmar pedido' }}
+            {{ enviando ? 'Registrando…' : 'Continuar al checkout' }}
           </button>
 
           <!-- Salida alternativa por WhatsApp, para quien prefiere hablar. -->
@@ -422,150 +422,347 @@
       -->
       <div
         v-if="checkoutAbierto"
-        class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-neutro-900/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-neutro-950/60 p-4 backdrop-blur-xs"
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-checkout"
         @click.self="cerrarCheckout"
       >
-        <div class="my-8 w-full max-w-md rounded-2xl bg-superficie-elevada p-6 shadow-xl">
-          <h2 id="titulo-checkout" class="text-xl font-semibold text-texto-primario">
-            Confirmar pedido
-          </h2>
-          <p class="mt-1 text-sm text-texto-secundario">
-            {{ carrito.totalUnidades }} {{ carrito.totalUnidades === 1 ? 'unidad' : 'unidades' }} ·
-            <strong class="text-texto-primario">{{ soles(carrito.desglose.total) }}</strong>
-          </p>
-
-          <!-- Con sesión: no se pide nada que el sistema ya sepa. -->
-          <div
-            v-if="autenticado"
-            class="mt-5 rounded-xl bg-superficie-hundida p-4 text-sm"
-          >
-            <p class="flex items-center gap-2 font-medium text-texto-primario">
-              <UserIcon class="size-4" aria-hidden="true" />
-              {{ auth.user?.nombre }}
-            </p>
-            <p class="mt-1 text-texto-secundario">
-              El pedido quedará en tu cuenta y podrás seguirlo desde tu panel.
-            </p>
-          </div>
-
-          <!-- Sin sesión: checkout rápido. -->
-          <form v-else class="mt-5 space-y-4" @submit.prevent="enviarPedido">
-            <p class="rounded-xl bg-superficie-hundida p-3 text-xs text-texto-secundario">
-              No hace falta crear una cuenta.
-              <RouterLink to="/login" class="foco-dentro rounded font-medium text-texto-marca underline">
-                Si ya tienes una, inicia sesión
-              </RouterLink>
-              y el pedido quedará guardado en tu historial.
-            </p>
-
+        <div class="my-8 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-borde-sutil bg-superficie-elevada p-6 shadow-xl">
+          <div class="flex items-start justify-between gap-3">
             <div>
-              <label for="co-nombre" class="block text-sm font-medium text-texto-secundario">
-                Nombre completo
-              </label>
-              <input
-                id="co-nombre"
-                v-model="formulario.cliente_nombre"
-                type="text"
-                autocomplete="name"
-                required
-                class="foco-dentro mt-1 w-full rounded-xl border border-borde-control bg-superficie-base px-3 py-2 text-texto-primario"
-                :class="errores.cliente_nombre ? 'border-peligro-500' : ''"
-                :aria-invalid="Boolean(errores.cliente_nombre)"
-              />
-              <p class="mt-1 min-h-5 text-xs text-peligro-600">{{ errores.cliente_nombre }}</p>
-            </div>
-
-            <div>
-              <label for="co-doc" class="block text-sm font-medium text-texto-secundario">
-                DNI o RUC
-              </label>
-              <input
-                id="co-doc"
-                v-model="formulario.cliente_documento"
-                type="text"
-                inputmode="numeric"
-                maxlength="11"
-                required
-                class="foco-dentro mt-1 w-full rounded-xl border border-borde-control bg-superficie-base px-3 py-2 text-texto-primario"
-                :class="errores.cliente_documento ? 'border-peligro-500' : ''"
-                :aria-invalid="Boolean(errores.cliente_documento)"
-              />
-              <!-- Se dice ANTES de enviar qué comprobante va a salir: con RUC
-                   es factura y con DNI boleta, y quien necesita factura debe
-                   enterarse aquí y no al recogerla. -->
-              <p class="mt-1 min-h-5 text-xs" :class="errores.cliente_documento ? 'text-peligro-600' : 'text-texto-secundario'">
-                {{ errores.cliente_documento || pistaComprobante }}
+              <h2 id="titulo-checkout" class="text-xl font-bold text-texto-primario">
+                Finalizar compra
+              </h2>
+              <p class="cifras-tabulares mt-1 text-sm text-texto-secundario">
+                {{ carrito.totalUnidades }} {{ carrito.totalUnidades === 1 ? 'unidad' : 'unidades' }} ·
+                <strong class="text-texto-primario">{{ soles(carrito.desglose.total) }}</strong>
               </p>
             </div>
-
-            <div>
-              <label for="co-tel" class="block text-sm font-medium text-texto-secundario">
-                Teléfono
-              </label>
-              <input
-                id="co-tel"
-                v-model="formulario.cliente_telefono"
-                type="tel"
-                autocomplete="tel"
-                required
-                class="foco-dentro mt-1 w-full rounded-xl border border-borde-control bg-superficie-base px-3 py-2 text-texto-primario"
-                :class="errores.cliente_telefono ? 'border-peligro-500' : ''"
-                :aria-invalid="Boolean(errores.cliente_telefono)"
-              />
-              <p class="mt-1 min-h-5 text-xs" :class="errores.cliente_telefono ? 'text-peligro-600' : 'text-texto-secundario'">
-                {{ errores.cliente_telefono || 'Para avisarte cuando esté listo.' }}
-              </p>
-            </div>
-          </form>
-
-          <p
-            v-if="errorEnvio"
-            class="mt-4 rounded-xl bg-peligro-50 p-3 text-sm text-peligro-700 dark:bg-peligro-500/10 dark:text-peligro-500"
-            role="alert"
-          >
-            {{ errorEnvio }}
-          </p>
-
-          <p class="mt-4 text-xs text-texto-secundario">
-            El pedido queda <strong>pendiente de preparación</strong>. El pago se
-            hace al recogerlo en el mostrador.
-          </p>
-
-          <div class="mt-6 flex justify-end gap-3">
             <button
               type="button"
-              class="foco-dentro rounded-xl border border-borde-control px-4 py-2 text-sm font-medium text-texto-primario hover:bg-superficie-interactiva"
+              class="foco-dentro rounded-lg p-2 text-texto-terciario hover:bg-superficie-interactiva hover:text-texto-primario"
+              aria-label="Cerrar checkout"
               :disabled="enviando"
               @click="cerrarCheckout"
             >
-              Cancelar
-            </button>
-            <button
-              type="button"
-              class="foco-dentro inline-flex items-center gap-2 rounded-xl bg-botica-600 px-4 py-2 text-sm font-semibold text-white hover:bg-botica-700 disabled:opacity-60"
-              :disabled="enviando"
-              @click="enviarPedido"
-            >
-              <LoaderCircleIcon v-if="enviando" class="size-4 animate-spin" aria-hidden="true" />
-              {{ enviando ? 'Registrando…' : 'Confirmar' }}
+              <XIcon class="size-4" aria-hidden="true" />
             </button>
           </div>
+
+          <form class="mt-5 space-y-5" @submit.prevent="enviarPedido">
+            <!-- 1. Modalidad de entrega -->
+            <fieldset>
+              <legend class="mb-2 block text-xs font-semibold uppercase tracking-wider text-texto-secundario">
+                Modalidad de entrega
+              </legend>
+              <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                <label
+                  class="foco-dentro flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors"
+                  :class="formulario.modalidad_entrega === 'recojo'
+                    ? 'border-botica-600 bg-botica-50/70 dark:border-botica-400 dark:bg-botica-500/15'
+                    : 'border-borde-control bg-superficie-base hover:bg-superficie-hundida'"
+                >
+                  <input
+                    v-model="formulario.modalidad_entrega"
+                    type="radio"
+                    name="modalidad_entrega"
+                    value="recojo"
+                    class="mt-1 accent-botica-600"
+                  />
+                  <span class="text-sm">
+                    <span class="flex items-center gap-1.5 font-semibold text-texto-primario">
+                      <PackageCheck class="size-4 text-botica-600 dark:text-botica-400" aria-hidden="true" />
+                      Recojo en botica
+                    </span>
+                    <span class="mt-0.5 block text-xs text-texto-secundario">
+                      Retira en mostrador sin costo
+                    </span>
+                  </span>
+                </label>
+
+                <label
+                  class="foco-dentro flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors"
+                  :class="formulario.modalidad_entrega === 'entrega'
+                    ? 'border-botica-600 bg-botica-50/70 dark:border-botica-400 dark:bg-botica-500/15'
+                    : 'border-borde-control bg-superficie-base hover:bg-superficie-hundida'"
+                >
+                  <input
+                    v-model="formulario.modalidad_entrega"
+                    type="radio"
+                    name="modalidad_entrega"
+                    value="entrega"
+                    class="mt-1 accent-botica-600"
+                  />
+                  <span class="text-sm">
+                    <span class="flex items-center gap-1.5 font-semibold text-texto-primario">
+                      <TruckIcon class="size-4 text-botica-600 dark:text-botica-400" aria-hidden="true" />
+                      Entrega a domicilio
+                    </span>
+                    <span class="mt-0.5 block text-xs text-texto-secundario">
+                      Envío a tu dirección en SJL
+                    </span>
+                  </span>
+                </label>
+              </div>
+
+              <div v-if="formulario.modalidad_entrega === 'entrega'" class="mt-3">
+                <label for="co-direccion" class="block text-xs font-medium text-texto-secundario">
+                  Dirección completa de entrega
+                </label>
+                <input
+                  id="co-direccion"
+                  v-model="formulario.direccion"
+                  type="text"
+                  autocomplete="street-address"
+                  maxlength="255"
+                  placeholder="Ej. Av. Próceres de la Independencia 1840, Dpto 201"
+                  class="foco-dentro mt-1 w-full rounded-xl border bg-superficie-base px-3 py-2 text-sm text-texto-primario placeholder:text-texto-terciario"
+                  :class="errores.direccion ? 'border-peligro-500' : 'border-borde-control'"
+                  :aria-invalid="Boolean(errores.direccion)"
+                />
+                <p v-if="errores.direccion" class="mt-1 text-xs text-peligro-600 dark:text-peligro-500">
+                  {{ errores.direccion }}
+                </p>
+              </div>
+            </fieldset>
+
+            <!-- 2. Tipo de comprobante -->
+            <fieldset>
+              <legend class="mb-2 block text-xs font-semibold uppercase tracking-wider text-texto-secundario">
+                Comprobante electrónico SUNAT
+              </legend>
+              <div class="grid grid-cols-2 gap-2.5">
+                <label
+                  class="foco-dentro flex min-h-12 cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2.5 text-sm transition-colors"
+                  :class="formulario.tipo_comprobante === 'boleta'
+                    ? 'border-botica-600 bg-botica-50/70 dark:border-botica-400 dark:bg-botica-500/15'
+                    : 'border-borde-control bg-superficie-base hover:bg-superficie-hundida'"
+                >
+                  <input
+                    v-model="formulario.tipo_comprobante"
+                    type="radio"
+                    name="tipo_comprobante"
+                    value="boleta"
+                    class="accent-botica-600"
+                  />
+                  <span>
+                    <strong class="block text-texto-primario">Boleta</strong>
+                    <span class="text-xs text-texto-secundario">Con DNI (B001)</span>
+                  </span>
+                </label>
+
+                <label
+                  class="foco-dentro flex min-h-12 cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2.5 text-sm transition-colors"
+                  :class="formulario.tipo_comprobante === 'factura'
+                    ? 'border-botica-600 bg-botica-50/70 dark:border-botica-400 dark:bg-botica-500/15'
+                    : 'border-borde-control bg-superficie-base hover:bg-superficie-hundida'"
+                >
+                  <input
+                    v-model="formulario.tipo_comprobante"
+                    type="radio"
+                    name="tipo_comprobante"
+                    value="factura"
+                    class="accent-botica-600"
+                  />
+                  <span>
+                    <strong class="block text-texto-primario">Factura</strong>
+                    <span class="text-xs text-texto-secundario">Con RUC (F001)</span>
+                  </span>
+                </label>
+              </div>
+
+              <!-- Cuenta con DNI completo y eligió Boleta -->
+              <div
+                v-if="autenticado && formulario.tipo_comprobante === 'boleta' && auth.user?.dni"
+                class="mt-3 rounded-xl bg-superficie-hundida p-3 text-xs text-texto-secundario"
+              >
+                <p class="flex items-center gap-1.5 font-medium text-texto-primario">
+                  <UserIcon class="size-3.5 text-botica-600 dark:text-botica-400" aria-hidden="true" />
+                  {{ auth.user.nombre }} · DNI {{ auth.user.dni }}
+                </p>
+                <p class="mt-0.5">Se emitirá tu boleta electrónica vinculada a tu cuenta.</p>
+              </div>
+
+              <!-- Datos del documento / titular cuando falta DNI, es invitado o pide Factura -->
+              <div v-else class="mt-3 space-y-3 rounded-xl bg-superficie-hundida/60 p-3.5">
+                <div v-if="!autenticado || formulario.tipo_comprobante === 'factura'">
+                  <label for="co-nombre" class="block text-xs font-medium text-texto-secundario">
+                    {{ formulario.tipo_comprobante === 'factura' ? 'Razón social' : 'Nombre completo' }}
+                  </label>
+                  <input
+                    id="co-nombre"
+                    v-model="formulario.cliente_nombre"
+                    type="text"
+                    autocomplete="name"
+                    required
+                    :placeholder="formulario.tipo_comprobante === 'factura' ? 'Nombre o razón social SAC' : 'Nombre y apellidos'"
+                    class="foco-dentro mt-1 w-full rounded-xl border bg-superficie-base px-3 py-2 text-sm text-texto-primario"
+                    :class="errores.cliente_nombre ? 'border-peligro-500' : 'border-borde-control'"
+                    :aria-invalid="Boolean(errores.cliente_nombre)"
+                  />
+                  <p v-if="errores.cliente_nombre" class="mt-1 text-xs text-peligro-600 dark:text-peligro-500">
+                    {{ errores.cliente_nombre }}
+                  </p>
+                </div>
+
+                <div>
+                  <label for="co-doc" class="block text-xs font-medium text-texto-secundario">
+                    {{ formulario.tipo_comprobante === 'factura' ? 'RUC (11 dígitos)' : 'DNI (8 dígitos)' }}
+                  </label>
+                  <input
+                    id="co-doc"
+                    v-model="formulario.cliente_documento"
+                    type="text"
+                    inputmode="numeric"
+                    :maxlength="formulario.tipo_comprobante === 'factura' ? 11 : 8"
+                    :placeholder="formulario.tipo_comprobante === 'factura' ? '20XXXXXXXXX' : '12345678'"
+                    required
+                    class="foco-dentro mt-1 w-full rounded-xl border bg-superficie-base px-3 py-2 font-mono text-sm text-texto-primario"
+                    :class="errores.cliente_documento ? 'border-peligro-500' : 'border-borde-control'"
+                    :aria-invalid="Boolean(errores.cliente_documento)"
+                  />
+                  <p
+                    class="mt-1 text-xs"
+                    :class="errores.cliente_documento ? 'text-peligro-600 dark:text-peligro-500' : 'text-texto-secundario'"
+                  >
+                    {{ errores.cliente_documento || pistaComprobante }}
+                  </p>
+                </div>
+
+                <div v-if="!autenticado">
+                  <label for="co-tel" class="block text-xs font-medium text-texto-secundario">
+                    Teléfono de contacto
+                  </label>
+                  <input
+                    id="co-tel"
+                    v-model="formulario.cliente_telefono"
+                    type="tel"
+                    autocomplete="tel"
+                    required
+                    placeholder="9XXXXXXXX"
+                    class="foco-dentro mt-1 w-full rounded-xl border bg-superficie-base px-3 py-2 text-sm text-texto-primario"
+                    :class="errores.cliente_telefono ? 'border-peligro-500' : 'border-borde-control'"
+                    :aria-invalid="Boolean(errores.cliente_telefono)"
+                  />
+                  <p v-if="errores.cliente_telefono" class="mt-1 text-xs text-peligro-600 dark:text-peligro-500">
+                    {{ errores.cliente_telefono }}
+                  </p>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- 3. Medio de pago -->
+            <fieldset v-if="autenticado">
+              <legend class="mb-2 block text-xs font-semibold uppercase tracking-wider text-texto-secundario">
+                Forma de pago
+              </legend>
+              <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                <label
+                  class="foco-dentro flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors"
+                  :class="metodoPago === 'tarjeta'
+                    ? 'border-clinico-600 bg-clinico-50/70 dark:border-clinico-400 dark:bg-clinico-500/15'
+                    : 'border-borde-control bg-superficie-base hover:bg-superficie-hundida'"
+                >
+                  <input
+                    v-model="metodoPago"
+                    type="radio"
+                    name="metodo_pago"
+                    value="tarjeta"
+                    class="mt-1 accent-clinico-600"
+                  />
+                  <span class="text-sm">
+                    <span class="flex items-center gap-1.5 font-semibold text-texto-primario">
+                      <CreditCardIcon class="size-4 text-clinico-600 dark:text-clinico-400" aria-hidden="true" />
+                      Tarjeta en línea
+                    </span>
+                    <span class="mt-0.5 block text-xs text-texto-secundario">
+                      Pasarela segura con tarjeta 3D
+                    </span>
+                  </span>
+                </label>
+
+                <label
+                  class="foco-dentro flex min-h-14 cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors"
+                  :class="metodoPago === 'contraentrega'
+                    ? 'border-botica-600 bg-botica-50/70 dark:border-botica-400 dark:bg-botica-500/15'
+                    : 'border-borde-control bg-superficie-base hover:bg-superficie-hundida'"
+                >
+                  <input
+                    v-model="metodoPago"
+                    type="radio"
+                    name="metodo_pago"
+                    value="contraentrega"
+                    class="mt-1 accent-botica-600"
+                  />
+                  <span class="text-sm">
+                    <span class="font-semibold text-texto-primario">Al recibir / mostrador</span>
+                    <span class="mt-0.5 block text-xs text-texto-secundario">
+                      Efectivo o POS al recoger
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div
+              v-else
+              class="rounded-xl border border-borde-sutil bg-superficie-hundida p-3 text-xs text-texto-secundario"
+            >
+              Estás encargando como invitado para pagar al recibir.
+              <RouterLink
+                :to="{ path: '/login', query: { redirect: '/cart' } }"
+                class="foco-dentro rounded font-semibold text-texto-marca underline"
+              >
+                Inicia sesión si deseas pagar ahora con tarjeta 3D
+              </RouterLink>
+              (tu carrito se conserva).
+            </div>
+
+            <p
+              v-if="errorEnvio"
+              class="rounded-xl bg-peligro-50 p-3 text-sm text-peligro-700 dark:bg-peligro-500/10 dark:text-peligro-500"
+              role="alert"
+            >
+              {{ errorEnvio }}
+            </p>
+
+            <div class="flex justify-end gap-3 border-t border-borde-sutil pt-4">
+              <button
+                type="button"
+                class="foco-dentro min-h-11 rounded-xl border border-borde-control px-4 py-2 text-sm font-medium text-texto-primario hover:bg-superficie-interactiva"
+                :disabled="enviando"
+                @click="cerrarCheckout"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="foco-dentro inline-flex min-h-11 items-center gap-2 rounded-xl bg-botica-600 px-5 py-2 text-sm font-semibold text-white hover:bg-botica-700 disabled:opacity-60"
+                :disabled="enviando"
+              >
+                <LoaderCircleIcon v-if="enviando" class="size-4 animate-spin" aria-hidden="true" />
+                <template v-if="enviando">Procesando…</template>
+                <template v-else-if="autenticado && metodoPago === 'tarjeta'">
+                  Ir a pagar ({{ soles(carrito.desglose.total) }})
+                </template>
+                <template v-else>Confirmar pedido</template>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 
-      <!-- Pedido confirmado -->
+      <!-- Pedido confirmado (contraentrega o invitado) -->
       <div
         v-if="confirmado"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-900/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-neutro-950/60 p-4 backdrop-blur-xs"
         role="dialog"
         aria-modal="true"
         aria-labelledby="titulo-confirmado"
       >
-        <div class="w-full max-w-md rounded-2xl bg-superficie-elevada p-6 text-center shadow-xl">
-          <CheckCircleIcon class="mx-auto size-12 text-exito-600" aria-hidden="true" />
+        <div class="w-full max-w-md rounded-2xl border border-borde-sutil bg-superficie-elevada p-6 text-center shadow-xl">
+          <CheckCircleIcon class="mx-auto size-12 text-exito-600 dark:text-exito-500" aria-hidden="true" />
           <h2 id="titulo-confirmado" class="mt-4 text-xl font-semibold text-texto-primario">
             Pedido registrado
           </h2>
@@ -574,6 +771,12 @@
             <div class="flex justify-between">
               <dt class="text-texto-secundario">N.º de pedido</dt>
               <dd class="cifras-tabulares font-semibold text-texto-primario">#{{ confirmado.seguimiento.pedido_id }}</dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-texto-secundario">Entrega</dt>
+              <dd class="font-medium text-texto-primario">
+                {{ confirmado.modalidad_entrega === 'entrega' ? 'A domicilio' : 'Recojo en botica' }}
+              </dd>
             </div>
             <div class="flex justify-between">
               <dt class="text-texto-secundario">{{ confirmado.comprobante.tipo === 'factura' ? 'Factura' : 'Boleta' }}</dt>
@@ -585,34 +788,50 @@
             </div>
           </dl>
 
-          <!-- Un invitado no tiene panel donde consultarlo: el número es lo
-               único con lo que puede preguntar en el mostrador, así que se le
-               dice explícitamente que lo anote. -->
           <p v-if="confirmado.seguimiento.invitado" class="mt-4 text-sm text-texto-secundario">
             Anota el número de pedido: es con lo que preguntarás por él en la botica.
           </p>
           <p v-else class="mt-4 text-sm text-texto-secundario">
-            Puedes seguirlo desde tu panel de cliente.
+            Puedes seguirlo desde tu panel de cliente o descargar tu comprobante.
           </p>
 
-          <div class="mt-6 flex justify-center gap-3">
+          <p
+            v-if="errorDescargaPdf"
+            class="mt-3 rounded-lg bg-peligro-50 p-2.5 text-xs text-peligro-700 dark:bg-peligro-500/10 dark:text-peligro-500"
+            role="alert"
+          >
+            {{ errorDescargaPdf }}
+          </p>
+
+          <div class="mt-6 flex flex-wrap justify-center gap-3">
+            <button
+              v-if="!confirmado.seguimiento.invitado && confirmado.comprobante.id"
+              type="button"
+              :disabled="descargandoPdfConfirmado"
+              class="foco-dentro inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-borde-control px-4 py-2 text-sm font-medium text-texto-primario hover:bg-superficie-interactiva disabled:opacity-60"
+              @click="descargarPdfDelConfirmado"
+            >
+              <LoaderCircleIcon v-if="descargandoPdfConfirmado" class="size-4 animate-spin" aria-hidden="true" />
+              <Download v-else class="size-4" aria-hidden="true" />
+              Descargar PDF
+            </button>
             <RouterLink
               to="/products"
-              class="foco-dentro rounded-xl border border-borde-control px-4 py-2 text-sm font-medium text-texto-primario hover:bg-superficie-interactiva"
+              class="foco-dentro inline-flex min-h-10 items-center rounded-xl border border-borde-control px-4 py-2 text-sm font-medium text-texto-primario hover:bg-superficie-interactiva"
             >
               Seguir comprando
             </RouterLink>
             <RouterLink
               v-if="!confirmado.seguimiento.invitado"
               to="/client/home"
-              class="foco-dentro rounded-xl bg-botica-600 px-4 py-2 text-sm font-semibold text-white hover:bg-botica-700"
+              class="foco-dentro inline-flex min-h-10 items-center rounded-xl bg-botica-600 px-4 py-2 text-sm font-semibold text-white hover:bg-botica-700"
             >
               Ver mis pedidos
             </RouterLink>
             <button
               v-else
               type="button"
-              class="foco-dentro rounded-xl bg-botica-600 px-4 py-2 text-sm font-semibold text-white hover:bg-botica-700"
+              class="foco-dentro min-h-10 rounded-xl bg-botica-600 px-4 py-2 text-sm font-semibold text-white hover:bg-botica-700"
               @click="confirmado = null"
             >
               Entendido
@@ -663,13 +882,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 import ConsultorInteracciones from '@/components/ConsultorInteracciones.vue'
 import { useCartStore, type LineaCotizada } from '@/stores/carrito'
 import { useAuthStore } from '@/stores/auth'
+import { descargarPdfComprobante } from '@/services/comprobantes'
 import { urlDeMedia } from '@/utils/media'
 import { ilustracionDe, textoAlternativoDe } from '@/utils/formaFarmaceutica'
 import {
@@ -694,6 +914,10 @@ import {
   UserIcon,
   LoaderCircleIcon,
   CheckCircleIcon,
+  CreditCardIcon,
+  Download,
+  PackageCheck,
+  TruckIcon,
 } from 'lucide-vue-next'
 
 const carrito = useCartStore()
@@ -778,6 +1002,7 @@ const enlacePedido = computed(() => enlaceWhatsApp(textoPedido.value))
 /* --- Checkout ------------------------------------------------------------- */
 
 const auth = useAuthStore()
+const router = useRouter()
 const autenticado = computed(() => auth.isAuthenticated)
 
 const checkoutAbierto = ref(false)
@@ -785,24 +1010,55 @@ const enviando = ref(false)
 const errorEnvio = ref('')
 const errores = ref<Record<string, string>>({})
 const confirmado = ref<Awaited<ReturnType<typeof carrito.confirmar>> | null>(null)
+const metodoPago = ref<'tarjeta' | 'contraentrega'>('tarjeta')
+const descargandoPdfConfirmado = ref(false)
+const errorDescargaPdf = ref('')
 
 const formulario = ref({
+  modalidad_entrega: 'recojo' as 'recojo' | 'entrega',
+  tipo_comprobante: 'boleta' as 'boleta' | 'factura',
+  direccion: '',
   cliente_nombre: '',
   cliente_documento: '',
   cliente_telefono: '',
 })
 
-/** Qué comprobante saldrá, dicho antes de enviar y no al recogerlo. */
+watch(
+  () => formulario.value.tipo_comprobante,
+  (nuevoTipo) => {
+    errores.value.cliente_documento = ''
+    if (nuevoTipo === 'factura' && formulario.value.cliente_documento.length !== 11) {
+      formulario.value.cliente_documento = ''
+      if (autenticado.value && formulario.value.cliente_nombre === auth.user?.nombre) {
+        formulario.value.cliente_nombre = ''
+      }
+    } else if (nuevoTipo === 'boleta' && formulario.value.cliente_documento.length > 8) {
+      formulario.value.cliente_documento = formulario.value.cliente_documento.slice(0, 8)
+    }
+  },
+)
+
+/** Qué comprobante saldrá y cuántos dígitos faltan. */
 const pistaComprobante = computed(() => {
   const d = formulario.value.cliente_documento.replace(/\D/g, '')
-  if (d.length === 11) return 'Con RUC se emite factura (F001).'
-  if (d.length === 8) return 'Con DNI se emite boleta (B001).'
-  return 'DNI de 8 dígitos o RUC de 11.'
+  if (formulario.value.tipo_comprobante === 'factura') {
+    return d.length === 11 ? 'Se emitirá factura electrónica (F001).' : 'La factura exige un RUC válido de 11 dígitos.'
+  }
+  return d.length === 8 ? 'Se emitirá boleta de venta (B001).' : 'Ingresa tu DNI de 8 dígitos para la boleta.'
 })
 
 function abrirCheckout() {
   errorEnvio.value = ''
   errores.value = {}
+  errorDescargaPdf.value = ''
+  if (autenticado.value && auth.user) {
+    if (!formulario.value.cliente_nombre) {
+      formulario.value.cliente_nombre = auth.user.nombre ?? ''
+    }
+    if (!formulario.value.cliente_telefono) {
+      formulario.value.cliente_telefono = auth.user.telefono ?? ''
+    }
+  }
   checkoutAbierto.value = true
 }
 
@@ -811,17 +1067,82 @@ function cerrarCheckout() {
   checkoutAbierto.value = false
 }
 
+function validarFormularioCheckout(): boolean {
+  const nuevosErrores: Record<string, string> = {}
+
+  if (formulario.value.modalidad_entrega === 'entrega' && formulario.value.direccion.trim().length < 5) {
+    nuevosErrores.direccion = 'Ingresa una dirección válida (mínimo 5 caracteres).'
+  }
+
+  const docLimpio = formulario.value.cliente_documento.replace(/\D/g, '')
+  if (formulario.value.tipo_comprobante === 'factura') {
+    if (!/^\d{11}$/.test(docLimpio)) {
+      nuevosErrores.cliente_documento = 'El RUC debe tener exactamente 11 dígitos numéricos.'
+    }
+    if (!formulario.value.cliente_nombre.trim()) {
+      nuevosErrores.cliente_nombre = 'Ingresa la razón social para emitir la factura.'
+    }
+  } else if (!autenticado.value || !auth.user?.dni) {
+    if (!/^\d{8}$/.test(docLimpio)) {
+      nuevosErrores.cliente_documento = 'El DNI debe tener exactamente 8 dígitos numéricos.'
+    }
+  }
+
+  if (!autenticado.value) {
+    if (!formulario.value.cliente_nombre.trim()) {
+      nuevosErrores.cliente_nombre = 'Necesitamos tu nombre completo para preparar el pedido.'
+    }
+    if (formulario.value.cliente_telefono.trim().length < 6) {
+      nuevosErrores.cliente_telefono = 'Necesitamos un teléfono válido para avisarte.'
+    }
+  }
+
+  errores.value = nuevosErrores
+  if (Object.keys(nuevosErrores).length > 0) {
+    errorEnvio.value = 'Revisa los campos marcados antes de continuar.'
+    return false
+  }
+  return true
+}
+
 async function enviarPedido() {
-  enviando.value = true
+  if (enviando.value) return
   errorEnvio.value = ''
   errores.value = {}
 
+  if (!validarFormularioCheckout()) return
+
+  enviando.value = true
+
   try {
-    confirmado.value = await carrito.confirmar(
-      /* Con sesión no se mandan datos: el servidor los toma de la cuenta. */
-      autenticado.value ? undefined : { ...formulario.value },
-    )
+    const docLimpio = formulario.value.cliente_documento.replace(/\D/g, '')
+    const payload = {
+      modalidad_entrega: formulario.value.modalidad_entrega,
+      tipo_comprobante: formulario.value.tipo_comprobante,
+      direccion: formulario.value.modalidad_entrega === 'entrega' ? formulario.value.direccion.trim() : undefined,
+      cliente_nombre:
+        !autenticado.value || formulario.value.tipo_comprobante === 'factura'
+          ? formulario.value.cliente_nombre.trim()
+          : undefined,
+      cliente_documento:
+        formulario.value.tipo_comprobante === 'factura' || !autenticado.value || !auth.user?.dni
+          ? docLimpio
+          : undefined,
+      cliente_telefono: !autenticado.value ? formulario.value.cliente_telefono.trim() : undefined,
+    }
+
+    const respuesta = await carrito.confirmar(payload)
     checkoutAbierto.value = false
+
+    if (autenticado.value && metodoPago.value === 'tarjeta') {
+      await router.push({
+        path: '/checkout/pago',
+        query: { pedido: String(respuesta.pedido.id) },
+      })
+      return
+    }
+
+    confirmado.value = respuesta
   } catch (e) {
     const r = (e as {
       response?: { status?: number; data?: { errors?: Record<string, string[]>; message?: string; sin_stock?: boolean } }
@@ -842,6 +1163,21 @@ async function enviarPedido() {
     }
   } finally {
     enviando.value = false
+  }
+}
+
+async function descargarPdfDelConfirmado() {
+  const id = confirmado.value?.comprobante.id
+  if (!id || descargandoPdfConfirmado.value) return
+  descargandoPdfConfirmado.value = true
+  errorDescargaPdf.value = ''
+
+  try {
+    await descargarPdfComprobante(id, confirmado.value?.comprobante.identificador)
+  } catch {
+    errorDescargaPdf.value = 'No pudimos descargar el PDF ahora. Podrás descargarlo desde Mis pedidos.'
+  } finally {
+    descargandoPdfConfirmado.value = false
   }
 }
 

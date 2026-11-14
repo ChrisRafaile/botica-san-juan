@@ -50,18 +50,30 @@
           tenía «Cerrar Sesión» y se perdió. Un panel al que se entra y del
           que no se puede salir obliga a escribir la URL a mano.
         -->
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <RouterLink
+            v-if="carrito.totalUnidades > 0"
+            to="/cart"
+            class="inline-flex min-h-11 items-center gap-2 rounded-full bg-botica-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-botica-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+          >
+            <ShoppingCart class="size-4" aria-hidden="true" />
+            Finalizar compra ({{ carrito.totalUnidades }})
+          </RouterLink>
+
           <RouterLink
             to="/products"
-            class="inline-flex items-center gap-2 rounded-full bg-botica-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-botica-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+            class="inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+            :class="carrito.totalUnidades > 0
+              ? 'border border-borde-control text-texto-primario hover:bg-superficie-interactiva'
+              : 'bg-botica-700 text-white hover:bg-botica-800'"
           >
-            <Search class="size-4" />
+            <Search class="size-4" aria-hidden="true" />
             Ver catálogo
           </RouterLink>
 
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded-full border border-borde-control px-4 py-2.5 text-sm font-semibold text-texto-primario transition hover:bg-superficie-interactiva focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+            class="inline-flex min-h-11 items-center gap-2 rounded-full border border-borde-control px-4 py-2.5 text-sm font-semibold text-texto-primario transition hover:bg-superficie-interactiva focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
             @click="confirmandoSalida = true"
           >
             <LogOut
@@ -167,7 +179,7 @@
                 :key="pedido.id"
                 class="border-b border-borde-sutil px-4 last:border-0"
               >
-                <div class="flex h-20 items-center gap-4">
+                <div class="flex min-h-20 flex-wrap items-center gap-4 py-3">
                   <span
                     class="flex size-9 shrink-0 items-center justify-center rounded-full"
                     :class="estilo(pedido.estado).fondo"
@@ -180,24 +192,49 @@
                   </span>
 
                   <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-semibold text-texto-primario">
-                      Pedido #{{ pedido.id }}
-                    </p>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <p class="truncate text-sm font-semibold text-texto-primario">
+                        Pedido #{{ pedido.id }}
+                      </p>
+                      <span
+                        v-if="pedido.estado_pago === 'pagado'"
+                        class="rounded-full bg-exito-50 px-2 py-0.5 text-2xs font-semibold text-exito-700 dark:bg-exito-500/15 dark:text-exito-500"
+                      >
+                        Pagado
+                      </span>
+                      <span
+                        v-else-if="pedido.estado !== 'anulado'"
+                        class="rounded-full bg-alerta-50 px-2 py-0.5 text-2xs font-semibold text-alerta-700 dark:bg-alerta-500/15 dark:text-alerta-500"
+                      >
+                        Pago pendiente
+                      </span>
+                    </div>
                     <p class="text-xs text-texto-secundario">
-                      {{ fecha(pedido.fecha) }}
+                      {{ fecha(pedido.fecha) }} · {{ etiquetaModalidad(pedido.observacion) }}
                     </p>
                   </div>
 
-                  <div class="text-right">
-                    <p class="text-sm font-semibold text-texto-primario">
-                      {{ dinero(Number(pedido.total)) }}
-                    </p>
-                    <span
-                      class="text-xs font-medium"
-                      :class="estilo(pedido.estado).texto"
+                  <div class="flex items-center gap-3">
+                    <RouterLink
+                      v-if="pedido.estado_pago !== 'pagado' && pedido.estado !== 'anulado'"
+                      :to="{ path: '/checkout/pago', query: { pedido: String(pedido.id) } }"
+                      class="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-botica-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-botica-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
                     >
-                      {{ estilo(pedido.estado).rotulo }}
-                    </span>
+                      <CreditCard class="size-3.5" aria-hidden="true" />
+                      Pagar
+                    </RouterLink>
+
+                    <div class="text-right">
+                      <p class="cifras-tabulares text-sm font-semibold text-texto-primario">
+                        {{ dinero(Number(pedido.total)) }}
+                      </p>
+                      <span
+                        class="text-xs font-medium"
+                        :class="estilo(pedido.estado).texto"
+                      >
+                        {{ estilo(pedido.estado).rotulo }}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -278,36 +315,51 @@
               <li
                 v-for="c in comprobantes"
                 :key="c.id"
-                class="flex h-16 items-center justify-between gap-3 border-b border-borde-sutil px-4 last:border-0"
+                class="flex min-h-16 items-center justify-between gap-3 border-b border-borde-sutil px-4 py-2 last:border-0"
               >
                 <div class="min-w-0">
-                  <p class="truncate text-sm font-semibold text-texto-primario">
+                  <p class="cifras-tabulares truncate text-sm font-semibold text-texto-primario">
                     {{ c.correlativo }}
                   </p>
-                  <p class="text-xs text-texto-secundario">
+                  <p class="cifras-tabulares text-xs text-texto-secundario">
                     {{ fecha(c.fecha_emision) }} · {{ dinero(c.total) }}
                   </p>
                 </div>
 
-                <a
-                  :href="urlPdf(c.id)"
-                  target="_blank"
-                  rel="noopener"
-                  class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-borde-control px-3 py-1.5 text-xs font-semibold text-texto-primario transition hover:bg-superficie-interactiva focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+                <button
+                  type="button"
+                  :disabled="descargandoPdfId === c.id"
+                  class="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border border-borde-control px-3.5 py-2 text-xs font-semibold text-texto-primario transition hover:bg-superficie-interactiva disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+                  @click="descargarPdf(c)"
                 >
+                  <LoaderCircle
+                    v-if="descargandoPdfId === c.id"
+                    class="size-3.5 animate-spin"
+                    aria-hidden="true"
+                  />
                   <Download
+                    v-else
                     class="size-3.5"
                     aria-hidden="true"
                   />
-                  <!-- El texto accesible dice CUÁL se descarga: cinco enlaces
-                       que solo pongan «PDF» son indistinguibles en la lista de
-                       enlaces de un lector de pantalla. -->
-                  <span aria-hidden="true">PDF</span>
+                  <!-- El texto accesible dice CUÁL se descarga: cinco botones
+                       que solo pongan «PDF» son indistinguibles para un lector
+                       de pantalla. -->
+                  <span aria-hidden="true">{{ descargandoPdfId === c.id ? 'Descargando…' : 'PDF' }}</span>
                   <span class="sr-only">Descargar el comprobante {{ c.correlativo }} en PDF</span>
-                </a>
+                </button>
               </li>
             </ul>
           </div>
+
+          <p
+            v-if="errorPdf"
+            class="mt-3 flex items-start gap-2 rounded-xl bg-peligro-50 px-3.5 py-2.5 text-xs text-peligro-700 dark:bg-peligro-500/10 dark:text-peligro-500"
+            role="alert"
+          >
+            <AlertCircle class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            {{ errorPdf }}
+          </p>
         </section>
       </div>
 
@@ -332,8 +384,10 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
+  CreditCard,
   Download,
   FileText,
+  LoaderCircle,
   LogOut,
   PackageCheck,
   PackageOpen,
@@ -344,6 +398,7 @@ import {
 } from 'lucide-vue-next'
 
 import api from '@/services/api'
+import { descargarPdfComprobante } from '@/services/comprobantes'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/carrito'
 import TarjetaResumen from './components/TarjetaResumen.vue'
@@ -363,6 +418,8 @@ interface PedidoFila {
   id: number
   fecha: string
   estado: string
+  estado_pago?: string | null
+  observacion?: string | null
   total: number | string
   /** Lo calcula el servidor sobre los productos del pedido. */
   requiere_receta?: boolean
@@ -396,6 +453,8 @@ const comprobantes = ref<ComprobanteFila[]>([])
 const cargando = ref(true)
 const confirmandoSalida = ref(false)
 const error = ref('')
+const descargandoPdfId = ref<number | null>(null)
+const errorPdf = ref('')
 
 const ROLES: Record<string, string> = {
   administrador: 'Administrador',
@@ -429,26 +488,26 @@ interface EstiloEstado {
 const ESTADOS: Record<string, EstiloEstado> = {
   pendiente: {
     rotulo: 'Pendiente',
-    fondo: 'bg-alerta-50 text-alerta-700',
-    texto: 'text-alerta-700',
+    fondo: 'bg-alerta-50 text-alerta-700 dark:bg-alerta-500/15 dark:text-alerta-500',
+    texto: 'text-alerta-700 dark:text-alerta-500',
     icono: Clock,
   },
   confirmado: {
     rotulo: 'Confirmado',
-    fondo: 'bg-botica-50 text-texto-marca',
+    fondo: 'bg-botica-50 text-texto-marca dark:bg-botica-500/15 dark:text-botica-300',
     texto: 'text-texto-marca',
     icono: PackageCheck,
   },
   completado: {
     rotulo: 'Entregado',
-    fondo: 'bg-exito-50 text-exito-700',
-    texto: 'text-exito-700',
+    fondo: 'bg-exito-50 text-exito-700 dark:bg-exito-500/15 dark:text-exito-500',
+    texto: 'text-exito-700 dark:text-exito-500',
     icono: CheckCircle2,
   },
   anulado: {
     rotulo: 'Anulado',
-    fondo: 'bg-peligro-50 text-peligro-700',
-    texto: 'text-peligro-700',
+    fondo: 'bg-peligro-50 text-peligro-700 dark:bg-peligro-500/15 dark:text-peligro-500',
+    texto: 'text-peligro-700 dark:text-peligro-500',
     icono: XCircle,
   },
 }
@@ -472,13 +531,26 @@ const salir = () => {
   router.push('/logout')
 }
 
-/* La descarga va contra la API, que decide con la política si el comprobante
-   es de quien lo pide. El enlace no es la protección: la protección está en
-   el servidor. */
-const urlPdf = (id: number) => {
-  const base = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api'
+const etiquetaModalidad = (observacion?: string | null) => {
+  const texto = (observacion ?? '').trim()
+  if (!texto || texto === 'Recojo en botica') return 'Recojo en botica'
+  return `Envío: ${texto}`
+}
 
-  return `${base.replace(/\/$/, '')}/facturacion/documentos/${id}/pdf`
+/* La descarga va por Axios adjuntando el token Bearer para generar un Blob en el
+   navegador: un enlace directo sin cabecera de autorizacion fallaba con 401. */
+async function descargarPdf(comprobante: ComprobanteFila) {
+  if (descargandoPdfId.value !== null) return
+  descargandoPdfId.value = comprobante.id
+  errorPdf.value = ''
+
+  try {
+    await descargarPdfComprobante(comprobante.id, comprobante.correlativo)
+  } catch {
+    errorPdf.value = `No pudimos descargar el comprobante ${comprobante.correlativo}. Inténtalo nuevamente.`
+  } finally {
+    descargandoPdfId.value = null
+  }
 }
 
 onMounted(async () => {

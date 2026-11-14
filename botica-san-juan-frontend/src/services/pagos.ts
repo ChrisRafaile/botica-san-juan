@@ -86,16 +86,48 @@ export interface InicioDePago {
   }
 }
 
+export interface ComprobanteResumenPago {
+  id: number
+  tipo: string
+  identificador: string
+  estado_sunat: string
+}
+
 export interface EstadoDePago {
   pago: Pago
   pedido_id: number
   /** true cuando el cobro ya no admite mas transiciones automaticas. */
+  es_final: boolean
+  comprobante?: ComprobanteResumenPago | null
+}
+
+export interface SimulacionDePago {
+  ok: boolean
+  message: string
+  pago: Pago
+  pedido_id: number
   es_final: boolean
 }
 
 /** Prepara el cobro de un pedido. El importe lo fija el servidor. */
 export async function iniciarPago(pedidoId: number): Promise<InicioDePago> {
   const { data } = await api.post<InicioDePago>(`/pedidos/${pedidoId}/pago`)
+  return data
+}
+
+/**
+ * Completa un cobro en modo simulado enviando solo metadata visual no sensible
+ * (nunca numero de tarjeta completo ni codigo CVV).
+ */
+export async function simularPago(
+  referencia: string,
+  datos: {
+    resultado?: 'aprobar' | 'rechazar'
+    marca_tarjeta?: string
+    ultimos4?: string
+  } = {},
+): Promise<SimulacionDePago> {
+  const { data } = await api.post<SimulacionDePago>(`/pagos/${referencia}/simular`, datos)
   return data
 }
 
