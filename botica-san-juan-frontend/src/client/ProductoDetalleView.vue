@@ -49,6 +49,16 @@ const cargandoRecomendados = ref(false)
 
 /* --- Imagen y Zoom GPU --------------------------------------------------- */
 const imagenRota = ref(false)
+const recomendadosRotos = ref<Set<number>>(new Set())
+
+function marcarRecomendadoRoto(id: number): void {
+  recomendadosRotos.value = new Set(recomendadosRotos.value).add(id)
+}
+
+function urlRecomendado(rec: { id: number; imagen?: string | null }): string | null {
+  if (recomendadosRotos.value.has(rec.id)) return null
+  return urlDeMedia(rec.imagen)
+}
 const zoomActivo = ref(false)
 const zoomManual = ref(false)
 const zoomX = ref(50)
@@ -177,6 +187,7 @@ async function cargarProducto(id: number) {
   recomendados.value = []
   errorCarga.value = null
   imagenRota.value = false
+  recomendadosRotos.value = new Set()
   vistaSeleccionada.value = 'principal'
   cantidad.value = 1
   zoomActivo.value = false
@@ -390,23 +401,25 @@ onBeforeUnmount(() => {
               <!-- Imagen real con zoom GPU -->
               <div
                 v-if="vistaSeleccionada === 'principal' && urlImagenResuelta"
-                class="size-full overflow-hidden flex items-center justify-center p-4 cursor-crosshair"
+                class="size-full overflow-hidden flex items-center justify-center p-3 cursor-crosshair"
               >
-                <img
-                  data-testid="imagen-producto"
-                  :src="urlImagenResuelta"
-                  :alt="producto.nombre"
-                  width="600"
-                  height="600"
-                  class="size-full object-contain transition-transform"
-                  :style="{
-                    transform: (zoomActivo || zoomManual) ? 'scale(1.8)' : 'scale(1)',
-                    transformOrigin: `${zoomX}% ${zoomY}%`,
-                    willChange: 'transform',
-                    transition: (zoomActivo && !zoomManual) ? 'none' : 'transform 200ms ease-out',
-                  }"
-                  @error="marcarImagenRota"
-                />
+                <div class="size-full rounded-xl bg-white p-3 flex items-center justify-center overflow-hidden ring-1 ring-black/5">
+                  <img
+                    data-testid="imagen-producto"
+                    :src="urlImagenResuelta"
+                    :alt="producto.nombre"
+                    width="600"
+                    height="600"
+                    class="size-full object-contain transition-transform"
+                    :style="{
+                      transform: (zoomActivo || zoomManual) ? 'scale(1.8)' : 'scale(1)',
+                      transformOrigin: `${zoomX}% ${zoomY}%`,
+                      willChange: 'transform',
+                      transition: (zoomActivo && !zoomManual) ? 'none' : 'transform 200ms ease-out',
+                    }"
+                    @error="marcarImagenRota"
+                  />
+                </div>
               </div>
 
               <!-- Ilustración de la forma farmacéutica si no hay imagen propia o se seleccionó la vista -->
@@ -889,23 +902,32 @@ onBeforeUnmount(() => {
             >
               <RouterLink
                 :to="'/catalogo/' + rec.id"
-                class="foco-dentro aspect-square bg-superficie-hundida relative flex items-center justify-center p-4 block"
+                class="foco-dentro aspect-square bg-superficie-hundida relative flex items-center justify-center p-2.5 overflow-hidden"
                 :aria-label="'Ver detalle de ' + rec.nombre"
               >
-                <img
-                  v-if="rec.imagen && urlDeMedia(rec.imagen)"
-                  :src="urlDeMedia(rec.imagen) ?? undefined"
-                  :alt="rec.nombre"
-                  loading="lazy"
-                  decoding="async"
-                  class="size-full object-contain"
-                />
+                <div
+                  v-if="urlRecomendado(rec)"
+                  class="size-full rounded-xl bg-white p-2 flex items-center justify-center overflow-hidden ring-1 ring-black/5"
+                >
+                  <img
+                    :src="urlRecomendado(rec) ?? undefined"
+                    :alt="rec.nombre"
+                    loading="lazy"
+                    decoding="async"
+                    width="240"
+                    height="240"
+                    class="size-full object-contain"
+                    @error="marcarRecomendadoRoto(rec.id)"
+                  />
+                </div>
                 <img
                   v-else
                   :src="ilustracionDe(rec.tipo)"
                   :alt="textoAlternativoDe(rec.tipo)"
                   loading="lazy"
                   decoding="async"
+                  width="96"
+                  height="96"
                   class="size-24 object-contain"
                 />
               </RouterLink>

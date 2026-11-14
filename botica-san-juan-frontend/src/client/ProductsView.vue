@@ -471,24 +471,28 @@ onMounted(async () => {
         >
           <RouterLink
             :to="'/catalogo/' + producto.id"
-            class="foco-dentro relative aspect-square bg-superficie-hundida block overflow-hidden"
+            class="foco-dentro group relative aspect-square bg-superficie-hundida flex items-center justify-center p-2.5 overflow-hidden"
             :aria-label="'Ver detalle de ' + producto.nombre"
           >
             <!-- La condición va sobre la URL RESUELTA y no sobre el campo: la
                  base guarda rutas relativas y `urlDeMedia` devuelve null si no
                  sabe resolverlas, lo que dejaría un src vacío y el icono de
                  imagen rota del navegador. -->
-            <img
+            <div
               v-if="muestraImagen(producto)"
-              :src="urlDeMedia(producto.imagen) ?? undefined"
-              :alt="producto.nombre"
-              loading="lazy"
-              decoding="async"
-              width="400"
-              height="400"
-              class="size-full object-cover transition-transform duration-300 hover:scale-105"
-              @error="marcarImagenRota(producto.id)"
-            />
+              class="size-full rounded-xl bg-white p-2 flex items-center justify-center ring-1 ring-black/5 overflow-hidden"
+            >
+              <img
+                :src="urlDeMedia(producto.imagen) ?? undefined"
+                :alt="producto.nombre"
+                loading="lazy"
+                decoding="async"
+                width="400"
+                height="400"
+                class="size-full object-contain motion-safe:transition-transform motion-safe:duration-300 group-hover:scale-105 motion-reduce:transform-none"
+                @error="marcarImagenRota(producto.id)"
+              />
+            </div>
 
             <!--
               Sin fotografía propia, se dibuja la FORMA FARMACÉUTICA.
