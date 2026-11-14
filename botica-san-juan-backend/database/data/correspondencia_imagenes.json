@@ -1,8 +1,8 @@
 {
   "fuente": "https://www.boticasperu.pe",
   "total_catalogo": 884,
-  "total_emparejados": 119,
-  "total_sin_coincidencia": 765,
+  "total_emparejados": 116,
+  "total_sin_coincidencia": 768,
   "correspondencias": [
     {
       "producto_id": 15,
@@ -289,28 +289,6 @@
       "fuente_titulo": "Azitromicina 200mg/5ml Polvo para Suspensión Oral - Frasco 15 ML",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antibioticos/azitromicina_200mg%2F5ml_polvo_para_suspension_oral_-_frasco_15_ml/12898.html",
       "puntaje": 105.0
-    },
-    {
-      "producto_id": 191,
-      "nombre": "BETAPLUSS",
-      "concentracion": " 0.05 %",
-      "presentacion": "caja tubo x 20 g",
-      "imagen": "storage/productos/08976.webp",
-      "fuente_pid": "08976",
-      "fuente_titulo": "Betapluss 0.05% Crema - Tubo 20 G",
-      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/betapluss_0.05%25_crema_-_tubo_20_g/08976.html",
-      "puntaje": 105.0
-    },
-    {
-      "producto_id": 205,
-      "nombre": "BISMUTOL",
-      "concentracion": "262 mg",
-      "presentacion": "Caja Sobre x 2 Tabletas Masticables",
-      "imagen": "storage/productos/43664.webp",
-      "fuente_pid": "43664",
-      "fuente_titulo": "Bismutol 262 Mg Tableta Masticable - Sobre 2 UN",
-      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/malestar_estomacal/laxante/bismutol_262_mg_tableta_masticable_-_sobre_2_un/43664.html",
-      "puntaje": 95.0
     },
     {
       "producto_id": 247,
@@ -970,17 +948,6 @@
       "fuente_pid": "25747",
       "fuente_titulo": "Gemfibrozilo 600 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/colesterol/gemfibrozilo_600_mg_tableta_-_blister_10_un/25747.html",
-      "puntaje": 95.0
-    },
-    {
-      "producto_id": 547,
-      "nombre": "GRAVOL",
-      "concentracion": "50 mg",
-      "presentacion": "Caja Envase Blister Tabletas",
-      "imagen": "storage/productos/28640-tableta.webp",
-      "fuente_pid": "28640-TABLETA",
-      "fuente_titulo": "Gravol 50 Mg  - Tableta 1 UN",
-      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/nauseas/gravol_50_mg__-_tableta_1_un/28640-TABLETA.html",
       "puntaje": 95.0
     },
     {

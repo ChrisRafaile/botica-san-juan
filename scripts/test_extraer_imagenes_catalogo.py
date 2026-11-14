@@ -11,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from extraer_imagenes_catalogo import (  # noqa: E402
     ProductoExterno,
+    cargar_exclusiones_manuales,
     emparejar_productos,
     extraer_concentracion,
     extraer_contenido_envase,
@@ -213,32 +214,57 @@ class EmparejadorReglasCriticasTest(unittest.TestCase):
                 _ext("P308", "Clobetasol 0.05 % Crema - Tubo 25 G"),
             ),
             (
-                {"id": 547, "nombre": "GRAVOL", "concentracion": "50 mg", "presentacion": "Caja Envase Blister Tabletas", "tipo": "TABLETA"},
-                _ext("P547", "Gravol 50 Mg - Tableta 1 UN"),
+                {"id": 565, "nombre": "IBUPROFENO", "concentracion": "800 mg", "presentacion": "Caja Envase Blister Tabletas", "tipo": "TABLETA"},
+                _ext("20235", "Ibuprofeno 800 Mg Tabletas - Caja 100 UN"),
             ),
             (
                 {"id": 587, "nombre": "KETOCONAZOL", "concentracion": "2%", "presentacion": "Caja Tubo x 20 g", "tipo": "CREMA"},
                 _ext("P587", "Ketoconazol 2 % Crema - Tubo 20 G"),
             ),
             (
-                {"id": 205, "nombre": "BIRM", "concentracion": "", "presentacion": "Caja Frasco x 120 mL", "tipo": "SOLUCION"},
-                _ext("P205", "Birm Solución Oral - Frasco 120 ML"),
+                {"id": 8801, "nombre": "BIRM", "concentracion": "", "presentacion": "Caja Frasco x 120 mL Solución Oral", "tipo": "SOLUCION"},
+                _ext("P8801", "Birm Solución Oral - Frasco 120 ML"),
             ),
         ]
 
-        # Nota: verificar comportamiento coherente de forma/envase para #205 si es solucion vs solucion oral
-        for local, externo in casos_positivos[:7]:
+        for local, externo in casos_positivos:
             with self.subTest(producto_id=local["id"]):
                 emparejados, _ = emparejar_productos([local], [externo])
                 self.assertEqual(len(emparejados), 1)
                 self.assertEqual(emparejados[0]["fuente_pid"], externo.pid)
 
-        # Caso 205: BIRM Solución Oral vs Caja Frasco x 120 mL (sin concentración)
-        local_205, ext_205 = casos_positivos[7]
-        local_205["presentacion"] = "Caja Frasco x 120 mL Solución Oral"
-        emparejados_205, _ = emparejar_productos([local_205], [ext_205])
-        self.assertEqual(len(emparejados_205), 1)
-        self.assertEqual(emparejados_205[0]["fuente_pid"], "P205")
+    def test_rechaza_exclusiones_manuales_por_foto_origen_incorrecta(self) -> None:
+        por_producto, por_fuente = cargar_exclusiones_manuales()
+        for producto_id in (191, 205, 547):
+            self.assertIn(producto_id, por_producto)
+            self.assertTrue(por_producto[producto_id])
+
+        casos_excluidos = [
+            (
+                {"id": 191, "nombre": "BETAPLUSS", "concentracion": " 0.05 %", "presentacion": "caja tubo x 20 g", "tipo": "CREMA"},
+                _ext("08976", "Betapluss 0.05% Crema - Tubo 20 G"),
+            ),
+            (
+                {"id": 205, "nombre": "BISMUTOL", "concentracion": "262 mg", "presentacion": "Caja Sobre x 2 Tabletas Masticables", "tipo": "TABLETA"},
+                _ext("43664", "Bismutol 262 Mg Tableta Masticable - Sobre 2 UN"),
+            ),
+            (
+                {"id": 547, "nombre": "GRAVOL", "concentracion": "50 mg", "presentacion": "Caja Envase Blister Tabletas", "tipo": "TABLETA"},
+                _ext("28640-TABLETA", "Gravol 50 Mg  - Tableta 1 UN"),
+            ),
+        ]
+
+        for local, externo in casos_excluidos:
+            with self.subTest(producto_id=local["id"]):
+                self.assertIn(externo.pid, por_fuente)
+                emparejados, sin_coincidencia = emparejar_productos([local], [externo])
+                self.assertEqual(emparejados, [])
+                self.assertEqual(len(sin_coincidencia), 1)
+
+                # Incluso bajo otro producto_id, la imagen de origen excluida no debe usarse.
+                clon_local = {**local, "id": 99000 + local["id"]}
+                emparejados_por_fuente, _ = emparejar_productos([clon_local], [externo])
+                self.assertEqual(emparejados_por_fuente, [])
 
 
 if __name__ == "__main__":

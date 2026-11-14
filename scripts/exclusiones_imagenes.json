@@ -1,0 +1,26 @@
+{
+  "descripcion": "Exclusiones manuales por defectos visuales en la fotografía de origen aunque el título coincida.",
+  "exclusiones": [
+    {
+      "producto_id": 191,
+      "nombre": "BETAPLUSS",
+      "fuente_pid": "08976",
+      "imagen": "storage/productos/08976.webp",
+      "motivo": "La imagen 08976.webp en origen es un recorte defectuoso que solo muestra '0.05%'."
+    },
+    {
+      "producto_id": 205,
+      "nombre": "BISMUTOL",
+      "fuente_pid": "43664",
+      "imagen": "storage/productos/43664.webp",
+      "motivo": "La imagen 43664.webp en origen muestra otro medicamento (Bismualiv 262.5 mg)."
+    },
+    {
+      "producto_id": 547,
+      "nombre": "GRAVOL",
+      "fuente_pid": "28640-TABLETA",
+      "imagen": "storage/productos/28640-tableta.webp",
+      "motivo": "La imagen 28640-tableta.webp en origen lleva un cintillo de Loperamida 2 mg."
+    }
+  ]
+}

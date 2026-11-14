@@ -52,6 +52,7 @@ BACKEND_DIR = RAIZ_REPO / "botica-san-juan-backend"
 CACHE_DIR = BACKEND_DIR / "storage" / "app" / "private" / "scraping_cache"
 SALIDA_IMAGENES_DIR = BACKEND_DIR / "storage" / "app" / "public" / "productos"
 CORRESPONDENCIA_PATH = BACKEND_DIR / "database" / "data" / "correspondencia_imagenes.json"
+EXCLUSIONES_PATH = Path(__file__).resolve().parent / "exclusiones_imagenes.json"
 
 SENALES_BLOQUEO = (
     "cf-turnstile",
@@ -542,13 +543,40 @@ def _forma_local_canonica(prod: dict[str, Any]) -> str | None:
     return f_pres or f_tipo or f_nom
 
 
+def cargar_exclusiones_manuales(ruta: Path = EXCLUSIONES_PATH) -> tuple[dict[int, str], dict[str, str]]:
+    """Carga exclusiones manuales versionadas por producto_id y fuente_pid con su motivo."""
+    if not ruta.exists():
+        return {}, {}
+    datos = json.loads(ruta.read_text(encoding="utf-8"))
+    por_producto: dict[int, str] = {}
+    por_fuente: dict[str, str] = {}
+    for item in datos.get("exclusiones", []):
+        motivo = str(item.get("motivo") or "Excluido manualmente").strip()
+        if item.get("producto_id") is not None:
+            por_producto[int(item["producto_id"])] = motivo
+        if item.get("fuente_pid"):
+            por_fuente[str(item["fuente_pid"]).strip()] = motivo
+    return por_producto, por_fuente
+
+
 def emparejar_productos(
     locales: list[dict[str, Any]],
     externos: list[ProductoExterno],
+    exclusiones_producto: dict[int, str] | None = None,
+    exclusiones_fuente: dict[str, str] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Empareja productos locales contra externos usando reglas conservadoras."""
+    if exclusiones_producto is None or exclusiones_fuente is None:
+        excl_prod_def, excl_fuente_def = cargar_exclusiones_manuales()
+        if exclusiones_producto is None:
+            exclusiones_producto = excl_prod_def
+        if exclusiones_fuente is None:
+            exclusiones_fuente = excl_fuente_def
+
     ext_prep = []
     for e in externos:
+        if e.pid in exclusiones_fuente:
+            continue
         parte_titulo = e.titulo.split(" - ")[0]
         fisicos_ext, unidades_ext = extraer_contenido_envase(e.titulo)
         ext_prep.append({
@@ -567,6 +595,10 @@ def emparejar_productos(
     sin_coincidencia: list[dict[str, Any]] = []
 
     for prod in locales:
+        if int(prod["id"]) in exclusiones_producto:
+            sin_coincidencia.append(prod)
+            continue
+
         loc_claves = set(palabras_clave_nombre(prod["nombre"]))
         if not loc_claves:
             sin_coincidencia.append(prod)
