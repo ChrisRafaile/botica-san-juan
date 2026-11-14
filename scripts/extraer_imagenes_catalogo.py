@@ -312,97 +312,200 @@ def norm(texto: str | None) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
 
+def _tiene_palabra(texto: str, patron: str) -> bool:
+    return bool(re.search(rf"\b(?:{patron})\b", texto))
+
+
 def grupo_forma(tipo_o_texto: str) -> str | None:
+    """Clasifica la forma farmacéutica distinguiendo presentaciones incompatibles."""
     t = norm(tipo_o_texto)
-    if any(w in t for w in ("inyect", "ampolla", "vial", "jeringa")):
-        return "inyectable"
-    if any(w in t for w in ("oftalm", "otica", "otico", "gotero", "gotas", "gota")):
-        return "gotas"
-    if any(w in t for w in ("jarabe", "jbe", "suspension", "susp", "emulsion")):
-        return "liquido_oral"
-    if any(w in t for w in ("solucion", "enema", "locion")):
-        return "solucion"
-    if any(w in t for w in ("crema", "unguento", "pomada", "gel", "emulgel", "jalea")):
-        return "topico"
-    if any(w in t for w in ("aerosol", "spray", "inhalador")):
+    if not t:
+        return None
+    if _tiene_palabra(t, r"efervescent\w*"):
+        return "efervescente"
+    if _tiene_palabra(t, r"capsulas?\s+blandas?|softgels?|perlas?"):
+        return "capsula_blanda"
+    if _tiene_palabra(t, r"aerosol\w*|sprays?|inhalador\w*|atomizador\w*|nebulizador\w*"):
         return "aerosol"
-    if any(w in t for w in ("ovulo", "supositorio")):
-        return "ovulo_sup"
-    if any(w in t for w in ("polvo", "granulo")):
-        return "polvo_sobre"
-    if any(w in t for w in ("tableta", "comprimido", "gragea")):
+    if _tiene_palabra(t, r"inyect\w*|ampollas?|vial\w*|jeringas?"):
+        return "inyectable"
+    if _tiene_palabra(t, r"oftalmic[oa]s?|otic[oa]s?|goteros?|gotas?"):
+        return "gotas"
+    if _tiene_palabra(t, r"ovulos?"):
+        return "ovulo"
+    if _tiene_palabra(t, r"supositorios?"):
+        return "supositorio"
+    if _tiene_palabra(t, r"emulgeles?|gel(?:es)?|jaleas?"):
+        return "gel"
+    if _tiene_palabra(t, r"unguentos?|pomadas?"):
+        return "unguento"
+    if _tiene_palabra(t, r"cremas?"):
+        return "crema"
+    if _tiene_palabra(t, r"locion\w*"):
+        return "locion"
+    if _tiene_palabra(t, r"jarabes?|jbe|suspension\w*|susp|emulsion\w*|elixires?|solucion(?:es)?\s+oral(?:es)?"):
+        return "jarabe"
+    if _tiene_palabra(t, r"solucion\w*|enemas?"):
+        return "solucion"
+    if _tiene_palabra(t, r"polvos?|granulos?"):
+        return "polvo"
+    if _tiene_palabra(t, r"masticabl\w*"):
+        return "tableta_masticable"
+    if _tiene_palabra(t, r"tabletas?|tab|comprimidos?|comp|grageas?"):
         return "tableta"
-    if any(w in t for w in ("capsula",)):
+    if _tiene_palabra(t, r"capsulas?|cap"):
         return "capsula"
     return None
 
 
-def extraer_concentracion(texto: str) -> list[tuple[float, str]]:
-    """Extrae pares canónicos (valor, unidad) de principios activos, sin volúmenes de envase."""
-    t = norm(texto).split(" - ")[0]
-    t = re.sub(
-        r"\b(?:frasco|fco|tubo|sobre|caja|blister|bolsa|ampolla|vial)\s*(?:x\s*)?\d+(?:\.\d+)?\s*(?:ml|g|gr|un|l)\b",
+def detectar_envase(texto: str) -> str | None:
+    """Identifica el tipo de envase primario más específico declarado en el texto."""
+    t = norm(texto)
+    if not t:
+        return None
+    if _tiene_palabra(t, r"jeringas?\s*prellenadas?|jeringas?"):
+        return "jeringa_prellenada"
+    if _tiene_palabra(t, r"monodosis|unidosis"):
+        return "monodosis"
+    if _tiene_palabra(t, r"atomizador\w*|sprays?|inhalador\w*|aerosol\w*"):
+        return "atomizador"
+    if _tiene_palabra(t, r"goteros?"):
+        return "gotero"
+    if _tiene_palabra(t, r"ampollas?"):
+        return "ampolla"
+    if _tiene_palabra(t, r"vial\w*"):
+        return "vial"
+    if _tiene_palabra(t, r"tubos?|pomos?"):
+        return "tubo"
+    if _tiene_palabra(t, r"sobres?|sachets?"):
+        return "sobre"
+    if _tiene_palabra(t, r"frascos?|fco|botellas?"):
+        return "frasco"
+    if _tiene_palabra(t, r"blister\w*"):
+        return "blister"
+    if _tiene_palabra(t, r"cajas?"):
+        return "caja"
+    return None
+
+
+def _quitar_frases_envase(t: str) -> str:
+    return re.sub(
+        r"\b(?:frasco|fco|tubo|sobre|sachet|caja|blister|bolsa|ampolla|vial|envase|jeringa(?:\s+prellenada)?)\s*(?:x\s*)?\d+(?:\.\d+)?\s*(?:ml|g|gr|un|l|monodosis|dosis)\b",
         " ",
         t,
     )
-    pares: list[tuple[float, str]] = []
-    # Capturar primero expresiones con denominador /5 ml o /ml (ej. 250 mg + 62.5 mg/5 mL)
-    # Normalizamos cada cantidad de mg/mcg/g/ui/% individualmente, y guardamos denominador si existe
-    for m in re.finditer(r"(\d+(?:\.\d+)?)\s*(mg|mcg|ug|g|gr|ui|iu|%)", t):
+
+
+def extraer_concentracion(texto: str) -> tuple[tuple[float, str, float, str], ...]:
+    """Extrae pares completos (valor, unidad, denom_valor, denom_unidad) sin colapsar denominadores."""
+    t = norm(texto).split(" - ")[0]
+    t = _quitar_frases_envase(t)
+    patron = re.compile(
+        r"(\d+(?:\.\d+)?)\s*(mg|mcg|ug|g|gr|ui|iu|%)(?:\s*/\s*(\d+(?:\.\d+)?)?\s*(ml|l|g|gr)\b)?",
+    )
+    encontrados: list[tuple[float, str, float, str]] = []
+    for m in patron.finditer(t):
         val = float(m.group(1))
         u = m.group(2)
-        if u in ("g", "gr") and val <= 5.0:
+        if u in ("g", "gr") and val <= 5.0 and m.group(4) is None:
             val, u = val * 1000.0, "mg"
+        elif u in ("g", "gr") and val <= 5.0 and m.group(4) is not None:
+            val, u = val * 1000.0, "mg"
+        elif u == "gr":
+            u = "g"
         elif u == "ug":
             u = "mcg"
         elif u == "iu":
             u = "ui"
-        pares.append((round(val, 4), u))
-    return sorted(set(pares))
+
+        if m.group(4) is not None:
+            dval = float(m.group(3)) if m.group(3) else 1.0
+            du = m.group(4)
+            if du == "l":
+                dval, du = dval * 1000.0, "ml"
+            elif du == "gr":
+                du = "g"
+            denom = (round(dval, 4), du)
+        else:
+            denom = (0.0, "")
+
+        encontrados.append((round(val, 4), u, denom[0], denom[1]))
+
+    # En combinaciones ("400 mg + 30 mg / 5 mL"), el denominador final aplica al grupo completo.
+    if encontrados and any(d != (0.0, "") for _, _, *d in encontrados):
+        ultimo_denom = next(
+            ((dv, du) for _, _, dv, du in reversed(encontrados) if du != ""),
+            (0.0, ""),
+        )
+        if ultimo_denom[1] != "":
+            encontrados = [
+                (v, u, ultimo_denom[0] if du == "" else dv, ultimo_denom[1] if du == "" else du)
+                for v, u, dv, du in encontrados
+            ]
+
+    return tuple(sorted(set(encontrados)))
 
 
-def extraer_volumen_envase(texto: str) -> set[str]:
-    t = norm(texto)
-    vols = set()
-    for m in re.finditer(r"(?:frasco|fco|tubo|sobre|ampolla|bolsa|sachet)?\s*(?:x\s*)?(\d+(?:\.\d+)?)\s*(ml|g|gr|l)\b", t):
-        num = float(m.group(1))
-        u = "g" if m.group(2) == "gr" else m.group(2)
-        num_str = str(int(num)) if num.is_integer() else f"{num:g}"
-        vols.add(f"{num_str}{u}")
-    return vols
+def extraer_contenido_envase(texto: str, desde_presentacion: bool = False) -> tuple[frozenset[tuple[float, str]], frozenset[float]]:
+    """Extrae contenido físico exacto ((valor, ml|g|monodosis|dosis)) y conteo explícito (un)."""
+    bruto = texto or ""
+    if not desde_presentacion and " - " in bruto:
+        # En títulos externos ("Nombre 1 Gr - Tubo 20 G"), el envase siempre va después de " - ".
+        segmento = norm(bruto.split(" - ", 1)[1])
+    else:
+        segmento = norm(bruto)
 
+    # Solo quitar concentraciones explícitas (mg, mcg, %, ui o razones con "/"):
+    # nunca eliminar gramos de tubo ("Tubo x 10 g") ni volúmenes de frasco ("Frasco x 120 mL").
+    segmento = re.sub(
+        r"\d+(?:\.\d+)?\s*(?:mg|mcg|ug|ui|iu|%)(?:\s*/\s*(?:\d+(?:\.\d+)?)?\s*(?:ml|l|g|gr)\b)?",
+        " ",
+        segmento,
+    )
+    segmento = re.sub(r"\d+(?:\.\d+)?\s*(?:g|gr)\s*/\s*(?:\d+(?:\.\d+)?)?\s*(?:ml|l|g|gr)\b", " ", segmento)
 
-def extraer_volumenes_ml_o_g(texto: str) -> list[tuple[float, str]]:
-    """Extrae volúmenes o pesos de envase en ml o g normalizados para validar tamaño."""
-    t = norm(texto)
-    salida: list[tuple[float, str]] = []
-    for m in re.finditer(r"(?:frasco|fco|tubo|sobre|ampolla|bolsa|sachet|envase)?\s*(?:x\s*)?(\d+(?:\.\d+)?)\s*(ml|g|gr|l)\b", t):
+    fisicos: set[tuple[float, str]] = set()
+    unidades: set[float] = set()
+
+    for m in re.finditer(r"(\d+(?:\.\d+)?)\s*(ml|l|g|gr|monodosis|unidosis|dosis|un|tabletas?|capsulas?)\b", segmento):
         num = float(m.group(1))
         u = m.group(2)
         if u == "l":
-            num, u = num * 1000.0, "ml"
-        elif u == "gr":
-            u = "g"
-        salida.append((num, u))
-    return salida
+            fisicos.add((round(num * 1000.0, 4), "ml"))
+        elif u in ("g", "gr"):
+            fisicos.add((round(num, 4), "g"))
+        elif u == "ml":
+            fisicos.add((round(num, 4), "ml"))
+        elif u in ("monodosis", "unidosis"):
+            fisicos.add((round(num, 4), "monodosis"))
+        elif u == "dosis":
+            fisicos.add((round(num, 4), "dosis"))
+        else:
+            unidades.add(round(num, 4))
+
+    return frozenset(fisicos), frozenset(unidades)
 
 
-def volumenes_incompatibles(loc_txt: str, ext_txt: str) -> bool:
-    """Rechaza diferencias extremas de tamaño de envase (p. ej. 1 L frente a 100 mL)."""
-    loc_v = extraer_volumenes_ml_o_g(loc_txt)
-    ext_v = extraer_volumenes_ml_o_g(ext_txt)
-    if not loc_v or not ext_v:
+def extraer_volumen_envase(texto: str, desde_presentacion: bool = False) -> set[str]:
+    fisicos, _ = extraer_contenido_envase(texto, desde_presentacion=desde_presentacion)
+    return {
+        f"{int(v) if v.is_integer() else v:g}{u}"
+        for v, u in fisicos
+    }
+
+
+def _envases_compatibles(loc_env: str | None, ext_env: str | None) -> bool:
+    """Exige compatibilidad estricta de envase primario cuando el catálogo declara uno específico."""
+    especificos = {"jeringa_prellenada", "monodosis", "atomizador", "ampolla", "vial", "tubo", "sobre", "frasco"}
+    if loc_env in especificos:
+        return ext_env == loc_env
+    if ext_env in especificos and loc_env is not None and loc_env != ext_env:
         return False
-    for lv, lu in loc_v:
-        for ev, eu in ext_v:
-            if lu == eu and lv > 0 and ev > 0:
-                ratio = max(lv, ev) / min(lv, ev)
-                if ratio <= 2.5:
-                    return False
-    # Si ninguno comparte unidad compatible dentro del rango 2.5x y ambos tienen unidades comparables
-    unidades_loc = {u for _, u in loc_v}
-    unidades_ext = {u for _, u in ext_v}
-    return bool(unidades_loc & unidades_ext)
+    if loc_env == "gotero" and ext_env not in ("gotero", "frasco"):
+        return False
+    if loc_env == "blister" and ext_env == "sobre":
+        return False
+    return True
 
 
 def palabras_clave_nombre(texto: str) -> list[str]:
@@ -419,6 +522,26 @@ def palabras_clave_nombre(texto: str) -> list[str]:
     return res
 
 
+def _forma_local_canonica(prod: dict[str, Any]) -> str | None:
+    """Determina la forma farmacéutica local priorizando señales específicas (efervescente, cápsula blanda, aerosol, gotas)."""
+    tipo = prod.get("tipo") or ""
+    pres = prod.get("presentacion") or ""
+    nom = prod.get("nombre") or ""
+    f_nom = grupo_forma(nom)
+    f_pres = grupo_forma(pres)
+    f_tipo = grupo_forma(tipo)
+
+    # Señales más específicas tienen prioridad aunque la columna `tipo` sea genérica
+    for especial in ("efervescente", "capsula_blanda", "tableta_masticable", "aerosol", "gotas"):
+        if especial in (f_nom, f_pres, f_tipo):
+            return especial
+
+    # Evitar contradicción directa entre tipo y presentación (p. ej. tipo TABLETA vs pres Cápsulas)
+    if f_tipo and f_pres and f_tipo != f_pres:
+        return f_pres
+    return f_pres or f_tipo or f_nom
+
+
 def emparejar_productos(
     locales: list[dict[str, Any]],
     externos: list[ProductoExterno],
@@ -426,13 +549,18 @@ def emparejar_productos(
     """Empareja productos locales contra externos usando reglas conservadoras."""
     ext_prep = []
     for e in externos:
+        parte_titulo = e.titulo.split(" - ")[0]
+        fisicos_ext, unidades_ext = extraer_contenido_envase(e.titulo)
         ext_prep.append({
             "obj": e,
             "claves": set(palabras_clave_nombre(e.titulo)),
             "conc": extraer_concentracion(e.titulo),
             "forma": grupo_forma(e.titulo),
+            "envase": detectar_envase(e.titulo),
+            "fisicos": fisicos_ext,
+            "unidades": unidades_ext,
             "vols": extraer_volumen_envase(e.titulo),
-            "nums": set(re.findall(r"(?<!\d)\d+(?!\d)", norm(e.titulo).split(" - ")[0])),
+            "nums": set(re.findall(r"(?<!\d)\d+(?!\d)", norm(parte_titulo))),
         })
 
     emparejados: list[dict[str, Any]] = []
@@ -453,19 +581,12 @@ def emparejar_productos(
         # concentración ("600" + "600") se fusionen en "600600".
         loc_conc = extraer_concentracion(f"{prod['nombre']} | {conc_txt}")
         pres_txt = prod.get("presentacion") or ""
-        loc_forma_tipo = grupo_forma(prod.get("tipo") or "")
-        loc_forma_pres = grupo_forma(pres_txt)
-        loc_forma = loc_forma_tipo or loc_forma_pres
-        loc_formas_compatibles = {f for f in (loc_forma_tipo, loc_forma_pres) if f}
-        if {"solucion", "liquido_oral"} & loc_formas_compatibles:
-            loc_formas_compatibles.update({"solucion", "liquido_oral"})
-        if "gotas" in loc_formas_compatibles:
-            loc_formas_compatibles.add("liquido_oral")
-        loc_vols = extraer_volumen_envase(pres_txt)
+        loc_forma = _forma_local_canonica(prod)
+        loc_envase = detectar_envase(pres_txt)
+        loc_fisicos, loc_unidades = extraer_contenido_envase(pres_txt, desde_presentacion=True)
+        loc_vols = extraer_volumen_envase(pres_txt, desde_presentacion=True)
         # Números propios en el nombre (ej. 1200 en "AB-BRONCOL NF 1200", 70 en "ALCOHOL 70")
         loc_nums_nombre = set(re.findall(r"(?<!\d)\d+(?!\d)", norm(prod["nombre"])))
-        suma_conc_mg = round(sum(v for v, u in loc_conc if u == "mg"), 4) if loc_conc else 0.0
-        es_combinacion_generica = "+" in (prod.get("nombre") or "")
 
         mejor = None
         mejor_score = 0.0
@@ -478,43 +599,39 @@ def emparejar_productos(
             if loc_nums_nombre and not loc_nums_nombre.issubset(ext["nums"]):
                 continue
 
-            # 3. Forma farmacéutica compatible (no mezclar tabletas con jarabes/inyectables/cremas)
-            if loc_formas_compatibles and ext["forma"] and ext["forma"] not in loc_formas_compatibles:
+            # 3. Forma farmacéutica obligatoria y exacta (si origen o local la omiten o difieren, rechazar)
+            if not loc_forma or not ext["forma"] or loc_forma != ext["forma"]:
                 continue
 
-            # 3b. Evitar diferencias extremas de tamaño (p. ej. envase de 1 L frente a frasco de 100 mL)
-            if volumenes_incompatibles(pres_txt, ext["obj"].titulo):
+            # 4. Tipo de envase primario compatible (no mezclar jeringa prellenada con ampolla, etc.)
+            if not _envases_compatibles(loc_envase, ext["envase"]):
                 continue
 
-            # 4. Concentración estricta
+            # 5. Contenido físico exacto (mL, g, monodosis, dosis): si uno lo declara y difiere, rechazar
+            if loc_fisicos or ext["fisicos"]:
+                if loc_fisicos != ext["fisicos"]:
+                    continue
+
+            # 5b. Si ambos declaran conteo explícito de unidades de envase, debe coincidir
+            if loc_unidades and ext["unidades"] and loc_unidades != ext["unidades"]:
+                continue
+
+            # 6. Concentración completa estricta (numerador + denominador)
             score = 60.0
             if loc_conc and ext["conc"]:
                 if loc_conc == ext["conc"]:
                     score += 25.0
-                elif len(ext["conc"]) == 1 and ext["conc"][0][1] == "mg" and suma_conc_mg > 0 and ext["conc"][0][0] == suma_conc_mg:
-                    # Caso AB-BRONCOL NF 1200: 1000mg + 200mg = 1200mg en título externo
-                    score += 20.0
                 else:
                     continue
             elif not loc_conc and not ext["conc"]:
                 score += 10.0
-            elif loc_conc and not ext["conc"]:
-                # Combinaciones genéricas ("A + B") sin concentración declarada en fuente externa
-                # pueden corresponder a múltiples dosis (p. ej. 125 vs 250 vs 400): no arriesgar.
-                if es_combinacion_generica:
-                    continue
-                score += 2.0
             else:
-                score -= 5.0
+                # Si uno declara concentración y el otro no (sin importar la forma), no arriesgar
+                continue
 
-            if loc_forma and ext["forma"] and (loc_forma == ext["forma"] or ext["forma"] in loc_formas_compatibles):
+            score += 10.0  # forma exacta garantizada
+            if loc_vols and ext["vols"] and (loc_vols & ext["vols"]):
                 score += 10.0
-
-            if loc_vols and ext["vols"]:
-                if loc_vols & ext["vols"]:
-                    score += 10.0
-                else:
-                    score -= 10.0
 
             if score > mejor_score:
                 mejor_score = score
@@ -634,10 +751,10 @@ def main() -> int:
         )
 
         if args.solo_emparejar:
-            for m in emparejados[:25]:
+            for m in emparejados:
                 print(
-                    f"  [OK {m['puntaje']}] #{m['producto_id']} {m['nombre']} ({m['concentracion']}) "
-                    f"-> {m['fuente_titulo']} [{m['fuente_pid']}]"
+                    f"  [OK {m['puntaje']}] #{m['producto_id']} {m['nombre']} | conc={m['concentracion']} | "
+                    f"pres={m['presentacion']} | tipo={m['tipo']} -> {m['fuente_titulo']} [{m['fuente_pid']}]"
                 )
             return 0
 
