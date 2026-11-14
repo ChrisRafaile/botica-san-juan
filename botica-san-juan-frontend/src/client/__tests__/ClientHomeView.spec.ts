@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ClientHomeView from '../ClientHomeView.vue'
@@ -84,6 +84,11 @@ describe('ClientHomeView.vue', () => {
     })
   })
 
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+  })
+
   function montar() {
     return mount(ClientHomeView, {
       global: {
@@ -106,6 +111,10 @@ describe('ClientHomeView.vue', () => {
 
     const crearUrlSpy = vi.fn(() => 'blob:mock-pdf-88')
     const revocarUrlSpy = vi.fn()
+    // Evita el aviso de jsdom ("Not implemented: navigation") al hacer click sobre <a download>
+    const clickEnlaceSpy = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => {})
     vi.stubGlobal('URL', {
       createObjectURL: crearUrlSpy,
       revokeObjectURL: revocarUrlSpy,
@@ -135,6 +144,7 @@ describe('ClientHomeView.vue', () => {
       responseType: 'blob',
     })
     expect(crearUrlSpy).toHaveBeenCalledTimes(1)
+    expect(clickEnlaceSpy).toHaveBeenCalledTimes(1)
     expect(revocarUrlSpy).toHaveBeenCalledWith('blob:mock-pdf-88')
   })
 

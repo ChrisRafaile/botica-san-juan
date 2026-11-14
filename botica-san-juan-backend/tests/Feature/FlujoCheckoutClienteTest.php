@@ -172,7 +172,7 @@ class FlujoCheckoutClienteTest extends TestCase
 
         $pdf->assertOk();
         $this->assertStringContainsString('application/pdf', (string) $pdf->headers->get('content-type'));
-        $this->assertStringStartsWith('%PDF-', $pdf->streamedContent());
+        $this->assertStringStartsWith('%PDF-', $pdf->getContent());
     }
 
     public function test_valida_direccion_en_entrega_y_ruc_en_factura(): void
