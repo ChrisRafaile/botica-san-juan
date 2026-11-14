@@ -63,7 +63,21 @@ const zoomActivo = ref(false)
 const zoomManual = ref(false)
 const zoomX = ref(50)
 const zoomY = ref(50)
+const reducirMovimiento = ref(prefiereMenosMovimiento())
 const vistaSeleccionada = ref<'principal' | 'forma'>('principal')
+
+let mqlMovimientoReducido: MediaQueryList | null = null
+function actualizarPreferenciaMovimiento(evento: MediaQueryListEvent) {
+  reducirMovimiento.value = evento.matches
+}
+
+onMounted(() => {
+  reducirMovimiento.value = prefiereMenosMovimiento()
+  if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+    mqlMovimientoReducido = window.matchMedia('(prefers-reduced-motion: reduce)')
+    mqlMovimientoReducido?.addEventListener?.('change', actualizarPreferenciaMovimiento)
+  }
+})
 
 function marcarImagenRota() {
   imagenRota.value = true
@@ -75,7 +89,7 @@ const urlImagenResuelta = computed(() => {
 })
 
 function manejarMovimientoRaton(e: MouseEvent) {
-  if (prefiereMenosMovimiento() || !zoomActivo.value) return
+  if (reducirMovimiento.value || prefiereMenosMovimiento() || !zoomActivo.value) return
 
   const target = e.currentTarget as HTMLElement
   const rect = target.getBoundingClientRect()
@@ -87,7 +101,7 @@ function manejarMovimientoRaton(e: MouseEvent) {
 }
 
 function activarZoom() {
-  if (prefiereMenosMovimiento()) return
+  if (reducirMovimiento.value || prefiereMenosMovimiento()) return
   zoomActivo.value = true
 }
 
@@ -98,11 +112,22 @@ function desactivarZoom() {
 }
 
 function alternarZoomManual() {
+  reducirMovimiento.value = prefiereMenosMovimiento()
   zoomManual.value = !zoomManual.value
   zoomActivo.value = zoomManual.value
   zoomX.value = 50
   zoomY.value = 50
 }
+
+const estiloZoomImagen = computed(() => {
+  const sinTransicion = reducirMovimiento.value || (zoomActivo.value && !zoomManual.value)
+  return {
+    transform: (zoomActivo.value || zoomManual.value) ? 'scale(1.8)' : 'scale(1)',
+    transformOrigin: `${zoomX.value}% ${zoomY.value}%`,
+    willChange: 'transform',
+    transition: sinTransicion ? 'none' : 'transform 200ms ease-out',
+  }
+})
 
 /* --- Bloque de Compra ----------------------------------------------------- */
 const cantidad = ref(1)
@@ -239,6 +264,8 @@ watch(
 
 onBeforeUnmount(() => {
   if (temporizadorAviso) clearTimeout(temporizadorAviso)
+  mqlMovimientoReducido?.removeEventListener?.('change', actualizarPreferenciaMovimiento)
+  mqlMovimientoReducido = null
 })
 </script>
 
@@ -403,20 +430,15 @@ onBeforeUnmount(() => {
                 v-if="vistaSeleccionada === 'principal' && urlImagenResuelta"
                 class="size-full overflow-hidden flex items-center justify-center p-3 cursor-crosshair"
               >
-                <div class="size-full rounded-xl bg-white p-3 flex items-center justify-center overflow-hidden ring-1 ring-black/5">
+                <div class="size-full rounded-xl bg-superficie-foto p-3 flex items-center justify-center overflow-hidden ring-1 ring-borde-sutil">
                   <img
                     data-testid="imagen-producto"
                     :src="urlImagenResuelta"
                     :alt="producto.nombre"
                     width="600"
                     height="600"
-                    class="size-full object-contain transition-transform"
-                    :style="{
-                      transform: (zoomActivo || zoomManual) ? 'scale(1.8)' : 'scale(1)',
-                      transformOrigin: `${zoomX}% ${zoomY}%`,
-                      willChange: 'transform',
-                      transition: (zoomActivo && !zoomManual) ? 'none' : 'transform 200ms ease-out',
-                    }"
+                    class="size-full object-contain motion-safe:transition-transform motion-reduce:transition-none"
+                    :style="estiloZoomImagen"
                     @error="marcarImagenRota"
                   />
                 </div>
@@ -907,7 +929,7 @@ onBeforeUnmount(() => {
               >
                 <div
                   v-if="urlRecomendado(rec)"
-                  class="size-full rounded-xl bg-white p-2 flex items-center justify-center overflow-hidden ring-1 ring-black/5"
+                  class="size-full rounded-xl bg-superficie-foto p-2 flex items-center justify-center overflow-hidden ring-1 ring-borde-sutil"
                 >
                   <img
                     :src="urlRecomendado(rec) ?? undefined"

@@ -480,7 +480,7 @@ onMounted(async () => {
                  imagen rota del navegador. -->
             <div
               v-if="muestraImagen(producto)"
-              class="size-full rounded-xl bg-white p-2 flex items-center justify-center ring-1 ring-black/5 overflow-hidden"
+              class="size-full rounded-xl bg-superficie-foto p-2 flex items-center justify-center ring-1 ring-borde-sutil overflow-hidden"
             >
               <img
                 :src="urlDeMedia(producto.imagen) ?? undefined"

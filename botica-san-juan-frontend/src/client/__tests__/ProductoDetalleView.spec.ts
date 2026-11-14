@@ -376,4 +376,52 @@ describe('ProductoDetalleView.vue (Ficha de Producto en /catalogo/:id)', () => {
     expect(recomendados.find('img[src*="14764.webp"]').exists()).toBe(false)
     expect(recomendados.find('img[src*="/formas/"]').exists()).toBe(true)
   })
+
+  it('desactiva la transición del zoom manual cuando prefers-reduced-motion está activo y usa tokens del design system', async () => {
+    const matchMediaOriginal = window.matchMedia
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: query === '(prefers-reduced-motion: reduce)',
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+
+    try {
+      vi.spyOn(productsService, 'getProductById').mockResolvedValue({
+        ...amoxicilina,
+        imagen: 'storage/productos/38530.webp',
+      })
+      vi.spyOn(productsService, 'listar').mockResolvedValue({
+        items: [],
+        total: 0,
+        pagina: 1,
+        porPagina: 10,
+        ultimaPagina: 1,
+      })
+
+      const wrapper = montarComponente()
+      await flushPromises()
+
+      const img = wrapper.find('[data-testid="imagen-producto"]')
+      const marco = img.element.parentElement
+      expect(marco?.className).toContain('bg-superficie-foto')
+      expect(marco?.className).toContain('ring-borde-sutil')
+      expect(marco?.className).not.toContain('bg-white')
+      expect((img.element as HTMLImageElement).style.transition).toBe('none')
+
+      const botonZoom = wrapper.find('button[aria-label="Ampliar imagen de producto"]')
+      await botonZoom.trigger('click')
+      await flushPromises()
+
+      const imgElemento = img.element as HTMLImageElement
+      expect(imgElemento.style.transform).toBe('scale(1.8)')
+      expect(imgElemento.style.transition).toBe('none')
+    } finally {
+      window.matchMedia = matchMediaOriginal
+    }
+  })
 })

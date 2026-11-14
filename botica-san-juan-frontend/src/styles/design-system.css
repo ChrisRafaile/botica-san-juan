@@ -209,6 +209,8 @@
   --superficie-hundida: var(--color-neutro-50);
   --superficie-interactiva: var(--color-neutro-100);
   --superficie-interactiva-activa: var(--color-botica-50);
+  /* Lienzo claro de estudio para empaques farmacéuticos con fondo blanco. */
+  --superficie-foto: var(--color-neutro-0);
 
   /* Texto */
   --texto-primario: var(--color-neutro-900);
@@ -263,6 +265,7 @@
   --superficie-hundida: oklch(0.178 0.008 166);
   --superficie-interactiva: oklch(0.272 0.009 165);
   --superficie-interactiva-activa: color-mix(in oklab, var(--color-botica-500) 18%, transparent);
+  --superficie-foto: var(--color-neutro-0);
 
   --texto-primario: var(--color-neutro-100);
   --texto-secundario: var(--color-neutro-400);
@@ -308,6 +311,7 @@
   --color-superficie-hundida: var(--superficie-hundida);
   --color-superficie-interactiva: var(--superficie-interactiva);
   --color-superficie-interactiva-activa: var(--superficie-interactiva-activa);
+  --color-superficie-foto: var(--superficie-foto);
 
   --color-texto-primario: var(--texto-primario);
   --color-texto-secundario: var(--texto-secundario);
