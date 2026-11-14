@@ -276,6 +276,10 @@ class FlujoCheckoutClienteTest extends TestCase
             ->assertOk();
         $referencia = (string) $inicio->json('pago.referencia');
 
+        $estadoPagoPrevio = Pedido::findOrFail($pedidoId)->estado_pago;
+        $estadoTransaccionPrevio = Pago::where('referencia_pedido', $referencia)->firstOrFail()->estado;
+        $this->assertSame(EstadoPago::PROCESANDO, $estadoPagoPrevio);
+
         // Simula ausencia de IZIPAY_MODE en produccion (config conserva 'simulado' por omision)
         config()->set('services.izipay.mode', 'simulado');
         app()->detectEnvironment(fn () => 'production');
@@ -285,12 +289,16 @@ class FlujoCheckoutClienteTest extends TestCase
                 ->postJson("/api/pagos/{$referencia}/simular", ['resultado' => 'aprobar'])
                 ->assertStatus(404);
 
+            $this->assertSame($estadoPagoPrevio, Pedido::findOrFail($pedidoId)->estado_pago);
+            $this->assertNotSame(EstadoPago::PAGADO, Pedido::findOrFail($pedidoId)->estado_pago);
+
             $pago = Pago::where('referencia_pedido', $referencia)->firstOrFail();
             $servicioRes = app(\App\Services\Pagos\PagoService::class)->simularDesenlace($pago, true, 'visa', '4242');
 
             $this->assertFalse($servicioRes['ok']);
-            $this->assertSame('pendiente', Pedido::findOrFail($pedidoId)->estado_pago);
-            $this->assertSame(EstadoPago::PROCESANDO, $pago->fresh()->estado);
+            $this->assertSame($estadoPagoPrevio, Pedido::findOrFail($pedidoId)->estado_pago);
+            $this->assertNotSame(EstadoPago::PAGADO, Pedido::findOrFail($pedidoId)->estado_pago);
+            $this->assertSame($estadoTransaccionPrevio, $pago->fresh()->estado);
         } finally {
             app()->detectEnvironment(fn () => 'testing');
         }
