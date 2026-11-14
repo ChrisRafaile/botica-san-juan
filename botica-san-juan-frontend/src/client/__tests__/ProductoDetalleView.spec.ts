@@ -308,4 +308,72 @@ describe('ProductoDetalleView.vue (Ficha de Producto en /catalogo/:id)', () => {
     expect(wrapper.find('[data-testid="skeleton-recomendados"]').exists()).toBe(false)
     expect(wrapper.find('[data-testid="seccion-recomendados"]').text()).toContain('Cefalexina 500 mg')
   })
+
+  it('usa directamente la ilustración de respaldo si el producto solo tiene default_image.png', async () => {
+    const paracetamol: Product = {
+      ...amoxicilina,
+      id: 210,
+      nombre: 'PARACETAMOL 500 MG',
+      tipo: 'TABLETA',
+      imagen: 'images/default_image.png',
+    }
+    vi.spyOn(productsService, 'getProductById').mockResolvedValue(paracetamol)
+    vi.spyOn(productsService, 'listar').mockResolvedValue({
+      items: [],
+      total: 0,
+      pagina: 1,
+      porPagina: 10,
+      ultimaPagina: 1,
+    })
+
+    const wrapper = montarComponente()
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid="imagen-producto"]').exists()).toBe(false)
+    const respaldo = wrapper.find('[data-testid="ilustracion-referencial"] img')
+    expect(respaldo.exists()).toBe(true)
+    expect(respaldo.attributes('src')).toContain('/formas/')
+  })
+
+  it('mantiene dimensiones explícitas y reemplaza la foto de un recomendado si falla la carga', async () => {
+    const azitromicina: Product = {
+      ...amoxicilina,
+      id: 305,
+      nombre: 'AZITROMICINA 500 MG',
+      tipo: 'TABLETA',
+      imagen: 'storage/productos/14764.webp',
+    }
+    vi.spyOn(productsService, 'getProductById').mockResolvedValue({
+      ...amoxicilina,
+      imagen: 'storage/productos/38530.webp',
+    })
+    vi.spyOn(productsService, 'listar').mockResolvedValue({
+      items: [azitromicina],
+      total: 1,
+      pagina: 1,
+      porPagina: 10,
+      ultimaPagina: 1,
+    })
+
+    const wrapper = montarComponente()
+    await flushPromises()
+
+    const imgPrincipal = wrapper.find('[data-testid="imagen-producto"]')
+    expect(imgPrincipal.exists()).toBe(true)
+    expect(imgPrincipal.attributes('src')).toContain('/storage/productos/38530.webp')
+    expect(imgPrincipal.attributes('width')).toBe('600')
+    expect(imgPrincipal.attributes('height')).toBe('600')
+
+    const recomendados = wrapper.find('[data-testid="seccion-recomendados"]')
+    const imgRec = recomendados.find('img[src*="14764.webp"]')
+    expect(imgRec.exists()).toBe(true)
+    expect(imgRec.attributes('width')).toBe('240')
+    expect(imgRec.attributes('height')).toBe('240')
+
+    await imgRec.trigger('error')
+    await flushPromises()
+
+    expect(recomendados.find('img[src*="14764.webp"]').exists()).toBe(false)
+    expect(recomendados.find('img[src*="/formas/"]').exists()).toBe(true)
+  })
 })
