@@ -203,6 +203,68 @@ class PagoService
     }
 
     /**
+     * Completa un cobro exclusivamente en modo simulado generando y procesando
+     * una notificacion IPN firmada sin aceptar ni registrar PAN ni CVV.
+     *
+     * @return array{ok:bool, pago:Pago, es_final:bool, message:string}
+     */
+    public function simularDesenlace(
+        Pago $pago,
+        bool $aprobado = true,
+        ?string $marcaTarjeta = null,
+        ?string $ultimos4 = null,
+    ): array {
+        if ($this->pasarela->modo() !== 'simulado' || !$this->pasarela instanceof IzipayClient) {
+            return [
+                'ok' => false,
+                'pago' => $pago,
+                'es_final' => EstadoPago::esFinal($pago->estado),
+                'message' => 'La simulacion solo esta habilitada en modo simulado.',
+            ];
+        }
+
+        $marcaNormalizada = match (strtolower((string) $marcaTarjeta)) {
+            'visa' => 'VISA',
+            'mastercard' => 'MASTERCARD',
+            'amex' => 'AMEX',
+            default => 'TARJETA',
+        };
+        $cuatro = $ultimos4 !== null && preg_match('/^\d{4}$/', $ultimos4) === 1
+            ? $ultimos4
+            : '0000';
+
+        $estadoProveedor = $aprobado ? 'PAID' : 'UNPAID';
+        $payload = [
+            'orderDetails' => ['orderId' => $pago->referencia_pedido],
+            'orderStatus' => $estadoProveedor,
+            'transactions' => [[
+                'uuid' => 'sim-' . (string) Str::uuid(),
+                'status' => $estadoProveedor,
+                'operationType' => 'DEBIT',
+                'paymentMethodType' => 'CARD',
+                'transactionDetails' => [
+                    'cardDetails' => [
+                        'effectiveBrand' => $marcaNormalizada,
+                        'pan' => '000000XXXXXX' . $cuatro,
+                    ],
+                ],
+            ]],
+        ];
+
+        $crudo = (string) json_encode($payload, JSON_UNESCAPED_UNICODE);
+        $firma = $this->pasarela->firmar($crudo, 'ipn');
+        $resultado = $this->procesarNotificacion($crudo, $firma, 'sha256_hmac', 'password');
+        $actualizado = $pago->fresh();
+
+        return [
+            'ok' => in_array($resultado['estado'], ['procesado', 'duplicado'], true),
+            'pago' => $actualizado,
+            'es_final' => EstadoPago::esFinal($actualizado->estado),
+            'message' => $resultado['mensaje'],
+        ];
+    }
+
+    /**
      * Valida la respuesta que el formulario del proveedor devuelve al navegador.
      *
      * La integracion oficial define DOS puntos de verificacion distintos, con

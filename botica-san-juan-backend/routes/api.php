@@ -346,9 +346,11 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     /* `pedidos/confirmar` se declara FUERA de este grupo, mas abajo: admite
        tanto al cliente con sesion como al invitado del checkout rapido. */
 
-    // Cobro. El importe lo toma del pedido, nunca de la peticion.
+    // Cobro y lectura de pedido del propio cliente. El importe lo toma del pedido, nunca de la peticion.
+    Route::get('pedidos/{pedido}/mi-pedido', [PedidoController::class, 'miPedido']);
     Route::post('pedidos/{pedido}/pago', [PagoController::class, 'iniciar']);
     Route::get('pagos/{referencia}/estado', [PagoController::class, 'estado']);
+    Route::post('pagos/{referencia}/simular', [PagoController::class, 'simular']);
     Route::post('pagos/validar-retorno', [PagoController::class, 'validarRetorno']);
 
     // Additional routes for cart by user

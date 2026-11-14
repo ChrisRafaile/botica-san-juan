@@ -8,6 +8,7 @@ use App\Services\Pagos\EstadoPago;
 use App\Services\Pagos\PagoService;
 use App\Services\Pagos\PasarelaPago;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PagoController extends Controller
 {
@@ -56,17 +57,62 @@ class PagoController extends Controller
      */
     public function estado(Request $request, string $referencia)
     {
+        $pago = Pago::with(['pedido.comprobanteElectronico'])->where('referencia_pedido', $referencia)->firstOrFail();
+
+        if ((int) $pago->pedido->usuario_id !== (int) $request->user()->id && $request->user()->rol !== 'administrador') {
+            return response()->json(['message' => 'El pago no pertenece al usuario autenticado.'], 403);
+        }
+
+        $comp = $pago->pedido->comprobanteElectronico;
+
+        return response()->json([
+            'pago' => $pago->paraCliente(),
+            'pedido_id' => $pago->pedido_id,
+            'es_final' => EstadoPago::esFinal($pago->estado),
+            'comprobante' => $comp === null ? null : [
+                'id' => $comp->id,
+                'tipo' => $comp->tipo_comprobante,
+                'identificador' => $comp->serie . '-' . str_pad((string) $comp->numero, 8, '0', STR_PAD_LEFT),
+                'estado_sunat' => $comp->estado_sunat,
+            ],
+        ]);
+    }
+
+    /**
+     * Resuelve un cobro en modo simulado sin recibir ni registrar numero de tarjeta ni CVV.
+     */
+    public function simular(Request $request, string $referencia)
+    {
+        if ($this->pasarela->modo() !== 'simulado') {
+            return response()->json(['message' => 'Recurso no encontrado.'], 404);
+        }
+
         $pago = Pago::with('pedido')->where('referencia_pedido', $referencia)->firstOrFail();
 
         if ((int) $pago->pedido->usuario_id !== (int) $request->user()->id && $request->user()->rol !== 'administrador') {
             return response()->json(['message' => 'El pago no pertenece al usuario autenticado.'], 403);
         }
 
-        return response()->json([
-            'pago' => $pago->paraCliente(),
-            'pedido_id' => $pago->pedido_id,
-            'es_final' => EstadoPago::esFinal($pago->estado),
+        $datos = $request->validate([
+            'resultado' => ['nullable', Rule::in(['aprobar', 'rechazar'])],
+            'marca_tarjeta' => ['nullable', Rule::in(['visa', 'mastercard', 'amex', 'desconocida'])],
+            'ultimos4' => ['nullable', 'string', 'regex:/^\d{4}$/'],
         ]);
+
+        $res = $this->pagos->simularDesenlace(
+            $pago,
+            ($datos['resultado'] ?? 'aprobar') === 'aprobar',
+            $datos['marca_tarjeta'] ?? null,
+            $datos['ultimos4'] ?? null,
+        );
+
+        return response()->json([
+            'ok' => $res['ok'],
+            'message' => $res['message'],
+            'pago' => $res['pago']->paraCliente(),
+            'pedido_id' => $pago->pedido_id,
+            'es_final' => $res['es_final'],
+        ], $res['ok'] ? 200 : 409);
     }
 
     /**
