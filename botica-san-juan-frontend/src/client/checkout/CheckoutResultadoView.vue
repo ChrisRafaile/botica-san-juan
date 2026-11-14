@@ -147,7 +147,7 @@
           <RouterLink
             v-if="visual === 'PAYMENT_SUCCESS'"
             to="/client/home"
-            class="foco-dentro min-h-11 rounded-xl bg-botica-600 px-6 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-botica-600/20 transition hover:bg-botica-700"
+            class="foco-dentro min-h-11 rounded-xl bg-botica-600 px-6 py-3 text-center text-sm font-semibold text-neutro-0 shadow-lg shadow-botica-600/20 transition hover:bg-botica-700"
           >
             Ver mis pedidos
           </RouterLink>
@@ -155,7 +155,7 @@
           <button
             v-if="visual === 'PAYMENT_ERROR' || visual === 'PAYMENT_CANCELLED'"
             type="button"
-            class="foco-dentro min-h-11 rounded-xl bg-clinico-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-clinico-600/20 transition hover:bg-clinico-700"
+            class="foco-dentro min-h-11 rounded-xl bg-clinico-600 px-6 py-3 text-sm font-semibold text-neutro-0 shadow-lg shadow-clinico-600/20 transition hover:bg-clinico-700"
             @click="reintentar"
           >
             Intentar nuevamente

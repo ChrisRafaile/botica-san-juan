@@ -100,7 +100,7 @@
           <p class="text-sm text-texto-primario">{{ carrito.error }}</p>
           <button
             type="button"
-            class="foco-dentro mt-2 rounded-lg bg-peligro-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-peligro-700"
+            class="foco-dentro mt-2 rounded-lg bg-peligro-600 px-3 py-1.5 text-sm font-medium text-neutro-0 hover:bg-peligro-700"
             @click="carrito.cotizar()"
           >
             Reintentar
@@ -133,7 +133,7 @@
         </p>
         <RouterLink
           to="/products"
-          class="foco-dentro mt-6 inline-flex items-center gap-2 rounded-xl bg-botica-600 px-5 py-2.5 font-medium text-white transition-colors hover:bg-botica-700"
+          class="foco-dentro mt-6 inline-flex items-center gap-2 rounded-xl bg-botica-600 px-5 py-2.5 font-medium text-neutro-0 transition-colors hover:bg-botica-700"
         >
           <SearchIcon class="size-4" aria-hidden="true" />
           Ver el catálogo
@@ -341,7 +341,7 @@
                registrado en el sistema y emite el comprobante. -->
           <button
             type="button"
-            class="foco-dentro mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-botica-600 px-4 py-3 font-semibold text-white transition-colors hover:bg-botica-700 disabled:cursor-not-allowed disabled:opacity-60"
+            class="foco-dentro mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-botica-600 px-4 py-3 font-semibold text-neutro-0 transition-colors hover:bg-botica-700 disabled:cursor-not-allowed disabled:opacity-60"
             :disabled="enviando"
             @click="abrirCheckout"
           >
@@ -738,7 +738,7 @@
               </button>
               <button
                 type="submit"
-                class="foco-dentro inline-flex min-h-11 items-center gap-2 rounded-xl bg-botica-600 px-5 py-2 text-sm font-semibold text-white hover:bg-botica-700 disabled:opacity-60"
+                class="foco-dentro inline-flex min-h-11 items-center gap-2 rounded-xl bg-botica-600 px-5 py-2 text-sm font-semibold text-neutro-0 hover:bg-botica-700 disabled:opacity-60"
                 :disabled="enviando"
               >
                 <LoaderCircleIcon v-if="enviando" class="size-4 animate-spin" aria-hidden="true" />
@@ -824,14 +824,14 @@
             <RouterLink
               v-if="!confirmado.seguimiento.invitado"
               to="/client/home"
-              class="foco-dentro inline-flex min-h-10 items-center rounded-xl bg-botica-600 px-4 py-2 text-sm font-semibold text-white hover:bg-botica-700"
+              class="foco-dentro inline-flex min-h-10 items-center rounded-xl bg-botica-600 px-4 py-2 text-sm font-semibold text-neutro-0 hover:bg-botica-700"
             >
               Ver mis pedidos
             </RouterLink>
             <button
               v-else
               type="button"
-              class="foco-dentro min-h-10 rounded-xl bg-botica-600 px-4 py-2 text-sm font-semibold text-white hover:bg-botica-700"
+              class="foco-dentro min-h-10 rounded-xl bg-botica-600 px-4 py-2 text-sm font-semibold text-neutro-0 hover:bg-botica-700"
               @click="confirmado = null"
             >
               Entendido

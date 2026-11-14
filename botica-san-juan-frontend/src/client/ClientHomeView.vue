@@ -54,7 +54,7 @@
           <RouterLink
             v-if="carrito.totalUnidades > 0"
             to="/cart"
-            class="inline-flex min-h-11 items-center gap-2 rounded-full bg-botica-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-botica-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+            class="inline-flex min-h-11 items-center gap-2 rounded-full bg-botica-700 px-4 py-2.5 text-sm font-semibold text-neutro-0 transition hover:bg-botica-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
           >
             <ShoppingCart class="size-4" aria-hidden="true" />
             Finalizar compra ({{ carrito.totalUnidades }})
@@ -65,7 +65,7 @@
             class="inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
             :class="carrito.totalUnidades > 0
               ? 'border border-borde-control text-texto-primario hover:bg-superficie-interactiva'
-              : 'bg-botica-700 text-white hover:bg-botica-800'"
+              : 'bg-botica-700 text-neutro-0 hover:bg-botica-800'"
           >
             <Search class="size-4" aria-hidden="true" />
             Ver catálogo
@@ -218,7 +218,7 @@
                     <RouterLink
                       v-if="pedido.estado_pago !== 'pagado' && pedido.estado !== 'anulado'"
                       :to="{ path: '/checkout/pago', query: { pedido: String(pedido.id) } }"
-                      class="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-botica-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-botica-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+                      class="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-botica-600 px-3 py-1.5 text-xs font-semibold text-neutro-0 transition hover:bg-botica-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
                     >
                       <CreditCard class="size-3.5" aria-hidden="true" />
                       Pagar

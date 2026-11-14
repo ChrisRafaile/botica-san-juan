@@ -138,7 +138,7 @@
         <button
           v-if="!formularioMontado"
           type="button"
-          class="foco-dentro mt-6 min-h-11 w-full rounded-xl bg-clinico-600 px-6 py-3 font-medium text-white shadow-lg shadow-clinico-600/20 transition hover:bg-clinico-700 disabled:cursor-not-allowed disabled:opacity-60"
+          class="foco-dentro mt-6 min-h-11 w-full rounded-xl bg-clinico-600 px-6 py-3 font-medium text-neutro-0 shadow-lg shadow-clinico-600/20 transition hover:bg-clinico-700 disabled:cursor-not-allowed disabled:opacity-60"
           :disabled="procesando || cargando"
           @click="pagar"
         >
