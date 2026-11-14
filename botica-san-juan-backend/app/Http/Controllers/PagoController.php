@@ -83,7 +83,7 @@ class PagoController extends Controller
      */
     public function simular(Request $request, string $referencia)
     {
-        if ($this->pasarela->modo() !== 'simulado') {
+        if (app()->isProduction() || $this->pasarela->modo() !== 'simulado') {
             return response()->json(['message' => 'Recurso no encontrado.'], 404);
         }
 

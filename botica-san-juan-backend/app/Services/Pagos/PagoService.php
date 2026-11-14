@@ -214,12 +214,12 @@ class PagoService
         ?string $marcaTarjeta = null,
         ?string $ultimos4 = null,
     ): array {
-        if ($this->pasarela->modo() !== 'simulado' || !$this->pasarela instanceof IzipayClient) {
+        if (app()->isProduction() || $this->pasarela->modo() !== 'simulado' || !$this->pasarela instanceof IzipayClient) {
             return [
                 'ok' => false,
                 'pago' => $pago,
                 'es_final' => EstadoPago::esFinal($pago->estado),
-                'message' => 'La simulacion solo esta habilitada en modo simulado.',
+                'message' => 'La simulacion solo esta habilitada en entornos no productivos y modo simulado.',
             ];
         }
 

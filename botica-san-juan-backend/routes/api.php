@@ -350,7 +350,9 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
     Route::get('pedidos/{pedido}/mi-pedido', [PedidoController::class, 'miPedido']);
     Route::post('pedidos/{pedido}/pago', [PagoController::class, 'iniciar']);
     Route::get('pagos/{referencia}/estado', [PagoController::class, 'estado']);
-    Route::post('pagos/{referencia}/simular', [PagoController::class, 'simular']);
+    if (! app()->isProduction()) {
+        Route::post('pagos/{referencia}/simular', [PagoController::class, 'simular']);
+    }
     Route::post('pagos/validar-retorno', [PagoController::class, 'validarRetorno']);
 
     // Additional routes for cart by user

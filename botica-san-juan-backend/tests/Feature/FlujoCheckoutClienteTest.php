@@ -258,4 +258,41 @@ class FlujoCheckoutClienteTest extends TestCase
             ->postJson("/api/pagos/{$referencia}/simular", ['resultado' => 'aprobar'])
             ->assertStatus(404);
     }
+
+    public function test_simular_pago_devuelve_404_y_no_cambia_estado_en_entorno_production_aunque_modo_sea_simulado(): void
+    {
+        [$producto] = $this->productoConDosLotes();
+        $cliente = $this->clienteConDni();
+        $token = $cliente->createToken('prod-simulado')->plainTextToken;
+
+        $r = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/pedidos/confirmar', [
+                'items' => [['producto_id' => $producto->id, 'cantidad' => 1]],
+            ])->assertStatus(201);
+
+        $pedidoId = (int) $r->json('pedido.id');
+        $inicio = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson("/api/pedidos/{$pedidoId}/pago")
+            ->assertOk();
+        $referencia = (string) $inicio->json('pago.referencia');
+
+        // Simula ausencia de IZIPAY_MODE en produccion (config conserva 'simulado' por omision)
+        config()->set('services.izipay.mode', 'simulado');
+        app()->detectEnvironment(fn () => 'production');
+
+        try {
+            $this->withHeader('Authorization', "Bearer {$token}")
+                ->postJson("/api/pagos/{$referencia}/simular", ['resultado' => 'aprobar'])
+                ->assertStatus(404);
+
+            $pago = Pago::where('referencia_pedido', $referencia)->firstOrFail();
+            $servicioRes = app(\App\Services\Pagos\PagoService::class)->simularDesenlace($pago, true, 'visa', '4242');
+
+            $this->assertFalse($servicioRes['ok']);
+            $this->assertSame('pendiente', Pedido::findOrFail($pedidoId)->estado_pago);
+            $this->assertSame(EstadoPago::PROCESANDO, $pago->fresh()->estado);
+        } finally {
+            app()->detectEnvironment(fn () => 'testing');
+        }
+    }
 }
