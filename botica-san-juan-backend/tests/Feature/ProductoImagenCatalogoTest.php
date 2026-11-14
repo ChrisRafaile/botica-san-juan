@@ -122,7 +122,7 @@ class ProductoImagenCatalogoTest extends TestCase
         }
     }
 
-    public function test_comando_con_restauracion_repone_respaldo_en_huerfanas(): void
+    public function test_comando_repone_respaldo_por_defecto_en_productos_fuera_de_manifiesto(): void
     {
         Storage::fake('public');
 
@@ -139,7 +139,6 @@ class ProductoImagenCatalogoTest extends TestCase
         try {
             $this->artisan('catalogo:poblar-imagenes', [
                 '--archivo' => $rutaManifiesto,
-                '--restaurar-sin-coincidencia' => true,
             ])
                 ->expectsOutputToContain('Restaurados a respaldo: 1')
                 ->assertSuccessful();
@@ -148,6 +147,13 @@ class ProductoImagenCatalogoTest extends TestCase
                 PoblarImagenesProductos::IMAGEN_RESPALDO_DEFECTO,
                 $huerfano->fresh()->imagen
             );
+
+            // Segunda ejecución sin cambios pendientes (idempotente)
+            $this->artisan('catalogo:poblar-imagenes', [
+                '--archivo' => $rutaManifiesto,
+            ])
+                ->expectsOutputToContain('Restaurados a respaldo: 0')
+                ->assertSuccessful();
         } finally {
             @unlink($rutaManifiesto);
         }

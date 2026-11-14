@@ -17,7 +17,6 @@ class PoblarImagenesProductos extends Command
 
     protected $signature = 'catalogo:poblar-imagenes
         {--archivo= : Ruta alternativa al archivo JSON de correspondencias}
-        {--restaurar-sin-coincidencia : Restaura la ruta de respaldo en productos sin archivo válido}
         {--dry-run : Muestra los cambios sin persistir en la base de datos}';
 
     protected $description = 'Asigna de forma idempotente las imágenes reales verificadas del catálogo en storage/app/public/productos';
@@ -70,7 +69,6 @@ class PoblarImagenesProductos extends Command
         }
 
         $dryRun = (bool) $this->option('dry-run');
-        $restaurar = (bool) $this->option('restaurar-sin-coincidencia');
 
         $productos = Producto::query()
             ->select(['id', 'imagen'])
@@ -85,7 +83,6 @@ class PoblarImagenesProductos extends Command
         $ejecutar = function () use (
             $productos,
             $mapaValido,
-            $restaurar,
             $dryRun,
             &$actualizados,
             &$sinCambios,
@@ -110,7 +107,7 @@ class PoblarImagenesProductos extends Command
                 }
 
                 $sinCoincidencia++;
-                if ($restaurar && $producto->imagen !== self::IMAGEN_RESPALDO_DEFECTO) {
+                if ($producto->imagen !== self::IMAGEN_RESPALDO_DEFECTO) {
                     if (! $dryRun) {
                         Producto::query()
                             ->whereKey($producto->id)
@@ -131,8 +128,8 @@ class PoblarImagenesProductos extends Command
         $this->info(
             "{$prefijo}Catálogo analizado: {$productos->count()} productos | " .
             "Actualizados: {$actualizados} | Sin cambios: {$sinCambios} | " .
-            "Sin coincidencia (respaldo): {$sinCoincidencia} | Archivos faltantes en disco: {$archivosFaltantes}" .
-            ($restaurar ? " | Restaurados a respaldo: {$restaurados}" : '')
+            "Sin coincidencia (respaldo): {$sinCoincidencia} | Archivos faltantes en disco: {$archivosFaltantes} | " .
+            "Restaurados a respaldo: {$restaurados}"
         );
 
         return self::SUCCESS;
