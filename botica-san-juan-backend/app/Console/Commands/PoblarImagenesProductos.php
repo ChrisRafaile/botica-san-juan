@@ -15,6 +15,9 @@ class PoblarImagenesProductos extends Command
 {
     public const IMAGEN_RESPALDO_DEFECTO = 'images/default_image.png';
 
+    /** @var array<int, int> */
+    private const PRODUCTOS_EXCLUIDOS_DEFECTO = [191, 205, 547];
+
     protected $signature = 'catalogo:poblar-imagenes
         {--archivo= : Ruta alternativa al archivo JSON de correspondencias}
         {--dry-run : Muestra los cambios sin persistir en la base de datos}';
@@ -41,6 +44,7 @@ class PoblarImagenesProductos extends Command
         }
 
         $discoPublico = Storage::disk('public');
+        $excluidos = $this->productosExcluidos();
         $mapaValido = [];
         $archivosFaltantes = 0;
 
@@ -50,6 +54,10 @@ class PoblarImagenesProductos extends Command
             }
 
             $productoId = (int) $item['producto_id'];
+            if (in_array($productoId, $excluidos, true)) {
+                continue;
+            }
+
             $rutaImagen = trim((string) $item['imagen'], " \t\n\r\0\x0B/");
             if ($productoId <= 0 || $rutaImagen === '') {
                 continue;
@@ -133,5 +141,34 @@ class PoblarImagenesProductos extends Command
         );
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Combina las exclusiones fijas de auditoría con la lista versionada en scripts/exclusiones_imagenes.json.
+     *
+     * @return array<int, int>
+     */
+    private function productosExcluidos(): array
+    {
+        $ids = self::PRODUCTOS_EXCLUIDOS_DEFECTO;
+        $rutaExclusiones = dirname(base_path()) . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'exclusiones_imagenes.json';
+
+        if (! is_file($rutaExclusiones)) {
+            return $ids;
+        }
+
+        $contenido = file_get_contents($rutaExclusiones);
+        $datos = is_string($contenido) ? json_decode($contenido, true) : null;
+        if (! is_array($datos) || ! isset($datos['exclusiones']) || ! is_array($datos['exclusiones'])) {
+            return $ids;
+        }
+
+        foreach ($datos['exclusiones'] as $item) {
+            if (is_array($item) && isset($item['producto_id'])) {
+                $ids[] = (int) $item['producto_id'];
+            }
+        }
+
+        return array_values(array_unique(array_filter($ids, static fn (int $id): bool => $id > 0)));
     }
 }

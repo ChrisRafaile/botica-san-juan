@@ -840,6 +840,11 @@ def main() -> int:
                 "puntaje": m["puntaje"],
             })
 
+        archivos_activos = {Path(c["imagen"]).name for c in correspondencias}
+        for archivo_webp in SALIDA_IMAGENES_DIR.glob("*.webp"):
+            if archivo_webp.name not in archivos_activos:
+                archivo_webp.unlink(missing_ok=True)
+
         CORRESPONDENCIA_PATH.parent.mkdir(parents=True, exist_ok=True)
         payload = {
             "fuente": BASE_URL,

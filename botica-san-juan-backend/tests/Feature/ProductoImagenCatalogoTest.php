@@ -192,4 +192,79 @@ class ProductoImagenCatalogoTest extends TestCase
             ->assertOk()
             ->assertJsonPath('datos.imagen', 'storage/productos/14764.webp');
     }
+
+    public function test_comando_ignora_productos_excluidos_manualmente_aunque_esten_en_manifiesto(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('productos/08976.webp', 'webp-betapluss');
+        Storage::disk('public')->put('productos/43664.webp', 'webp-bismutol');
+        Storage::disk('public')->put('productos/28640-tableta.webp', 'webp-gravol');
+
+        $categoriaId = $this->categoria()->id;
+        $betapluss = (new Producto())->forceFill([
+            'id' => 191,
+            'nombre' => 'BETAPLUSS',
+            'concentracion' => '0.05 %',
+            'laboratorio' => 'LAB',
+            'presentacion' => 'caja tubo x 20 g',
+            'tipo' => 'CREMA',
+            'categoria_id' => $categoriaId,
+            'stock' => 10,
+            'precio' => 12.00,
+            'requiere_receta' => false,
+            'imagen' => 'storage/productos/08976.webp',
+        ]);
+        $betapluss->save();
+
+        $bismutol = (new Producto())->forceFill([
+            'id' => 205,
+            'nombre' => 'BISMUTOL',
+            'concentracion' => '262 mg',
+            'laboratorio' => 'LAB',
+            'presentacion' => 'Caja Sobre x 2 Tabletas Masticables',
+            'tipo' => 'TABLETA',
+            'categoria_id' => $categoriaId,
+            'stock' => 10,
+            'precio' => 3.00,
+            'requiere_receta' => false,
+            'imagen' => 'storage/productos/43664.webp',
+        ]);
+        $bismutol->save();
+
+        $gravol = (new Producto())->forceFill([
+            'id' => 547,
+            'nombre' => 'GRAVOL',
+            'concentracion' => '50 mg',
+            'laboratorio' => 'LAB',
+            'presentacion' => 'Caja Envase Blister Tabletas',
+            'tipo' => 'TABLETA',
+            'categoria_id' => $categoriaId,
+            'stock' => 10,
+            'precio' => 2.50,
+            'requiere_receta' => false,
+            'imagen' => 'storage/productos/28640-tableta.webp',
+        ]);
+        $gravol->save();
+
+        $rutaManifiesto = tempnam(sys_get_temp_dir(), 'corr_') . '.json';
+        file_put_contents($rutaManifiesto, json_encode([
+            'correspondencias' => [
+                ['producto_id' => 191, 'imagen' => 'storage/productos/08976.webp'],
+                ['producto_id' => 205, 'imagen' => 'storage/productos/43664.webp'],
+                ['producto_id' => 547, 'imagen' => 'storage/productos/28640-tableta.webp'],
+            ],
+        ]));
+
+        try {
+            $this->artisan('catalogo:poblar-imagenes', ['--archivo' => $rutaManifiesto])
+                ->expectsOutputToContain('Restaurados a respaldo: 3')
+                ->assertSuccessful();
+
+            $this->assertSame(PoblarImagenesProductos::IMAGEN_RESPALDO_DEFECTO, $betapluss->fresh()->imagen);
+            $this->assertSame(PoblarImagenesProductos::IMAGEN_RESPALDO_DEFECTO, $bismutol->fresh()->imagen);
+            $this->assertSame(PoblarImagenesProductos::IMAGEN_RESPALDO_DEFECTO, $gravol->fresh()->imagen);
+        } finally {
+            @unlink($rutaManifiesto);
+        }
+    }
 }
