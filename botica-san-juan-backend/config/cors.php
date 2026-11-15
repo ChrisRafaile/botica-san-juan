@@ -42,6 +42,8 @@ return [
         'X-Requested-With',
         'X-CSRF-TOKEN',
         'Accept',
+        /* La envia el propio cliente para silenciar su aviso global; sin declararla aqui el preflight la rechaza. */
+        'X-Silenciar-Aviso',
     ],
 
     'supports_credentials' => true,
