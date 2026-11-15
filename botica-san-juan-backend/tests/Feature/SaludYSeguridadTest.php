@@ -49,4 +49,29 @@ class SaludYSeguridadTest extends TestCase
             'La respuesta deberia incluir la cabecera X-Request-Id.'
         );
     }
+
+    public function test_el_preflight_de_google_redirect_permite_la_cabecera_silenciar_aviso(): void
+    {
+        $origenPermitido = config('cors.allowed_origins.0');
+        if (! is_string($origenPermitido) || $origenPermitido === '' || $origenPermitido === '*') {
+            $origenPermitido = 'http://localhost:5173';
+            config(['cors.allowed_origins' => [$origenPermitido]]);
+        }
+
+        $respuesta = $this->withHeaders([
+            'Origin' => $origenPermitido,
+            'Access-Control-Request-Method' => 'GET',
+            'Access-Control-Request-Headers' => 'x-silenciar-aviso',
+        ])->options('/api/auth/google/redirect');
+
+        $respuesta->assertOk()
+            ->assertHeader('Access-Control-Allow-Origin', $origenPermitido);
+
+        $cabecerasPermitidas = array_map(
+            'strtolower',
+            array_map('trim', explode(',', (string) $respuesta->headers->get('Access-Control-Allow-Headers')))
+        );
+
+        $this->assertContains('x-silenciar-aviso', $cabecerasPermitidas);
+    }
 }
