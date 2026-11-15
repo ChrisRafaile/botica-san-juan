@@ -79,7 +79,7 @@
               class="absolute right-0 mt-2 w-48 bg-superficie-elevada rounded-lg shadow-lg border border-borde-sutil py-1 z-50"
             >
               <router-link
-                to="/profile"
+                to="/client/perfil"
                 class="block px-4 py-2 text-sm text-texto-secundario hover:bg-superficie-hundida transition-colors"
               >
                 Mi Perfil
@@ -88,9 +88,15 @@
                 to="/client/home"
                 class="block px-4 py-2 text-sm text-texto-secundario hover:bg-superficie-hundida transition-colors"
               >
+                Mi Portal
+              </router-link>
+              <router-link
+                to="/client/pedidos"
+                class="block px-4 py-2 text-sm text-texto-secundario hover:bg-superficie-hundida transition-colors"
+              >
                 Mis Pedidos
               </router-link>
-              <hr class="my-1" />
+              <hr class="my-1 border-borde-sutil" />
               <button
                 class="block w-full text-left px-4 py-2 text-sm text-texto-secundario hover:bg-superficie-hundida transition-colors"
                 @click="pedirConfirmacion"
@@ -149,7 +155,7 @@
               :key="item.name"
               :to="item.href"
               class="text-texto-secundario hover:text-texto-marca px-3 py-3 text-base font-medium transition-colors duration-200 rounded-md hover:bg-superficie-hundida"
-              :class="{ 'text-botica-600 bg-botica-50': $route.path === item.href }"
+              :class="{ 'text-botica-600 bg-botica-50 dark:bg-botica-500/15 dark:text-botica-300': $route.path === item.href }"
               @click="closeMobileMenu"
             >
               {{ item.name }}

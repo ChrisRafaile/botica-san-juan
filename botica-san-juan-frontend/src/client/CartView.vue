@@ -42,20 +42,45 @@
         <span class="text-texto-primario">Carrito</span>
       </nav>
 
-      <header class="mb-8">
-        <h1 class="text-3xl font-bold text-texto-primario sm:text-4xl">Tu carrito</h1>
-        <p class="mt-2 text-texto-secundario" role="status">
-          <template v-if="carrito.cargando && carrito.lineas.length === 0">
-            Consultando precios y stock…
-          </template>
-          <template v-else-if="carrito.totalUnidades > 0">
-            {{ carrito.totalUnidades }}
-            {{ carrito.totalUnidades === 1 ? 'unidad' : 'unidades' }}
-            de {{ carrito.lineas.length }}
-            {{ carrito.lineas.length === 1 ? 'producto' : 'productos' }}
-          </template>
-          <template v-else>Todavía no has agregado nada.</template>
-        </p>
+      <header class="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold text-texto-primario sm:text-4xl">Tu carrito</h1>
+          <p class="mt-2 text-texto-secundario" role="status">
+            <template v-if="carrito.cargando && carrito.lineas.length === 0">
+              Consultando precios y stock…
+            </template>
+            <template v-else-if="carrito.totalUnidades > 0">
+              {{ carrito.totalUnidades }}
+              {{ carrito.totalUnidades === 1 ? 'unidad' : 'unidades' }}
+              de {{ carrito.lineas.length }}
+              {{ carrito.lineas.length === 1 ? 'producto' : 'productos' }}
+            </template>
+            <template v-else>Todavía no has agregado nada.</template>
+          </p>
+        </div>
+
+        <nav aria-label="Navegación del carrito" class="flex flex-wrap items-center gap-2.5">
+          <RouterLink
+            to="/products"
+            class="foco-dentro inline-flex items-center gap-1.5 rounded-full border border-borde-control bg-superficie-elevada px-4 py-2 text-sm font-medium text-texto-primario transition-colors hover:bg-superficie-interactiva"
+          >
+            Seguir comprando
+          </RouterLink>
+          <RouterLink
+            v-if="autenticado"
+            to="/client/pedidos"
+            class="foco-dentro inline-flex items-center gap-1.5 rounded-full border border-borde-control bg-superficie-elevada px-4 py-2 text-sm font-medium text-texto-primario transition-colors hover:bg-superficie-interactiva"
+          >
+            Mis pedidos
+          </RouterLink>
+          <RouterLink
+            v-if="autenticado"
+            to="/client/home"
+            class="foco-dentro inline-flex items-center gap-1.5 rounded-full border border-borde-control bg-superficie-elevada px-4 py-2 text-sm font-medium text-texto-marca transition-colors hover:bg-superficie-interactiva"
+          >
+            Ir a mi portal
+          </RouterLink>
+        </nav>
       </header>
 
       <!-- Avisos de ajuste. Van arriba y con role=alert porque el carrito ya
@@ -349,6 +374,13 @@
             <ReceiptIcon v-else class="size-5" aria-hidden="true" />
             {{ enviando ? 'Registrando…' : 'Continuar al checkout' }}
           </button>
+
+          <RouterLink
+            to="/products"
+            class="foco-dentro mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl border border-borde-control bg-superficie-elevada px-4 py-2.5 text-sm font-semibold text-texto-primario transition-colors hover:bg-superficie-interactiva"
+          >
+            Seguir comprando
+          </RouterLink>
 
           <!-- Salida alternativa por WhatsApp, para quien prefiere hablar. -->
           <a
@@ -1172,6 +1204,9 @@ function abrirCheckout() {
     }
     if (!formulario.value.cliente_telefono) {
       formulario.value.cliente_telefono = auth.user.telefono ?? ''
+    }
+    if (!formulario.value.direccion && auth.user.direccion_entrega) {
+      formulario.value.direccion = auth.user.direccion_entrega
     }
   }
   checkoutAbierto.value = true

@@ -49,6 +49,7 @@ class PerfilController extends Controller
         $validado = $request->validate([
             'nombre' => ['sometimes', 'required', 'string', 'max:255'],
             'telefono' => ['nullable', 'string', 'max:20'],
+            'direccion_entrega' => ['nullable', 'string', 'max:255'],
             'email' => [
                 'sometimes', 'required', 'email', 'max:255',
                 Rule::unique('usuarios', 'email')->ignore($usuario->id),

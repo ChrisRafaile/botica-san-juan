@@ -27,6 +27,10 @@ import { computed } from 'vue'
 import { Sun, Moon, MonitorCog } from 'lucide-vue-next'
 import { useTheme, type PreferenciaTema } from '@/composables/useTheme'
 
+const props = withDefaults(defineProps<{ modo?: 'boton' | 'segmentado' }>(), {
+  modo: 'boton',
+})
+
 const { preferencia, esOscuro, establecerTema } = useTheme()
 
 const CICLO: PreferenciaTema[] = ['sistema', 'claro', 'oscuro']
@@ -36,6 +40,12 @@ const ROTULOS: Record<PreferenciaTema, string> = {
   claro: 'Tema claro',
   oscuro: 'Tema oscuro',
 }
+
+const OPCIONES_SEGMENTADAS: { valor: PreferenciaTema; etiqueta: string; icono: typeof Sun }[] = [
+  { valor: 'claro', etiqueta: 'Claro', icono: Sun },
+  { valor: 'oscuro', etiqueta: 'Oscuro', icono: Moon },
+  { valor: 'sistema', etiqueta: 'Automático', icono: MonitorCog },
+]
 
 const siguiente = computed<PreferenciaTema>(() => {
   /* Si el valor guardado no estuviera en el ciclo, `indexOf` devuelve -1 y el
@@ -59,7 +69,31 @@ const etiqueta = computed(
 </script>
 
 <template>
+  <div
+    v-if="props.modo === 'segmentado'"
+    role="group"
+    aria-label="Apariencia del tema"
+    class="inline-flex flex-wrap items-center gap-1 rounded-xl border border-borde-sutil bg-superficie-hundida p-1"
+  >
+    <button
+      v-for="opcion in OPCIONES_SEGMENTADAS"
+      :key="opcion.valor"
+      type="button"
+      :aria-pressed="preferencia === opcion.valor"
+      :class="[
+        'foco-dentro inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors duration-200',
+        preferencia === opcion.valor
+          ? 'bg-superficie-elevada text-texto-primario shadow-xs'
+          : 'text-texto-secundario hover:text-texto-primario',
+      ]"
+      @click="establecerTema(opcion.valor)"
+    >
+      <component :is="opcion.icono" class="size-4 shrink-0" aria-hidden="true" />
+      <span>{{ opcion.etiqueta }}</span>
+    </button>
+  </div>
   <button
+    v-else
     type="button"
     class="foco-dentro inline-flex items-center gap-2 rounded-lg p-2 text-texto-secundario transition-colors duration-200 hover:bg-superficie-interactiva hover:text-texto-primario"
     :aria-label="etiqueta"
