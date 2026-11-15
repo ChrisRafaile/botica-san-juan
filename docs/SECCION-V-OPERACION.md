@@ -49,7 +49,7 @@ detectar: la Tabla 64 del APF3 ya está entregada y calificada.
 
 | N.º | Qué se hizo | Resultado verificado | Evidencia |
 |---|---|---|---|
-| **O-B1** | Se volvió a ejecutar la suite completa y se recompusieron las figuras desde la salida literal | **379** pruebas de backend y **116** de frontend al cerrar la observación (`CRT-11` a `CRT-17`). El corte vigente, medido de nuevo el 13-11-2026, es de **419** de backend (1 172 aserciones, 34 clases) y **154** de frontend (19 archivos): 573 en total | `CRT-18` a `CRT-24`; Figuras 78 y 79 |
+| **O-B1** | Se volvió a ejecutar la suite completa y se recompusieron las figuras desde la salida literal | **379** pruebas de backend y **116** de frontend al cerrar la observación (`CRT-11` a `CRT-17`). El corte vigente, medido de nuevo el 14-11-2026 tras fusionar las fotos del catálogo y el checkout del cliente, es de **429** de backend (1 261 aserciones, 36 clases) y **172** de frontend (24 archivos): 601 en total | `CRT-25` a `CRT-31`; Figuras 78 y 79 |
 | **O-B2** | En vez de retocar el PNG se escribió `docs/scripts/generar-figura11.py`, que **cuenta** los archivos de migración | **54** migraciones, contadas por el script. La cifra no puede volver a quedarse vieja sin que alguien ejecute el script y lo vea | `docs/evidencias/figura11/` |
 | **O-B3** | Decisión de negocio tomada y aplicada a las cuatro vistas públicas | Homologado: «+800 productos farmacéuticos», «Más de 8 años de servicio en San Juan de Lurigancho», «Atención directa en nuestro local principal y delivery local» | `Hero.vue`, `Stats.vue`, `AboutContent.vue`, `Footer.vue` |
 | **O-B4** | Se comprobó el archivo real servido en producción, en lugar de suponer la causa | `200`, `image/png`, **2 255 B**, **512×512**, decodifica correctamente | `M02`, `M03` |
@@ -206,7 +206,7 @@ indicador.
 | Contención 15 min / restauración 60 min | Sección XXXI | INC-01 se atendió en ~12 minutos |
 | RPO 24 h / RTO 60 min | M9 | Procedimiento verificado; programación diaria no activa |
 | Comprobantes SUNAT ≥ 99 % | M10 | Sin cambio |
-| Pruebas en verde 100 % | M11 | Cumplido: 419 de backend y 154 de frontend |
+| Pruebas en verde 100 % | M11 | Cumplido: 429 de backend y 172 de frontend |
 | — | M6, M7, M8, M12 | Cuatro indicadores nuevos: M6 y M12 los pide la experiencia del proyecto, M7 y M8 la referencia |
 
 *Nota.* Elaboración propia. Los indicadores de negocio del APF1 —reducción del
@@ -608,23 +608,23 @@ razonadas que como incumplimientos, siempre que la matriz las muestre.
 
 | Dimensión | Valor | Evidencia |
 |---|---|---|
-| Pruebas de backend | **419** (1 172 aserciones, 34 clases) | `CRT-18`, `CRT-21` |
-| Pruebas de frontend | **154** (19 archivos) | `CRT-20`, `CRT-23` |
-| Total de pruebas automatizadas | **573** | `CRT-24` |
+| Pruebas de backend | **429** (1 261 aserciones, 36 clases) | `CRT-25`, `CRT-28` |
+| Pruebas de frontend | **172** (24 archivos) | `CRT-27`, `CRT-30` |
+| Total de pruebas automatizadas | **601** | `CRT-31` |
 | Migraciones versionadas y reversibles | **54** | `docs/evidencias/figura11/` |
 | Productos en el catálogo de producción | **884** | `CON-01` |
-| Archivos de evidencia | **149** en 19 carpetas | `docs/evidencias/INDICE.md` |
+| Archivos de evidencia | **156** en 19 carpetas | `docs/evidencias/INDICE.md` |
 | Entornos en producción | API y portal desplegados; documentación pública | `DEP-01`, `DEP-02`, `SOA-06`, `SOA-07` |
 | Contrato público de la API | OpenAPI **3.1**, navegable con Scalar y Stoplight | `SOA-10`, `SOA-11` |
 
 *Nota.* Elaboración propia.
 
-**Figura 78.** Suite de backend: 419 pruebas y 1 172 aserciones sobre
+**Figura 78.** Suite de backend: 429 pruebas y 1 261 aserciones sobre
 PostgreSQL 16.
-*Fuente:* `docs/evidencias/cortes/CRT-21-suite-419.png`.
+*Fuente:* `docs/evidencias/cortes/CRT-28-suite-429.png`.
 
-**Figura 79.** Suite de frontend: 154 pruebas en 19 archivos.
-*Fuente:* `docs/evidencias/cortes/CRT-23-suite-frontend-154.png`.
+**Figura 79.** Suite de frontend: 172 pruebas en 24 archivos.
+*Fuente:* `docs/evidencias/cortes/CRT-30-suite-frontend-172.png`.
 
 **Figura 80.** Documentación pública de la API accesible en producción.
 *Fuente:* `docs/evidencias/soa/SOA-06-scalar-docs-v1-produccion.jpg`.
@@ -805,8 +805,8 @@ No forma parte del informe. Es la lista que consume el script de ensamblado.
 | 75 | `docs/evidencias/eventos/EVT-02-filtro-por-nivel-error.jpg` |
 | 76 | `docs/evidencias/eventos/EVT-03-detalle-con-contexto.jpg` |
 | 77 | `docs/evidencias/soa/SOA-09-respuesta-json-destacados-produccion.jpg` |
-| 78 | `docs/evidencias/cortes/CRT-21-suite-419.png` |
-| 79 | `docs/evidencias/cortes/CRT-23-suite-frontend-154.png` |
+| 78 | `docs/evidencias/cortes/CRT-28-suite-429.png` |
+| 79 | `docs/evidencias/cortes/CRT-30-suite-frontend-172.png` |
 | 80 | `docs/evidencias/soa/SOA-06-scalar-docs-v1-produccion.jpg` |
 
 ### Qué hace el script con las secciones existentes

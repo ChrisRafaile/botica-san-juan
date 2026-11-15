@@ -1,6 +1,6 @@
 # Índice de evidencias
 
-Mapa de códigos para citar en el informe final. 149 archivos en 19 carpetas.
+Mapa de códigos para citar en el informe final. 156 archivos en 19 carpetas.
 
 ---
 
@@ -92,10 +92,16 @@ sus guiones y sus figuras. `CRT-17` es el acta, y explica por qué `CRT-01`–`C
 que apunta un documento ya calificado, y borrarían la única prueba de que la
 suite creció.
 
-`CRT-18`–`CRT-24` son el **corte vigente**, medido el 13-11-2026 tras la boleta
+`CRT-18`–`CRT-24` son el corte medido el 13-11-2026 tras la boleta
 SUNAT, la ficha de producto y la tarjeta del checkout: 419 pruebas de backend y
 154 de frontend. `CRT-24` es el acta. `CRT-11`–`CRT-17` se conservan por la
 misma razón que `CRT-01`–`CRT-03`.
+
+`CRT-25`–`CRT-31` son el **corte vigente**, medido el 14-11-2026 sobre `develop`
+tras fusionar las fotos reales del catálogo (PR 47) y el checkout completo del
+cliente (PR 48): 429 pruebas de backend y 172 de frontend. `CRT-31` es el acta, y
+explica por qué la cifra no es la de cada rama por separado. `CRT-18`–`CRT-24`
+se conservan como rastro de cómo creció la suite.
 
 ### `R` · `recetas/`
 El flujo clínico completo y en orden: pedido que exige receta, zona de

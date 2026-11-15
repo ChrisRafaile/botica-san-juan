@@ -1,0 +1,117 @@
+{
+ "titulo": "Suite de frontend con Vitest - corte del 14-11-2026",
+ "lineas": [
+  [
+   "prompt",
+   ".\\node_modules\\.bin\\vitest.cmd run"
+  ],
+  [
+   "pass",
+   "src/observabilidad/__tests__/depurador.spec.ts  (26 tests)"
+  ],
+  [
+   "pass",
+   "src/utils/__tests__/tarjetaBancaria.spec.ts  (13 tests)"
+  ],
+  [
+   "pass",
+   "src/utils/__tests__/validacionServidor.spec.ts  (9 tests)"
+  ],
+  [
+   "pass",
+   "src/utils/__tests__/media.spec.ts  (4 tests)"
+  ],
+  [
+   "pass",
+   "src/offline/__tests__/catalogo.spec.ts  (9 tests)"
+  ],
+  [
+   "pass",
+   "src/auth/__tests__/CampoTexto.spec.ts  (6 tests)"
+  ],
+  [
+   "pass",
+   "src/client/__tests__/TarjetaResumen.spec.ts  (5 tests)"
+  ],
+  [
+   "pass",
+   "src/components/__tests__/ImagenConRespaldo.spec.ts  (9 tests)"
+  ],
+  [
+   "pass",
+   "src/services/__tests__/envio-de-archivos.spec.ts  (4 tests)"
+  ],
+  [
+   "pass",
+   "src/offline/__tests__/notaContingencia.spec.ts  (4 tests)"
+  ],
+  [
+   "pass",
+   "src/auth/__tests__/verificar-correo.spec.ts  (5 tests)"
+  ],
+  [
+   "pass",
+   "src/stores/__tests__/offline.spec.ts  (15 tests)"
+  ],
+  [
+   "pass",
+   "src/client/checkout/__tests__/CheckoutResultadoView.spec.ts  (1 tests)"
+  ],
+  [
+   "pass",
+   "src/components/__tests__/zona-de-receta.spec.ts  (9 tests)"
+  ],
+  [
+   "pass",
+   "src/components/__tests__/DialogoConfirmacion.spec.ts  (5 tests)"
+  ],
+  [
+   "pass",
+   "src/auth/__tests__/restablecer-contrasena.spec.ts  (8 tests)"
+  ],
+  [
+   "pass",
+   "src/client/__tests__/ClientHomeView.spec.ts  (2 tests)"
+  ],
+  [
+   "pass",
+   "src/client/checkout/__tests__/CheckoutPagoView.spec.ts  (2 tests)"
+  ],
+  [
+   "pass",
+   "src/client/__tests__/desvincular-google.spec.ts  (6 tests)"
+  ],
+  [
+   "pass",
+   "src/components/__tests__/Footer.spec.ts  (3 tests)"
+  ],
+  [
+   "pass",
+   "src/client/__tests__/ProductsView.spec.ts  (2 tests)"
+  ],
+  [
+   "pass",
+   "src/client/__tests__/CartView.spec.ts  (4 tests)"
+  ],
+  [
+   "pass",
+   "src/client/checkout/__tests__/TarjetaBancariaVisual.spec.ts  (12 tests)"
+  ],
+  [
+   "pass",
+   "src/client/__tests__/ProductoDetalleView.spec.ts  (9 tests)"
+  ],
+  [
+   "ok",
+   "Test Files  24 passed (24)"
+  ],
+  [
+   "ok",
+   "Tests  172 passed (172)"
+  ],
+  [
+   "tenue",
+   "Duration  3.50s"
+  ]
+ ]
+}
