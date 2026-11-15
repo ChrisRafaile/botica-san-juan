@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Categoria;
+use App\Models\Lote;
 use App\Models\Producto;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -246,6 +247,36 @@ class CatalogoPublicoTest extends TestCase
 
         $this->assertContains('Hay', $nombres);
         $this->assertNotContains('Agotado', $nombres);
+    }
+
+    public function test_los_destacados_ponen_primero_lo_disponible_con_fotografia_real(): void
+    {
+        /* El portal del cliente pinta esta lista como «Recomendados». Ordenada
+           por nombre salía entera con la ilustración genérica, aunque el
+           catálogo tuviera cientos de fotos: las primeras letras no las tenían. */
+        $sinFoto = $this->producto([
+            'nombre' => 'Aspirina 100 mg',
+            'imagen' => 'images/default_image.png',
+        ]);
+        $conFoto = $this->producto([
+            'nombre' => 'Panadol Antigripal',
+            'imagen' => 'storage/productos/00141.webp',
+        ]);
+
+        foreach ([$sinFoto, $conFoto] as $indice => $producto) {
+            Lote::create([
+                'producto_id' => $producto->id,
+                'codigo_lote' => 'LOT-DEST-'.$indice,
+                'fecha_vencimiento' => now()->addMonths(6),
+                'cantidad_inicial' => 40,
+                'cantidad_actual' => 40,
+                'estado' => 'activo',
+            ]);
+        }
+
+        $nombres = array_column($this->getJson('/api/catalogo/destacados')->json('datos'), 'nombre');
+
+        $this->assertSame(['Panadol Antigripal', 'Aspirina 100 mg'], $nombres);
     }
 
     public function test_los_destacados_declaran_su_criterio(): void

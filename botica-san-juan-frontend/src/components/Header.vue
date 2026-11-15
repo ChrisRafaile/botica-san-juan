@@ -18,7 +18,7 @@
         </div>
 
         <!-- Desktop Navigation -->
-        <div class="hidden md:flex items-center space-x-4 flex-1 justify-center">
+        <div class="hidden lg:flex items-center space-x-4 flex-1 justify-center">
           <router-link
             v-for="item in navigation"
             :key="item.name"
@@ -109,7 +109,7 @@
           <!-- Login/Register -->
           <div
             v-if="!isAuthenticated"
-            class="hidden md:flex items-center space-x-3 ml-4"
+            class="hidden lg:flex items-center space-x-3 ml-4"
           >
             <router-link
               to="/login"
@@ -127,7 +127,7 @@
 
           <!-- Mobile menu button -->
           <button
-            class="md:hidden p-2 rounded-lg text-texto-secundario hover:bg-superficie-interactiva transition-colors duration-200"
+            class="lg:hidden p-2 rounded-lg text-texto-secundario hover:bg-superficie-interactiva transition-colors duration-200"
             @click="toggleMobileMenu"
           >
             <MenuIcon
@@ -145,7 +145,7 @@
       <!-- Mobile Navigation -->
       <div
         v-if="showMobileMenu"
-        class="md:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+        class="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
         @click="closeMobileMenu"
       >
         <div class="bg-superficie-elevada shadow-lg border-t border-borde-sutil">

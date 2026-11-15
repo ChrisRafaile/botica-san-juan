@@ -143,13 +143,15 @@ class CatalogoPublicoController extends Controller
             ->with(['categoria:id,nombre,slug'])
             ->where('requiere_receta', false)
             ->where('stock', '>', 0)
-            ->orderBy('nombre')
+            /* Mismo criterio que la primera página de /products: un bloque de
+               «recomendados» hecho de ilustraciones genéricas no recomienda nada. */
+            ->ordenDestacado()
             ->limit((int) ($datos['limite'] ?? 12))
             ->get();
 
         return response()->json([
             'datos' => $productos->map(fn (Producto $p) => $this->comoContrato($p))->all(),
-            'criterio' => 'Productos con existencias y de venta sin receta, ordenados por nombre.',
+            'criterio' => 'Productos con existencias y de venta sin receta; primero los disponibles con fotografía real.',
         ]);
     }
 

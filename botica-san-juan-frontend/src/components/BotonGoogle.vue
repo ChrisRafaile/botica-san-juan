@@ -33,13 +33,25 @@ const disponible = ref(false)
 const entrando = ref(false)
 const aviso = ref('')
 
+/* La pantalla de acceso monta dos botones a la vez —el de entrar y el de
+   registrarse— y cada uno hacía su propio sondeo: dos peticiones idénticas y,
+   sin credenciales configuradas, dos 503 en la consola por visita. La
+   respuesta no cambia mientras la página vive, así que se pregunta una vez. */
+let sondeo: Promise<boolean> | null = null
+
+function sondearGoogle(): Promise<boolean> {
+  /* La cabecera silencia el aviso global de error: un 503 aquí significa
+     «no está configurado», que es la respuesta que este sondeo busca, no
+     una avería que haya que anunciarle a quien entra. */
+  sondeo ??= api
+    .get('/auth/google/redirect', { headers: { 'X-Silenciar-Aviso': '1' } })
+    .then(() => true)
+  return sondeo
+}
+
 onMounted(async () => {
   try {
-    /* La cabecera silencia el aviso global de error: un 503 aquí significa
-       «no está configurado», que es la respuesta que este sondeo busca, no
-       una avería que haya que anunciarle a quien entra. */
-    await api.get('/auth/google/redirect', { headers: { 'X-Silenciar-Aviso': '1' } })
-    disponible.value = true
+    disponible.value = await sondearGoogle()
   } catch {
     /* 503 (sin credenciales) o cualquier otro fallo: el botón no se enseña.
        No se avisa de nada: quien entra a la pantalla de acceso no tiene por
