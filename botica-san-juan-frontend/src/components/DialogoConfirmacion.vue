@@ -43,8 +43,8 @@
             class="mx-auto flex size-12 items-center justify-center rounded-full"
             :class="
               peligroso
-                ? 'bg-peligro-50 text-peligro-700 dark:bg-peligro-500/10'
-                : 'bg-botica-50 text-texto-marca'
+                ? 'bg-peligro-50 text-peligro-700 dark:bg-peligro-500/15 dark:text-peligro-400'
+                : 'bg-botica-50 text-texto-marca dark:bg-botica-500/15'
             "
             aria-hidden="true"
           >

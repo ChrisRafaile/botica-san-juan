@@ -92,7 +92,7 @@ const mostrarImagen = computed(() => Boolean(fuente.value) && !fallo.value)
     <!-- RESPALDO: hermano, siempre presente, debajo. No es un v-else. -->
     <div
       :class="[
-        'flex items-center justify-center bg-botica-50 text-texto-marca',
+        'flex items-center justify-center bg-botica-50 text-texto-marca dark:bg-botica-500/15',
         claseImagen,
       ]"
     >

@@ -54,6 +54,11 @@ function aplicarAlDocumento(esOscuro: boolean): void {
   raiz.style.colorScheme = esOscuro ? 'dark' : 'light'
 }
 
+function consultarSistemaOscuro(): boolean {
+  if (typeof window === 'undefined' || !window.matchMedia) return false
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+}
+
 export function useTheme() {
   const consulta =
     typeof window !== 'undefined' && window.matchMedia
@@ -75,6 +80,9 @@ export function useTheme() {
   const esOscuro = computed(() => temaEfectivo.value === 'oscuro')
 
   function establecerTema(valor: PreferenciaTema): void {
+    if (valor === 'sistema') {
+      sistemaEsOscuro.value = consulta?.matches ?? consultarSistemaOscuro()
+    }
     preferencia.value = valor
     guardarPreferencia(valor)
   }
@@ -98,7 +106,10 @@ export function useTheme() {
   })
 
   onMounted(() => {
-    consulta?.addEventListener('change', alCambiarSistema)
+    if (consulta) {
+      sistemaEsOscuro.value = consulta.matches
+      consulta.addEventListener('change', alCambiarSistema)
+    }
   })
 
   onUnmounted(() => {
@@ -113,6 +124,18 @@ export function useTheme() {
     esOscuro,
     establecerTema,
     alternarTema,
+  }
+}
+
+/** Reinicia el estado interno para aislar casos en pruebas unitarias. */
+export function _reiniciarEstadoTemaParaPruebas(): void {
+  inicializado = false
+  preferencia.value = typeof window !== 'undefined' ? leerPreferenciaGuardada() : 'sistema'
+  sistemaEsOscuro.value = consultarSistemaOscuro()
+  if (typeof document !== 'undefined') {
+    const oscuro =
+      preferencia.value === 'oscuro' || (preferencia.value === 'sistema' && sistemaEsOscuro.value)
+    aplicarAlDocumento(oscuro)
   }
 }
 
