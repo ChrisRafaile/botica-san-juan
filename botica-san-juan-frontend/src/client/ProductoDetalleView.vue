@@ -49,11 +49,35 @@ const cargandoRecomendados = ref(false)
 
 /* --- Imagen y Zoom GPU --------------------------------------------------- */
 const imagenRota = ref(false)
+const recomendadosRotos = ref<Set<number>>(new Set())
+
+function marcarRecomendadoRoto(id: number): void {
+  recomendadosRotos.value = new Set(recomendadosRotos.value).add(id)
+}
+
+function urlRecomendado(rec: { id: number; imagen?: string | null }): string | null {
+  if (recomendadosRotos.value.has(rec.id)) return null
+  return urlDeMedia(rec.imagen)
+}
 const zoomActivo = ref(false)
 const zoomManual = ref(false)
 const zoomX = ref(50)
 const zoomY = ref(50)
+const reducirMovimiento = ref(prefiereMenosMovimiento())
 const vistaSeleccionada = ref<'principal' | 'forma'>('principal')
+
+let mqlMovimientoReducido: MediaQueryList | null = null
+function actualizarPreferenciaMovimiento(evento: MediaQueryListEvent) {
+  reducirMovimiento.value = evento.matches
+}
+
+onMounted(() => {
+  reducirMovimiento.value = prefiereMenosMovimiento()
+  if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+    mqlMovimientoReducido = window.matchMedia('(prefers-reduced-motion: reduce)')
+    mqlMovimientoReducido?.addEventListener?.('change', actualizarPreferenciaMovimiento)
+  }
+})
 
 function marcarImagenRota() {
   imagenRota.value = true
@@ -65,7 +89,7 @@ const urlImagenResuelta = computed(() => {
 })
 
 function manejarMovimientoRaton(e: MouseEvent) {
-  if (prefiereMenosMovimiento() || !zoomActivo.value) return
+  if (reducirMovimiento.value || prefiereMenosMovimiento() || !zoomActivo.value) return
 
   const target = e.currentTarget as HTMLElement
   const rect = target.getBoundingClientRect()
@@ -77,7 +101,7 @@ function manejarMovimientoRaton(e: MouseEvent) {
 }
 
 function activarZoom() {
-  if (prefiereMenosMovimiento()) return
+  if (reducirMovimiento.value || prefiereMenosMovimiento()) return
   zoomActivo.value = true
 }
 
@@ -88,11 +112,22 @@ function desactivarZoom() {
 }
 
 function alternarZoomManual() {
+  reducirMovimiento.value = prefiereMenosMovimiento()
   zoomManual.value = !zoomManual.value
   zoomActivo.value = zoomManual.value
   zoomX.value = 50
   zoomY.value = 50
 }
+
+const estiloZoomImagen = computed(() => {
+  const sinTransicion = reducirMovimiento.value || (zoomActivo.value && !zoomManual.value)
+  return {
+    transform: (zoomActivo.value || zoomManual.value) ? 'scale(1.8)' : 'scale(1)',
+    transformOrigin: `${zoomX.value}% ${zoomY.value}%`,
+    willChange: 'transform',
+    transition: sinTransicion ? 'none' : 'transform 200ms ease-out',
+  }
+})
 
 /* --- Bloque de Compra ----------------------------------------------------- */
 const cantidad = ref(1)
@@ -173,8 +208,11 @@ function desplazarCarrusel(direccion: 'ant' | 'sig') {
 /* --- Carga de Datos ------------------------------------------------------- */
 async function cargarProducto(id: number) {
   cargando.value = true
+  cargandoRecomendados.value = true
+  recomendados.value = []
   errorCarga.value = null
   imagenRota.value = false
+  recomendadosRotos.value = new Set()
   vistaSeleccionada.value = 'principal'
   cantidad.value = 1
   zoomActivo.value = false
@@ -188,6 +226,7 @@ async function cargarProducto(id: number) {
     void cargarRecomendados(data)
   } catch {
     errorCarga.value = 'No pudimos cargar la información del producto. Es posible que haya sido retirado o que la conexión haya fallado.'
+    cargandoRecomendados.value = false
   } finally {
     cargando.value = false
   }
@@ -225,6 +264,8 @@ watch(
 
 onBeforeUnmount(() => {
   if (temporizadorAviso) clearTimeout(temporizadorAviso)
+  mqlMovimientoReducido?.removeEventListener?.('change', actualizarPreferenciaMovimiento)
+  mqlMovimientoReducido = null
 })
 </script>
 
@@ -234,7 +275,7 @@ onBeforeUnmount(() => {
 
     <main class="flex-1 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 w-full">
       <!-- Miga de pan accesible -->
-      <nav aria-label="Miga de pan" class="mb-6 text-xs text-texto-secundario">
+      <nav aria-label="Miga de pan" class="mb-6 min-h-5 text-xs text-texto-secundario">
         <ol class="flex items-center gap-2 flex-wrap">
           <li>
             <RouterLink to="/" class="foco-dentro hover:text-botica-600 transition-colors">
@@ -251,29 +292,13 @@ onBeforeUnmount(() => {
           <li v-if="producto" class="font-medium text-texto-primario truncate max-w-xs sm:max-w-md" aria-current="page">
             {{ producto.nombre }}
           </li>
+          <li v-else-if="cargando" aria-hidden="true" class="h-4 w-36 rounded bg-superficie-hundida" />
         </ol>
       </nav>
 
-      <!-- Estado: Cargando producto -->
-      <div
-        v-if="cargando"
-        class="grid grid-cols-1 gap-8 lg:grid-cols-2 animate-pulse"
-        aria-busy="true"
-        aria-live="polite"
-      >
-        <div class="aspect-square w-full rounded-2xl bg-superficie-hundida" />
-        <div class="space-y-4">
-          <div class="h-6 w-1/3 rounded bg-superficie-hundida" />
-          <div class="h-10 w-4/5 rounded bg-superficie-hundida" />
-          <div class="h-5 w-1/2 rounded bg-superficie-hundida" />
-          <div class="h-12 w-2/5 rounded bg-superficie-hundida" />
-          <div class="h-12 w-full rounded bg-superficie-hundida" />
-        </div>
-      </div>
-
       <!-- Estado: Error de carga -->
       <div
-        v-else-if="errorCarga || !producto"
+        v-if="!cargando && (errorCarga || !producto)"
         class="rounded-2xl border border-peligro-500/30 bg-peligro-50 p-10 text-center dark:bg-peligro-500/10"
         role="alert"
       >
@@ -294,8 +319,101 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- Ficha de Producto Principal -->
-      <div v-else class="space-y-16">
+      <!-- Contenedor compartido con altura reservada (skeleton y detalle final) para evitar CLS en el footer -->
+      <div
+        v-else
+        data-testid="contenedor-ficha-producto"
+        class="min-h-[78rem] lg:min-h-[92rem]"
+      >
+        <!-- Estado: Cargando producto (misma estructura de 4 bloques que el detalle) -->
+        <div
+          v-if="cargando"
+          data-testid="skeleton-producto"
+          class="space-y-16 motion-safe:animate-pulse"
+          aria-busy="true"
+          aria-live="polite"
+        >
+          <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
+            <div class="flex flex-col gap-4">
+              <div class="aspect-square w-full rounded-2xl border border-borde-sutil bg-superficie-hundida" />
+              <div class="flex items-center gap-3">
+                <div class="size-16 rounded-xl bg-superficie-hundida" />
+                <div class="size-16 rounded-xl bg-superficie-hundida" />
+              </div>
+            </div>
+
+            <div class="flex flex-col">
+              <div class="h-4 w-40 rounded bg-superficie-hundida" />
+              <div class="mt-2 h-8 w-4/5 rounded bg-superficie-hundida sm:h-9" />
+              <div class="mt-2 flex flex-wrap items-center gap-2">
+                <div class="h-6 w-20 rounded-lg bg-superficie-hundida" />
+                <div class="h-6 w-32 rounded-lg bg-superficie-hundida" />
+                <div class="h-6 w-24 rounded-lg bg-superficie-hundida" />
+              </div>
+              <div class="mt-6 h-7 w-44 rounded-full bg-superficie-hundida" />
+              <div class="mt-4 rounded-2xl border border-borde-sutil bg-superficie-elevada p-5 shadow-xs">
+                <div class="h-3.5 w-28 rounded bg-superficie-hundida" />
+                <div class="mt-2 h-9 w-36 rounded bg-superficie-hundida" />
+                <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <div class="h-11 w-full rounded-xl bg-superficie-hundida sm:w-36" />
+                  <div class="h-12 flex-1 rounded-xl bg-superficie-hundida" />
+                </div>
+              </div>
+              <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div class="h-11 rounded-xl border border-borde-sutil bg-superficie-elevada" />
+                <div class="h-11 rounded-xl border border-borde-sutil bg-superficie-elevada" />
+                <div class="h-11 rounded-xl border border-borde-sutil bg-superficie-elevada" />
+              </div>
+            </div>
+          </div>
+
+          <div class="overflow-hidden rounded-2xl border border-borde-sutil bg-superficie-elevada shadow-xs">
+            <div class="border-b border-borde-sutil p-5 space-y-3">
+              <div class="h-6 w-36 rounded bg-superficie-hundida" />
+              <div class="h-24 w-full rounded-xl bg-superficie-hundida" />
+            </div>
+            <div class="border-b border-borde-sutil p-5 space-y-3">
+              <div class="h-6 w-40 rounded bg-superficie-hundida" />
+              <div class="h-20 w-full rounded-xl bg-superficie-hundida" />
+            </div>
+            <div class="p-5">
+              <div class="h-6 w-56 rounded bg-superficie-hundida" />
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="space-y-1.5">
+                <div class="h-7 w-52 rounded bg-superficie-hundida" />
+                <div class="h-3.5 w-64 rounded bg-superficie-hundida" />
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="size-9 rounded-xl bg-superficie-hundida" />
+                <div class="size-9 rounded-xl bg-superficie-hundida" />
+              </div>
+            </div>
+            <div class="flex gap-4 overflow-hidden pb-4">
+              <div
+                v-for="indice in 4"
+                :key="`skel-rec-${indice}`"
+                class="w-60 shrink-0 overflow-hidden rounded-2xl border border-borde-sutil bg-superficie-elevada shadow-xs"
+              >
+                <div class="aspect-square bg-superficie-hundida" />
+                <div class="space-y-2 p-3">
+                  <div class="h-4 w-4/5 rounded bg-superficie-hundida" />
+                  <div class="h-3 w-1/2 rounded bg-superficie-hundida" />
+                  <div class="pt-2 flex items-center justify-between">
+                    <div class="h-4 w-16 rounded bg-superficie-hundida" />
+                    <div class="h-5 w-16 rounded-lg bg-superficie-hundida" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ficha de Producto Principal -->
+        <div v-else-if="producto" data-testid="detalle-producto" class="space-y-16">
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
           <!-- =============================================================
                1. GALERÍA CON ZOOM GPU
@@ -310,23 +428,20 @@ onBeforeUnmount(() => {
               <!-- Imagen real con zoom GPU -->
               <div
                 v-if="vistaSeleccionada === 'principal' && urlImagenResuelta"
-                class="size-full overflow-hidden flex items-center justify-center p-4 cursor-crosshair"
+                class="size-full overflow-hidden flex items-center justify-center p-3 cursor-crosshair"
               >
-                <img
-                  data-testid="imagen-producto"
-                  :src="urlImagenResuelta"
-                  :alt="producto.nombre"
-                  width="600"
-                  height="600"
-                  class="size-full object-contain transition-transform"
-                  :style="{
-                    transform: (zoomActivo || zoomManual) ? 'scale(1.8)' : 'scale(1)',
-                    transformOrigin: `${zoomX}% ${zoomY}%`,
-                    willChange: 'transform',
-                    transition: (zoomActivo && !zoomManual) ? 'none' : 'transform 200ms ease-out',
-                  }"
-                  @error="marcarImagenRota"
-                />
+                <div class="size-full rounded-xl bg-superficie-foto p-3 flex items-center justify-center overflow-hidden ring-1 ring-borde-sutil">
+                  <img
+                    data-testid="imagen-producto"
+                    :src="urlImagenResuelta"
+                    :alt="producto.nombre"
+                    width="600"
+                    height="600"
+                    class="size-full object-contain motion-safe:transition-transform motion-reduce:transition-none"
+                    :style="estiloZoomImagen"
+                    @error="marcarImagenRota"
+                  />
+                </div>
               </div>
 
               <!-- Ilustración de la forma farmacéutica si no hay imagen propia o se seleccionó la vista -->
@@ -731,7 +846,8 @@ onBeforeUnmount(() => {
              4. CARRUSEL DE PRODUCTOS RECOMENDADOS
              ============================================================= -->
         <section
-          v-if="recomendados.length > 0"
+          v-if="cargandoRecomendados || recomendados.length > 0"
+          data-testid="seccion-recomendados"
           aria-labelledby="titulo-recomendados"
           class="space-y-4"
         >
@@ -751,6 +867,7 @@ onBeforeUnmount(() => {
                 type="button"
                 class="foco-dentro flex size-9 items-center justify-center rounded-xl border border-borde-control bg-superficie-elevada text-texto-primario hover:bg-superficie-interactiva transition-colors"
                 aria-label="Ver productos recomendados anteriores"
+                :disabled="cargandoRecomendados"
                 @click="desplazarCarrusel('ant')"
               >
                 <ChevronLeftIcon class="size-4" aria-hidden="true" />
@@ -759,6 +876,7 @@ onBeforeUnmount(() => {
                 type="button"
                 class="foco-dentro flex size-9 items-center justify-center rounded-xl border border-borde-control bg-superficie-elevada text-texto-primario hover:bg-superficie-interactiva transition-colors"
                 aria-label="Ver productos recomendados siguientes"
+                :disabled="cargandoRecomendados"
                 @click="desplazarCarrusel('sig')"
               >
                 <ChevronRightIcon class="size-4" aria-hidden="true" />
@@ -766,8 +884,34 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
+          <!-- Placeholder con idénticas dimensiones mientras cargan los recomendados para CLS 0 -->
+          <div
+            v-if="cargandoRecomendados"
+            data-testid="skeleton-recomendados"
+            class="flex gap-4 overflow-hidden pb-4 motion-safe:animate-pulse"
+            aria-busy="true"
+            aria-label="Cargando productos recomendados"
+          >
+            <div
+              v-for="indice in 4"
+              :key="`skel-carrusel-${indice}`"
+              class="w-60 shrink-0 overflow-hidden rounded-2xl border border-borde-sutil bg-superficie-elevada shadow-xs"
+            >
+              <div class="aspect-square bg-superficie-hundida" />
+              <div class="space-y-2 p-3">
+                <div class="h-4 w-4/5 rounded bg-superficie-hundida" />
+                <div class="h-3 w-1/2 rounded bg-superficie-hundida" />
+                <div class="pt-2 flex items-center justify-between">
+                  <div class="h-4 w-16 rounded bg-superficie-hundida" />
+                  <div class="h-5 w-16 rounded-lg bg-superficie-hundida" />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Contenedor con scroll horizontal y snap -->
           <div
+            v-else
             ref="contenedorCarrusel"
             class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scroll-smooth scrollbar-none"
             role="region"
@@ -780,23 +924,32 @@ onBeforeUnmount(() => {
             >
               <RouterLink
                 :to="'/catalogo/' + rec.id"
-                class="foco-dentro aspect-square bg-superficie-hundida relative flex items-center justify-center p-4 block"
+                class="foco-dentro aspect-square bg-superficie-hundida relative flex items-center justify-center p-2.5 overflow-hidden"
                 :aria-label="'Ver detalle de ' + rec.nombre"
               >
-                <img
-                  v-if="rec.imagen && urlDeMedia(rec.imagen)"
-                  :src="urlDeMedia(rec.imagen) ?? undefined"
-                  :alt="rec.nombre"
-                  loading="lazy"
-                  decoding="async"
-                  class="size-full object-contain"
-                />
+                <div
+                  v-if="urlRecomendado(rec)"
+                  class="size-full rounded-xl bg-superficie-foto p-2 flex items-center justify-center overflow-hidden ring-1 ring-borde-sutil"
+                >
+                  <img
+                    :src="urlRecomendado(rec) ?? undefined"
+                    :alt="rec.nombre"
+                    loading="lazy"
+                    decoding="async"
+                    width="240"
+                    height="240"
+                    class="size-full object-contain"
+                    @error="marcarRecomendadoRoto(rec.id)"
+                  />
+                </div>
                 <img
                   v-else
                   :src="ilustracionDe(rec.tipo)"
                   :alt="textoAlternativoDe(rec.tipo)"
                   loading="lazy"
                   decoding="async"
+                  width="96"
+                  height="96"
                   class="size-24 object-contain"
                 />
               </RouterLink>
@@ -834,6 +987,7 @@ onBeforeUnmount(() => {
           </div>
         </section>
       </div>
+    </div>
     </main>
 
     <Footer />

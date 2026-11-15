@@ -104,6 +104,23 @@ echo "==> Enlazando storage"
 php artisan storage:link --force
 
 # ---------------------------------------------------------------------------
+# Fotos del catalogo
+# ---------------------------------------------------------------------------
+# Las fotos verificadas viajan versionadas en storage/app/public/productos, y
+# este comando apunta la columna `imagen` de cada producto a la suya. Va en el
+# arranque, y no como paso manual, para que nadie tenga que abrir una conexion
+# a la base de produccion desde su equipo: el contenedor ya la tiene.
+#
+# Es idempotente: en un arranque sin fotos nuevas no escribe nada.
+#
+# NO tumba el arranque si falla, a diferencia de las migraciones. Una foto que
+# falta se ve como la ilustracion de respaldo; una botica caida no vende. Por
+# eso el `||`, que ademas es lo unico que impide que `set -e` mate el proceso.
+echo "==> Asignando fotos del catalogo"
+php artisan catalogo:poblar-imagenes \
+    || echo "!!! No se pudieron asignar las fotos del catalogo; se sirve con la ilustracion de respaldo"
+
+# ---------------------------------------------------------------------------
 # Servidor
 # ---------------------------------------------------------------------------
 # `php-server` monta la configuracion de Caddy equivalente a un `try_files`

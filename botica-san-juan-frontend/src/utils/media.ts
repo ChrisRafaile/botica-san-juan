@@ -37,10 +37,11 @@ export function urlDeMedia(ruta?: string | null): string | null {
   if (!limpia) return null
   if (YA_RESUELTA.test(limpia)) return limpia
 
-  /* Las rutas de `storage` ya vienen con su prefijo en unos casos y sin él en
-     otros, según por dónde se subiera el archivo. Se normaliza para no acabar
-     con `/storage/storage/...`. */
+  /* El valor histórico `images/default_image.png` indica ausencia de foto
+     propia: devolver `null` evita cientos de peticiones 404 y activa de
+     inmediato la ilustración de respaldo según la forma farmacéutica. */
   const relativa = limpia.replace(/^\/+/, '')
+  if (relativa.toLowerCase() === 'images/default_image.png') return null
 
   return `${origenDeLaApi()}/${relativa}`
 }

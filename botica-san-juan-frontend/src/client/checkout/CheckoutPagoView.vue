@@ -1,9 +1,10 @@
 <template>
-  <main class="min-h-screen bg-linear-to-br from-clinico-50 to-clinico-100 px-4 py-10">
-    <div class="mx-auto grid max-w-5xl gap-6 lg:grid-cols-5">
+  <main class="min-h-screen bg-superficie-fondo bg-linear-to-br from-clinico-50 to-clinico-100 px-4 py-10 text-texto-primario dark:from-superficie-fondo dark:to-superficie-hundida">
+    <div class="mx-auto grid max-w-5xl items-start gap-6 lg:grid-cols-5">
       <!-- Resumen del pedido -->
       <section
-        class="lg:col-span-3 rounded-2xl bg-superficie-elevada/90 p-8 shadow-xl backdrop-blur-sm"
+        data-testid="seccion-resumen-pedido"
+        class="self-start lg:col-span-3 rounded-2xl bg-superficie-elevada/90 p-8 shadow-xl backdrop-blur-sm"
         aria-labelledby="titulo-resumen"
       >
         <h1

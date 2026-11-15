@@ -18,6 +18,9 @@ storage/framework/cache/*
 storage/framework/sessions/*
 storage/framework/views/*
 storage/app/public/*
+# Excepcion: las fotos versionadas del catalogo tienen que viajar en la
+# imagen, porque el contenedor nace sin nada mas en el disco publico.
+!storage/app/public/productos
 
 # El enlace public/storage lo crea el entrypoint en cada arranque. Si entrara
 # en la imagen seria un enlace creado en OTRA maquina, apuntando a una ruta

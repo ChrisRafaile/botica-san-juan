@@ -112,11 +112,11 @@ Son los comandos reales, con las rutas que funcionan en esta máquina. `pnpm`
 por corepack está roto aquí, así que se invocan los binarios directamente.
 
 ```powershell
-# Backend (379 pruebas, 1068 aserciones)
+# Backend (419 pruebas, 1172 aserciones)
 cd botica-san-juan-backend
 php artisan test
 
-# Frontend (120 pruebas)
+# Frontend (154 pruebas)
 cd botica-san-juan-frontend
 .\node_modules\.bin\vitest.cmd run
 

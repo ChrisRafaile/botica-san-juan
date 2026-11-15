@@ -1,2 +1,10 @@
 *
 !.gitignore
+
+# Las fotos verificadas del catalogo SI se versionan. El disco de Render es
+# efimero: lo que no viaja en el repositorio no existe tras un despliegue, y
+# el catalogo saldria entero con la ilustracion de respaldo. Solo los .webp
+# de productos/; las fotos de perfil y cualquier otra subida siguen fuera.
+!productos/
+productos/*
+!productos/*.webp

@@ -1,0 +1,500 @@
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AccesoDocumentosTributariosTest::test_sin_token_los_documentos_tributarios_devuelven_401(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AutorizacionRolTest::test_con_rol_cliente_las_lecturas_de_gestion_devuelven_403(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AutorizacionRolTest::test_sin_token_las_rutas_administrativas_devuelven_401(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   WARN  Metadata found in doc-comment for method Tests\Feature\AutorizacionRolTest::test_con_rol_cliente_las_rutas_administrativas_devuelven_403(). Metadata in doc-comments is deprecated and will no longer be supported in PHPUnit 12. Update your test code to use attributes instead.
+
+   PASS  Tests\Unit\ImporteEnLetrasTest
+  ✓ convierte el importe with data set "un sol"
+  ✓ convierte el importe with data set "cien, no ciento"
+  ✓ convierte el importe with data set "mil, no un mil, con céntimos"
+  ✓ convierte el importe with data set "tres amoxicilinas a 12.50"
+  ✓ convierte el importe with data set "venta de cero"
+  ✓ convierte el importe with data set "solo céntimos, con cero delante"
+  ✓ convierte el importe with data set "ciento uno"
+  ✓ convierte el importe with data set "tildes de los veinti-"
+  ✓ convierte el importe with data set "dieciséis"
+  ✓ convierte el importe with data set "veintiuno sin apocopar"
+  ✓ convierte el importe with data set "veintiún mil, apocopado"
+  ✓ convierte el importe with data set "treinta y un mil"
+  ✓ convierte el importe with data set "mil uno"
+  ✓ convierte el importe with data set "umbral de la boleta sin d n i"
+  ✓ convierte el importe with data set "un millón"
+  ✓ convierte el importe with data set "millones, miles y céntimos"
+  ✓ convierte el importe with data set "todo nueves"
+  ✓ convierte el importe with data set "céntimos que el float no guarda"
+  ✓ convierte el importe with data set "redondeo que cambia el entero"
+  ✓ convierte el importe with data set "total leído de la base"
+  ✓ la leyenda impresa empieza por son
+  ✓ nombra la moneda del comprobante
+  ✓ rechaza un importe negativo
+  Sin duplicados en el catalogo: no hay nada que fusionar.
+
+   PASS  Tests\Feature\AccesoDocumentosTributariosTest
+  ✓ sin token los documentos tributarios devuelven 401 with data set "listado de comprobantes"                   0.83s  
+  ✓ sin token los documentos tributarios devuelven 401 with data set "descarga x m l"                            0.07s  
+  ✓ sin token los documentos tributarios devuelven 401 with data set "descarga p d f"                            0.06s  
+  ✓ sin token los documentos tributarios devuelven 401 with data set "listado de comisiones"                     0.06s  
+  ✓ la exportacion gerencial exige rol administrador                                                             0.08s  
+
+   PASS  Tests\Feature\AccesoGoogleTest
+  ✓ sin credenciales configuradas el acceso no se ofrece                                                         0.07s  
+  ✓ la url de google se entrega con un state                                                                     0.06s  
+  ✓ el token no viaja en la url de retorno                                                                       0.08s  
+  ✓ un retorno sin state no crea ninguna cuenta                                                                  0.07s  
+  ✓ un state inventado tampoco vale                                                                              0.07s  
+  ✓ el state sirve una sola vez                                                                                  0.07s  
+  ✓ un correo sin verificar no vincula nada                                                                      0.08s  
+  ✓ cancelar en google no es un error del sistema                                                                0.07s  
+  ✓ una cuenta nueva nace sin dni y con el correo verificado                                                     0.07s  
+  ✓ se vincula a la cuenta que ya existia con ese correo                                                         0.08s  
+  ✓ entrar con google no asciende a nadie                                                                        0.09s  
+  ✓ un correo que ya cuelga de otra cuenta de google no se roba                                                  0.10s  
+  ✓ manda el identificador de google y no el correo                                                              0.09s  
+  ✓ el codigo se canjea por el token                                                                             0.11s  
+  ✓ el codigo sirve una sola vez                                                                                 0.09s  
+  ✓ un codigo inventado no abre sesion                                                                           0.08s  
+  ✓ la respuesta no filtra el identificador de google                                                            0.09s  
+  ✓ el checkout pide el documento a quien no tiene dni                                                           0.10s  
+  ✓ quien ya tiene dni no lo vuelve a teclear                                                                    0.13s  
+  ✓ el dni se completa una vez desde el perfil                                                                   0.10s  
+  ✓ un dni ya registrado no se cambia desde el perfil                                                            0.09s  
+  ✓ no se puede completar con el dni de otra persona                                                             0.10s  
+
+   PASS  Tests\Feature\AutenticacionTest
+  ✓ un usuario registrado inicia sesion y recibe un token                                                        0.09s  
+  ✓ la contrasena nunca se expone en la respuesta                                                                0.09s  
+  ✓ la contrasena se almacena cifrada con bcrypt                                                                 0.09s  
+  ✓ credenciales invalidas devuelven 401 con mensaje generico                                                    0.09s  
+  ✓ un dni inexistente devuelve 401 y no 404                                                                     0.26s  
+  ✓ el dni es obligatorio y de ocho digitos                                                                      0.09s  
+  ✓ la contrasena es obligatoria                                                                                 0.08s  
+  ✓ la cuenta se bloquea tras cinco intentos fallidos                                                            0.09s  
+  ✓ un usuario autenticado puede cerrar sesion                                                                   0.09s  
+  ✓ cerrar sesion sin token devuelve 401                                                                         0.09s  
+
+   PASS  Tests\Feature\AutorizacionRolTest
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "tablero"                                0.09s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "listado de pedidos"                     0.08s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "resumen de pedidos"                     0.07s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "resumen de stock"                       0.08s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "reporte gerencial"                      0.08s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "registro de ventas"                     0.07s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "proveedores"                            0.07s  
+  ✓ con rol cliente las lecturas de gestion devuelven 403 with data set "busqueda del punto de venta"            0.07s  
+  ✓ cualquiera puede escribir a la botica pero no leer los mensajes                                              0.07s  
+  ✓ un cliente no puede leer los pedidos de otro                                                                 0.07s  
+  ✓ sin token las rutas administrativas devuelven 401 with data set "crear producto"                             0.07s  
+  ✓ sin token las rutas administrativas devuelven 401 with data set "crear categoria"                            0.06s  
+  ✓ sin token las rutas administrativas devuelven 401 with data set "crear subcategoria"                         0.07s  
+  ✓ sin token las rutas administrativas devuelven 401 with data set "crear proveedor"                            0.07s  
+  ✓ sin token las rutas administrativas devuelven 401 with data set "crear compra"                               0.07s  
+  ✓ sin token las rutas administrativas devuelven 401 with data set "listar usuarios"                            0.07s  
+  ✓ con rol cliente las rutas administrativas devuelven 403 with data set "crear producto"                       0.08s  
+  ✓ con rol cliente las rutas administrativas devuelven 403 with data set "crear categoria"                      0.08s  
+  ✓ con rol cliente las rutas administrativas devuelven 403 with data set "crear subcategoria"                   0.08s  
+  ✓ con rol cliente las rutas administrativas devuelven 403 with data set "crear proveedor"                      0.07s  
+  ✓ con rol cliente las rutas administrativas devuelven 403 with data set "crear compra"                         0.07s  
+  ✓ con rol cliente las rutas administrativas devuelven 403 with data set "listar usuarios"                      0.07s  
+  ✓ un administrador puede crear una categoria                                                                   0.08s  
+  ✓ un cliente no puede eliminar una categoria                                                                   0.08s  
+  ✓ el catalogo de lectura es publico                                                                            0.07s  
+  ✓ sin cabecera json una ruta protegida responde 401 y no 500                                                   0.07s  
+
+   PASS  Tests\Feature\BitacoraDeOperacionTest
+  ✓ sin sesion la bitacora no se lee                                                                             0.11s  
+  ✓ un cliente no puede leer la bitacora                                                                         0.09s  
+  ✓ un administrador si                                                                                          0.09s  
+  ✓ los tres niveles quedan registrados y se distinguen                                                          0.09s  
+  ✓ se puede filtrar por nivel                                                                                   0.07s  
+  ✓ un nivel inventado se rechaza                                                                                0.07s  
+  ✓ se puede filtrar por codigo                                                                                  0.07s  
+  ✓ la busqueda mira el mensaje                                                                                  0.08s  
+  ✓ el filtro de fecha incluye el dia pedido entero                                                              0.08s  
+  ✓ lo mas reciente va primero                                                                                   0.07s  
+  ✓ un dni en el mensaje no se devuelve en crudo                                                                 0.07s  
+  ✓ el contexto libre tampoco                                                                                    0.07s  
+  ✓ no se puede escribir en la bitacora desde la interfaz                                                        0.07s  
+  ✓ el resumen lista los codigos con su recuento                                                                 0.07s  
+  ✓ los recuentos no dependen de la pagina visible                                                               0.08s  
+  ✓ la bitacora vacia responde sin romperse                                                                      0.07s  
+
+   PASS  Tests\Feature\CarritoCotizarTest
+  ✓ el endpoint es publico y no exige sesion                                                                     0.08s  
+  ✓ recorta la cantidad al stock vendible aunque el navegador pida mas                                           0.07s  
+  ✓ un lote vencido no cuenta como stock vendible                                                                0.07s  
+  ✓ dos lineas del mismo producto comparten el tope de stock                                                     0.07s  
+  ✓ el precio lo pone el servidor y no el cliente                                                                0.07s  
+  ✓ el igv se extrae del precio no se suma encima                                                                0.06s  
+  ✓ un producto exonerado no genera igv pero si entra al total                                                   0.07s  
+  ✓ el desglose cuadra siempre base mas igv mas exonerado es el total                                            0.07s  
+  ✓ avisa cuando alguna linea requiere receta                                                                    0.08s  
+  ✓ un producto borrado del catalogo no rompe el carrito                                                         0.07s  
+  ✓ el carrito vacio devuelve un desglose completo en cero                                                       0.07s  
+  ✓ rechaza cantidades invalidas                                                                                 0.09s  
+  ✓ el portal y el mostrador usan el mismo calculo fiscal                                                        0.08s  
+
+   PASS  Tests\Feature\CatalogoPublicoTest
+  ✓ el catalogo se consume sin token                                                                             0.07s  
+  ✓ el detalle tambien                                                                                           0.07s  
+  ✓ los destacados tambien                                                                                       0.08s  
+  ✓ la respuesta tiene exactamente los campos del contrato                                                       0.07s  
+  ✓ el listado y el detalle tienen la misma forma                                                                0.07s  
+  ✓ el stock no sale nunca                                                                                       0.11s  
+  ✓ sin existencias el producto aparece como no disponible                                                       0.07s  
+  ✓ la paginacion va aparte de los datos                                                                         0.08s  
+  ✓ se puede buscar por nombre                                                                                   0.09s  
+  ✓ se puede filtrar por el slug de la categoria                                                                 0.09s  
+  ✓ el tamano de pagina tiene tope                                                                               0.08s  
+  ✓ los destacados excluyen lo que exige receta                                                                  0.10s  
+  ✓ los destacados excluyen lo que no hay                                                                        0.12s  
+  ✓ los destacados declaran su criterio                                                                          0.13s  
+  ✓ un identificador que no existe da 404                                                                        0.13s  
+  ✓ una palabra en lugar de un id no revienta                                                                    0.09s  
+  ✓ la documentacion esta abierta por omision                                                                    0.06s  
+  ✓ la documentacion se puede cerrar                                                                             0.06s  
+  ✓ un origen cualquiera puede leer el catalogo                                                                  0.08s  
+  ✓ el carril abierto no lleva credenciales                                                                      0.07s  
+
+   PASS  Tests\Feature\CheckoutPortalTest
+  ✓ un invitado puede encargar sin crear cuenta                                                                  0.09s  
+  ✓ al invitado se le exigen los tres datos minimos                                                              0.08s  
+  ✓ el documento tiene que ser un dni o un ruc                                                                   0.08s  
+  ✓ un cliente con sesion encarga sin repetir sus datos                                                          0.09s  
+  ✓ el pedido de un cliente aparece en su panel                                                                  0.09s  
+  ✓ el pedido aparece en el panel del administrador                                                              0.09s  
+  ✓ un dni emite boleta b001                                                                                     0.08s  
+  ✓ un ruc emite factura f001                                                                                    0.08s  
+  ✓ el correlativo avanza y no se repite                                                                         0.11s  
+  ✓ un pedido no puede tener dos comprobantes                                                                    0.09s  
+  ✓ el precio lo sigue poniendo el servidor                                                                      0.08s  
+  ✓ sin stock responde 422 y no un error del servidor                                                            0.08s  
+  ✓ el desglose del pedido usa el mismo calculo fiscal que el carrito                                            0.08s  
+
+   PASS  Tests\Feature\ComprobantesDelClienteTest
+  ✓ el duenyo puede ver su comprobante                                                                           0.07s  
+  ✓ un cliente no puede ver el comprobante de otro                                                               0.08s  
+  ✓ un cliente no puede descargar el xml ni el pdf de otro                                                       0.08s  
+  ✓ el administrador ve cualquier comprobante                                                                    0.07s  
+  ✓ sin token no se ve ningun comprobante                                                                        0.07s  
+  ✓ el comprobante de una compra de invitado no tiene duenyo en el portal                                        0.07s  
+  ✓ el listado solo devuelve los comprobantes propios                                                            0.08s  
+  ✓ el listado no filtra datos internos del negocio                                                              0.07s  
+
+   PASS  Tests\Feature\ConfirmacionVentaTest
+  ✓ confirmar una venta descuenta el stock                                                                       0.09s  
+  ✓ el total lo calcula el servidor y no el consumidor                                                           0.09s  
+  ✓ stock insuficiente rechaza la venta y no altera existencias                                                  0.08s  
+  ✓ una linea invalida no persiste ninguna linea                                                                 0.08s  
+  ✓ las lineas repetidas del mismo producto se consolidan                                                        0.09s  
+  ✓ sin token la confirmacion exige identificar al cliente                                                       0.07s  
+
+   PASS  Tests\Feature\ConsultorInteraccionesTest
+  ✓ nunca dice que algo sea seguro                                                                               0.07s  
+  ✓ el aviso legal viaja siempre con el resultado                                                                0.06s  
+  ✓ una regla sin aprobar no llega al cliente                                                                    0.07s  
+  ✓ una regla aprobada si se muestra                                                                             0.07s  
+  ✓ los avisos graves van primero                                                                                0.07s  
+  ✓ un producto sin perfil se declara y quita lo concluyente                                                     0.07s  
+  ✓ si nada se identifica lo dice y deriva                                                                       0.06s  
+  ✓ con todo identificado y sin avisos sigue sin ser un visto bueno                                              0.07s  
+  ✓ el normalizador no confunde marcas parecidas                                                                 0.07s  
+  ✓ el normalizador ignora tildes y signos                                                                       0.06s  
+  ✓ no casa un nombre que solo empieza parecido                                                                  0.06s  
+  ✓ se rechaza una lista vacia                                                                                   0.06s  
+  ✓ se rechaza una lista desmesurada                                                                             0.07s  
+
+   PASS  Tests\Feature\CorrelativoComprobanteTest
+  ✓ el correlativo es consecutivo y sin huecos                                                                   0.09s  
+  ✓ la migracion deja sembradas las series en uso                                                                0.07s  
+  ✓ las series de boleta y factura son independientes                                                            0.08s  
+  ✓ emitir dos veces el mismo pedido devuelve el mismo comprobante                                               0.07s  
+  ✓ el motor rechaza un segundo comprobante del mismo pedido                                                     0.07s  
+  ✓ un contador desfasado no produce duplicados ni error                                                         0.09s  
+  ✓ una serie inexistente se crea desde el maximo emitido                                                        0.08s  
+  ✓ el bloqueo de serie se pide con for update                                                                   0.07s  
+  ✓ generar desde pedidos usa el mismo correlativo y es idempotente                                              0.10s  
+  ✓ la migracion siembra el maximo por serie sin perder numeros                                                  0.10s  
+  ✓ la migracion aborta con mensaje claro si hay pedidos duplicados                                              0.09s  
+
+   PASS  Tests\Feature\CorreoVerificacionTest
+  ✓ el registro deja la cuenta sin verificar y manda el correo                                                   0.11s  
+  ✓ un fallo del servicio de correo no tumba el registro                                                         0.11s  
+  ✓ el enlace firmado verifica la cuenta                                                                         0.09s  
+  ✓ pulsar el enlace dos veces no es un error                                                                    0.09s  
+  ✓ sin firma no se verifica nada                                                                                0.08s  
+  ✓ una firma manipulada no se verifica                                                                          0.06s  
+  ✓ un enlace emitido para otro correo no vale                                                                   0.07s  
+  ✓ un enlace caducado no vale                                                                                   0.08s  
+  ✓ el reenvio exige sesion                                                                                      0.09s  
+  ✓ el reenvio manda el correo a la cuenta en sesion                                                             0.08s  
+  ✓ no se reenvia a quien ya esta verificado                                                                     0.08s  
+  ✓ cambiar el correo retira la verificacion anterior                                                            0.08s  
+  ✓ cambiar solo las mayusculas no obliga a reverificar                                                          0.08s  
+
+   PASS  Tests\Feature\DepuracionSentryTest
+  ✓ el dni no sobrevive en un mensaje                                                                            0.02s  
+  ✓ el correo tampoco                                                                                            0.02s  
+  ✓ un token de sanctum no viaja                                                                                 0.02s  
+  ✓ una clave de api no viaja                                                                                    0.02s  
+  ✓ el ruc y el telefono se enmascaran                                                                           0.03s  
+  ✓ no destroza un mensaje sin datos personales                                                                  0.02s  
+  ✓ el cuerpo de la peticion se descarta entero                                                                  0.02s  
+  ✓ la cabecera de autorizacion desaparece                                                                       0.02s  
+  ✓ la busqueda de medicamentos no viaja                                                                         0.02s  
+  ✓ la url pierde su cadena de consulta                                                                          0.02s  
+  ✓ las cookies y el entorno se quitan                                                                           0.02s  
+  ✓ una consulta sin analizar se descarta                                                                        0.02s  
+  ✓ la configuracion se puede cachear                                                                            0.04s  
+  ✓ el filtro de envio sigue siendo invocable                                                                    0.02s  
+  ✓ sentry no envia datos personales por omision                                                                 0.02s  
+  ✓ sin dsn el monitoreo queda inactivo                                                                          0.02s  
+
+   PASS  Tests\Feature\DesvincularGoogleTest
+  ✓ una cuenta nacida con google no puede desvincularla                                                          0.08s  
+  ✓ el motivo le dice a la persona que hacer                                                                     0.08s  
+  ✓ con contrasena pero sin correo verificado tampoco                                                            0.09s  
+  ✓ una cuenta sin google no desvincula nada                                                                     0.08s  
+  ✓ sin sesion responde 401                                                                                      0.07s  
+  ✓ con contrasena y correo verificado se desvincula                                                             0.08s  
+  ✓ desvincular no toca la contrasena ni la verificacion                                                         0.07s  
+  ✓ el cambio queda en la bitacora                                                                               0.07s  
+  ✓ restablecer la contrasena habilita la desvinculacion                                                         0.08s  
+  ✓ cambiar la contrasena desde el perfil tambien la marca                                                       0.08s  
+  ✓ el perfil dice si se puede desvincular                                                                       0.07s  
+  ✓ el perfil nunca expone el identificador de google                                                            0.06s  
+
+   PASS  Tests\Feature\EmpaquetadoSunatTest
+  ✓ el zip contiene un solo archivo con el nombre normalizado                                                    0.02s  
+  ✓ el xml sobrevive al viaje de ida y vuelta                                                                    0.02s  
+  ✓ un zip sin xml se rechaza con un motivo                                                                      0.02s  
+  ✓ el sobre lleva el ruc pegado al usuario sol                                                                  0.02s  
+  ✓ un usuario sol vacio se rechaza antes de enviar nada                                                         0.02s  
+  ✓ la clave no aparece en la representacion para la bitacora                                                    0.02s  
+  ✓ extrae el cdr de una respuesta con prefijos distintos                                                        0.02s  
+  ✓ una respuesta sin application response no pasa por buena                                                     0.02s  
+  ✓ traduce los codigos de respuesta a los tres estados                                                          0.02s  
+  ✓ lee el codigo la descripcion y las notas del cdr                                                             0.02s  
+  ✓ un cdr sin codigo de respuesta se rechaza                                                                    0.02s  
+
+   PASS  Tests\Feature\EnvioAsincronoSunatTest
+  ✓ el envio se encola y responde 202                                                                            0.09s  
+  ✓ un comprobante ya aceptado no se reenvia                                                                     0.08s  
+  ✓ el trabajo resuelve el estado del comprobante                                                                0.11s  
+  ✓ reejecutar el trabajo sobre un comprobante aceptado no lo altera                                             0.10s  
+  ✓ un cliente no puede encolar el envio                                                                         0.13s  
+
+   PASS  Tests\Feature\EsquemaHttpsTest
+  ✓ en produccion la url de la aplicacion pasa a https                                                           0.03s  
+  ✓ una url que ya era https no se toca                                                                          0.03s  
+  ✓ en local no se fuerza nada                                                                                   0.03s  
+  ✓ en las pruebas tampoco                                                                                       0.02s  
+
+   PASS  Tests\Feature\FacturacionBusquedaTest
+  ✓ la busqueda de comprobantes no lanza error de sql                                                            0.10s  
+  ✓ busca por numero completo con ceros a la izquierda                                                           0.12s  
+  ✓ busca por numero correlativo suelto                                                                          0.10s  
+  ✓ busca por nombre del cliente                                                                                 0.08s  
+  ✓ una busqueda sin coincidencias devuelve una lista vacia                                                      0.07s  
+  ✓ la serie y el numero son unicos en conjunto                                                                  0.07s  
+
+   PASS  Tests\Feature\FusionDuplicadosCatalogoTest
+  ✓ por omision no suma el stock de las copias                                                                   0.09s  
+  ✓ sumar stock si suma los lotes de las copias                                                                  0.08s  
+  ✓ el superviviente es la fila con actividad aunque no sea el id menor                                          0.09s  
+  ✓ sin actividad en ninguna fila el superviviente es el id menor                                                0.08s  
+  ✓ omite el grupo cuando dos filas tienen actividad                                                             0.08s  
+  ✓ un lote con movimientos se conserva a cero en vez de borrarse                                                0.09s  
+  ✓ sin aplicar no escribe nada                                                                                  0.08s  
+  ✓ no fusiona productos que solo comparten el nombre                                                            0.07s  
+
+   PASS  Tests\Feature\IndicadoresTest
+  ✓ reparte los lotes en los tramos correctos                                                                    0.09s  
+  ✓ los lotes sin fecha se cuentan aparte y no en los tramos                                                     0.07s  
+  ✓ la cobertura dice que parte del almacen describe el semaforo                                                 0.07s  
+  ✓ un lote agotado no cuenta aunque este vencido                                                                0.07s  
+  ✓ el arqueo agrupa por medio y calcula porcentajes                                                             0.07s  
+  ✓ un pedido anulado no es caja                                                                                 0.07s  
+  ✓ la ventana deja fuera lo anterior                                                                            0.08s  
+  ✓ el top ordena por unidades y no por importe                                                                  0.07s  
+  ✓ un cliente no ve los indicadores                                                                             0.06s  
+  ✓ sin sesion responde 401                                                                                      0.07s  
+
+   PASS  Tests\Feature\MensajesDeValidacionTest
+  ✓ el registro devuelve mensajes en castellano                                                                  0.08s  
+  ✓ el formulario de contacto tambien                                                                            0.08s  
+  ✓ el restablecimiento de contrasena tambien                                                                    0.10s  
+  ✓ el nombre del campo no sale con guion bajo                                                                   0.09s  
+
+   PASS  Tests\Feature\NombreArchivoSunatTest
+  ✓ construye el nombre con el formato de la sunat                                                               0.02s  
+  ✓ el correlativo se rellena a ocho digitos                                                                     0.02s  
+  ✓ una serie que no corresponde al tipo se rechaza                                                              0.02s  
+  ✓ un ruc que no tiene once digitos se rechaza                                                                  0.02s  
+  ✓ un correlativo fuera de rango se rechaza                                                                     0.02s  
+  ✓ traduce el vocabulario interno al catalogo de la sunat                                                       0.02s  
+  ✓ un tipo desconocido no pasa en silencio                                                                      0.02s  
+  ✓ deriva los tres nombres desde el comprobante                                                                 0.02s  
+
+   PASS  Tests\Feature\PagosIzipayTest
+  ✓ iniciar el pago devuelve token de formulario y llave publica                                                 0.08s  
+  ✓ la respuesta nunca expone la llave privada                                                                   0.07s  
+  ✓ un usuario no puede iniciar el pago de un pedido ajeno                                                       0.07s  
+  ✓ dos intentos sobre el mismo pedido no crean dos pagos                                                        0.07s  
+  ✓ una notificacion valida marca el pedido como pagado                                                          0.08s  
+  ✓ una notificacion con firma invalida se rechaza y no altera nada                                              0.08s  
+  ✓ un segmento secreto incorrecto devuelve 404                                                                  0.10s  
+  ✓ la misma notificacion dos veces solo se aplica una vez                                                       0.12s  
+  ✓ una notificacion fuera de orden no revierte un pago confirmado                                               0.10s  
+  ✓ un pago rechazado queda fallido con motivo saneado                                                           0.09s  
+  ✓ un abandono deja el pago cancelado y no pagado                                                               0.11s  
+  ✓ una referencia desconocida no crea pagos                                                                     0.08s  
+  ✓ el evento registrado no conserva datos sensibles de tarjeta                                                  0.10s  
+  ✓ el estado del pago solo lo consulta su dueno                                                                 0.10s  
+  ✓ el importe lo fija el pedido y no la peticion                                                                0.09s  
+  ✓ un estado desconocido del proveedor nunca se interpreta como pagado                                          0.11s  
+  ✓ el retorno del navegador se valida con su propia clave                                                       0.10s  
+  ✓ un retorno valido que dice pagado no marca el pedido como pagado                                             0.08s  
+  ✓ un retorno con firma invalida se rechaza                                                                     0.09s  
+  ✓ la firma del navegador no sirve para la notificacion                                                         0.09s  
+  ✓ los campos de tarjeta heredados no salen por la api                                                          0.10s  
+  ✓ una notificacion con algoritmo no soportado se rechaza                                                       0.10s  
+  ✓ una notificacion que declara la clave del navegador se rechaza                                               0.10s  
+  ✓ el importe se expresa en la unidad minima de la moneda                                                       0.07s  
+  ✓ los estados del proveedor son los cuatro documentados                                                        0.07s  
+  ✓ ningun estado detallado de rechazo se lee como pagado                                                        0.07s  
+
+   PASS  Tests\Feature\PerfilTest
+  ✓ la foto se guarda en el disco y queda en el perfil                                                           0.10s  
+  ✓ el nombre del archivo no es el que envia el cliente                                                          0.08s  
+  ✓ un archivo que no es imagen se rechaza                                                                       0.10s  
+  ✓ una imagen demasiado pesada se rechaza                                                                       0.09s  
+  ✓ sin sesion no se puede subir                                                                                 0.08s  
+  ✓ al cambiar la foto se borra la anterior                                                                      0.09s  
+  ✓ eliminar la foto la quita del perfil y del disco                                                             0.11s  
+  ✓ una ruta vieja fuera de perfiles no se borra                                                                 0.10s  
+  ✓ el perfil no permite ascenderse a administrador                                                              0.10s  
+  ✓ el crud de usuarios ya no acepta la foto como texto                                                          0.10s  
+  ✓ cambiar la contrasena exige la vigente                                                                       0.09s  
+  ✓ con la contrasena vigente el cambio se aplica                                                                0.08s  
+
+   PASS  Tests\Feature\ProductoApiTest
+  ✓ el listado de productos es publico                                                                           0.10s  
+  ✓ un administrador registra un producto                                                                        0.08s  
+  ✓ el nombre el stock y el precio son obligatorios                                                              0.07s  
+  ✓ no se admite stock negativo                                                                                  0.09s  
+  ✓ no se admite precio negativo                                                                                 0.08s  
+  ✓ el codigo de barras no puede repetirse                                                                       0.12s  
+  ✓ la categoria referenciada debe existir                                                                       0.08s  
+  ✓ un administrador actualiza el stock de un producto                                                           0.09s  
+  ✓ la venta fraccionada admite unidad blister y caja                                                            0.09s  
+  ✓ una unidad base no valida se rechaza                                                                         0.07s  
+  ✓ una categoria valida se asocia al producto                                                                   0.08s  
+
+   PASS  Tests\Feature\RecetaTest
+  ✓ el cliente adjunta una imagen a su pedido                                                                    0.10s  
+  ✓ tambien acepta un pdf                                                                                        0.09s  
+  ✓ el archivo va al disco privado y no al publico                                                               0.11s  
+  ✓ la respuesta no filtra la ruta del archivo                                                                   0.11s  
+  ✓ el nombre del archivo no es el que envia el cliente                                                          0.09s  
+  ✓ se rechaza un ejecutable disfrazado de imagen                                                                0.09s  
+  ✓ se rechaza un archivo demasiado grande                                                                       0.09s  
+  ✓ adjuntar otra receta sustituye la anterior y borra su archivo                                                0.12s  
+  ✓ una receta ya validada no se sustituye desde el portal                                                       0.11s  
+  ✓ tras un rechazo si se puede adjuntar otra                                                                    0.13s  
+  ✓ otro cliente no puede ver la receta                                                                          0.10s  
+  ✓ otro cliente no puede adjuntar en un pedido ajeno                                                            0.12s  
+  ✓ sin sesion no se llega al archivo                                                                            0.08s  
+  ✓ el administrador si puede verla                                                                              0.10s  
+  ✓ un pedido de mostrador sin cuenta no pertenece a cualquiera                                                  0.08s  
+  ✓ solo el administrador revisa                                                                                 0.09s  
+  ✓ la validacion deja constancia de quien decidio                                                               0.10s  
+  ✓ no se puede rechazar sin motivo                                                                              0.09s  
+  ✓ validar borra un motivo de rechazo anterior                                                                  0.12s  
+  ✓ no se completa un pedido bajo receta sin receta                                                              0.09s  
+  ✓ no se completa con la receta todavia sin validar                                                             0.11s  
+  ✓ con la receta validada si se completa                                                                        0.10s  
+  ✓ un pedido sin productos bajo receta se completa sin mas                                                      0.10s  
+  ✓ confirmar si se permite mientras se revisa la receta                                                         0.08s  
+  ✓ la cola de pendientes es solo del administrador                                                              0.07s  
+  ✓ el estado dice si el pedido necesita receta                                                                  0.08s  
+
+   PASS  Tests\Feature\RecuperacionContrasenaTest
+  ✓ la respuesta es identica exista o no la cuenta                                                               0.50s  
+  ✓ el mensaje no afirma que el correo se envio                                                                  0.26s  
+  ✓ solo se manda el correo cuando hay cuenta                                                                    0.61s  
+  ✓ un correo mal formado si se rechaza                                                                          0.06s  
+  ✓ el token valido cambia la contrasena                                                                         0.08s  
+  ✓ el restablecimiento revoca todas las sesiones                                                                0.08s  
+  ✓ el token sirve una sola vez                                                                                  0.08s  
+  ✓ un token inventado no cambia nada                                                                            0.27s  
+  ✓ el fallo no distingue token malo de correo inexistente                                                       0.51s  
+  ✓ el token de otra cuenta no sirve                                                                             0.30s  
+  ✓ se exige confirmacion y longitud minima                                                                      0.08s  
+  ✓ el correo lleva el enlace al portal y no a la api                                                            0.08s  
+  ✓ el correo dice que la contrasena actual sigue valiendo                                                       0.06s  
+
+   PASS  Tests\Feature\RepresentacionImpresaTest
+  ✓ la boleta lleva su denominacion oficial y serie b                                                            0.11s  
+  ✓ la factura lleva su denominacion oficial y serie f                                                           0.10s  
+  ✓ identifica al cliente con dni y declara moneda y medio de pago                                               0.10s  
+  ✓ gravada mas igv cuadra con el total al centimo                                                               0.10s  
+  ✓ el detalle imprime cantidad unidad descripcion precio e importe                                              0.10s  
+  ✓ un producto exonerado no genera igv y el total sigue cuadrando                                               0.21s  
+  ✓ un pedido sin desglose fiscal se imprime como gravado y cuadra                                               0.09s  
+  ✓ el importe en letras corresponde al total                                                                    0.13s  
+  ✓ el qr de la boleta lleva la cadena oficial                                                                   0.10s  
+  ✓ el qr de la factura lleva la cadena oficial                                                                  0.08s  
+  ✓ el qr de una boleta sin documento declara al cliente con guiones                                             0.09s  
+  ✓ un carne de extranjeria sin tipo declarado no sale como sin documento                                        0.12s  
+  ✓ sin numero alguno el cliente se imprime como sin documento                                                   0.10s  
+  ✓ el qr se incrusta como imagen png                                                                            0.15s  
+  ✓ la plantilla imprime el recuadro los totales y la leyenda                                                    0.11s  
+  ✓ la plantilla de la factura no dice boleta                                                                    0.10s  
+  ✓ la descarga devuelve un pdf con su cabecera                                                                  0.52s  
+
+   PASS  Tests\Feature\ResumenDelClienteTest
+  ✓ sin token no hay resumen                                                                                     0.07s  
+  ✓ un cliente sin pedidos recibe ceros y no un error                                                            0.07s  
+  ✓ cuenta los pedidos por estado                                                                                0.07s  
+  ✓ el gasto no incluye los pedidos anulados                                                                     0.09s  
+  ✓ el gasto reciente solo mira los ultimos treinta dias                                                         0.08s  
+  ✓ el ultimo pedido es el mas reciente                                                                          0.08s  
+  ✓ el resumen no cuenta pedidos de otros clientes                                                               0.08s  
+
+   PASS  Tests\Feature\SaludYSeguridadTest
+  ✓ el endpoint de salud responde ok                                                                             0.06s  
+  ✓ el endpoint de salud de base de datos responde ok                                                            0.06s  
+  ✓ las respuestas incluyen las cabeceras de seguridad                                                           0.07s  
+  ✓ cada respuesta lleva un identificador de peticion                                                            0.07s  
+
+   PASS  Tests\Feature\SincronizacionVentasOfflineTest
+  ✓ una venta offline se registra con su correlativo oficial                                                     0.10s  
+  ✓ conserva la fecha del mostrador y no la del envio                                                            0.11s  
+  ✓ reenviar el mismo uuid no duplica la venta ni el comprobante                                                 0.12s  
+  ✓ el reenvio queda anotado como advertencia en la bitacora                                                     0.11s  
+  ✓ una venta rechazada no arrastra a las demas del lote                                                         0.12s  
+  ✓ la venta se registra aunque el stock central ya no alcance                                                   0.10s  
+  ✓ sin sesion la sincronizacion responde 401                                                                    0.06s  
+  ✓ el lote tiene un tope de cincuenta ventas                                                                    0.10s  
+  ✓ un uuid que no es uuid se rechaza en la validacion                                                           0.07s  
+  ✓ el cobro en linea con uuid no se registra dos veces                                                          0.10s  
+  ✓ el cobro en linea sigue funcionando sin uuid                                                                 0.09s  
+  ✓ el catalogo para la caja no expone stock                                                                     0.07s  
+  ✓ el catalogo incremental solo devuelve lo que cambio                                                          0.08s  
+  ✓ el catalogo exige sesion                                                                                     0.06s  
+
+   PASS  Tests\Feature\TrazabilidadLotesTest
+  ✓ no se puede borrar un lote que tiene movimientos                                                             0.07s  
+  ✓ el movimiento conserva su lote tras el intento de borrado                                                    0.07s  
+  ✓ un lote sin movimientos si se puede borrar                                                                   0.07s  
+  ✓ un movimiento puede seguir creandose sin lote                                                                0.06s  
+  ✓ borrar un producto con historial responde 409 y no un error de base                                          0.07s  
+  ✓ borrar un producto sin historial sigue funcionando                                                           0.09s  
+
+  Tests:    419 passed (1172 assertions)
+  Duration: 34.67s
+
