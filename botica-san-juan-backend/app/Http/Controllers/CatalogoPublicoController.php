@@ -65,13 +65,7 @@ class CatalogoPublicoController extends Controller
         $consulta = Producto::query()->with(['categoria:id,nombre,slug']);
 
         if (! blank($datos['buscar'] ?? null)) {
-            $termino = '%'.str_replace('%', '\%', $datos['buscar']).'%';
-
-            $consulta->where(function ($q) use ($termino) {
-                $q->where('nombre', 'ILIKE', $termino)
-                    ->orWhere('principio_activo', 'ILIKE', $termino)
-                    ->orWhere('laboratorio', 'ILIKE', $termino);
-            });
+            $consulta->buscar((string) $datos['buscar'], ['nombre', 'principio_activo', 'laboratorio']);
         }
 
         if (! blank($datos['categoria'] ?? null)) {

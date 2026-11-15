@@ -266,6 +266,113 @@ class EmparejadorReglasCriticasTest(unittest.TestCase):
                 emparejados_por_fuente, _ = emparejar_productos([clon_local], [externo])
                 self.assertEqual(emparejados_por_fuente, [])
 
+                # Tampoco debe saltarse exclusiones al activar la segunda pasada.
+                emp_p2, _ = emparejar_productos([local], [externo], segunda_pasada=True)
+                self.assertEqual(emp_p2, [])
+                emp_clon_p2, _ = emparejar_productos([clon_local], [externo], segunda_pasada=True)
+                self.assertEqual(emp_clon_p2, [])
+
+    def test_segunda_pasada_controlada_solo_se_activa_con_parametro_y_resuelve_variantes_seguras(self) -> None:
+        casos_segunda_pasada = [
+            # Variación de adjetivo de forma ("recubierto") + blister vs caja
+            (
+                {"id": 345, "nombre": "DAFLON", "concentracion": "500 mg", "presentacion": "Caja Envase Blister Tabletas", "tipo": "TABLETA"},
+                _ext("38370-CAJA", "Daflon 500 Mg Comprimido Recubierto - Caja 30 UN"),
+            ),
+            # Sal farmacéutica omitida en nombre comercial
+            (
+                {"id": 635, "nombre": "METFORMINA CLORHIDRATO", "concentracion": "850 mg", "presentacion": "Caja Envase Blister Tabletas", "tipo": "TABLETA"},
+                _ext("13902", "Metformina 850 Mg Tableta - Caja 30 UN"),
+            ),
+            # Solución oral DIGEMID sin palabra "oral" frente a Jarabe en igual frasco y concentración
+            (
+                {"id": 58, "nombre": "AMBROXOL", "concentracion": "15 mg/5 mL", "presentacion": "Frasco x 120 mL", "tipo": "SOLUCION"},
+                _ext("14763", "Ambroxol 15mg/5ml Jarabe - Frasco 120 ML"),
+            ),
+            # Inyectable donde el volumen está en la concentración y el título externo termina en Caja N UN
+            (
+                {"id": 63, "nombre": "AMIKACINA", "concentracion": "500 mg/2 mL", "presentacion": "Ampolla x 2mL", "tipo": "INYECTABLE"},
+                _ext("41915", "Amikacina 500Mg/2Ml Ampolla - Caja 10 UN"),
+            ),
+            # Gotero en caja vs Caja 15 ML con misma concentración y sabor
+            (
+                {"id": 33, "nombre": "AERO OM SABOR A FRESAS", "concentracion": "100 mg/mL", "presentacion": "Caja Frasco gotero x 15mL", "tipo": "SUSPENSION"},
+                _ext("04458", "Gotas Aero OM 100 mg/mL Sabor Fresa - Caja 15 ML"),
+            ),
+            # Título externo sin palabra de forma cuando envase blister fija sólido oral sin ambigüedad
+            (
+                {"id": 275, "nombre": "CELECOXIB", "concentracion": "200 mg", "presentacion": "Caja Envase Blister Cápsula", "tipo": "CAPSULA"},
+                _ext("16690-BLISTER", "Celecoxib 200 mg - Blister 10 UN"),
+            ),
+        ]
+
+        for local, externo in casos_segunda_pasada:
+            with self.subTest(producto_id=local["id"]):
+                # Conservador por defecto: no empareja sin el flag explícito.
+                emp_p1, _ = emparejar_productos([local], [externo])
+                self.assertEqual(emp_p1, [])
+
+                # Con segunda_pasada=True: empareja con puntaje y marca pasada=2.
+                emp_p2, _ = emparejar_productos([local], [externo], segunda_pasada=True)
+                self.assertEqual(len(emp_p2), 1)
+                self.assertEqual(emp_p2[0]["fuente_pid"], externo.pid)
+                self.assertEqual(emp_p2[0]["pasada"], 2)
+
+    def test_segunda_pasada_rechaza_falsos_positivos_concentracion_forma_sal_y_ambiguedad(self) -> None:
+        casos_rechazo = [
+            # Concentraciones distintas
+            (
+                [{"id": 9001, "nombre": "AMOXICILINA", "concentracion": "500 mg", "presentacion": "Caja Envase Blister Tabletas", "tipo": "TABLETA"}],
+                [_ext("X9001", "Amoxicilina 1 G Tableta - Caja 10 UN")],
+            ),
+            # Formas farmacéuticas distintas (jarabe vs tableta, cápsula vs tableta)
+            (
+                [{"id": 9002, "nombre": "AMOXICILINA", "concentracion": "500 mg", "presentacion": "Caja Envase Blister Tabletas", "tipo": "TABLETA"}],
+                [_ext("X9002", "Amoxicilina 500 Mg Cápsulas - Caja 100 UN")],
+            ),
+            (
+                [{"id": 9003, "nombre": "PARACETAMOL", "concentracion": "120 mg/5 mL", "presentacion": "Frasco x 60 mL", "tipo": "SOLUCION"}],
+                [_ext("X9003", "Paracetamol 120 Mg/5 Ml Tabletas - Caja 20 UN")],
+            ),
+            # Solución tópica nunca se empareja con jarabe
+            (
+                [{"id": 9004, "nombre": "CLOTRIMAZOL", "concentracion": "1%", "presentacion": "Frasco x 20 mL Tópica", "tipo": "SOLUCION"}],
+                [_ext("X9004", "Clotrimazol 1% Jarabe - Frasco 20 ML")],
+            ),
+            # Sales farmacéuticas distintas en conflicto (sódico vs potásico)
+            (
+                [{"id": 9005, "nombre": "DICLOFENACO SODICO", "concentracion": "50 mg", "presentacion": "Caja Envase Blister Tabletas", "tipo": "TABLETA"}],
+                [_ext("X9005", "Diclofenaco Potásico 50 Mg Tabletas - Caja 20 UN")],
+            ),
+            # Variante comercial distinta ("Forte", "Plus", otro sabor/número)
+            (
+                [{"id": 9006, "nombre": "PANADOL", "concentracion": "500 mg", "presentacion": "Caja Envase Blister Tabletas", "tipo": "TABLETA"}],
+                [_ext("X9006", "Panadol Forte 500 Mg - Sobre 2 UN")],
+            ),
+            (
+                [{"id": 9007, "nombre": "FRUTTIFLEX 50 SABOR A FRESA", "concentracion": "ELECTROLITOS", "presentacion": "Frasco x 1L", "tipo": "SOLUCION"}],
+                [_ext("X9007", "Fruttiflex 60 sabor Uva - Frasco 1000 ML")],
+            ),
+            # Ambigüedad en catálogo local (tableta y cápsula blanda comparten nombre/conc y externo omite forma)
+            (
+                [
+                    {"id": 424, "nombre": "DOLOMAX", "concentracion": "400 mg", "presentacion": "Caja Envase Blister Tabletas", "tipo": "TABLETA"},
+                    {"id": 427, "nombre": "DOLOMAX", "concentracion": "400 mg", "presentacion": "Caja Envase Blister Cápsulas Blandas", "tipo": "CAPSULA"},
+                ],
+                [_ext("33013-CAJA", "Dolomax 400 Mg - Caja 20 UN")],
+            ),
+            # Mismo frasco pero distinto volumen físico
+            (
+                [{"id": 677, "nombre": "PARACETAMOL", "concentracion": "120 mg/5 mL", "presentacion": "Frasco X 120 mL", "tipo": "SOLUCION"}],
+                [_ext("12975", "Paracetamol Jarabe 120 mg/5ml- Frasco 60 ML")],
+            ),
+        ]
+
+        for locales, externos in casos_rechazo:
+            with self.subTest(producto_id=locales[0]["id"]):
+                emparejados, _ = emparejar_productos(locales, externos, segunda_pasada=True)
+                self.assertEqual(emparejados, [])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -31,6 +31,7 @@ import { useAdminToast } from '../composables/useAdminToast'
 import {
   Minus,
   PackageOpen,
+  Pill,
   Plus,
   RefreshCw,
   Save,
@@ -41,6 +42,7 @@ import {
   CircleCheck,
   X,
 } from 'lucide-vue-next'
+import ImagenConRespaldo from '@/components/ImagenConRespaldo.vue'
 import BoticaBadge from '../components/ui/BoticaBadge.vue'
 import BoticaStat from '../components/ui/BoticaStat.vue'
 import BoticaButton from '../components/ui/BoticaButton.vue'
@@ -51,6 +53,7 @@ interface InventoryProduct {
   nombre: string
   presentacion: string
   codigo: string
+  imagen?: string | null
   categoryId: number | null
   categoria: string
   subcategoria: string
@@ -222,6 +225,7 @@ const mapProducts = (products: BackendProduct[]) => {
     codigo:
       product.codigo_barras ||
       `${product.tipo.slice(0, 3).toUpperCase()}-${String(product.id).padStart(3, '0')}`,
+    imagen: product.imagen ?? null,
     categoryId: product.categoria?.id || product.categoria_id || null,
     categoria: product.categoria?.nombre || product.tipo,
     subcategoria: product.subcategoria?.nombre || '',
@@ -583,14 +587,29 @@ onMounted(fetchInventory)
             class="p-4"
           >
             <div class="flex items-start justify-between gap-3">
-              <div class="min-w-0">
-                <p class="truncate font-medium text-texto-primario">
-                  {{ product.nombre }}
-                </p>
-                <p class="mt-0.5 truncate text-xs text-texto-terciario">
-                  {{ product.codigo }} · {{ product.categoria
-                  }}{{ product.subcategoria ? ` / ${product.subcategoria}` : '' }}
-                </p>
+              <div class="flex min-w-0 items-center gap-3">
+                <ImagenConRespaldo
+                  :ruta="product.imagen"
+                  :alt="product.nombre"
+                  carga="lazy"
+                  clase-contenedor="shrink-0 h-10 w-10 rounded-lg border border-borde-sutil"
+                  clase-imagen="h-10 w-10 rounded-lg object-contain"
+                >
+                  <template #respaldo>
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-botica-50">
+                      <Pill class="h-5 w-5 text-texto-marca" />
+                    </div>
+                  </template>
+                </ImagenConRespaldo>
+                <div class="min-w-0">
+                  <p class="truncate font-medium text-texto-primario">
+                    {{ product.nombre }}
+                  </p>
+                  <p class="mt-0.5 truncate text-xs text-texto-terciario">
+                    {{ product.codigo }} · {{ product.categoria
+                    }}{{ product.subcategoria ? ` / ${product.subcategoria}` : '' }}
+                  </p>
+                </div>
               </div>
               <BoticaBadge
                 :tono="tonoEstado(product.estado)"
@@ -705,12 +724,29 @@ onMounted(fetchInventory)
                 class="transition-colors duration-100 hover:bg-superficie-interactiva"
               >
                 <td class="px-5 py-3">
-                  <p class="font-medium text-texto-primario">
-                    {{ product.nombre }}
-                  </p>
-                  <p class="text-xs text-texto-terciario">
-                    {{ product.presentacion }}
-                  </p>
+                  <div class="flex items-center gap-3">
+                    <ImagenConRespaldo
+                      :ruta="product.imagen"
+                      :alt="product.nombre"
+                      carga="lazy"
+                      clase-contenedor="shrink-0 h-10 w-10 rounded-lg border border-borde-sutil"
+                      clase-imagen="h-10 w-10 rounded-lg object-contain"
+                    >
+                      <template #respaldo>
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-botica-50">
+                          <Pill class="h-5 w-5 text-texto-marca" />
+                        </div>
+                      </template>
+                    </ImagenConRespaldo>
+                    <div class="min-w-0">
+                      <p class="font-medium text-texto-primario">
+                        {{ product.nombre }}
+                      </p>
+                      <p class="text-xs text-texto-terciario">
+                        {{ product.presentacion }}
+                      </p>
+                    </div>
+                  </div>
                 </td>
                 <td class="px-5 py-3">
                   <p class="cifras-tabulares text-texto-secundario">

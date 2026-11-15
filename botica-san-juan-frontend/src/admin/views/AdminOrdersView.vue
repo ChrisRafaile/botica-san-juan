@@ -493,13 +493,28 @@
                     :key="linea.id"
                     class="flex items-center justify-between gap-4 rounded-2xl border border-borde-base px-4 py-3"
                   >
-                    <div class="min-w-0">
-                      <p class="truncate font-medium text-texto-primario">
-                        {{ linea.producto?.nombre || 'Producto' }}
-                      </p>
-                      <p class="text-sm text-texto-terciario">
-                        Cantidad: {{ linea.cantidad }}
-                      </p>
+                    <div class="flex min-w-0 items-center gap-3">
+                      <ImagenConRespaldo
+                        :ruta="linea.producto?.imagen"
+                        :alt="linea.producto?.nombre || 'Producto'"
+                        carga="lazy"
+                        clase-contenedor="shrink-0 h-12 w-12 rounded-xl border border-borde-sutil"
+                        clase-imagen="h-12 w-12 rounded-xl object-contain"
+                      >
+                        <template #respaldo>
+                          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-botica-50">
+                            <Pill class="h-5 w-5 text-texto-marca" />
+                          </div>
+                        </template>
+                      </ImagenConRespaldo>
+                      <div class="min-w-0">
+                        <p class="truncate font-medium text-texto-primario">
+                          {{ linea.producto?.nombre || 'Producto' }}
+                        </p>
+                        <p class="text-sm text-texto-terciario">
+                          Cantidad: {{ linea.cantidad }}
+                        </p>
+                      </div>
                     </div>
                     <p class="shrink-0 font-semibold tabular-nums text-texto-primario">
                       S/ {{ dinero(linea.subtotal) }}
@@ -621,11 +636,13 @@ import {
   LoaderCircle,
   PackageCheck,
   PackageOpen,
+  Pill,
   RefreshCw,
   Search,
   ShoppingCart,
   Store,
 } from 'lucide-vue-next'
+import ImagenConRespaldo from '@/components/ImagenConRespaldo.vue'
 import api from '@/services/api'
 import { useAdminToast } from '../composables/useAdminToast'
 import BoticaBadge from '../components/ui/BoticaBadge.vue'
@@ -733,7 +750,7 @@ interface LineaPedido {
   id: number
   cantidad: number
   subtotal: string | number
-  producto?: { id: number; nombre: string } | null
+  producto?: { id: number; nombre: string; imagen?: string | null } | null
 }
 
 interface Pedido {

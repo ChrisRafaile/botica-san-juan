@@ -21,6 +21,17 @@ import type { Product, FacetasCatalogo, OrdenCatalogo } from '@/services/product
  * disponibilidad, orden y página— viaja a la API, y las facetas de los
  * desplegables vienen de un endpoint que las cuenta sobre la tabla completa.
  */
+/**
+ * Normaliza un texto para comparaciones insensibles a mayúsculas y tildes.
+ */
+export function normalizarTexto(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+}
+
 export const useProductsStore = defineStore('products', () => {
   const products = ref<Product[]>([])
   const isLoading = ref(false)
@@ -32,7 +43,7 @@ export const useProductsStore = defineStore('products', () => {
   const laboratorio = ref('')
   const categoriaId = ref<number | null>(null)
   const soloDisponibles = ref(false)
-  const orden = ref<OrdenCatalogo>('nombre')
+  const orden = ref<OrdenCatalogo>('destacados')
 
   /* --- Paginación -------------------------------------------------------- */
   const pagina = ref(1)
@@ -134,7 +145,7 @@ export const useProductsStore = defineStore('products', () => {
     laboratorio.value = ''
     categoriaId.value = null
     soloDisponibles.value = false
-    orden.value = 'nombre'
+    orden.value = 'destacados'
     await aplicarFiltros()
   }
 

@@ -65,6 +65,13 @@
               class="min-h-0 flex-1 overflow-y-auto p-6"
               @submit.prevent="handleSubmit"
             >
+              <div
+                v-if="errors.general"
+                role="alert"
+                class="mb-4 rounded-xl border border-peligro-500/30 bg-peligro-50 px-4 py-3 text-sm text-peligro-700"
+              >
+                {{ errors.general }}
+              </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Columna Izquierda -->
                 <div class="space-y-6">
@@ -440,18 +447,20 @@
                            `ImagenConRespaldo` resuelve la ruta y garantiza que
                            debajo siempre haya algo pintado. -->
                       <div
-                        v-if="currentImage"
+                        v-if="tieneImagenPrevia"
                         class="relative"
                       >
                         <ImagenConRespaldo
                           :ruta="currentImage"
                           :alt="`Imagen de ${form.nombre || 'el producto'}`"
                           carga="eager"
-                          clase-contenedor="w-full h-32 rounded-lg border border-borde-sutil"
-                          clase-imagen="h-32 w-full object-cover"
+                          clase-contenedor="w-full h-32 rounded-lg border border-borde-sutil bg-superficie-hundida"
+                          clase-imagen="h-32 w-full object-contain"
                         />
                         <button
+                          v-if="!props.readonly"
                           type="button"
+                          aria-label="Quitar imagen"
                           class="absolute top-2 right-2 bg-peligro-500 text-white p-1 rounded-full hover:bg-peligro-600 transition-colors"
                           @click="removeImage"
                         >
@@ -465,7 +474,7 @@
                           <input
                             ref="fileInput"
                             type="file"
-                            accept="image/*"
+                            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
                             class="hidden"
                             @change="handleFileChange"
                           />
@@ -491,7 +500,13 @@
                         </button>
                       </div>
                       <p class="text-xs text-texto-terciario">
-                        PNG, JPG hasta 5MB
+                        JPG, PNG o WebP hasta 2 MB
+                      </p>
+                      <p
+                        v-if="errors.imagen"
+                        class="mt-1 text-xs text-peligro-600"
+                      >
+                        {{ errors.imagen }}
                       </p>
                     </div>
                   </div>
@@ -615,6 +630,7 @@ import { X, Upload, Save, Camera } from 'lucide-vue-next'
 import ImagenConRespaldo from '@/components/ImagenConRespaldo.vue'
 import api from '@/services/api'
 import PhotoCapture from '@/components/PhotoCapture.vue'
+import { urlDeMedia } from '@/utils/media'
 
 // Props
 interface Props {
@@ -704,11 +720,13 @@ const loading = ref(false)
 const fileInput = ref<HTMLInputElement>()
 const selectedFile = ref<File | null>(null)
 const currentImage = ref<string>('')
+const removingImage = ref(false)
 const showPhotoCapture = ref(false)
 const hydratingForm = ref(false)
 
 // Computed
 const isEditing = computed(() => !!props.product)
+const tieneImagenPrevia = computed(() => Boolean(urlDeMedia(currentImage.value)))
 const isFormValid = computed(() => {
   return form.value.nombre.trim() &&
          form.value.laboratorio.trim() &&
@@ -751,6 +769,7 @@ const resetForm = () => {
   errors.value = {}
   selectedFile.value = null
   currentImage.value = ''
+  removingImage.value = false
 }
 
 const loadProduct = () => {
@@ -783,6 +802,7 @@ const loadProduct = () => {
       precio: props.product.precio
     }
     currentImage.value = props.product.imagen || ''
+    removingImage.value = false
     nextTick(() => {
       hydratingForm.value = false
     })
@@ -819,37 +839,48 @@ const validateForm = () => {
   return Object.keys(errors.value).length === 0
 }
 
+const TIPOS_IMAGEN_PERMITIDOS = new Set(['image/jpeg', 'image/png', 'image/webp'])
+const EXTENSIONES_PERMITIDAS = /\.(jpe?g|png|webp)$/i
+const MAX_TAMANO_IMAGEN_BYTES = 2 * 1024 * 1024
+
 const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
 
-  if (file) {
-    // Validar tamaño (5MB máximo)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('La imagen no puede superar los 5MB')
-      return
-    }
+  if (!file) return
 
-    // Validar tipo
-    if (!file.type.startsWith('image/')) {
-      alert('Solo se permiten archivos de imagen')
-      return
-    }
-
-    selectedFile.value = file
-
-    // Crear preview
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      currentImage.value = e.target?.result as string
-    }
-    reader.readAsDataURL(file)
+  const tipoValido =
+    TIPOS_IMAGEN_PERMITIDOS.has(file.type) ||
+    (!file.type && EXTENSIONES_PERMITIDAS.test(file.name))
+  if (!tipoValido) {
+    errors.value.imagen = 'Formato no compatible. Usa JPG, PNG o WebP.'
+    target.value = ''
+    return
   }
+
+  if (file.size > MAX_TAMANO_IMAGEN_BYTES) {
+    errors.value.imagen = 'La imagen no puede superar los 2 MB.'
+    target.value = ''
+    return
+  }
+
+  delete errors.value.imagen
+  selectedFile.value = file
+  removingImage.value = false
+
+  // Vista previa inmediata antes de enviar al servidor
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    currentImage.value = (e.target?.result as string) || ''
+  }
+  reader.readAsDataURL(file)
 }
 
 const removeImage = () => {
   selectedFile.value = null
   currentImage.value = ''
+  removingImage.value = isEditing.value
+  delete errors.value.imagen
   if (fileInput.value) {
     fileInput.value.value = ''
   }
@@ -863,11 +894,13 @@ const onPhotoCaptured = (photoData: string) => {
       const file = new File([blob], 'captured-photo.jpg', { type: 'image/jpeg' })
       selectedFile.value = file
       currentImage.value = photoData
+      removingImage.value = false
+      delete errors.value.imagen
       showPhotoCapture.value = false
     })
     .catch(err => {
       console.error('Error converting photo data:', err)
-      alert('Error al procesar la foto capturada')
+      errors.value.imagen = 'No se pudo procesar la fotografía capturada.'
     })
 }
 
@@ -898,24 +931,21 @@ const handleSubmit = async () => {
       }
     })
 
-    // Agregar imagen si existe
+    // Agregar imagen o señal de eliminación para PUT multipart en Laravel
     if (selectedFile.value) {
       formData.append('imagen', selectedFile.value)
+    } else if (isEditing.value && removingImage.value) {
+      formData.append('quitar_imagen', '1')
     }
 
+    // No fijar Content-Type manualmente: Axios añade multipart/form-data con boundary.
+    // En edición se usa POST + _method=PUT porque PHP no parsea archivos en PUT directo.
     let response
     if (isEditing.value) {
-      response = await api.put(`/productos/${props.product!.id}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      formData.append('_method', 'PUT')
+      response = await api.post(`/productos/${props.product!.id}`, formData)
     } else {
-      response = await api.post('/productos', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
+      response = await api.post('/productos', formData)
     }
 
     emit('saved', response.data)
@@ -923,11 +953,16 @@ const handleSubmit = async () => {
   } catch (error: unknown) {
     console.error('Error saving product:', error)
 
-    const axiosError = error as { response?: { data?: { errors?: Record<string, string> } } }
-    if (axiosError.response?.data?.errors) {
-      errors.value = axiosError.response.data.errors
+    const axiosError = error as { response?: { data?: { errors?: Record<string, string | string[]> } } }
+    const serverErrors = axiosError.response?.data?.errors
+    if (serverErrors) {
+      const normalizados: Record<string, string> = {}
+      Object.entries(serverErrors).forEach(([campo, mensaje]) => {
+        normalizados[campo] = (Array.isArray(mensaje) ? mensaje[0] : mensaje) ?? ''
+      })
+      errors.value = normalizados
     } else {
-      alert('Error al guardar el producto. Inténtalo de nuevo.')
+      errors.value = { general: 'No se pudo guardar el producto. Inténtalo de nuevo.' }
     }
   } finally {
     loading.value = false
@@ -946,15 +981,19 @@ watch(() => form.value.categoria_id, (newCategory, oldCategory) => {
 })
 
 // Watchers
-watch(() => props.isOpen, (newVal) => {
-  if (newVal) {
-    if (isEditing.value) {
-      loadProduct()
-    } else {
-      resetForm()
+watch(
+  () => props.isOpen,
+  (newVal) => {
+    if (newVal) {
+      if (isEditing.value) {
+        loadProduct()
+      } else {
+        resetForm()
+      }
     }
-  }
-})
+  },
+  { immediate: true },
+)
 
 watch(() => props.product, () => {
   if (props.isOpen && isEditing.value) {
