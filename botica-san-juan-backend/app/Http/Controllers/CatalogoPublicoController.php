@@ -65,13 +65,7 @@ class CatalogoPublicoController extends Controller
         $consulta = Producto::query()->with(['categoria:id,nombre,slug']);
 
         if (! blank($datos['buscar'] ?? null)) {
-            $termino = '%'.str_replace('%', '\%', $datos['buscar']).'%';
-
-            $consulta->where(function ($q) use ($termino) {
-                $q->where('nombre', 'ILIKE', $termino)
-                    ->orWhere('principio_activo', 'ILIKE', $termino)
-                    ->orWhere('laboratorio', 'ILIKE', $termino);
-            });
+            $consulta->buscar((string) $datos['buscar'], ['nombre', 'principio_activo', 'laboratorio']);
         }
 
         if (! blank($datos['categoria'] ?? null)) {
@@ -149,13 +143,15 @@ class CatalogoPublicoController extends Controller
             ->with(['categoria:id,nombre,slug'])
             ->where('requiere_receta', false)
             ->where('stock', '>', 0)
-            ->orderBy('nombre')
+            /* Mismo criterio que la primera página de /products: un bloque de
+               «recomendados» hecho de ilustraciones genéricas no recomienda nada. */
+            ->ordenDestacado()
             ->limit((int) ($datos['limite'] ?? 12))
             ->get();
 
         return response()->json([
             'datos' => $productos->map(fn (Producto $p) => $this->comoContrato($p))->all(),
-            'criterio' => 'Productos con existencias y de venta sin receta, ordenados por nombre.',
+            'criterio' => 'Productos con existencias y de venta sin receta; primero los disponibles con fotografía real.',
         ]);
     }
 

@@ -42,21 +42,85 @@
         <span class="text-texto-primario">Carrito</span>
       </nav>
 
-      <header class="mb-8">
-        <h1 class="text-3xl font-bold text-texto-primario sm:text-4xl">Tu carrito</h1>
-        <p class="mt-2 text-texto-secundario" role="status">
-          <template v-if="carrito.cargando && carrito.lineas.length === 0">
-            Consultando precios y stock…
-          </template>
-          <template v-else-if="carrito.totalUnidades > 0">
-            {{ carrito.totalUnidades }}
-            {{ carrito.totalUnidades === 1 ? 'unidad' : 'unidades' }}
-            de {{ carrito.lineas.length }}
-            {{ carrito.lineas.length === 1 ? 'producto' : 'productos' }}
-          </template>
-          <template v-else>Todavía no has agregado nada.</template>
-        </p>
+      <header class="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold text-texto-primario sm:text-4xl">Tu carrito</h1>
+          <p class="mt-2 text-texto-secundario" role="status">
+            <template v-if="carrito.cargando && carrito.lineas.length === 0">
+              Consultando precios y stock…
+            </template>
+            <template v-else-if="carrito.totalUnidades > 0">
+              {{ carrito.totalUnidades }}
+              {{ carrito.totalUnidades === 1 ? 'unidad' : 'unidades' }}
+              de {{ carrito.lineas.length }}
+              {{ carrito.lineas.length === 1 ? 'producto' : 'productos' }}
+            </template>
+            <template v-else>Todavía no has agregado nada.</template>
+          </p>
+        </div>
+
+        <nav aria-label="Navegación del carrito" class="flex flex-wrap items-center gap-2.5">
+          <RouterLink
+            to="/products"
+            class="foco-dentro inline-flex items-center gap-1.5 rounded-full border border-borde-control bg-superficie-elevada px-4 py-2 text-sm font-medium text-texto-primario transition-colors hover:bg-superficie-interactiva"
+          >
+            Seguir comprando
+          </RouterLink>
+          <RouterLink
+            v-if="autenticado"
+            to="/client/pedidos"
+            class="foco-dentro inline-flex items-center gap-1.5 rounded-full border border-borde-control bg-superficie-elevada px-4 py-2 text-sm font-medium text-texto-primario transition-colors hover:bg-superficie-interactiva"
+          >
+            Mis pedidos
+          </RouterLink>
+          <RouterLink
+            v-if="autenticado"
+            to="/client/home"
+            class="foco-dentro inline-flex items-center gap-1.5 rounded-full border border-borde-control bg-superficie-elevada px-4 py-2 text-sm font-medium text-texto-marca transition-colors hover:bg-superficie-interactiva"
+          >
+            Ir a mi portal
+          </RouterLink>
+        </nav>
       </header>
+
+      <!-- Pedidos ya registrados que esperan pago. Confirmar vacía el carrito,
+           así que sin este bloque quien volvía del pago encontraba la página
+           vacía y ninguna forma de retomarlo. Va antes que todo lo demás y
+           también con el carrito vacío, que es justo cuando más falta hace. -->
+      <section
+        v-if="pedidosPendientes.length > 0"
+        data-testid="pedidos-pendientes-carrito"
+        aria-labelledby="titulo-pendientes-carrito"
+        class="mb-6 rounded-2xl border border-clinico-500/40 bg-clinico-50 p-4 dark:bg-clinico-500/10"
+      >
+        <h2 id="titulo-pendientes-carrito" class="font-semibold text-texto-primario">
+          {{ pedidosPendientes.length === 1
+            ? 'Tienes un pedido esperando pago'
+            : `Tienes ${pedidosPendientes.length} pedidos esperando pago` }}
+        </h2>
+        <p class="mt-1 text-sm text-texto-secundario">
+          Ya están registrados y no se pierden. Lo que tengas ahora en el carrito
+          irá en un pedido aparte.
+        </p>
+        <ul class="mt-3 space-y-2">
+          <li
+            v-for="pendiente in pedidosPendientes"
+            :key="pendiente.id"
+            class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-borde-sutil bg-superficie-elevada px-4 py-2.5"
+          >
+            <span class="cifras-tabulares text-sm text-texto-primario">
+              Pedido #{{ pendiente.id }} ·
+              <strong>{{ soles(Number(pendiente.total)) }}</strong>
+            </span>
+            <RouterLink
+              :to="{ path: '/checkout/pago', query: { pedido: String(pendiente.id) } }"
+              class="foco-dentro inline-flex items-center rounded-full bg-botica-600 px-4 py-1.5 text-sm font-medium text-neutro-0 transition-colors hover:bg-botica-700"
+            >
+              Reanudar pago
+            </RouterLink>
+          </li>
+        </ul>
+      </section>
 
       <!-- Avisos de ajuste. Van arriba y con role=alert porque el carrito ya
            cambió: cambiar una cantidad en silencio es peor que no poder
@@ -142,7 +206,10 @@
 
       <div v-else class="grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-start">
         <!-- Líneas -->
-        <ul class="space-y-4">
+        <!-- `min-w-0` porque un hijo de grid no encoge por debajo de su
+             contenido: los nombres con `truncate` ensanchaban la tarjeta hasta
+             495 px en una pantalla de 360 y sacaban el precio de la vista. -->
+        <ul class="min-w-0 space-y-4">
           <li
             v-for="linea in carrito.lineas"
             :key="linea.producto_id"
@@ -349,6 +416,13 @@
             <ReceiptIcon v-else class="size-5" aria-hidden="true" />
             {{ enviando ? 'Registrando…' : 'Continuar al checkout' }}
           </button>
+
+          <RouterLink
+            to="/products"
+            class="foco-dentro mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl border border-borde-control bg-superficie-elevada px-4 py-2.5 text-sm font-semibold text-texto-primario transition-colors hover:bg-superficie-interactiva"
+          >
+            Seguir comprando
+          </RouterLink>
 
           <!-- Salida alternativa por WhatsApp, para quien prefiere hablar. -->
           <a
@@ -898,6 +972,7 @@ import Footer from '@/components/Footer.vue'
 import ConsultorInteracciones from '@/components/ConsultorInteracciones.vue'
 import { useCartStore, type LineaCotizada } from '@/stores/carrito'
 import { useAuthStore } from '@/stores/auth'
+import { usePedidosPendientes } from '@/composables/usePedidosPendientes'
 import { descargarPdfComprobante } from '@/services/comprobantes'
 import { urlDeMedia } from '@/utils/media'
 import { ilustracionDe, textoAlternativoDe } from '@/utils/formaFarmaceutica'
@@ -1013,6 +1088,18 @@ const enlacePedido = computed(() => enlaceWhatsApp(textoPedido.value))
 const auth = useAuthStore()
 const router = useRouter()
 const autenticado = computed(() => auth.isAuthenticated)
+
+const { pendientes: pedidosPendientes, refrescar: refrescarPendientes } = usePedidosPendientes()
+
+/* `immediate` cubre la entrada a la página; el propio watch cubre el cierre
+   de sesión con la página abierta, que debe llevarse el aviso consigo. */
+watch(
+  () => (auth.isAuthenticated ? auth.user?.id : null),
+  (usuarioId) => {
+    void refrescarPendientes(usuarioId)
+  },
+  { immediate: true },
+)
 
 const checkoutAbierto = ref(false)
 const panelCheckout = ref<HTMLElement | null>(null)
@@ -1172,6 +1259,9 @@ function abrirCheckout() {
     }
     if (!formulario.value.cliente_telefono) {
       formulario.value.cliente_telefono = auth.user.telefono ?? ''
+    }
+    if (!formulario.value.direccion && auth.user.direccion_entrega) {
+      formulario.value.direccion = auth.user.direccion_entrega
     }
   }
   checkoutAbierto.value = true

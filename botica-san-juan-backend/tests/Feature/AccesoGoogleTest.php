@@ -135,6 +135,21 @@ class AccesoGoogleTest extends TestCase
         $this->getJson('/api/auth/google/redirect')->assertStatus(503);
     }
 
+    public function test_el_sondeo_responde_200_tanto_si_hay_credenciales_como_si_no(): void
+    {
+        /* Lo llama cada visita a la pantalla de acceso. Un 503 aquí llenaba la
+           consola de errores en todo entorno sin Google configurado. */
+        $this->getJson('/api/auth/google/disponible')
+            ->assertOk()
+            ->assertExactJson(['disponible' => true]);
+
+        config(['services.google.client_secret' => null]);
+
+        $this->getJson('/api/auth/google/disponible')
+            ->assertOk()
+            ->assertExactJson(['disponible' => false]);
+    }
+
     public function test_la_url_de_google_se_entrega_con_un_state(): void
     {
         $respuesta = $this->getJson('/api/auth/google/redirect')->assertOk();

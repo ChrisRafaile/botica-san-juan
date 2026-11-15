@@ -1,9 +1,21 @@
 {
   "fuente": "https://www.boticasperu.pe",
   "total_catalogo": 884,
-  "total_emparejados": 116,
-  "total_sin_coincidencia": 768,
+  "total_emparejados": 195,
+  "total_sin_coincidencia": 689,
   "correspondencias": [
+    {
+      "producto_id": 10,
+      "nombre": "AB-BRONCOL NF 600",
+      "concentracion": "600 mg",
+      "presentacion": "Caja 1 Vial + 1 Ampolla Solvente x 5 mL",
+      "imagen": "storage/productos/00141.webp",
+      "fuente_pid": "00141",
+      "fuente_titulo": "AB Broncol NF 600Mg Suspensión Inyectable - Caja 1 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/ab_broncol_nf_600mg_suspension_inyectable_-_caja_1_un/00141.html",
+      "puntaje": 95.0,
+      "pasada": 2
+    },
     {
       "producto_id": 15,
       "nombre": "ACI BASIC",
@@ -13,7 +25,20 @@
       "fuente_pid": "12590",
       "fuente_titulo": "Aci Basic 400mg-30mg/5ml Suspensión Oral - Frasco 150 Ml",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/malestar_estomacal/acidez/aci_basic_400mg-30mg%2F5ml_suspension_oral_-_frasco_150_ml/12590.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 23,
+      "nombre": "ACICLOVIR",
+      "concentracion": "200 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/07421.webp",
+      "fuente_pid": "07421",
+      "fuente_titulo": "Aciclovir 200 Mg - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antivirales/aciclovir_200_mg_-_caja_100_un/07421.html",
+      "puntaje": 90.0,
+      "pasada": 2
     },
     {
       "producto_id": 24,
@@ -24,7 +49,20 @@
       "fuente_pid": "30916",
       "fuente_titulo": "Aciclovir 800 Mg Tabletas  - Caja 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antivirales/aciclovir_800_mg_tabletas__-_caja_10_un/30916.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 25,
+      "nombre": "ACICLOVIR",
+      "concentracion": "200 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/07421.webp",
+      "fuente_pid": "07421",
+      "fuente_titulo": "Aciclovir 200 Mg - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antivirales/aciclovir_200_mg_-_caja_100_un/07421.html",
+      "puntaje": 90.0,
+      "pasada": 2
     },
     {
       "producto_id": 26,
@@ -35,7 +73,8 @@
       "fuente_pid": "10977",
       "fuente_titulo": "Aciclovir 5% Crema Tópica - Tubo 5 G",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antifungicos/aciclovir_5%25_crema_topica_-_tubo_5_g/10977.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 27,
@@ -46,7 +85,8 @@
       "fuente_pid": "14828",
       "fuente_titulo": "Acido Folico 0.5Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/nutricion/vitaminas_y_minerales/vitamina_b/acido_folico_0.5mg_tableta_-_caja_100_un/14828.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 28,
@@ -57,7 +97,20 @@
       "fuente_pid": "14828",
       "fuente_titulo": "Acido Folico 0.5Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/nutricion/vitaminas_y_minerales/vitamina_b/acido_folico_0.5mg_tableta_-_caja_100_un/14828.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 33,
+      "nombre": "AERO OM SABOR A FRESAS",
+      "concentracion": "100 mg/mL",
+      "presentacion": "Caja Frasco gotero x 15mL",
+      "imagen": "storage/productos/04458.webp",
+      "fuente_pid": "04458",
+      "fuente_titulo": "Gotas Aero OM 100 mg/mL Sabor Fresa - Caja 15 ML",
+      "fuente_url": "https://www.boticasperu.pe/mama_y_bebe/gases_ninos/gotas_aero_om_100_mg%2Fml_sabor_fresa_-_caja_15_ml/04458.html",
+      "puntaje": 101.0,
+      "pasada": 2
     },
     {
       "producto_id": 36,
@@ -68,7 +121,8 @@
       "fuente_pid": "14762",
       "fuente_titulo": "Albendazol 100Mg/5Ml Suspensión Oral - Frasco 20 ML",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiparasitarios/albendazol_100mg%2F5ml_suspension_oral_-_frasco_20_ml/14762.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 37,
@@ -79,7 +133,8 @@
       "fuente_pid": "14762",
       "fuente_titulo": "Albendazol 100Mg/5Ml Suspensión Oral - Frasco 20 ML",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiparasitarios/albendazol_100mg%2F5ml_suspension_oral_-_frasco_20_ml/14762.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 39,
@@ -90,7 +145,44 @@
       "fuente_pid": "14762",
       "fuente_titulo": "Albendazol 100Mg/5Ml Suspensión Oral - Frasco 20 ML",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiparasitarios/albendazol_100mg%2F5ml_suspension_oral_-_frasco_20_ml/14762.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 58,
+      "nombre": "AMBROXOL",
+      "concentracion": "15 mg/5 mL",
+      "presentacion": "Frasco x 120 mL",
+      "imagen": "storage/productos/14763.webp",
+      "fuente_pid": "14763",
+      "fuente_titulo": "Ambroxol 15mg/5ml Jarabe - Frasco 120 ML",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/expectorante/ambroxol_15mg%2F5ml_jarabe_-_frasco_120_ml/14763.html",
+      "puntaje": 100.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 63,
+      "nombre": "AMIKACINA",
+      "concentracion": "500 mg/2 mL",
+      "presentacion": "Ampolla x 2mL",
+      "imagen": "storage/productos/41915.webp",
+      "fuente_pid": "41915",
+      "fuente_titulo": "Amikacina 500Mg/2Ml Ampolla - Caja 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/amikacina_500mg%2F2ml_ampolla_-_caja_10_un/41915.html",
+      "puntaje": 98.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 64,
+      "nombre": "AMIKACINA",
+      "concentracion": "500 mg/2 mL",
+      "presentacion": "Ampolla 2 mL",
+      "imagen": "storage/productos/41915.webp",
+      "fuente_pid": "41915",
+      "fuente_titulo": "Amikacina 500Mg/2Ml Ampolla - Caja 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/amikacina_500mg%2F2ml_ampolla_-_caja_10_un/41915.html",
+      "puntaje": 98.0,
+      "pasada": 2
     },
     {
       "producto_id": 69,
@@ -101,7 +193,8 @@
       "fuente_pid": "38530",
       "fuente_titulo": "Amoxicilina 500 Mg Cápsulas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/amoxicilina_500_mg_capsulas_-_caja_100_un/38530.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 74,
@@ -112,7 +205,8 @@
       "fuente_pid": "38530",
       "fuente_titulo": "Amoxicilina 500 Mg Cápsulas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/amoxicilina_500_mg_capsulas_-_caja_100_un/38530.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 76,
@@ -123,7 +217,8 @@
       "fuente_pid": "38530",
       "fuente_titulo": "Amoxicilina 500 Mg Cápsulas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/amoxicilina_500_mg_capsulas_-_caja_100_un/38530.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 77,
@@ -134,7 +229,8 @@
       "fuente_pid": "38530",
       "fuente_titulo": "Amoxicilina 500 Mg Cápsulas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/amoxicilina_500_mg_capsulas_-_caja_100_un/38530.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 79,
@@ -145,7 +241,8 @@
       "fuente_pid": "20811",
       "fuente_titulo": "Amoxicilina 500 Mg + Ácido Clavulánico 125 mg Tableta - Caja 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/amoxicilina_500_mg_%2B_acido_clavulanico_125_mg_tableta_-_caja_10_un/20811.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 89,
@@ -156,7 +253,8 @@
       "fuente_pid": "14200",
       "fuente_titulo": "AmoxiCLin CL 250mg-62,5mg/5 mL Polvo para Suspensión Oral - Frasco 60 ML",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/amoxiclin_cl_250mg-62%2C5mg%2F5_ml_polvo_para_suspension_oral_-_frasco_60_ml/14200.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 107,
@@ -167,7 +265,8 @@
       "fuente_pid": "11838",
       "fuente_titulo": "Ampicilina 500 Mg Cápsulas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/infectologia/ampicilina_500_mg_capsulas_-_caja_100_un/11838.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 109,
@@ -178,7 +277,8 @@
       "fuente_pid": "11838",
       "fuente_titulo": "Ampicilina 500 Mg Cápsulas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/infectologia/ampicilina_500_mg_capsulas_-_caja_100_un/11838.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 110,
@@ -189,7 +289,8 @@
       "fuente_pid": "11838",
       "fuente_titulo": "Ampicilina 500 Mg Cápsulas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/infectologia/ampicilina_500_mg_capsulas_-_caja_100_un/11838.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 111,
@@ -200,7 +301,8 @@
       "fuente_pid": "11838",
       "fuente_titulo": "Ampicilina 500 Mg Cápsulas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/infectologia/ampicilina_500_mg_capsulas_-_caja_100_un/11838.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 113,
@@ -211,7 +313,8 @@
       "fuente_pid": "11838",
       "fuente_titulo": "Ampicilina 500 Mg Cápsulas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/infectologia/ampicilina_500_mg_capsulas_-_caja_100_un/11838.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 132,
@@ -222,7 +325,8 @@
       "fuente_pid": "43745",
       "fuente_titulo": "Apronax 275 Mg Tabletas - Caja 8 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/medicamentos/apronax_275_mg_tabletas_-_caja_8_un/43745.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 134,
@@ -233,7 +337,20 @@
       "fuente_pid": "12313-BLISTER",
       "fuente_titulo": "Apronax 550mg Tableta recubierta - Blíster 4 un",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/apronax_550mg_tableta_recubierta_-_blister_4_un/12313-BLISTER.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 141,
+      "nombre": "ATORVASTATINA",
+      "concentracion": "20 mg",
+      "presentacion": "Caja envase",
+      "imagen": "storage/productos/12545.webp",
+      "fuente_pid": "12545",
+      "fuente_titulo": "Atorvastatina 20 Mg  - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/cardiovascular/atorvastatina_20_mg__-_caja_100_un/12545.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 142,
@@ -244,7 +361,20 @@
       "fuente_pid": "17249-BLISTER",
       "fuente_titulo": "Atorvastatina 10 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/cardiovascular/atorvastatina_10_mg_tableta_-_blister_10_un/17249-BLISTER.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 143,
+      "nombre": "ATORVASTATINA",
+      "concentracion": "20 mg",
+      "presentacion": "Caja envase",
+      "imagen": "storage/productos/12545.webp",
+      "fuente_pid": "12545",
+      "fuente_titulo": "Atorvastatina 20 Mg  - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/cardiovascular/atorvastatina_20_mg__-_caja_100_un/12545.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 147,
@@ -255,7 +385,8 @@
       "fuente_pid": "12898",
       "fuente_titulo": "Azitromicina 200mg/5ml Polvo para Suspensión Oral - Frasco 15 ML",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antibioticos/azitromicina_200mg%2F5ml_polvo_para_suspension_oral_-_frasco_15_ml/12898.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 148,
@@ -266,7 +397,8 @@
       "fuente_pid": "36084-CAJA",
       "fuente_titulo": "Azitromicina 500 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/azitromicina_500_mg_tableta_-_caja_100_un/36084-CAJA.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 149,
@@ -277,7 +409,8 @@
       "fuente_pid": "36084-CAJA",
       "fuente_titulo": "Azitromicina 500 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/azitromicina_500_mg_tableta_-_caja_100_un/36084-CAJA.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 150,
@@ -288,7 +421,68 @@
       "fuente_pid": "12898",
       "fuente_titulo": "Azitromicina 200mg/5ml Polvo para Suspensión Oral - Frasco 15 ML",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antibioticos/azitromicina_200mg%2F5ml_polvo_para_suspension_oral_-_frasco_15_ml/12898.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 187,
+      "nombre": "BETAMETASONA",
+      "concentracion": "0.05 %",
+      "presentacion": "Tubo X 20  mL",
+      "imagen": "storage/productos/44123.webp",
+      "fuente_pid": "44123",
+      "fuente_titulo": "Betametasona 0.05% - Tubo 20 G",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/corticoides/betametasona_0.05%25_-_tubo_20_g/44123.html",
+      "puntaje": 94.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 206,
+      "nombre": "BISOLVON ADULTOS",
+      "concentracion": "8 mg/5 mL",
+      "presentacion": "Caja Frasco x 120 mL + Cuchara dosificadora",
+      "imagen": "storage/productos/00796.webp",
+      "fuente_pid": "00796",
+      "fuente_titulo": "Bisolvon Adultos 8Mg/5Ml Jarabe - Frasco 120 ML",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/resfrio/tos_y_dolor_de_garganta/bisolvon_adultos_8mg%2F5ml_jarabe_-_frasco_120_ml/00796.html",
+      "puntaje": 100.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 240,
+      "nombre": "BUSCAPINA",
+      "concentracion": "20 mg/mL",
+      "presentacion": "Ampolla X 1 mL",
+      "imagen": "storage/productos/03210.webp",
+      "fuente_pid": "03210",
+      "fuente_titulo": "Buscapina 20Mg/1Ml Solución Inyectable - Ampolla 1 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/buscapina_20mg%2F1ml_solucion_inyectable_-_ampolla_1_un/03210.html",
+      "puntaje": 98.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 242,
+      "nombre": "BUSCAPINA",
+      "concentracion": "20 mg/mL",
+      "presentacion": "Caja Ampolla x 1 mL",
+      "imagen": "storage/productos/03210.webp",
+      "fuente_pid": "03210",
+      "fuente_titulo": "Buscapina 20Mg/1Ml Solución Inyectable - Ampolla 1 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/buscapina_20mg%2F1ml_solucion_inyectable_-_ampolla_1_un/03210.html",
+      "puntaje": 98.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 243,
+      "nombre": "BUSCAPINA COMPOSITUM N",
+      "concentracion": "Caja Envase Blíster Comprimidos",
+      "presentacion": "Caja Envase Blíster Comprimidos",
+      "imagen": "storage/productos/00803-blister.webp",
+      "fuente_pid": "00803-BLISTER",
+      "fuente_titulo": "Buscapina Compositum-N Comprimidos Recubiertos - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/buscapina_compositum-n_comprimidos_recubiertos_-_blister_10_un/00803-BLISTER.html",
+      "puntaje": 81.0,
+      "pasada": 2
     },
     {
       "producto_id": 247,
@@ -299,7 +493,8 @@
       "fuente_pid": "15563",
       "fuente_titulo": "Captopril 25Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/hipertension/captopril_25mg_tableta_-_caja_100_un/15563.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 249,
@@ -310,7 +505,8 @@
       "fuente_pid": "15563",
       "fuente_titulo": "Captopril 25Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/hipertension/captopril_25mg_tableta_-_caja_100_un/15563.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 250,
@@ -321,7 +517,8 @@
       "fuente_pid": "47517",
       "fuente_titulo": "Carbamazepina 200mg Comprimidos - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/anticonvulsivantes/carbamazepina_200mg_comprimidos_-_caja_100_un/47517.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 251,
@@ -332,7 +529,8 @@
       "fuente_pid": "47517",
       "fuente_titulo": "Carbamazepina 200mg Comprimidos - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/anticonvulsivantes/carbamazepina_200mg_comprimidos_-_caja_100_un/47517.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 252,
@@ -343,7 +541,8 @@
       "fuente_pid": "47517",
       "fuente_titulo": "Carbamazepina 200mg Comprimidos - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/anticonvulsivantes/carbamazepina_200mg_comprimidos_-_caja_100_un/47517.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 253,
@@ -354,7 +553,68 @@
       "fuente_pid": "47517",
       "fuente_titulo": "Carbamazepina 200mg Comprimidos - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/anticonvulsivantes/carbamazepina_200mg_comprimidos_-_caja_100_un/47517.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 259,
+      "nombre": "CEFACROL IM 1000",
+      "concentracion": "1000 mg",
+      "presentacion": "Vial",
+      "imagen": "storage/productos/13020.webp",
+      "fuente_pid": "13020",
+      "fuente_titulo": "Cefacrol IM 1000 Mg - Caja 1 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/cefacrol_im_1000_mg_-_caja_1_un/13020.html",
+      "puntaje": 93.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 275,
+      "nombre": "CELECOXIB",
+      "concentracion": "200 mg",
+      "presentacion": "Caja Envase Blister Cápsula",
+      "imagen": "storage/productos/16690-blister.webp",
+      "fuente_pid": "16690-BLISTER",
+      "fuente_titulo": "Celecoxib 200 mg  - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/osteoarticulares/celecoxib_200_mg__-_blister_10_un/16690-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 276,
+      "nombre": "CELECOXIB",
+      "concentracion": "200 mg",
+      "presentacion": "Caja Envase Blister Cápsulas",
+      "imagen": "storage/productos/16690-blister.webp",
+      "fuente_pid": "16690-BLISTER",
+      "fuente_titulo": "Celecoxib 200 mg  - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/osteoarticulares/celecoxib_200_mg__-_blister_10_un/16690-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 277,
+      "nombre": "CELECOXIB",
+      "concentracion": "200 mg",
+      "presentacion": "Caja Envase Blister Cápsulas",
+      "imagen": "storage/productos/16690-blister.webp",
+      "fuente_pid": "16690-BLISTER",
+      "fuente_titulo": "Celecoxib 200 mg  - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/osteoarticulares/celecoxib_200_mg__-_blister_10_un/16690-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 278,
+      "nombre": "CELECOXIB",
+      "concentracion": "200 mg",
+      "presentacion": "Caja Envase Blister Cápsulas",
+      "imagen": "storage/productos/16690-blister.webp",
+      "fuente_pid": "16690-BLISTER",
+      "fuente_titulo": "Celecoxib 200 mg  - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/osteoarticulares/celecoxib_200_mg__-_blister_10_un/16690-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 279,
@@ -365,7 +625,20 @@
       "fuente_pid": "17387",
       "fuente_titulo": "Cetirizina 10 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/cetirizina_10_mg_tableta_-_caja_100_un/17387.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 280,
+      "nombre": "CETIRIZINA",
+      "concentracion": "5 mg/5 mL",
+      "presentacion": "Caja Frasco X 60 mL",
+      "imagen": "storage/productos/14565.webp",
+      "fuente_pid": "14565",
+      "fuente_titulo": "Cetirizina 5Mg/5Ml Jarabe - Frasco 60 ML",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/alergias/cetirizina_5mg%2F5ml_jarabe_-_frasco_60_ml/14565.html",
+      "puntaje": 100.0,
+      "pasada": 2
     },
     {
       "producto_id": 281,
@@ -376,7 +649,20 @@
       "fuente_pid": "17387",
       "fuente_titulo": "Cetirizina 10 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/cetirizina_10_mg_tableta_-_caja_100_un/17387.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 282,
+      "nombre": "CETIRIZINA",
+      "concentracion": "5 mg/5 mL",
+      "presentacion": "Caja Frasco X 60 mL",
+      "imagen": "storage/productos/14565.webp",
+      "fuente_pid": "14565",
+      "fuente_titulo": "Cetirizina 5Mg/5Ml Jarabe - Frasco 60 ML",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/alergias/cetirizina_5mg%2F5ml_jarabe_-_frasco_60_ml/14565.html",
+      "puntaje": 100.0,
+      "pasada": 2
     },
     {
       "producto_id": 283,
@@ -387,7 +673,20 @@
       "fuente_pid": "17387",
       "fuente_titulo": "Cetirizina 10 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/cetirizina_10_mg_tableta_-_caja_100_un/17387.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 284,
+      "nombre": "CETIRIZINA",
+      "concentracion": "5 mg/5 mL",
+      "presentacion": "Frasco X 60 mL",
+      "imagen": "storage/productos/14565.webp",
+      "fuente_pid": "14565",
+      "fuente_titulo": "Cetirizina 5Mg/5Ml Jarabe - Frasco 60 ML",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/alergias/cetirizina_5mg%2F5ml_jarabe_-_frasco_60_ml/14565.html",
+      "puntaje": 100.0,
+      "pasada": 2
     },
     {
       "producto_id": 285,
@@ -398,7 +697,8 @@
       "fuente_pid": "17387",
       "fuente_titulo": "Cetirizina 10 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/cetirizina_10_mg_tableta_-_caja_100_un/17387.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 288,
@@ -409,7 +709,8 @@
       "fuente_pid": "12560",
       "fuente_titulo": "Ciprofloxacino 500 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/ciprofloxacino_500_mg_tableta_-_blister_10_un/12560.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 289,
@@ -420,7 +721,8 @@
       "fuente_pid": "12560",
       "fuente_titulo": "Ciprofloxacino 500 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/ciprofloxacino_500_mg_tableta_-_blister_10_un/12560.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 290,
@@ -431,7 +733,8 @@
       "fuente_pid": "12560",
       "fuente_titulo": "Ciprofloxacino 500 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/ciprofloxacino_500_mg_tableta_-_blister_10_un/12560.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 299,
@@ -442,7 +745,80 @@
       "fuente_pid": "45574-BLISTER",
       "fuente_titulo": "Clinda C 300mg Cápsulas - Blíster 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/clinda_c_300mg_capsulas_-_blister_10_un/45574-BLISTER.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 300,
+      "nombre": "CLINDAMICINA",
+      "concentracion": "600 mg/4 mL",
+      "presentacion": "Caja Ampolla x 4 mL",
+      "imagen": "storage/productos/41916-ampolla.webp",
+      "fuente_pid": "41916-AMPOLLA",
+      "fuente_titulo": "Clindamicina 600 Mg / 4 ML - Caja 1 Ampolla",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/clindamicina_600_mg_%2F_4_ml_-_caja_1_ampolla/41916-AMPOLLA.html",
+      "puntaje": 98.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 301,
+      "nombre": "CLINDAMICINA",
+      "concentracion": "300 mg",
+      "presentacion": "Caja Envase Blister Cápsulas",
+      "imagen": "storage/productos/25819.webp",
+      "fuente_pid": "25819",
+      "fuente_titulo": "Clindamicina 300 Mg - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/clindamicina_300_mg_-_blister_10_un/25819.html",
+      "puntaje": 91.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 302,
+      "nombre": "CLINDAMICINA",
+      "concentracion": "600 mg/4 mL",
+      "presentacion": "Caja Ampolla X 4 mL",
+      "imagen": "storage/productos/41916-ampolla.webp",
+      "fuente_pid": "41916-AMPOLLA",
+      "fuente_titulo": "Clindamicina 600 Mg / 4 ML - Caja 1 Ampolla",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/clindamicina_600_mg_%2F_4_ml_-_caja_1_ampolla/41916-AMPOLLA.html",
+      "puntaje": 98.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 303,
+      "nombre": "CLINDAMICINA",
+      "concentracion": "300 mg",
+      "presentacion": "Caja Envase Blister Cápsulas",
+      "imagen": "storage/productos/25819.webp",
+      "fuente_pid": "25819",
+      "fuente_titulo": "Clindamicina 300 Mg - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/clindamicina_300_mg_-_blister_10_un/25819.html",
+      "puntaje": 91.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 304,
+      "nombre": "CLINDAMICINA",
+      "concentracion": "300 mg",
+      "presentacion": "Caja Envase Blister Cápsulas",
+      "imagen": "storage/productos/25819.webp",
+      "fuente_pid": "25819",
+      "fuente_titulo": "Clindamicina 300 Mg - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/clindamicina_300_mg_-_blister_10_un/25819.html",
+      "puntaje": 91.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 305,
+      "nombre": "CLINDAMICINA",
+      "concentracion": "600 mg/4 mL",
+      "presentacion": "Ampolla x 4 mL",
+      "imagen": "storage/productos/41916-ampolla.webp",
+      "fuente_pid": "41916-AMPOLLA",
+      "fuente_titulo": "Clindamicina 600 Mg / 4 ML - Caja 1 Ampolla",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/clindamicina_600_mg_%2F_4_ml_-_caja_1_ampolla/41916-AMPOLLA.html",
+      "puntaje": 98.0,
+      "pasada": 2
     },
     {
       "producto_id": 307,
@@ -453,7 +829,8 @@
       "fuente_pid": "10673",
       "fuente_titulo": "Clobetasol 0.05% Crema - Tubo 25 G",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/clobetasol_0.05%25_crema_-_tubo_25_g/10673.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 308,
@@ -464,7 +841,8 @@
       "fuente_pid": "24462",
       "fuente_titulo": "Clobetasol 0.05% Ungüento - Tubo 25 G",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/clobetasol_0.05%25_ung%C3%BCento_-_tubo_25_g/24462.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 315,
@@ -475,7 +853,8 @@
       "fuente_pid": "09798",
       "fuente_titulo": "Cloranfenicol 500 Mg Cápsula - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antibioticos/cloranfenicol_500_mg_capsula_-_caja_100_un/09798.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 318,
@@ -486,7 +865,8 @@
       "fuente_pid": "09798",
       "fuente_titulo": "Cloranfenicol 500 Mg Cápsula - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antibioticos/cloranfenicol_500_mg_capsula_-_caja_100_un/09798.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 319,
@@ -497,7 +877,56 @@
       "fuente_pid": "09798",
       "fuente_titulo": "Cloranfenicol 500 Mg Cápsula - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antibioticos/cloranfenicol_500_mg_capsula_-_caja_100_un/09798.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 320,
+      "nombre": "CLORFENAMINA MALEATO",
+      "concentracion": "4 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/13988.webp",
+      "fuente_pid": "13988",
+      "fuente_titulo": "Clorfenamina 4 Mg Tableta - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/alergias/clorfenamina_4_mg_tableta_-_caja_100_un/13988.html",
+      "puntaje": 92.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 321,
+      "nombre": "CLORFENAMINA MALEATO",
+      "concentracion": "2 mg/5 mL",
+      "presentacion": "Caja Frasco X 60 mL",
+      "imagen": "storage/productos/12575.webp",
+      "fuente_pid": "12575",
+      "fuente_titulo": "Clorfenamina Maleato 2mg/5 mL Solución oral - Frasco 60 ML",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antihistaminicos/clorfenamina_maleato_2mg%2F5_ml_solucion_oral_-_frasco_60_ml/12575.html",
+      "puntaje": 100.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 322,
+      "nombre": "CLORFENAMINA MALEATO",
+      "concentracion": "4 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/13988.webp",
+      "fuente_pid": "13988",
+      "fuente_titulo": "Clorfenamina 4 Mg Tableta - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/alergias/clorfenamina_4_mg_tableta_-_caja_100_un/13988.html",
+      "puntaje": 92.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 323,
+      "nombre": "CLORFENAMINA MALEATO",
+      "concentracion": "4 mg",
+      "presentacion": "NULL",
+      "imagen": "storage/productos/13988.webp",
+      "fuente_pid": "13988",
+      "fuente_titulo": "Clorfenamina 4 Mg Tableta - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/alergias/clorfenamina_4_mg_tableta_-_caja_100_un/13988.html",
+      "puntaje": 92.0,
+      "pasada": 2
     },
     {
       "producto_id": 336,
@@ -508,7 +937,8 @@
       "fuente_pid": "36637",
       "fuente_titulo": "Clotrimazol 500 Mg Óvulo - Caja 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/tratamiento_zona_intima/ovulos/clotrimazol_500_mg_ovulo_-_caja_10_un/36637.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 337,
@@ -519,7 +949,8 @@
       "fuente_pid": "10100",
       "fuente_titulo": "Clotrimazol 1% crema tópica - Tubo 40 G",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/tratamiento_zona_intima/cremas/clotrimazol_1%25_crema_topica_-_tubo_40_g/10100.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 338,
@@ -530,7 +961,8 @@
       "fuente_pid": "36637",
       "fuente_titulo": "Clotrimazol 500 Mg Óvulo - Caja 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/tratamiento_zona_intima/ovulos/clotrimazol_500_mg_ovulo_-_caja_10_un/36637.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 342,
@@ -541,7 +973,8 @@
       "fuente_pid": "10133",
       "fuente_titulo": "Cortiflex 0,025 % Crema - Tubo 60 G",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/analgesicos_y_antiflamatorios/cortiflex_0%2C025_%25_crema_-_tubo_60_g/10133.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 343,
@@ -552,7 +985,44 @@
       "fuente_pid": "26501",
       "fuente_titulo": "Cortiflex 0.025% Loción - Frasco 60 Ml",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antifungicos/cortiflex_0.025%25_locion_-_frasco_60_ml/26501.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 344,
+      "nombre": "CORTIFLEX",
+      "concentracion": "50 mg/5 mL",
+      "presentacion": "Caja Vial X 5 mL",
+      "imagen": "storage/productos/23055.webp",
+      "fuente_pid": "23055",
+      "fuente_titulo": "Cortiflex 50 Mg/5 Ml Ampolla - Caja 1 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/cortiflex_50_mg%2F5_ml_ampolla_-_caja_1_un/23055.html",
+      "puntaje": 95.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 345,
+      "nombre": "DAFLON",
+      "concentracion": "500 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/38370-blister.webp",
+      "fuente_pid": "38370-BLISTER",
+      "fuente_titulo": "Daflon 500 Mg Comprimido Recubierto - Blister 15 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/varices/daflon_500_mg_comprimido_recubierto_-_blister_15_un/38370-BLISTER.html",
+      "puntaje": 96.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 355,
+      "nombre": "DEXAMETASONA",
+      "concentracion": "4 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/20734-blister.webp",
+      "fuente_pid": "20734-BLISTER",
+      "fuente_titulo": "Dexametasona 4Mg - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/dexametasona_4mg_-_blister_10_un/20734-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 357,
@@ -563,7 +1033,8 @@
       "fuente_pid": "21840",
       "fuente_titulo": "Dexametasona 0.5mg Tabletas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/corticoides/dexametasona_0.5mg_tabletas_-_caja_100_un/21840.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 360,
@@ -574,7 +1045,8 @@
       "fuente_pid": "21840",
       "fuente_titulo": "Dexametasona 0.5mg Tabletas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/corticoides/dexametasona_0.5mg_tabletas_-_caja_100_un/21840.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 361,
@@ -585,7 +1057,20 @@
       "fuente_pid": "21840",
       "fuente_titulo": "Dexametasona 0.5mg Tabletas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/corticoides/dexametasona_0.5mg_tabletas_-_caja_100_un/21840.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 377,
+      "nombre": "DIBROLAX",
+      "concentracion": "5 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/04074-blister.webp",
+      "fuente_pid": "04074-BLISTER",
+      "fuente_titulo": "Dibrolax 5 Mg  - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/malestar_estomacal/dibrolax_5_mg__-_blister_10_un/04074-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 383,
@@ -596,7 +1081,8 @@
       "fuente_pid": "37596",
       "fuente_titulo": "Diclofenaco 1% Gel - Tubo 20 G",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/diclofenaco_1%25_gel_-_tubo_20_g/37596.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 384,
@@ -607,7 +1093,8 @@
       "fuente_pid": "12755",
       "fuente_titulo": "Diclofenaco 1% Gel Tópico - Tubo 50 G",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/dolor_muscular/pomada_o_gel/diclofenaco_1%25_gel_topico_-_tubo_50_g/12755.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 392,
@@ -618,7 +1105,8 @@
       "fuente_pid": "10569",
       "fuente_titulo": "Dicloxacilina 250mg/5ml Suspensión - Frasco 60 ML",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antibioticos/dicloxacilina_250mg%2F5ml_suspension_-_frasco_60_ml/10569.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 397,
@@ -629,7 +1117,8 @@
       "fuente_pid": "08725-BLISTER",
       "fuente_titulo": "Dimenhidrinato 50 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antivertiginosos/dimenhidrinato_50_mg_tableta_-_blister_10_un/08725-BLISTER.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 398,
@@ -640,7 +1129,8 @@
       "fuente_pid": "08725-BLISTER",
       "fuente_titulo": "Dimenhidrinato 50 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antivertiginosos/dimenhidrinato_50_mg_tableta_-_blister_10_un/08725-BLISTER.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 399,
@@ -651,7 +1141,8 @@
       "fuente_pid": "08725-BLISTER",
       "fuente_titulo": "Dimenhidrinato 50 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antivertiginosos/dimenhidrinato_50_mg_tableta_-_blister_10_un/08725-BLISTER.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 401,
@@ -662,7 +1153,8 @@
       "fuente_pid": "08725-BLISTER",
       "fuente_titulo": "Dimenhidrinato 50 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antivertiginosos/dimenhidrinato_50_mg_tableta_-_blister_10_un/08725-BLISTER.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 402,
@@ -673,7 +1165,8 @@
       "fuente_pid": "08725-BLISTER",
       "fuente_titulo": "Dimenhidrinato 50 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antivertiginosos/dimenhidrinato_50_mg_tableta_-_blister_10_un/08725-BLISTER.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 403,
@@ -684,7 +1177,8 @@
       "fuente_pid": "33152",
       "fuente_titulo": "Dobesilato Cálcico 500mg Cápsulas - Blíster 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/dobesilato_calcico_500mg_capsulas_-_blister_10_un/33152.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 417,
@@ -695,7 +1189,20 @@
       "fuente_pid": "32115",
       "fuente_titulo": "Dolo Tensodox 5Mg/15Mg Tableta - Caja 10 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/medicamentos/dolo_tensodox_5mg%2F15mg_tableta_-_caja_10_un/32115.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 430,
+      "nombre": "DOLONET FORTE",
+      "concentracion": "400 mg",
+      "presentacion": "Caja Envase Blister Cápsulas",
+      "imagen": "storage/productos/12500-blister.webp",
+      "fuente_pid": "12500-BLISTER",
+      "fuente_titulo": "Dolonet Forte 400 Mg - Blíster 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/analgesicos_y_antiflamatorios/dolonet_forte_400_mg_-_blister_10_un/12500-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 442,
@@ -706,7 +1213,20 @@
       "fuente_pid": "14295-CAJA",
       "fuente_titulo": "Doxiciclina 100 Mg Cápsula - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/analgesicos_y_antiflamatorios/doxiciclina_100_mg_capsula_-_caja_100_un/14295-CAJA.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 443,
+      "nombre": "DOXICICLINA HICLATO",
+      "concentracion": "100 mg",
+      "presentacion": "Caja Envase Blister Cápsulas",
+      "imagen": "storage/productos/14295-blister.webp",
+      "fuente_pid": "14295-BLISTER",
+      "fuente_titulo": "Doxiciclina 100 Mg Cápsula - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/analgesicos_y_antiflamatorios/doxiciclina_100_mg_capsula_-_blister_10_un/14295-BLISTER.html",
+      "puntaje": 93.0,
+      "pasada": 2
     },
     {
       "producto_id": 447,
@@ -717,7 +1237,8 @@
       "fuente_pid": "03153",
       "fuente_titulo": "Enalapril 10 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/hipertension/enalapril_10_mg_tableta_-_caja_100_un/03153.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 448,
@@ -728,7 +1249,8 @@
       "fuente_pid": "15019",
       "fuente_titulo": "Enalapril 20 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/hipertension/enalapril_20_mg_tableta_-_caja_100_un/15019.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 449,
@@ -739,7 +1261,8 @@
       "fuente_pid": "03153",
       "fuente_titulo": "Enalapril 10 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/hipertension/enalapril_10_mg_tableta_-_caja_100_un/03153.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 450,
@@ -750,7 +1273,8 @@
       "fuente_pid": "15019",
       "fuente_titulo": "Enalapril 20 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/hipertension/enalapril_20_mg_tableta_-_caja_100_un/15019.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 451,
@@ -761,7 +1285,20 @@
       "fuente_pid": "15019",
       "fuente_titulo": "Enalapril 20 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/hipertension/enalapril_20_mg_tableta_-_caja_100_un/15019.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 453,
+      "nombre": "ENTEROGERMINA",
+      "concentracion": "2000 millones 2 millardos/5",
+      "presentacion": "Caja Ampolla x 5 mL",
+      "imagen": "storage/productos/15349-frasco.webp",
+      "fuente_pid": "15349-FRASCO",
+      "fuente_titulo": "Enterogermina Ampolla Bebible - Frasco 1 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/malestar_estomacal/diarreas/enterogermina_ampolla_bebible_-_frasco_1_un/15349-FRASCO.html",
+      "puntaje": 83.0,
+      "pasada": 2
     },
     {
       "producto_id": 463,
@@ -772,7 +1309,8 @@
       "fuente_pid": "20778-CAJA",
       "fuente_titulo": "Esomeprazol 40 Mg Tableta - Caja 30 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/gastrointestinal/esomeprazol_40_mg_tableta_-_caja_30_un/20778-CAJA.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 464,
@@ -783,7 +1321,8 @@
       "fuente_pid": "20777-CAJA",
       "fuente_titulo": "Esomeprazol 20 Mg Tableta - Caja 30 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/gastrointestinal/esomeprazol_20_mg_tableta_-_caja_30_un/20777-CAJA.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 465,
@@ -794,7 +1333,8 @@
       "fuente_pid": "20778-CAJA",
       "fuente_titulo": "Esomeprazol 40 Mg Tableta - Caja 30 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/gastrointestinal/esomeprazol_40_mg_tableta_-_caja_30_un/20778-CAJA.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 466,
@@ -805,7 +1345,8 @@
       "fuente_pid": "20777-CAJA",
       "fuente_titulo": "Esomeprazol 20 Mg Tableta - Caja 30 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/gastrointestinal/esomeprazol_20_mg_tableta_-_caja_30_un/20777-CAJA.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 467,
@@ -816,7 +1357,8 @@
       "fuente_pid": "20778-CAJA",
       "fuente_titulo": "Esomeprazol 40 Mg Tableta - Caja 30 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/gastrointestinal/esomeprazol_40_mg_tableta_-_caja_30_un/20778-CAJA.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 470,
@@ -827,7 +1369,8 @@
       "fuente_pid": "45621",
       "fuente_titulo": "Fenazopiridina 100 Mg Tableta Recubierta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/urologicos/fenazopiridina_100_mg_tableta_recubierta_-_caja_100_un/45621.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 471,
@@ -838,7 +1381,8 @@
       "fuente_pid": "45621",
       "fuente_titulo": "Fenazopiridina 100 Mg Tableta Recubierta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/urologicos/fenazopiridina_100_mg_tableta_recubierta_-_caja_100_un/45621.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 472,
@@ -849,7 +1393,8 @@
       "fuente_pid": "45621",
       "fuente_titulo": "Fenazopiridina 100 Mg Tableta Recubierta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/urologicos/fenazopiridina_100_mg_tableta_recubierta_-_caja_100_un/45621.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 481,
@@ -860,7 +1405,8 @@
       "fuente_pid": "37534",
       "fuente_titulo": "Fluconazol 150 Mg Cápsulas - Caja 2 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antifungicos/fluconazol_150_mg_capsulas_-_caja_2_un/37534.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 483,
@@ -871,7 +1417,8 @@
       "fuente_pid": "37534",
       "fuente_titulo": "Fluconazol 150 Mg Cápsulas - Caja 2 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antifungicos/fluconazol_150_mg_capsulas_-_caja_2_un/37534.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 485,
@@ -882,7 +1429,8 @@
       "fuente_pid": "37534",
       "fuente_titulo": "Fluconazol 150 Mg Cápsulas - Caja 2 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antifungicos/fluconazol_150_mg_capsulas_-_caja_2_un/37534.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 488,
@@ -893,7 +1441,8 @@
       "fuente_pid": "37534",
       "fuente_titulo": "Fluconazol 150 Mg Cápsulas - Caja 2 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antifungicos/fluconazol_150_mg_capsulas_-_caja_2_un/37534.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 508,
@@ -904,7 +1453,8 @@
       "fuente_pid": "12595-BLISTER",
       "fuente_titulo": "Gaseovet 80Mg Tableta - Blister 10UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/malestar_estomacal/gases/gaseovet_80mg_tableta_-_blister_10un/12595-BLISTER.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 524,
@@ -915,7 +1465,8 @@
       "fuente_pid": "25747",
       "fuente_titulo": "Gemfibrozilo 600 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/colesterol/gemfibrozilo_600_mg_tableta_-_blister_10_un/25747.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 525,
@@ -926,7 +1477,8 @@
       "fuente_pid": "25747",
       "fuente_titulo": "Gemfibrozilo 600 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/colesterol/gemfibrozilo_600_mg_tableta_-_blister_10_un/25747.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 526,
@@ -937,7 +1489,8 @@
       "fuente_pid": "25747",
       "fuente_titulo": "Gemfibrozilo 600 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/colesterol/gemfibrozilo_600_mg_tableta_-_blister_10_un/25747.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 527,
@@ -948,7 +1501,32 @@
       "fuente_pid": "25747",
       "fuente_titulo": "Gemfibrozilo 600 Mg Tableta - Blister 10 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/colesterol/gemfibrozilo_600_mg_tableta_-_blister_10_un/25747.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 550,
+      "nombre": "GYNOCANESTEN®",
+      "concentracion": "1%",
+      "presentacion": "Caja Tubo x 50 g + Accesorio",
+      "imagen": "storage/productos/13672.webp",
+      "fuente_pid": "13672",
+      "fuente_titulo": "Gynocanesten 1% Crema Antimicótica Vaginal - Tubo 50 G",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/tratamiento_zona_intima/cremas/gynocanesten_1%25_crema_antimicotica_vaginal_-_tubo_50_g/13672.html",
+      "puntaje": 104.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 559,
+      "nombre": "HISALER",
+      "concentracion": "10 mg",
+      "presentacion": "Caja Envase Blíster Comprimidos",
+      "imagen": "storage/productos/01734.webp",
+      "fuente_pid": "01734",
+      "fuente_titulo": "Hisaler 10 Mg  - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/alergias/hisaler_10_mg__-_blister_10_un/01734.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 565,
@@ -959,7 +1537,8 @@
       "fuente_pid": "20235",
       "fuente_titulo": "Ibuprofeno 800 Mg Tabletas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/medicamentos/ibuprofeno_800_mg_tabletas_-_caja_100_un/20235.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 566,
@@ -970,7 +1549,8 @@
       "fuente_pid": "03114",
       "fuente_titulo": "Ibuprofeno 400 Mg Tabletas- Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/ibuprofeno_400_mg_tabletas-_caja_100_un/03114.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 567,
@@ -981,7 +1561,8 @@
       "fuente_pid": "03114",
       "fuente_titulo": "Ibuprofeno 400 Mg Tabletas- Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/ibuprofeno_400_mg_tabletas-_caja_100_un/03114.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 569,
@@ -992,7 +1573,32 @@
       "fuente_pid": "03114",
       "fuente_titulo": "Ibuprofeno 400 Mg Tabletas- Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/ibuprofeno_400_mg_tabletas-_caja_100_un/03114.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 570,
+      "nombre": "IBUPROFENO",
+      "concentracion": "100 mg/5 mL",
+      "presentacion": "Frasco X 60 mL",
+      "imagen": "storage/productos/13823.webp",
+      "fuente_pid": "13823",
+      "fuente_titulo": "Ibuprofeno 100Mg/5ml  - Frasco 60Ml",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/ibuprofeno_100mg%2F5ml__-_frasco_60ml/13823.html",
+      "puntaje": 100.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 579,
+      "nombre": "IRRIGOR PLUS",
+      "concentracion": "100 mg + 30 mg",
+      "presentacion": "Caja Envase Blíster Comprimidos",
+      "imagen": "storage/productos/06873.webp",
+      "fuente_pid": "06873",
+      "fuente_titulo": "Irrigor Plus 30 Mg /100 Mg - Caja 30 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/irrigor_plus_30_mg_%2F100_mg_-_caja_30_un/06873.html",
+      "puntaje": 90.0,
+      "pasada": 2
     },
     {
       "producto_id": 585,
@@ -1003,7 +1609,8 @@
       "fuente_pid": "13198",
       "fuente_titulo": "Ketoconazol 200 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antifungicos/ketoconazol_200_mg_tableta_-_caja_100_un/13198.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 587,
@@ -1014,7 +1621,8 @@
       "fuente_pid": "07460",
       "fuente_titulo": "Ketoconazol 2% Crema - Tubo 20 G",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antifungicos/ketoconazol_2%25_crema_-_tubo_20_g/07460.html",
-      "puntaje": 105.0
+      "puntaje": 105.0,
+      "pasada": 1
     },
     {
       "producto_id": 588,
@@ -1025,7 +1633,8 @@
       "fuente_pid": "13198",
       "fuente_titulo": "Ketoconazol 200 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antifungicos/ketoconazol_200_mg_tableta_-_caja_100_un/13198.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 589,
@@ -1036,7 +1645,8 @@
       "fuente_pid": "13198",
       "fuente_titulo": "Ketoconazol 200 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antifungicos/ketoconazol_200_mg_tableta_-_caja_100_un/13198.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 590,
@@ -1047,7 +1657,8 @@
       "fuente_pid": "13198",
       "fuente_titulo": "Ketoconazol 200 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antifungicos/ketoconazol_200_mg_tableta_-_caja_100_un/13198.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 591,
@@ -1058,7 +1669,92 @@
       "fuente_pid": "13198",
       "fuente_titulo": "Ketoconazol 200 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/antifungicos/ketoconazol_200_mg_tableta_-_caja_100_un/13198.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 592,
+      "nombre": "KETOPROFENO",
+      "concentracion": "100 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/05354.webp",
+      "fuente_pid": "05354",
+      "fuente_titulo": "Ketoprofeno 100 mg  - Caja 30 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/ketoprofeno_100_mg__-_caja_30_un/05354.html",
+      "puntaje": 90.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 593,
+      "nombre": "KETOPROFENO",
+      "concentracion": "100 mg/2 mL",
+      "presentacion": "Caja Ampolla x 2 mL",
+      "imagen": "storage/productos/03101.webp",
+      "fuente_pid": "03101",
+      "fuente_titulo": "ketoprofeno 100 Mg/2 ML Solución Inyectable - Caja 6 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/analgesicos_y_antiflamatorios/ketoprofeno_100_mg%2F2_ml_solucion_inyectable_-_caja_6_un/03101.html",
+      "puntaje": 95.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 594,
+      "nombre": "KETOPROFENO",
+      "concentracion": "100 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/05354.webp",
+      "fuente_pid": "05354",
+      "fuente_titulo": "Ketoprofeno 100 mg  - Caja 30 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/ketoprofeno_100_mg__-_caja_30_un/05354.html",
+      "puntaje": 90.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 596,
+      "nombre": "KETOPROFENO",
+      "concentracion": "100 mg/2 mL",
+      "presentacion": "Caja Ampolla x 2 mL",
+      "imagen": "storage/productos/03101.webp",
+      "fuente_pid": "03101",
+      "fuente_titulo": "ketoprofeno 100 Mg/2 ML Solución Inyectable - Caja 6 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/analgesicos_y_antiflamatorios/ketoprofeno_100_mg%2F2_ml_solucion_inyectable_-_caja_6_un/03101.html",
+      "puntaje": 95.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 599,
+      "nombre": "KETOROLACO",
+      "concentracion": "10 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/13267-blister.webp",
+      "fuente_pid": "13267-BLISTER",
+      "fuente_titulo": "Ketorolaco 10 mg - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/ketorolaco_10_mg_-_blister_10_un/13267-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 600,
+      "nombre": "KETOROLACO",
+      "concentracion": "10 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/13267-blister.webp",
+      "fuente_pid": "13267-BLISTER",
+      "fuente_titulo": "Ketorolaco 10 mg - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/ketorolaco_10_mg_-_blister_10_un/13267-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 603,
+      "nombre": "KETOROLACO",
+      "concentracion": "10 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/13267-blister.webp",
+      "fuente_pid": "13267-BLISTER",
+      "fuente_titulo": "Ketorolaco 10 mg - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/ketorolaco_10_mg_-_blister_10_un/13267-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 604,
@@ -1069,7 +1765,8 @@
       "fuente_pid": "25831",
       "fuente_titulo": "Lansoprazol 30 Mg Cápsulas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/gastrointestinal/lansoprazol_30_mg_capsulas_-_caja_100_un/25831.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 605,
@@ -1080,7 +1777,20 @@
       "fuente_pid": "25831",
       "fuente_titulo": "Lansoprazol 30 Mg Cápsulas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/gastrointestinal/lansoprazol_30_mg_capsulas_-_caja_100_un/25831.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 609,
+      "nombre": "LEVOFLOXACINO",
+      "concentracion": "500 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/14128.webp",
+      "fuente_pid": "14128",
+      "fuente_titulo": "Levofloxacino 500 Mg  - Caja 7UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/levofloxacino_500_mg__-_caja_7un/14128.html",
+      "puntaje": 90.0,
+      "pasada": 2
     },
     {
       "producto_id": 613,
@@ -1091,7 +1801,8 @@
       "fuente_pid": "12800",
       "fuente_titulo": "Loratadina 10 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/loratadina_10_mg_tableta_-_caja_100_un/12800.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 616,
@@ -1102,7 +1813,8 @@
       "fuente_pid": "47441-BLISTER",
       "fuente_titulo": "Losartan 50 Mg Tabletas Recubiertas - Blíster 30 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/losartan_50_mg_tabletas_recubiertas_-_blister_30_un/47441-BLISTER.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 617,
@@ -1113,7 +1825,8 @@
       "fuente_pid": "47441-BLISTER",
       "fuente_titulo": "Losartan 50 Mg Tabletas Recubiertas - Blíster 30 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/losartan_50_mg_tabletas_recubiertas_-_blister_30_un/47441-BLISTER.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 621,
@@ -1124,7 +1837,8 @@
       "fuente_pid": "13201",
       "fuente_titulo": "Mebendazol 100 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiparasitarios/mebendazol_100_mg_tableta_-_caja_100_un/13201.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 622,
@@ -1135,7 +1849,8 @@
       "fuente_pid": "13201",
       "fuente_titulo": "Mebendazol 100 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiparasitarios/mebendazol_100_mg_tableta_-_caja_100_un/13201.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 623,
@@ -1146,7 +1861,20 @@
       "fuente_pid": "13201",
       "fuente_titulo": "Mebendazol 100 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiparasitarios/mebendazol_100_mg_tableta_-_caja_100_un/13201.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 624,
+      "nombre": "MEDICORT",
+      "concentracion": "4 mg/2 mL",
+      "presentacion": "Caja Ampolla x 2 mL",
+      "imagen": "storage/productos/10012.webp",
+      "fuente_pid": "10012",
+      "fuente_titulo": "Medicort 4Mg/2ML - Ampolla 1 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/medicort_4mg%2F2ml_-_ampolla_1_un/10012.html",
+      "puntaje": 98.0,
+      "pasada": 2
     },
     {
       "producto_id": 634,
@@ -1157,7 +1885,32 @@
       "fuente_pid": "13902",
       "fuente_titulo": "Metformina 850 Mg Tableta - Caja 30 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/diabetes/metformina_850_mg_tableta_-_caja_30_un/13902.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 635,
+      "nombre": "METFORMINA CLORHIDRATO",
+      "concentracion": "850 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/13902.webp",
+      "fuente_pid": "13902",
+      "fuente_titulo": "Metformina 850 Mg Tableta - Caja 30 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/diabetes/metformina_850_mg_tableta_-_caja_30_un/13902.html",
+      "puntaje": 92.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 636,
+      "nombre": "METFORMINA CLORHIDRATO",
+      "concentracion": "850 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/13902.webp",
+      "fuente_pid": "13902",
+      "fuente_titulo": "Metformina 850 Mg Tableta - Caja 30 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/diabetes/metformina_850_mg_tableta_-_caja_30_un/13902.html",
+      "puntaje": 92.0,
+      "pasada": 2
     },
     {
       "producto_id": 639,
@@ -1168,7 +1921,20 @@
       "fuente_pid": "12760",
       "fuente_titulo": "Metronidazol 500 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antibioticos/metronidazol_500_mg_tableta_-_caja_100_un/12760.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 642,
+      "nombre": "METRONIDAZOL",
+      "concentracion": "250 mg/5 mL",
+      "presentacion": "Caja Frasco x 120 mL + Accesorio",
+      "imagen": "storage/productos/14774.webp",
+      "fuente_pid": "14774",
+      "fuente_titulo": "Metronidazol 250mg/5ml - Frasco 120 ML",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antibioticos/metronidazol_250mg%2F5ml_-_frasco_120_ml/14774.html",
+      "puntaje": 100.0,
+      "pasada": 2
     },
     {
       "producto_id": 643,
@@ -1179,7 +1945,20 @@
       "fuente_pid": "12760",
       "fuente_titulo": "Metronidazol 500 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antibioticos/metronidazol_500_mg_tableta_-_caja_100_un/12760.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 644,
+      "nombre": "METRONIDAZOL",
+      "concentracion": "250 mg/5 mL",
+      "presentacion": "Frasco X 120 mL",
+      "imagen": "storage/productos/14774.webp",
+      "fuente_pid": "14774",
+      "fuente_titulo": "Metronidazol 250mg/5ml - Frasco 120 ML",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antibioticos/metronidazol_250mg%2F5ml_-_frasco_120_ml/14774.html",
+      "puntaje": 100.0,
+      "pasada": 2
     },
     {
       "producto_id": 646,
@@ -1190,7 +1969,32 @@
       "fuente_pid": "12760",
       "fuente_titulo": "Metronidazol 500 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antibioticos/metronidazol_500_mg_tableta_-_caja_100_un/12760.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 658,
+      "nombre": "OMEPRAZOL",
+      "concentracion": "20 mg",
+      "presentacion": "Caja Envase Blister Cápsulas",
+      "imagen": "storage/productos/15486-blister.webp",
+      "fuente_pid": "15486-BLISTER",
+      "fuente_titulo": "Omeprazol 20 Mg - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/malestar_estomacal/acidez/omeprazol_20_mg_-_blister_10_un/15486-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 659,
+      "nombre": "OMEPRAZOL",
+      "concentracion": "20 mg",
+      "presentacion": "Caja Envase Blister Cápsulas",
+      "imagen": "storage/productos/15486-blister.webp",
+      "fuente_pid": "15486-BLISTER",
+      "fuente_titulo": "Omeprazol 20 Mg - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/malestar_estomacal/acidez/omeprazol_20_mg_-_blister_10_un/15486-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 660,
@@ -1201,7 +2005,128 @@
       "fuente_pid": "49265-CAJA",
       "fuente_titulo": "Orfenadrina Citrato 100MG - Caja 100 tabletas",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/analgesicos/orfenadrina_citrato_100mg_-_caja_100_tabletas/49265-CAJA.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 664,
+      "nombre": "PARACETAMOL",
+      "concentracion": "120 mg/5 mL",
+      "presentacion": "Frasco X 60 mL",
+      "imagen": "storage/productos/12975.webp",
+      "fuente_pid": "12975",
+      "fuente_titulo": "Paracetamol Jarabe 120 mg/5ml- Frasco 60 ML",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/medicamentos/paracetamol_jarabe_120_mg%2F5ml-_frasco_60_ml/12975.html",
+      "puntaje": 100.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 665,
+      "nombre": "PARACETAMOL",
+      "concentracion": "500 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/05596.webp",
+      "fuente_pid": "05596",
+      "fuente_titulo": "Paracetamol 500 Mg - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/paracetamol_500_mg_-_caja_100_un/05596.html",
+      "puntaje": 90.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 667,
+      "nombre": "PARACETAMOL",
+      "concentracion": "500 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/05596.webp",
+      "fuente_pid": "05596",
+      "fuente_titulo": "Paracetamol 500 Mg - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/paracetamol_500_mg_-_caja_100_un/05596.html",
+      "puntaje": 90.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 669,
+      "nombre": "PARACETAMOL",
+      "concentracion": "500 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/05596.webp",
+      "fuente_pid": "05596",
+      "fuente_titulo": "Paracetamol 500 Mg - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/paracetamol_500_mg_-_caja_100_un/05596.html",
+      "puntaje": 90.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 670,
+      "nombre": "PARACETAMOL",
+      "concentracion": "500 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/05596.webp",
+      "fuente_pid": "05596",
+      "fuente_titulo": "Paracetamol 500 Mg - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/paracetamol_500_mg_-_caja_100_un/05596.html",
+      "puntaje": 90.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 672,
+      "nombre": "PARACETAMOL",
+      "concentracion": "500 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/05596.webp",
+      "fuente_pid": "05596",
+      "fuente_titulo": "Paracetamol 500 Mg - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/paracetamol_500_mg_-_caja_100_un/05596.html",
+      "puntaje": 90.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 673,
+      "nombre": "PARACETAMOL",
+      "concentracion": "120 mg/5 mL",
+      "presentacion": "Frasco X 60 mL",
+      "imagen": "storage/productos/12975.webp",
+      "fuente_pid": "12975",
+      "fuente_titulo": "Paracetamol Jarabe 120 mg/5ml- Frasco 60 ML",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/medicamentos/paracetamol_jarabe_120_mg%2F5ml-_frasco_60_ml/12975.html",
+      "puntaje": 100.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 674,
+      "nombre": "PARACETAMOL",
+      "concentracion": "500 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/05596.webp",
+      "fuente_pid": "05596",
+      "fuente_titulo": "Paracetamol 500 Mg - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/paracetamol_500_mg_-_caja_100_un/05596.html",
+      "puntaje": 90.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 676,
+      "nombre": "PARACETAMOL",
+      "concentracion": "120 mg/5 mL",
+      "presentacion": "Frasco X 60 mL",
+      "imagen": "storage/productos/12975.webp",
+      "fuente_pid": "12975",
+      "fuente_titulo": "Paracetamol Jarabe 120 mg/5ml- Frasco 60 ML",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/medicamentos/paracetamol_jarabe_120_mg%2F5ml-_frasco_60_ml/12975.html",
+      "puntaje": 100.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 678,
+      "nombre": "PARACETAMOL",
+      "concentracion": "500 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/05596.webp",
+      "fuente_pid": "05596",
+      "fuente_titulo": "Paracetamol 500 Mg - Caja 100 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/paracetamol_500_mg_-_caja_100_un/05596.html",
+      "puntaje": 90.0,
+      "pasada": 2
     },
     {
       "producto_id": 688,
@@ -1212,7 +2137,20 @@
       "fuente_pid": "08967",
       "fuente_titulo": "Prednisona 5 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/prednisona_5_mg_tableta_-_caja_100_un/08967.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 690,
+      "nombre": "PREDNISONA",
+      "concentracion": "20 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/36033-blister.webp",
+      "fuente_pid": "36033-BLISTER",
+      "fuente_titulo": "Prednisona 20 Mg - Blíster 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/prednisona_20_mg_-_blister_10_un/36033-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 692,
@@ -1223,7 +2161,8 @@
       "fuente_pid": "08967",
       "fuente_titulo": "Prednisona 5 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/prednisona_5_mg_tableta_-_caja_100_un/08967.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
     },
     {
       "producto_id": 694,
@@ -1234,7 +2173,20 @@
       "fuente_pid": "08967",
       "fuente_titulo": "Prednisona 5 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/prednisona_5_mg_tableta_-_caja_100_un/08967.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 695,
+      "nombre": "PREDNISONA",
+      "concentracion": "20 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/36033-blister.webp",
+      "fuente_pid": "36033-BLISTER",
+      "fuente_titulo": "Prednisona 20 Mg - Blíster 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/prednisona_20_mg_-_blister_10_un/36033-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 696,
@@ -1245,7 +2197,20 @@
       "fuente_pid": "08967",
       "fuente_titulo": "Prednisona 5 Mg Tableta - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/antiinflamatorios/prednisona_5_mg_tableta_-_caja_100_un/08967.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 698,
+      "nombre": "PREDNISONA",
+      "concentracion": "20 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/36033-blister.webp",
+      "fuente_pid": "36033-BLISTER",
+      "fuente_titulo": "Prednisona 20 Mg - Blíster 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/prednisona_20_mg_-_blister_10_un/36033-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 702,
@@ -1256,7 +2221,56 @@
       "fuente_pid": "02297",
       "fuente_titulo": "Pyridium 100 Mg - Tableta 1 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/urologicos/pyridium_100_mg_-_tableta_1_un/02297.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 711,
+      "nombre": "SALBUTAMOL",
+      "concentracion": "2 mg/5 mL",
+      "presentacion": "Caja Frasco x 120 mL",
+      "imagen": "storage/productos/14777.webp",
+      "fuente_pid": "14777",
+      "fuente_titulo": "Salbutamol 2 Mg/5 Ml Jarabe - Frasco 120 UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/broncodilatadores/salbutamol_2_mg%2F5_ml_jarabe_-_frasco_120_un/14777.html",
+      "puntaje": 96.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 714,
+      "nombre": "SILDENAFILO",
+      "concentracion": "50 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/09042.webp",
+      "fuente_pid": "09042",
+      "fuente_titulo": "Sildenafilo 50 Mg - Caja 1UN",
+      "fuente_url": "https://www.boticasperu.pe/bienestar_sexual/disfuncion_erectil/sildenafilo_50_mg_-_caja_1un/09042.html",
+      "puntaje": 90.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 715,
+      "nombre": "SILDENAFILO",
+      "concentracion": "50 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/09042.webp",
+      "fuente_pid": "09042",
+      "fuente_titulo": "Sildenafilo 50 Mg - Caja 1UN",
+      "fuente_url": "https://www.boticasperu.pe/bienestar_sexual/disfuncion_erectil/sildenafilo_50_mg_-_caja_1un/09042.html",
+      "puntaje": 90.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 716,
+      "nombre": "SIMETICONA",
+      "concentracion": "80 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/12845.webp",
+      "fuente_pid": "12845",
+      "fuente_titulo": "Simeticona 80 mg  - Caja 30UN",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/malestar_estomacal/gases/simeticona_80_mg__-_caja_30un/12845.html",
+      "puntaje": 90.0,
+      "pasada": 2
     },
     {
       "producto_id": 726,
@@ -1267,7 +2281,32 @@
       "fuente_pid": "16840-CAJA",
       "fuente_titulo": "Supracalm 1 Gr Comprimido - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/botica_en_casa/analgesicos/paracetamol_1g/supracalm_1_gr_comprimido_-_caja_100_un/16840-CAJA.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 727,
+      "nombre": "TERBINAFINA",
+      "concentracion": "250 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/24985-blister.webp",
+      "fuente_pid": "24985-BLISTER",
+      "fuente_titulo": "Terbinafina 250 mg  - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/terbinafina_250_mg__-_blister_10_un/24985-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 728,
+      "nombre": "TERBINAFINA",
+      "concentracion": "250 mg",
+      "presentacion": "Caja Envase Blister Tabletas",
+      "imagen": "storage/productos/24985-blister.webp",
+      "fuente_pid": "24985-BLISTER",
+      "fuente_titulo": "Terbinafina 250 mg  - Blister 10 UN",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/antibioticos_y_antisepticos/terbinafina_250_mg__-_blister_10_un/24985-BLISTER.html",
+      "puntaje": 91.0,
+      "pasada": 2
     },
     {
       "producto_id": 835,
@@ -1278,7 +2317,32 @@
       "fuente_pid": "38530",
       "fuente_titulo": "Amoxicilina 500 Mg Cápsulas - Caja 100 UN",
       "fuente_url": "https://www.boticasperu.pe/tratamiento/amoxicilina_500_mg_capsulas_-_caja_100_un/38530.html",
-      "puntaje": 95.0
+      "puntaje": 95.0,
+      "pasada": 1
+    },
+    {
+      "producto_id": 1310,
+      "nombre": "FRUTTIFLEX 50 SABOR A FRESA",
+      "concentracion": "ELECTROLITOS 50 mEq/L Na",
+      "presentacion": "Frasco x 1L",
+      "imagen": "storage/productos/01935.webp",
+      "fuente_pid": "01935",
+      "fuente_titulo": "Fruttiflex 50 Fresa - Frasco 1000 ML",
+      "fuente_url": "https://www.boticasperu.pe/botica_en_casa/malestar_estomacal/fruttiflex_50_fresa_-_frasco_1000_ml/01935.html",
+      "puntaje": 85.0,
+      "pasada": 2
+    },
+    {
+      "producto_id": 1377,
+      "nombre": "GYNOCANESTEN®",
+      "concentracion": "0.01",
+      "presentacion": "Caja Tubo x 50 g + Accesorio",
+      "imagen": "storage/productos/13672.webp",
+      "fuente_pid": "13672",
+      "fuente_titulo": "Gynocanesten 1% Crema Antimicótica Vaginal - Tubo 50 G",
+      "fuente_url": "https://www.boticasperu.pe/tratamiento/tratamiento_zona_intima/cremas/gynocanesten_1%25_crema_antimicotica_vaginal_-_tubo_50_g/13672.html",
+      "puntaje": 104.0,
+      "pasada": 2
     }
   ]
 }

@@ -246,6 +246,10 @@ Route::post('/perfil/foto', [PerfilController::class, 'subirFoto'])
 | fuera de su propia sesion por culpa del trafico de otro en la misma IP.
 | Lo que si se limita es pedir la URL y canjear el codigo.
 */
+/* Sin el limitador de acceso: es una lectura de configuracion que hace cada
+   visita a la pantalla de entrada, y no debe gastar el cupo de quien entra. */
+Route::get('/auth/google/disponible', [GoogleController::class, 'disponible']);
+
 Route::get('/auth/google/redirect', [GoogleController::class, 'redirigir'])
     ->middleware('throttle:acceso-google');
 

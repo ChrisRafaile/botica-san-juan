@@ -144,7 +144,9 @@ describe('CheckoutPagoView.vue', () => {
     await flushPromises()
 
     // Primer intento sin datos en tarjeta: muestra guía y no simula cobro
-    await wrapper.find('button').trigger('click')
+    /* Por rótulo y no «el primer botón»: la barra de navegación del pago
+       lleva ahora el selector de tema, que también es un botón. */
+    await wrapper.findAll('button').find((b) => b.text().includes('Pagar'))!.trigger('click')
     await flushPromises()
 
     expect(simularPago).not.toHaveBeenCalled()

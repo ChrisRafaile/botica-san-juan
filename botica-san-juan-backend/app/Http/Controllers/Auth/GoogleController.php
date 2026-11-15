@@ -58,6 +58,24 @@ class GoogleController extends Controller
      *  en cuanto carga la pantalla de retorno. */
     private const VIDA_CODIGO = 60;
 
+    // ----------------------------------------------------------- sondeo
+
+    /**
+     * Dice si este entorno ofrece el acceso con Google, y nada más.
+     *
+     * La pantalla de acceso lo pregunta al cargar para decidir si pinta el
+     * botón. Antes lo averiguaba pidiendo la URL de ida, que tiene tres
+     * costes para una simple visita: genera y guarda un `state` que nadie va
+     * a usar, gasta el cupo de `throttle:acceso-google` de quien luego sí
+     * quiere entrar, y sin credenciales responde 503, que el navegador anota
+     * como error en cada carga de la pantalla. «No configurado» no es una
+     * avería: es una respuesta, y va con 200.
+     */
+    public function disponible(): JsonResponse
+    {
+        return response()->json(['disponible' => $this->configurado()]);
+    }
+
     // ------------------------------------------------------------- ida
 
     /**

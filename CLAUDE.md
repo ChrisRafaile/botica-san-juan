@@ -67,6 +67,13 @@ cueste una segunda.
 - **El middleware `signed` devuelve la página de error de Laravel.** Para poder
   redirigir al portal con un resultado, se valida en el controlador con
   `$request->hasValidSignature()`.
+- **Un pedido confirmado no se edita ni se anula desde el portal.**
+  `POST /pedidos/confirmar` descuenta stock por lote y emite el comprobante en
+  el acto, y no existe anulación de venta que devuelva lo uno y dé de baja lo
+  otro. «Volver al carrito para editar el pedido» no es un cambio de interfaz:
+  es esa funcionalidad entera. Mientras no exista, lo correcto es que el pedido
+  impago siga visible y retomable (`usePedidosPendientes`), no simular que se
+  edita.
 - **Los documentos clínicos van en `storage/app/private`** y se sirven por un
   endpoint autenticado con `Cache-Control: no-store, private`, nunca por disco
   público.
@@ -81,6 +88,18 @@ cueste una segunda.
   desbordamiento del modal «Editar Producto»: un `calc(90vh-140px)` a mano
   adivinando una altura de cabecera y pie que en realidad eran ~190px, dentro
   de un contenedor con `overflow-hidden`.
+- **La prop de `ImagenConRespaldo` se llama `ruta`, no `src`.** Pasarle `:src`
+  no da error ni aviso: Vue lo deja caer como atributo del `<div>` contenedor
+  y se pinta la ilustración de respaldo en todas las filas. Así salieron sin
+  una sola foto los recomendados y el detalle de pedidos del portal, con las
+  pruebas en verde porque comprobaban el título de la sección y no el `<img>`.
+- **`useTheme()` solo escucha `prefers-color-scheme` mientras haya montado
+  algo que lo llame.** Una ruta sin selector de tema se quedaba con el tema de
+  la carga. Se llama en `App.vue` para que el modo automático reaccione en
+  vivo en todas.
+- **Un hijo de `grid` necesita `min-w-0` igual que uno de `flex`.** Los textos
+  con `truncate` ensancharon la lista del carrito a 495 px en una pantalla de
+  360.
 - **Node 26 define su propio `localStorage` global**, `undefined` sin
   `--localstorage-file`, y tapa el de jsdom. `vitest.setup.ts` devuelve una
   implementación en memoria.
@@ -112,11 +131,11 @@ Son los comandos reales, con las rutas que funcionan en esta máquina. `pnpm`
 por corepack está roto aquí, así que se invocan los binarios directamente.
 
 ```powershell
-# Backend (429 pruebas, 1261 aserciones)
+# Backend (440 pruebas, 1325 aserciones)
 cd botica-san-juan-backend
 php artisan test
 
-# Frontend (172 pruebas; Footer.spec necesita VITE_BOTICA_WHATSAPP en el .env local)
+# Frontend (196 pruebas; Footer.spec necesita VITE_BOTICA_WHATSAPP en el .env local)
 cd botica-san-juan-frontend
 .\node_modules\.bin\vitest.cmd run
 
@@ -158,6 +177,8 @@ y=659 de 720, no cuando el CSS pareció razonable.
 | `docs/RECETAS-MEDICAS.md` | Subida y validación de recetas. |
 | `docs/CORREOS-TRANSACCIONALES.md` | Verificación de correo y recuperación de contraseña. |
 | `docs/INFORME-APF2.md` | Entregable académico del APF2. |
+| `docs/evidencias/imagenes-catalogo/INFORME-SEGUNDA-PASADA.md` | Segunda pasada del extractor de fotos: criterios, emparejamientos y cómo reproducirla. |
+| `docs/evidencias/auditoria-portal-cliente/INFORME.md` | Auditoría en navegador del portal cliente, el flujo de compra y las imágenes en admin, con su re-verificación. |
 | `docs/evidencias/figura11/LEEME.md` | Figura 11 corregida para el informe final, y por qué el APF3 no se tocó. |
 
 El APF3 ya se entregó y se calificó: es un registro histórico y no se modifica.

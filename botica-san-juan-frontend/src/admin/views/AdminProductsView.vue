@@ -1,7 +1,7 @@
 <template>
   <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-      <div>
+    <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+      <div class="min-w-0">
         <h1 class="text-3xl font-bold text-texto-primario mb-2">
           {{ pageTitle }}
         </h1>
@@ -9,7 +9,7 @@
           {{ pageDescription }}
         </p>
       </div>
-      <div class="flex gap-3">
+      <div class="flex flex-wrap gap-3">
         <button
           class="bg-exito-700 hover:bg-exito-700 text-white px-4 py-2 rounded-lg font-semibold flex items-center space-x-2 transition-colors"
           :class="{ 'hidden': route.path === '/admin/products/add' }"
@@ -210,8 +210,12 @@
          no el inventario. Decirlo evita que alguien compre de más creyendo que
          le falta media botica. -->
     <p
-      v-if="umbralesSospechosos"
-      class="mb-6 rounded-xl bg-alerta-50 px-4 py-3 text-sm leading-relaxed text-alerta-700 dark:bg-alerta-500/10 dark:text-alerta-500"
+      v-if="umbralesSospechosos || huecoDeUmbralesReservado"
+      :class="[
+        'mb-6 rounded-xl bg-alerta-50 px-4 py-3 text-sm leading-relaxed text-alerta-700 dark:bg-alerta-500/10 dark:text-alerta-500',
+        { invisible: !umbralesSospechosos },
+      ]"
+      :aria-hidden="!umbralesSospechosos"
     >
       La mayoría del catálogo aparece por reponer. Eso suele significar que el
       stock mínimo por defecto no encaja con este inventario: conviene fijar el
@@ -839,7 +843,40 @@ const fetchProducts = async (page = 1) => {
  * en lugar del mínimo configurado de cada producto — diez unidades son muchas
  * para un antibiótico caro y pocas para el paracetamol.
  */
-const umbralesSospechosos = ref(false)
+/* El aviso de umbrales llega con el resumen, después del primer pintado, y al
+   aparecer empujaba la tabla 90 px (CLS 0,024). Es un dato que casi nunca
+   cambia entre visitas, así que se arranca con el último valor conocido: el
+   hueco ya está reservado, o ya no está, antes de que responda la red. */
+const CLAVE_UMBRALES = 'botica:admin:umbrales-sospechosos'
+
+function leerUmbralesRecordados(): boolean | null {
+  try {
+    const guardado = localStorage.getItem(CLAVE_UMBRALES)
+    return guardado === null ? null : guardado === '1'
+  } catch {
+    return null
+  }
+}
+
+const umbralesRecordados = leerUmbralesRecordados()
+
+/* La primera visita de un navegador no tiene nada recordado, y ahí el aviso
+   volvía a empujar la tabla. Mientras no se sabe la respuesta se reserva su
+   hueco con el propio párrafo, invisible: si resulta que hay que mostrarlo,
+   aparece donde ya estaba; si no, queda un espacio en blanco solo en esa
+   visita. Un hueco de una vez es preferible a un salto bajo el cursor de
+   quien ya iba a pulsar una fila. */
+const huecoDeUmbralesReservado = umbralesRecordados === null
+
+function recordarUmbrales(valor: boolean): void {
+  try {
+    localStorage.setItem(CLAVE_UMBRALES, valor ? '1' : '0')
+  } catch {
+    /* Sin almacenamiento el aviso sigue funcionando; solo vuelve el salto. */
+  }
+}
+
+const umbralesSospechosos = ref(umbralesRecordados === true)
 
 const cargarResumen = async () => {
   try {
@@ -853,6 +890,7 @@ const cargarResumen = async () => {
     stats.lowStock = data.data.criticos + data.data.bajos
     stats.outOfStock = data.data.agotados
     umbralesSospechosos.value = data.umbrales_sospechosos
+    recordarUmbrales(data.umbrales_sospechosos)
   } catch {
     /* Si el resumen falla, el listado sigue siendo utilizable: se deja el
        total que ya trae la paginación y se omiten las demás cifras antes que

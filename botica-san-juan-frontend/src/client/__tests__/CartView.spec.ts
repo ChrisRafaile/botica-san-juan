@@ -5,6 +5,7 @@ import CartView from '../CartView.vue'
 import api from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/carrito'
+import { usePedidosPendientes } from '@/composables/usePedidosPendientes'
 
 const mockRouter = {
   push: vi.fn(),
@@ -34,6 +35,8 @@ describe('CartView.vue (Checkout cliente)', () => {
     setActivePinia(createPinia())
     localStorage.clear()
     vi.clearAllMocks()
+    // El estado de pendientes es de módulo: sin esto una prueba hereda el aviso de otra.
+    usePedidosPendientes().olvidar()
 
     const auth = useAuthStore()
     auth.setUser({
@@ -114,6 +117,54 @@ describe('CartView.vue (Checkout cliente)', () => {
     wrappersMontados.push(wrapper)
     return wrapper
   }
+
+  describe('pedidos esperando pago', () => {
+    function mockHistorial() {
+      vi.spyOn(api, 'get').mockImplementation(async (url: string) => {
+        if (url === '/pedidos/usuario/9') {
+          return {
+            data: [
+              { id: 222, fecha: '2026-11-15', estado: 'pendiente', estado_pago: 'pendiente', total: 82 },
+              { id: 210, fecha: '2026-11-02', estado: 'completado', estado_pago: 'pagado', total: 37 },
+            ],
+          }
+        }
+        return { data: {} }
+      })
+    }
+
+    it('enseña el pedido impago y cómo retomarlo aunque el carrito esté vacío', async () => {
+      mockHistorial()
+      // Es el estado en que queda el carrito justo después de confirmar.
+      useCartStore().vaciar()
+
+      const wrapper = montar()
+      await flushPromises()
+
+      const aviso = wrapper.find('[data-testid="pedidos-pendientes-carrito"]')
+      expect(aviso.exists()).toBe(true)
+      expect(aviso.text()).toContain('Tienes un pedido esperando pago')
+      expect(aviso.text()).toContain('Pedido #222')
+      // Intl separa el símbolo con un espacio de no separación.
+      expect(aviso.text()).toMatch(/S\/\s82\.00/)
+      // El pedido ya pagado no es un pendiente y no debe ofrecer cobro.
+      expect(aviso.text()).not.toContain('Pedido #210')
+      expect(aviso.find('a[href="/checkout/pago"]').text()).toContain('Reanudar pago')
+      expect(wrapper.text()).toContain('Tu carrito está vacío')
+    })
+
+    it('retira el aviso al cerrar la sesión con la página abierta', async () => {
+      mockHistorial()
+      const wrapper = montar()
+      await flushPromises()
+      expect(wrapper.find('[data-testid="pedidos-pendientes-carrito"]').exists()).toBe(true)
+
+      useAuthStore().$patch({ user: null })
+      await flushPromises()
+
+      expect(wrapper.find('[data-testid="pedidos-pendientes-carrito"]').exists()).toBe(false)
+    })
+  })
 
   it('valida dirección y RUC para Factura antes de enviar y redirige a la pasarela con Tarjeta 3D', async () => {
     const wrapper = montar()

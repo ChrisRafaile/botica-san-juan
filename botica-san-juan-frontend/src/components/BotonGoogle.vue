@@ -9,9 +9,10 @@
  * que no tenerlo: la persona cree que el problema es suyo y lo intenta otra
  * vez.
  *
- * La comprobación se hace pidiendo la URL al cargar, que es la misma llamada
- * que haría el botón: si responde 503, no hay botón. Cuesta una petición y
- * evita el peor momento de este flujo.
+ * La comprobación es una consulta propia (`googleDisponible`), no la petición
+ * de la URL de ida: aquella gastaba un `state` y el cupo de intentos en cada
+ * visita, y sin credenciales dejaba un 503 en la consola. Se hace una sola
+ * vez aunque la pantalla monte dos botones.
  *
  * EL LOGOTIPO VA EN SVG, DIBUJADO AQUÍ
  *
@@ -22,8 +23,7 @@
 import { onMounted, ref } from 'vue'
 import { Loader2 } from 'lucide-vue-next'
 
-import { entrarConGoogle } from '@/services/google'
-import api from '@/services/api'
+import { entrarConGoogle, googleDisponible } from '@/services/google'
 
 const props = withDefaults(defineProps<{ rotulo?: string }>(), {
   rotulo: 'Continuar con Google',
@@ -35,15 +35,11 @@ const aviso = ref('')
 
 onMounted(async () => {
   try {
-    /* La cabecera silencia el aviso global de error: un 503 aquí significa
-       «no está configurado», que es la respuesta que este sondeo busca, no
-       una avería que haya que anunciarle a quien entra. */
-    await api.get('/auth/google/redirect', { headers: { 'X-Silenciar-Aviso': '1' } })
-    disponible.value = true
+    disponible.value = await googleDisponible()
   } catch {
-    /* 503 (sin credenciales) o cualquier otro fallo: el botón no se enseña.
-       No se avisa de nada: quien entra a la pantalla de acceso no tiene por
-       qué enterarse de qué integraciones faltan por configurar. */
+    /* Cualquier fallo: el botón no se enseña. No se avisa de nada: quien
+       entra a la pantalla de acceso no tiene por qué enterarse de qué
+       integraciones faltan por configurar. */
     disponible.value = false
   }
 })

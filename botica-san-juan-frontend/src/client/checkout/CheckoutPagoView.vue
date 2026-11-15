@@ -1,5 +1,73 @@
 <template>
   <main class="min-h-screen bg-superficie-fondo bg-linear-to-br from-clinico-50 to-clinico-100 px-4 py-10 text-texto-primario dark:from-superficie-fondo dark:to-superficie-hundida">
+    <nav
+      aria-label="Navegación reversible del pago"
+      class="mx-auto mb-6 flex max-w-5xl flex-wrap items-center justify-between gap-3 rounded-2xl border border-borde-sutil bg-superficie-elevada/90 px-4 py-3 text-sm backdrop-blur-sm"
+    >
+      <div class="flex flex-wrap items-center gap-2">
+        <a
+          href="/cart"
+          class="foco-dentro inline-flex items-center gap-1.5 rounded-full border border-borde-control bg-superficie-elevada px-3.5 py-1.5 font-medium text-texto-primario transition-colors hover:bg-superficie-interactiva"
+          @click.prevent="router.push('/cart')"
+        >
+          ← Ver mi carrito
+        </a>
+        <a
+          href="/products"
+          class="foco-dentro inline-flex items-center gap-1.5 rounded-full border border-borde-control bg-superficie-elevada px-3.5 py-1.5 font-medium text-texto-secundario transition-colors hover:bg-superficie-interactiva hover:text-texto-primario"
+          @click.prevent="router.push('/products')"
+        >
+          Seguir comprando
+        </a>
+        <a
+          href="/client/home"
+          class="foco-dentro inline-flex items-center gap-1.5 rounded-full border border-borde-control bg-superficie-elevada px-3.5 py-1.5 font-medium text-texto-marca transition-colors hover:bg-superficie-interactiva"
+          @click.prevent="router.push('/client/home')"
+        >
+          Ir a mi portal
+        </a>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <div v-if="otrosPedidosPendientes.length > 0" class="flex items-center gap-2">
+          <label for="selector-pedido-pendiente" class="text-xs font-medium text-texto-terciario">
+            Cambiar de pedido:
+          </label>
+          <select
+            id="selector-pedido-pendiente"
+            :value="pedido?.id ? String(pedido.id) : ''"
+            class="foco-dentro rounded-lg border border-borde-control bg-superficie-base px-2.5 py-1.5 text-xs font-semibold text-texto-primario"
+            @change="cambiarPedido($event)"
+          >
+            <option v-if="pedido" :value="String(pedido.id)">
+              Pedido #{{ pedido.id }} (actual)
+            </option>
+            <option
+              v-for="otro in otrosPedidosPendientes"
+              :key="otro.id"
+              :value="String(otro.id)"
+            >
+              Pedido #{{ otro.id }} — {{ formatearMonto(Number(otro.total), 'PEN') }}
+            </option>
+          </select>
+        </div>
+        <SelectorTema />
+      </div>
+
+      <!-- Decirlo aquí evita el malentendido que producía pedidos duplicados:
+           quien vuelve al catálogo desde el pago cree estar editando este
+           pedido, y lo que hace es empezar otro. -->
+      <p
+        v-if="pedido"
+        data-testid="aviso-pedido-registrado"
+        class="basis-full text-xs leading-relaxed text-texto-terciario"
+      >
+        El pedido #{{ pedido.id }} ya está registrado y te espera aquí: puedes salir y
+        retomar el pago desde tu carrito o desde «Mis pedidos». Lo que agregues
+        ahora al carrito irá en un pedido aparte.
+      </p>
+    </nav>
+
     <div class="mx-auto grid max-w-5xl items-start gap-6 lg:grid-cols-5">
       <!-- Resumen del pedido -->
       <section
@@ -165,12 +233,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
+import { computed, getCurrentInstance, onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import type { Pinia } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/services/api'
 import { montarFormulario, type RetornoVerificable } from '@/services/izipay'
 import { formatearMonto, iniciarPago, simularPago, validarRetorno, rutaDelEstado } from '@/services/pagos'
+import {
+  cargarPedidosCliente,
+  pedidoRequierePago,
+  type PedidoCliente,
+} from '@/services/pedidosCliente'
+import { useAuthStore } from '@/stores/auth'
+import SelectorTema from '@/components/SelectorTema.vue'
+import { usePedidosPendientes } from '@/composables/usePedidosPendientes'
 import TarjetaBancariaVisual, { type EstadoTarjetaVisual } from './TarjetaBancariaVisual.vue'
+
+const pendientesCompartidos = usePedidosPendientes()
 
 interface LineaPedido {
   id: number
@@ -200,8 +279,13 @@ interface PedidoResumen {
 
 const route = useRoute()
 const router = useRouter()
+const piniaInstalada = (
+  getCurrentInstance()?.appContext.config.globalProperties as { $pinia?: Pinia } | undefined
+)?.$pinia
+const auth = piniaInstalada ? useAuthStore(piniaInstalada) : null
 
 const pedido = ref<PedidoResumen | null>(null)
+const pedidosPendientesCliente = ref<PedidoCliente[]>([])
 const cargando = ref(true)
 const procesando = ref(false)
 const error = ref('')
@@ -307,13 +391,29 @@ async function pagar(): Promise<void> {
   }
 }
 
-onMounted(async () => {
-  const id = Number(route.query.pedido)
+const otrosPedidosPendientes = computed(() =>
+  pedidosPendientesCliente.value.filter((p) => p.id !== pedido.value?.id),
+)
 
+function cambiarPedido(evento: Event): void {
+  const select = evento.target as HTMLSelectElement
+  const nuevoId = Number(select.value)
+  if (nuevoId && nuevoId !== pedido.value?.id) {
+    void router.push({ path: '/checkout/pago', query: { pedido: String(nuevoId) } })
+  }
+}
+
+async function cargarPedido(id: number): Promise<void> {
   if (!id) {
     await router.replace('/')
     return
   }
+
+  cargando.value = true
+  error.value = ''
+  desmontarFormulario?.()
+  desmontarFormulario = null
+  formularioMontado.value = false
 
   try {
     const { data } = await api.get<PedidoResumen>(`/pedidos/${id}/mi-pedido`)
@@ -328,6 +428,36 @@ onMounted(async () => {
   } finally {
     cargando.value = false
   }
+}
+
+async function cargarPendientesAlternativos(): Promise<void> {
+  const usuarioId = auth?.user?.id
+  if (!usuarioId) return
+  try {
+    const lista = await cargarPedidosCliente(usuarioId)
+    pedidosPendientesCliente.value = lista.filter(pedidoRequierePago)
+    /* El carrito enseña estos mismos pedidos; dejárselos listos evita que el
+       aviso aparezca tarde al volver allí. */
+    pendientesCompartidos.sembrar(usuarioId, lista)
+  } catch {
+    pedidosPendientesCliente.value = []
+  }
+}
+
+watch(
+  () => route.query.pedido,
+  (nuevo, anterior) => {
+    if (nuevo && nuevo !== anterior) {
+      void cargarPedido(Number(nuevo))
+    }
+  },
+)
+
+onMounted(async () => {
+  await Promise.all([
+    cargarPedido(Number(route.query.pedido)),
+    cargarPendientesAlternativos(),
+  ])
 })
 
 onBeforeUnmount(() => {

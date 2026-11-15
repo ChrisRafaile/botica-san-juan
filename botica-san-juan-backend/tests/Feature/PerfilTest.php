@@ -206,4 +206,34 @@ class PerfilTest extends TestCase
 
         $this->assertTrue(Hash::check('una-clave-nueva', $usuario->fresh()->password));
     }
+
+    // ----------------------------------------- dirección de entrega predeterminada
+
+    public function test_puede_guardar_y_limpiar_direccion_de_entrega_predeterminada(): void
+    {
+        $usuario = $this->cliente();
+
+        $this->actingAs($usuario)->putJson('/api/perfil', [
+            'direccion_entrega' => 'Jr. San Martín 420, Tarapoto',
+        ])->assertOk()
+          ->assertJsonPath('direccion_entrega', 'Jr. San Martín 420, Tarapoto');
+
+        $this->assertSame('Jr. San Martín 420, Tarapoto', $usuario->fresh()->direccion_entrega);
+
+        $this->actingAs($usuario)->putJson('/api/perfil', [
+            'direccion_entrega' => null,
+        ])->assertOk()
+          ->assertJsonPath('direccion_entrega', null);
+
+        $this->assertNull($usuario->fresh()->direccion_entrega);
+    }
+
+    public function test_rechaza_direccion_de_entrega_mayor_a_255_caracteres(): void
+    {
+        $usuario = $this->cliente();
+
+        $this->actingAs($usuario)->putJson('/api/perfil', [
+            'direccion_entrega' => str_repeat('A', 256),
+        ])->assertStatus(422);
+    }
 }

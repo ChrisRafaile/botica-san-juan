@@ -12,6 +12,7 @@ export interface DatosPersonales {
   nombre?: string
   email?: string
   telefono?: string | null
+  direccion_entrega?: string | null
   /**
    * Solo se envía para COMPLETARLO, nunca para cambiarlo.
    *

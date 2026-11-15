@@ -205,7 +205,7 @@ function diferirRender(indice: number): boolean {
 }
 
 onMounted(async () => {
-  catalogo.orden = 'nombre'
+  catalogo.orden = 'destacados'
   await catalogo.inicializar()
   /* El carrito ya no se carga de la red: se lee de localStorage al crear el
      store, así que aquí no queda nada que esperar. */
@@ -332,6 +332,7 @@ onMounted(async () => {
               class="foco-dentro w-full rounded-xl border border-borde-control bg-superficie-elevada px-3 py-2.5 text-texto-primario"
               @change="alCambiarFiltro"
             >
+              <option value="destacados">Destacados / Relevancia</option>
               <option value="nombre">Nombre (A–Z)</option>
               <option value="precio_asc">Precio: de menor a mayor</option>
               <option value="precio_desc">Precio: de mayor a menor</option>

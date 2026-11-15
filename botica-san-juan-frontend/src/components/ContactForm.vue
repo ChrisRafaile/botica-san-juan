@@ -3,7 +3,7 @@
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Section Header -->
       <div class="text-center mb-16">
-        <div class="inline-flex items-center px-4 py-2 bg-clinico-100 text-clinico-800 rounded-full text-sm font-medium mb-6">
+        <div class="inline-flex items-center px-4 py-2 bg-clinico-100 text-clinico-800 dark:bg-clinico-500/15 dark:text-clinico-300 rounded-full text-sm font-medium mb-6">
           <SendIcon class="w-4 h-4 mr-2" />
           Envíanos un mensaje
         </div>
@@ -205,17 +205,17 @@
         <!-- Success Message -->
         <div
           v-if="submitSuccess"
-          class="mt-8 p-6 bg-botica-50 border-2 border-botica-200 rounded-xl animate-fade-in"
+          class="mt-8 p-6 bg-botica-50 border-2 border-botica-200 dark:bg-botica-500/15 dark:border-botica-500/30 rounded-xl animate-fade-in"
         >
           <div class="flex items-center">
-            <CheckCircleIcon class="w-6 h-6 text-botica-600 mr-3 shrink-0" />
+            <CheckCircleIcon class="w-6 h-6 text-botica-600 dark:text-botica-300 mr-3 shrink-0" />
 
             <div>
-              <h3 class="font-semibold text-botica-800 mb-1">
+              <h3 class="font-semibold text-botica-800 dark:text-botica-200 mb-1">
                 ¡Mensaje enviado exitosamente!
               </h3>
 
-              <p class="text-botica-700">
+              <p class="text-botica-700 dark:text-botica-300">
                 Te responderemos lo antes posible. Gracias por contactarnos.
               </p>
             </div>
@@ -225,17 +225,17 @@
         <!-- Error Message -->
         <div
           v-if="submitError"
-          class="mt-8 p-6 bg-peligro-50 border-2 border-peligro-500/30 rounded-xl animate-fade-in"
+          class="mt-8 p-6 bg-peligro-50 border-2 border-peligro-500/30 dark:bg-peligro-500/15 rounded-xl animate-fade-in"
         >
           <div class="flex items-center">
-            <AlertCircleIcon class="w-6 h-6 text-peligro-600 mr-3 shrink-0" />
+            <AlertCircleIcon class="w-6 h-6 text-peligro-600 dark:text-peligro-400 mr-3 shrink-0" />
 
             <div>
-              <h3 class="font-semibold text-peligro-700 mb-1">
+              <h3 class="font-semibold text-peligro-700 dark:text-peligro-300 mb-1">
                 Error al enviar el mensaje
               </h3>
 
-              <p class="text-peligro-700">
+              <p class="text-peligro-700 dark:text-peligro-300">
                 {{ submitError }}
               </p>
             </div>

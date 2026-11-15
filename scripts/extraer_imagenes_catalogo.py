@@ -94,6 +94,20 @@ SINGULARES = {
     "pediatrica": "pediatrico",
 }
 
+# Adjetivos descriptivos de envase/forma que no cambian la identidad del medicamento en 2.ª pasada.
+STOPWORDS_SEGUNDA_PASADA = STOPWORDS_FORMA | {
+    "recubierto", "recubiertos", "blando", "blandos", "duro", "duros",
+    "sabor", "bebible", "antimicotica", "antimicotico",
+    "gastrorresistente", "gastrorresistentes",
+}
+
+# Sufijos de sal farmacéutica frecuentemente omitidos en nombres comerciales cuando la base es única.
+SALES_FARMACEUTICAS = {
+    "clorhidrato", "maleato", "hiclato", "sodico", "sodica",
+    "potasico", "potasica", "fumarato", "tartrato", "fosfato",
+    "sulfato", "mesilato",
+}
+
 
 class BloqueoSitioError(RuntimeError):
     """Se lanza si robots.txt prohíbe la ruta o el sitio responde con bloqueo/captcha."""
@@ -559,13 +573,126 @@ def cargar_exclusiones_manuales(ruta: Path = EXCLUSIONES_PATH) -> tuple[dict[int
     return por_producto, por_fuente
 
 
+def _claves_con_y_sin_sal(texto: str) -> tuple[set[str], set[str]]:
+    """Separa palabras clave tolerando adjetivos de forma y extrayendo la sal farmacéutica."""
+    base = {tok for tok in palabras_clave_nombre(texto) if tok not in STOPWORDS_SEGUNDA_PASADA}
+    sales = {tok for tok in base if tok in SALES_FARMACEUTICAS}
+    return base - SALES_FARMACEUTICAS, sales
+
+
+def _grupo_forma_segunda_pasada(texto: str) -> str | None:
+    """Corrige variantes morfológicas seguras (ej. 'emulgel' e 'IM/IV') sobre grupo_forma."""
+    t = norm(texto)
+    if t and _tiene_palabra(t, r"emulgel(?:es)?|gel(?:es)?|jaleas?"):
+        return "gel"
+    forma = grupo_forma(texto)
+    if forma is None and _tiene_palabra(t, r"im|iv"):
+        return "inyectable"
+    return forma
+
+
+def _formas_compatibles_segunda_pasada(
+    prod: dict[str, Any],
+    loc_forma: str | None,
+    ext_forma: str | None,
+    ext_env: str | None,
+    loc_fisicos: frozenset[tuple[float, str]],
+    ext_fisicos: frozenset[tuple[float, str]],
+    formas_locales_grupo: set[str | None],
+) -> float | None:
+    """Devuelve puntaje de forma en 2.ª pasada si es segura y compatible, o None si debe rechazarse."""
+    if not loc_forma:
+        return None
+    if ext_forma is not None:
+        if loc_forma == ext_forma:
+            return 10.0
+        # En DIGEMID los jarabes suelen registrarse como `tipo = SOLUCION` sin decir "oral".
+        contexto_loc = norm(f"{prod.get('nombre') or ''} {prod.get('presentacion') or ''}")
+        no_es_oral = _tiene_palabra(contexto_loc, r"topica|topico|oftalmic\w*|otic\w*|nasal|enema")
+        if loc_forma == "solucion" and ext_forma == "jarabe" and not no_es_oral:
+            return 6.0
+        return None
+
+    # Si el título externo omite la forma, solo se infiere cuando su envase primario la fija
+    # sin ambigüedad frente a las variantes locales del mismo producto y concentración.
+    if loc_forma in ("tableta", "capsula") and ext_env in ("blister", "caja"):
+        formas_orales = {
+            f for f in formas_locales_grupo
+            if f in ("tableta", "capsula", "capsula_blanda", "tableta_masticable", "efervescente")
+        }
+        if len(formas_orales) > 1:
+            return None
+        return 5.0
+    if loc_forma in ("jarabe", "solucion", "gotas") and ext_env == "frasco" and loc_fisicos and loc_fisicos == ext_fisicos:
+        return 6.0
+    if loc_forma == "crema" and ext_env == "tubo":
+        return 5.0
+    return None
+
+
+def _envases_y_fisicos_compatibles_segunda_pasada(
+    loc_forma: str | None,
+    loc_env: str | None,
+    ext_env: str | None,
+    loc_fisicos: frozenset[tuple[float, str]],
+    ext_fisicos: frozenset[tuple[float, str]],
+    loc_unidades: frozenset[float],
+    ext_unidades: frozenset[float],
+) -> float | None:
+    """Evalúa compatibilidad controlada de envase y contenido físico en 2.ª pasada."""
+    if loc_unidades and ext_unidades and loc_unidades != ext_unidades:
+        return None
+
+    bonus = 0.0
+    if not _envases_compatibles(loc_env, ext_env):
+        if loc_forma in ("tableta", "capsula") and loc_env in ("blister", "caja") and ext_env in ("blister", "caja"):
+            bonus -= 2.0
+        elif loc_forma == "inyectable" and loc_env in ("ampolla", "vial", "caja") and ext_env in ("ampolla", "vial", "caja"):
+            bonus -= 2.0
+        elif loc_forma == "gotas" and loc_env == "gotero" and ext_env in ("gotero", "frasco", "caja") and loc_fisicos == ext_fisicos:
+            bonus -= 2.0
+        elif loc_env is None and ext_env in ("frasco", "caja", "blister", "tubo"):
+            pass
+        else:
+            return None
+
+    if loc_env is not None and loc_env == ext_env:
+        bonus += 1.0
+
+    if loc_fisicos or ext_fisicos:
+        if loc_fisicos == ext_fisicos:
+            bonus += 8.0
+        elif loc_forma == "inyectable" and (not loc_fisicos or not ext_fisicos):
+            # Las presentaciones inyectables suelen expresar el volumen solo en la concentración ("500mg/2ml").
+            bonus += 2.0
+        elif loc_env == "frasco" and ext_env == "frasco" and not ext_fisicos and loc_fisicos and {v for v, _ in loc_fisicos} == ext_unidades:
+            bonus += 4.0
+        elif loc_forma == "crema" and loc_env == "tubo" and ext_env == "tubo" and loc_fisicos and ext_fisicos and {v for v, _ in loc_fisicos} == {v for v, _ in ext_fisicos}:
+            bonus += 3.0
+        else:
+            return None
+
+    return bonus
+
+
+def _concentracion_local(prod: dict[str, Any]) -> tuple[tuple[float, str, float, str], ...]:
+    conc_txt = str(prod.get("concentracion") or "").strip()
+    if re.fullmatch(r"0?\.\d+", conc_txt):
+        pct = float(conc_txt) * 100.0
+        conc_txt = f"{pct:g}%"
+    # Separar con "|" evita que dígitos al final del nombre y al inicio de
+    # concentración ("600" + "600") se fusionen en "600600".
+    return extraer_concentracion(f"{prod['nombre']} | {conc_txt}")
+
+
 def emparejar_productos(
     locales: list[dict[str, Any]],
     externos: list[ProductoExterno],
     exclusiones_producto: dict[int, str] | None = None,
     exclusiones_fuente: dict[str, str] | None = None,
+    segunda_pasada: bool = False,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """Empareja productos locales contra externos usando reglas conservadoras."""
+    """Empareja productos locales contra externos usando reglas conservadoras (y 2.ª pasada opcional)."""
     if exclusiones_producto is None or exclusiones_fuente is None:
         excl_prod_def, excl_fuente_def = cargar_exclusiones_manuales()
         if exclusiones_producto is None:
@@ -579,17 +706,28 @@ def emparejar_productos(
             continue
         parte_titulo = e.titulo.split(" - ")[0]
         fisicos_ext, unidades_ext = extraer_contenido_envase(e.titulo)
+        claves_sin_sal, sales_ext = _claves_con_y_sin_sal(e.titulo)
         ext_prep.append({
             "obj": e,
             "claves": set(palabras_clave_nombre(e.titulo)),
+            "claves_segunda": claves_sin_sal,
+            "sales": sales_ext,
             "conc": extraer_concentracion(e.titulo),
             "forma": grupo_forma(e.titulo),
+            "forma_segunda": _grupo_forma_segunda_pasada(e.titulo),
             "envase": detectar_envase(e.titulo),
             "fisicos": fisicos_ext,
             "unidades": unidades_ext,
             "vols": extraer_volumen_envase(e.titulo),
             "nums": set(re.findall(r"(?<!\d)\d+(?!\d)", norm(parte_titulo))),
         })
+
+    formas_por_clave_y_conc: dict[tuple[frozenset[str], tuple[Any, ...]], set[str | None]] = {}
+    if segunda_pasada:
+        for prod in locales:
+            c_seg, _ = _claves_con_y_sin_sal(prod["nombre"])
+            clave_grupo = (frozenset(c_seg), _concentracion_local(prod))
+            formas_por_clave_y_conc.setdefault(clave_grupo, set()).add(_forma_local_canonica(prod))
 
     emparejados: list[dict[str, Any]] = []
     sin_coincidencia: list[dict[str, Any]] = []
@@ -604,14 +742,8 @@ def emparejar_productos(
             sin_coincidencia.append(prod)
             continue
 
-        conc_txt = str(prod.get("concentracion") or "").strip()
-        if re.fullmatch(r"0?\.\d+", conc_txt):
-            pct = float(conc_txt) * 100.0
-            conc_txt = f"{pct:g}%"
-
-        # Separar con "|" evita que dígitos al final del nombre y al inicio de
-        # concentración ("600" + "600") se fusionen en "600600".
-        loc_conc = extraer_concentracion(f"{prod['nombre']} | {conc_txt}")
+        loc_claves_segunda, loc_sales = _claves_con_y_sin_sal(prod["nombre"])
+        loc_conc = _concentracion_local(prod)
         pres_txt = prod.get("presentacion") or ""
         loc_forma = _forma_local_canonica(prod)
         loc_envase = detectar_envase(pres_txt)
@@ -622,6 +754,7 @@ def emparejar_productos(
 
         mejor = None
         mejor_score = 0.0
+        mejor_pasada = 1
         for ext in ext_prep:
             # 1. Identidad léxica exacta de palabras clave del medicamento
             if loc_claves != ext["claves"]:
@@ -669,6 +802,39 @@ def emparejar_productos(
                 mejor_score = score
                 mejor = ext["obj"]
 
+        if mejor is None and segunda_pasada and loc_claves_segunda:
+            formas_grupo = formas_por_clave_y_conc.get((frozenset(loc_claves_segunda), loc_conc), set())
+            for ext in ext_prep:
+                if loc_claves_segunda != ext["claves_segunda"]:
+                    continue
+                if loc_sales and ext["sales"] and loc_sales != ext["sales"]:
+                    continue
+                if loc_nums_nombre and not loc_nums_nombre.issubset(ext["nums"]):
+                    continue
+                if loc_conc != ext["conc"]:
+                    continue
+
+                pts_forma = _formas_compatibles_segunda_pasada(
+                    prod, loc_forma, ext["forma_segunda"], ext["envase"], loc_fisicos, ext["fisicos"], formas_grupo
+                )
+                if pts_forma is None:
+                    continue
+
+                pts_env = _envases_y_fisicos_compatibles_segunda_pasada(
+                    loc_forma, loc_envase, ext["envase"], loc_fisicos, ext["fisicos"], loc_unidades, ext["unidades"]
+                )
+                if pts_env is None:
+                    continue
+
+                score = 60.0 + pts_forma + pts_env + (25.0 if loc_conc else 10.0)
+                if loc_sales != ext["sales"]:
+                    score -= 3.0
+
+                if score > mejor_score:
+                    mejor_score = score
+                    mejor = ext["obj"]
+                    mejor_pasada = 2
+
         if mejor is not None and mejor_score >= UMBRAL_CONSERVADOR:
             emparejados.append({
                 "producto_id": prod["id"],
@@ -681,6 +847,7 @@ def emparejar_productos(
                 "fuente_href": mejor.href,
                 "fuente_imagen_url": mejor.imagen_url,
                 "puntaje": round(mejor_score, 1),
+                "pasada": mejor_pasada,
             })
         else:
             sin_coincidencia.append(prod)
@@ -762,6 +929,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Extractor de imágenes del catálogo Botica San Juan")
     parser.add_argument("--solo-indexar", action="store_true", help="Solo indexa el catálogo público")
     parser.add_argument("--solo-emparejar", action="store_true", help="Solo evalúa coincidencias sin descargar imágenes")
+    parser.add_argument(
+        "--segunda-pasada",
+        action="store_true",
+        help="Activa la segunda pasada controlada manteniendo concentración, exclusiones y forma farmacéutica",
+    )
     parser.add_argument("--productos-json", type=Path, default=None, help="JSON opcional con productos locales")
     args = parser.parse_args()
 
@@ -775,9 +947,10 @@ def main() -> int:
             return 0
 
         locales = cargar_productos_locales(args.productos_json)
-        emparejados, sin_coincidencia = emparejar_productos(locales, externos)
+        emparejados, sin_coincidencia = emparejar_productos(locales, externos, segunda_pasada=args.segunda_pasada)
+        etiqueta_pasada = "Segunda pasada controlada" if args.segunda_pasada else "Emparejamiento conservador"
         print(
-            f"Emparejamiento conservador (umbral >= {UMBRAL_CONSERVADOR}): "
+            f"{etiqueta_pasada} (umbral >= {UMBRAL_CONSERVADOR}): "
             f"{len(emparejados)}/{len(locales)} productos emparejados "
             f"({len(sin_coincidencia)} conservan respaldo)."
         )
@@ -785,7 +958,7 @@ def main() -> int:
         if args.solo_emparejar:
             for m in emparejados:
                 print(
-                    f"  [OK {m['puntaje']}] #{m['producto_id']} {m['nombre']} | conc={m['concentracion']} | "
+                    f"  [OK {m['puntaje']} P{m['pasada']}] #{m['producto_id']} {m['nombre']} | conc={m['concentracion']} | "
                     f"pres={m['presentacion']} | tipo={m['tipo']} -> {m['fuente_titulo']} [{m['fuente_pid']}]"
                 )
             return 0
@@ -838,6 +1011,7 @@ def main() -> int:
                 "fuente_titulo": m["fuente_titulo"],
                 "fuente_url": f"{BASE_URL}{m['fuente_href']}" if m["fuente_href"].startswith("/") else m["fuente_href"],
                 "puntaje": m["puntaje"],
+                "pasada": m.get("pasada", 1),
             })
 
         archivos_activos = {Path(c["imagen"]).name for c in correspondencias}

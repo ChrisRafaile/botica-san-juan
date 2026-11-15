@@ -2,7 +2,7 @@
   <section class="py-24 bg-superficie-elevada">
     <div class="container mx-auto px-6">
       <div class="text-center mb-16">
-        <div class="inline-flex items-center gap-2 bg-clinico-100 text-clinico-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+        <div class="inline-flex items-center gap-2 bg-clinico-100 text-clinico-700 dark:bg-clinico-500/15 dark:text-clinico-300 px-4 py-2 rounded-full text-sm font-medium mb-6">
           <MapPinIcon class="w-4 h-4" />
           Selecciona tu Zona
         </div>
@@ -28,7 +28,7 @@
               :class="[
                 'p-4 rounded-lg border-2 transition-all text-left hover:shadow-md',
                 selectedDistrict?.id === district.id
-                  ? 'border-clinico-500 bg-clinico-50 text-clinico-700 shadow-md'
+                  ? 'border-clinico-500 bg-clinico-50 text-clinico-700 dark:bg-clinico-500/15 dark:text-clinico-300 shadow-md'
                   : 'border-borde-control hover:border-clinico-300 hover:bg-superficie-hundida'
               ]"
               @click="selectDistrict(district)"
@@ -64,11 +64,11 @@
           </div>
 
           <!-- Address Info -->
-          <div class="mt-6 p-4 bg-clinico-50 rounded-lg">
-            <h4 class="font-semibold text-clinico-800 mb-2">
+          <div class="mt-6 p-4 bg-clinico-50 dark:bg-clinico-500/15 rounded-lg">
+            <h4 class="font-semibold text-clinico-800 dark:text-clinico-200 mb-2">
               📍 Dirección de Nuestra Botica
             </h4>
-            <p class="text-clinico-700">
+            <p class="text-clinico-700 dark:text-clinico-300">
               Av. Sta. Rosa de Lima 103<br />
               San Juan de Lurigancho 15423, Perú
             </p>

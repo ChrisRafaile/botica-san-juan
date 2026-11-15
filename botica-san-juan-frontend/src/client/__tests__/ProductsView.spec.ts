@@ -3,6 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ProductsView from '../ProductsView.vue'
 import productsService, { type Product } from '@/services/products'
+import { normalizarTexto } from '@/stores/productos'
 
 vi.mock('vue-router', () => ({
   RouterLink: {
@@ -108,5 +109,27 @@ describe('ProductsView — imágenes reales del catálogo y respaldo', () => {
 
     expect(wrapper.find('img[src*="38530.webp"]').exists()).toBe(false)
     expect(wrapper.findAll('img[src*="/formas/"]').length).toBe(2)
+  })
+
+  it('usa Destacados / Relevancia como orden inicial y ofrece la opción en el selector', async () => {
+    const listarSpy = vi.spyOn(productsService, 'listar')
+    const wrapper = montarCatalogo()
+    await flushPromises()
+
+    expect(listarSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orden: 'destacados',
+      }),
+    )
+
+    const select = wrapper.find('#f-orden')
+    expect((select.element as HTMLSelectElement).value).toBe('destacados')
+    const primeraOpcion = select.find('option').text()
+    expect(primeraOpcion).toBe('Destacados / Relevancia')
+  })
+
+  it('normaliza textos quitando tildes y mayúsculas sin perder coincidencia', () => {
+    expect(normalizarTexto('Ácido Acetilsalicílico')).toBe('acido acetilsalicilico')
+    expect(normalizarTexto('  AMOXICILINA  ')).toBe('amoxicilina')
   })
 })

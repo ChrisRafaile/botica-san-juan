@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Categoria;
+use App\Models\Lote;
 use App\Models\Producto;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -167,6 +168,35 @@ class CatalogoPublicoTest extends TestCase
         $this->assertSame('Ibuprofeno', $respuesta->json('datos.0.nombre'));
     }
 
+    public function test_la_busqueda_ignora_tildes_mayusculas_y_escapa_comodines(): void
+    {
+        $this->producto(['nombre' => 'AMOXICILINA 500 mg']);
+        $this->producto([
+            'nombre' => 'ÁCIDO ACETILSALICÍLICO 100 mg',
+            'principio_activo' => 'Ácido acetilsalicílico',
+        ]);
+        $this->producto(['nombre' => 'Alcohol al 70%']);
+
+        $this->getJson('/api/catalogo?buscar=amoxicilina')
+            ->assertOk()
+            ->assertJsonPath('paginacion.total', 1)
+            ->assertJsonPath('datos.0.nombre', 'AMOXICILINA 500 mg');
+
+        $this->getJson('/api/catalogo?buscar=acido%20acetilsalicilico')
+            ->assertOk()
+            ->assertJsonPath('paginacion.total', 1)
+            ->assertJsonPath('datos.0.nombre', 'ÁCIDO ACETILSALICÍLICO 100 mg');
+
+        $this->getJson('/api/catalogo?buscar=%25')
+            ->assertOk()
+            ->assertJsonPath('paginacion.total', 1)
+            ->assertJsonPath('datos.0.nombre', 'Alcohol al 70%');
+
+        $this->getJson('/api/catalogo?buscar=___')
+            ->assertOk()
+            ->assertJsonPath('paginacion.total', 0);
+    }
+
     public function test_se_puede_filtrar_por_el_slug_de_la_categoria(): void
     {
         /* Por el slug y no solo por el id: un consumidor externo descubre el
@@ -217,6 +247,36 @@ class CatalogoPublicoTest extends TestCase
 
         $this->assertContains('Hay', $nombres);
         $this->assertNotContains('Agotado', $nombres);
+    }
+
+    public function test_los_destacados_ponen_primero_lo_disponible_con_fotografia_real(): void
+    {
+        /* El portal del cliente pinta esta lista como «Recomendados». Ordenada
+           por nombre salía entera con la ilustración genérica, aunque el
+           catálogo tuviera cientos de fotos: las primeras letras no las tenían. */
+        $sinFoto = $this->producto([
+            'nombre' => 'Aspirina 100 mg',
+            'imagen' => 'images/default_image.png',
+        ]);
+        $conFoto = $this->producto([
+            'nombre' => 'Panadol Antigripal',
+            'imagen' => 'storage/productos/00141.webp',
+        ]);
+
+        foreach ([$sinFoto, $conFoto] as $indice => $producto) {
+            Lote::create([
+                'producto_id' => $producto->id,
+                'codigo_lote' => 'LOT-DEST-'.$indice,
+                'fecha_vencimiento' => now()->addMonths(6),
+                'cantidad_inicial' => 40,
+                'cantidad_actual' => 40,
+                'estado' => 'activo',
+            ]);
+        }
+
+        $nombres = array_column($this->getJson('/api/catalogo/destacados')->json('datos'), 'nombre');
+
+        $this->assertSame(['Panadol Antigripal', 'Aspirina 100 mg'], $nombres);
     }
 
     public function test_los_destacados_declaran_su_criterio(): void

@@ -59,8 +59,6 @@ class PosController extends Controller
             return response()->json(['data' => []]);
         }
 
-        $patron = '%' . str_replace('%', '\%', $termino) . '%';
-
         $productos = Producto::query()
             ->select([
                 'id', 'nombre', 'concentracion', 'presentacion', 'laboratorio',
@@ -69,9 +67,8 @@ class PosController extends Controller
                 'codigo_barras', 'principio_activo', 'requiere_receta',
                 'afecto_igv', 'tipo_afectacion_igv', 'base_legal_exoneracion', 'stock',
             ])
-            ->where(function ($q) use ($patron, $termino) {
-                $q->where('nombre', 'ILIKE', $patron)
-                  ->orWhere('principio_activo', 'ILIKE', $patron)
+            ->where(function ($q) use ($termino) {
+                $q->buscar($termino, ['nombre', 'principio_activo'])
                   ->orWhere('codigo_barras', '=', $termino);
             })
             ->orderBy('nombre')
