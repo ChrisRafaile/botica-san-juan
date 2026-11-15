@@ -6,6 +6,8 @@ use App\Models\Categoria;
 use App\Models\Lote;
 use App\Models\Producto;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
@@ -266,5 +268,95 @@ class ProductoApiTest extends TestCase
             [$disponibleConFoto->id, $disponibleSinFoto->id, $conStockSoloVencido->id],
             $ids
         );
+    }
+
+    public function test_el_administrador_puede_subir_reemplazar_y_quitar_imagen_de_producto(): void
+    {
+        Storage::fake('public');
+        $token = $this->tokenAdministrador();
+        $archivo = UploadedFile::fake()->image('caja.webp', 600, 600);
+
+        $creado = $this->withHeader('Authorization', "Bearer {$token}")
+            ->post('/api/productos', $this->datosDeProducto(['imagen' => $archivo]))
+            ->assertCreated();
+
+        $rutaInicial = $creado->json('imagen');
+        $this->assertStringStartsWith('storage/productos/', $rutaInicial);
+        Storage::disk('public')->assertExists(substr($rutaInicial, strlen('storage/')));
+
+        // Edición multipart mediante POST + _method=PUT
+        $nuevaImagen = UploadedFile::fake()->image('nueva.jpg', 500, 500);
+        $actualizado = $this->withHeader('Authorization', "Bearer {$token}")
+            ->post("/api/productos/{$creado->json('id')}", [
+                '_method' => 'PUT',
+                'nombre' => 'Paracetamol Actualizado',
+                'imagen' => $nuevaImagen,
+            ])
+            ->assertOk();
+
+        $rutaNueva = $actualizado->json('imagen');
+        $this->assertNotSame($rutaInicial, $rutaNueva);
+        Storage::disk('public')->assertMissing(substr($rutaInicial, strlen('storage/')));
+        Storage::disk('public')->assertExists(substr($rutaNueva, strlen('storage/')));
+
+        // Quitar imagen limpia el archivo huérfano y restablece la marca por defecto
+        $sinImagen = $this->withHeader('Authorization', "Bearer {$token}")
+            ->post("/api/productos/{$creado->json('id')}", [
+                '_method' => 'PUT',
+                'quitar_imagen' => '1',
+            ])
+            ->assertOk();
+
+        $this->assertSame('images/default_image.png', $sinImagen->json('imagen'));
+        Storage::disk('public')->assertMissing(substr($rutaNueva, strlen('storage/')));
+    }
+
+    public function test_solo_el_administrador_puede_crear_o_actualizar_productos(): void
+    {
+        $producto = Producto::create($this->datosDeProducto());
+
+        $this->postJson('/api/productos', $this->datosDeProducto())
+            ->assertUnauthorized();
+
+        $clienteToken = $this->crearCliente()->createToken('cliente')->plainTextToken;
+        $this->withHeader('Authorization', "Bearer {$clienteToken}")
+            ->postJson('/api/productos', $this->datosDeProducto())
+            ->assertForbidden();
+
+        $this->withHeader('Authorization', "Bearer {$clienteToken}")
+            ->putJson("/api/productos/{$producto->id}", ['nombre' => 'No Permitido'])
+            ->assertForbidden();
+    }
+
+    public function test_rechaza_imagenes_invalidas_muy_pesadas_o_de_dimensiones_excesivas(): void
+    {
+        Storage::fake('public');
+        $producto = Producto::create($this->datosDeProducto());
+        $adminToken = $this->tokenAdministrador();
+
+        // Formato no permitido
+        $this->withHeader('Authorization', "Bearer {$adminToken}")
+            ->postJson('/api/productos', $this->datosDeProducto([
+                'imagen' => UploadedFile::fake()->create('archivo.txt', 20, 'text/plain'),
+            ]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('imagen');
+
+        // Peso mayor a 2 MB
+        $this->withHeader('Authorization', "Bearer {$adminToken}")
+            ->postJson('/api/productos', $this->datosDeProducto([
+                'imagen' => UploadedFile::fake()->create('pesada.jpg', 2500, 'image/jpeg'),
+            ]))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('imagen');
+
+        // Dimensiones mayores a 4000 px
+        $this->withHeader('Authorization', "Bearer {$adminToken}")
+            ->postJson("/api/productos/{$producto->id}", [
+                '_method' => 'PUT',
+                'imagen' => UploadedFile::fake()->image('gigante.png', 4100, 10),
+            ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('imagen');
     }
 }

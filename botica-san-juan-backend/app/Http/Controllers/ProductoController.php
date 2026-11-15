@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\DigemidCatalogo;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\ValidationException;
 
 class ProductoController extends Controller
@@ -236,10 +239,11 @@ class ProductoController extends Controller
             'principio_activo' => 'nullable|string|max:255',
             'requiere_receta' => 'nullable|boolean',
             'laboratorio_fabricante' => 'nullable|string|max:255',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'imagen' => $this->reglasImagen(),
+            'quitar_imagen' => 'nullable|boolean',
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['imagen', 'quitar_imagen', '_method']);
         $data['unidad_base'] = $data['unidad_base'] ?? 'unidad';
         $data['venta_fraccionada'] = (bool) ($data['venta_fraccionada'] ?? false);
 
@@ -252,12 +256,8 @@ class ProductoController extends Controller
 
         $this->validateDigemidCompliance($data);
 
-        // Handle image upload
         if ($request->hasFile('imagen')) {
-            $image = $request->file('imagen');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('images/productos'), $imageName);
-            $data['imagen'] = url('/images/productos/' . $imageName);
+            $data['imagen'] = $this->guardarImagenSubida($request);
         }
 
         $producto = Producto::create($data);
@@ -305,10 +305,11 @@ class ProductoController extends Controller
             'principio_activo' => 'nullable|string|max:255',
             'requiere_receta' => 'nullable|boolean',
             'laboratorio_fabricante' => 'nullable|string|max:255',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'imagen' => $this->reglasImagen(),
+            'quitar_imagen' => 'nullable|boolean',
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['imagen', 'quitar_imagen', '_method']);
         if (array_key_exists('venta_fraccionada', $data) && !$data['venta_fraccionada']) {
             $data['unidades_por_blister'] = null;
             $data['blisters_por_caja'] = null;
@@ -318,17 +319,12 @@ class ProductoController extends Controller
 
         $this->validateDigemidCompliance($data, $producto);
 
-        // Handle image upload
         if ($request->hasFile('imagen')) {
-            // Delete old image if exists
-            if ($producto->imagen && file_exists(public_path($producto->imagen))) {
-                unlink(public_path($producto->imagen));
-            }
-
-            $image = $request->file('imagen');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('images/productos'), $imageName);
-            $data['imagen'] = url('/images/productos/' . $imageName);
+            $this->eliminarImagenHuerfana($producto->imagen, $producto->id);
+            $data['imagen'] = $this->guardarImagenSubida($request);
+        } elseif ($request->boolean('quitar_imagen')) {
+            $this->eliminarImagenHuerfana($producto->imagen, $producto->id);
+            $data['imagen'] = 'images/default_image.png';
         }
 
         $producto->update($data);
@@ -459,5 +455,48 @@ class ProductoController extends Controller
         if (empty($data['laboratorio_fabricante']) && !empty($catalogo->laboratorio_fabricante)) {
             $data['laboratorio_fabricante'] = $catalogo->laboratorio_fabricante;
         }
+    }
+
+    /**
+     * Reglas de validación compartidas entre alta y edición: formato seguro, ≤ 2 MB y ≤ 4000×4000 px.
+     */
+    private function reglasImagen(): array
+    {
+        return [
+            'nullable',
+            File::image()
+                ->types(['jpg', 'jpeg', 'png', 'webp'])
+                ->max(2 * 1024)
+                ->dimensions(Rule::dimensions()->maxWidth(4000)->maxHeight(4000)),
+        ];
+    }
+
+    private function guardarImagenSubida(Request $request): string
+    {
+        $ruta = $request->file('imagen')->store('productos', 'public');
+
+        return 'storage/' . $ruta;
+    }
+
+    /**
+     * Elimina el archivo en el disco público únicamente si pertenece a `storage/` y ningún otro producto lo referencia
+     * (evita borrar una foto WebP compartida del catálogo maestro).
+     */
+    private function eliminarImagenHuerfana(?string $rutaActual, int $productoId): void
+    {
+        $relativa = ltrim(trim((string) $rutaActual), '/');
+        if (! str_starts_with($relativa, 'storage/')) {
+            return;
+        }
+
+        $compartida = Producto::where('id', '!=', $productoId)
+            ->where('imagen', $rutaActual)
+            ->exists();
+
+        if ($compartida) {
+            return;
+        }
+
+        Storage::disk('public')->delete(substr($relativa, strlen('storage/')));
     }
 }
