@@ -75,6 +75,24 @@ describe('ClientHomeView.vue', () => {
           },
         }
       }
+      if (url === '/catalogo/destacados') {
+        return {
+          data: {
+            datos: [
+              {
+                id: 301,
+                nombre: 'Panadol Antigripal',
+                concentracion: '500 mg',
+                presentacion: 'Caja x 10',
+                precio: 18.5,
+                disponible: true,
+                requiere_receta: false,
+                imagen: null,
+              },
+            ],
+          },
+        }
+      }
       if (url === '/facturacion/documentos/88/pdf') {
         return {
           data: new Blob(['%PDF-1.4 mock'], { type: 'application/pdf' }),
@@ -170,6 +188,24 @@ describe('ClientHomeView.vue', () => {
           },
         }
       }
+      if (url === '/catalogo/destacados') {
+        return {
+          data: {
+            datos: [
+              {
+                id: 301,
+                nombre: 'Panadol Antigripal',
+                concentracion: '500 mg',
+                presentacion: 'Caja x 10',
+                precio: 18.5,
+                disponible: true,
+                requiere_receta: false,
+                imagen: null,
+              },
+            ],
+          },
+        }
+      }
       if (url === '/facturacion/documentos/88/pdf') {
         throw new Error('HTTP 401')
       }
@@ -188,5 +224,20 @@ describe('ClientHomeView.vue', () => {
     const alerta = wrapper.find('[role="alert"]')
     expect(alerta.exists()).toBe(true)
     expect(alerta.text()).toContain('B001-00000012')
+  })
+
+  it('muestra productos recomendados con fotografía y agrega al carrito en un clic', async () => {
+    const wrapper = montar()
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Recomendados y más buscados')
+    expect(wrapper.text()).toContain('Panadol Antigripal')
+
+    const btnAgregar = wrapper.findAll('button').find((b) => b.text().trim() === 'Agregar')
+    expect(btnAgregar).toBeDefined()
+    await btnAgregar!.trigger('click')
+
+    expect(useCartStore().totalUnidades).toBe(1)
+    expect(wrapper.text()).toContain('Agregado')
   })
 })
