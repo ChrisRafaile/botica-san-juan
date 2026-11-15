@@ -11,7 +11,7 @@
  * tuviera el suyo, las reglas de tamaño y los mensajes se separarían a la
  * primera corrección hecha en uno solo.
  */
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { urlDeMedia } from '@/utils/media'
 import {
@@ -23,10 +23,11 @@ import {
 } from '@/services/perfil'
 import { reenviarVerificacion } from '@/services/correos'
 import { erroresPorCampo } from '@/utils/validacionServidor'
-import { MailWarning } from 'lucide-vue-next'
+import { MailWarning, MapPin, Palette } from 'lucide-vue-next'
 import ZonaDeFoto from '@/components/ZonaDeFoto.vue'
 import MedidorDeContrasena from '@/components/MedidorDeContrasena.vue'
 import DialogoConfirmacion from '@/components/DialogoConfirmacion.vue'
+import SelectorTema from '@/components/SelectorTema.vue'
 
 const auth = useAuthStore()
 
@@ -70,7 +71,8 @@ const aviso = ref<{ tipo: 'exito' | 'error'; texto: string } | null>(null)
 const erroresDatos = ref<Record<string, string>>({})
 const erroresClave = ref<Record<string, string>>({})
 
-const datos = reactive({ nombre: '', email: '', telefono: '', dni: '' })
+const datos = reactive({ nombre: '', email: '', telefono: '', dni: '', direccion_entrega: '' })
+let timerAviso: number | undefined
 
 /* Quien entró con Google no tiene DNI. Se mira el usuario de la sesión y no
    una bandera aparte: la fuente de verdad es la cuenta. */
@@ -85,11 +87,21 @@ onMounted(() => {
   datos.nombre = usuario.value?.nombre ?? ''
   datos.email = usuario.value?.email ?? ''
   datos.telefono = usuario.value?.telefono ?? ''
+  datos.direccion_entrega = usuario.value?.direccion_entrega ?? ''
+})
+
+onUnmounted(() => {
+  if (timerAviso !== undefined) {
+    window.clearTimeout(timerAviso)
+  }
 })
 
 function anunciar(tipo: 'exito' | 'error', texto: string) {
   aviso.value = { tipo, texto }
-  window.setTimeout(() => { aviso.value = null }, 5000)
+  if (timerAviso !== undefined) {
+    window.clearTimeout(timerAviso)
+  }
+  timerAviso = window.setTimeout(() => { aviso.value = null }, 5000)
 }
 
 async function alSeleccionarFoto(archivo: File) {
@@ -124,8 +136,12 @@ async function guardarDatos() {
        haría fallar por obligatorio, y enviarlo cuando ya existe lo haría
        fallar porque no se puede cambiar: en los dos casos el formulario
        rechazaría un dato que la persona ni tocó. */
-    const { dni, ...resto } = datos
-    const cuerpo = faltaDni.value && dni.trim() !== '' ? { ...resto, dni: dni.trim() } : resto
+    const { dni, direccion_entrega, ...resto } = datos
+    const cuerpo = {
+      ...resto,
+      direccion_entrega: direccion_entrega.trim() || null,
+      ...(faltaDni.value && dni.trim() !== '' ? { dni: dni.trim() } : {}),
+    }
 
     auth.setUser(await guardarDatosPersonales(cuerpo))
     anunciar('exito', 'Datos guardados.')
@@ -194,13 +210,13 @@ async function confirmarDesvinculacion() {
 </script>
 
 <template>
-  <section class="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
-    <header class="mb-8">
-      <h1 class="text-3xl font-bold text-texto-primario">
-        Mi perfil
+  <section class="mx-auto w-full max-w-3xl space-y-6">
+    <header>
+      <h1 class="text-2xl font-bold tracking-tight text-texto-primario sm:text-3xl">
+        Mi perfil y direcciones
       </h1>
-      <p class="mt-1 text-texto-secundario">
-        Tu foto, tus datos de contacto y tu contraseña.
+      <p class="mt-1 text-sm text-texto-secundario">
+        Tu foto, datos de contacto, dirección predeterminada de envío y preferencias de tema.
       </p>
     </header>
 
@@ -319,6 +335,27 @@ async function confirmarDesvinculacion() {
               v-if="erroresDatos.email"
               class="mt-1 block text-xs text-peligro-600"
             >{{ erroresDatos.email }}</span>
+          </label>
+
+          <label class="block sm:col-span-2">
+            <span class="mb-1 inline-flex items-center gap-1.5 text-sm font-medium text-texto-secundario">
+              <MapPin class="size-4 text-texto-terciario" aria-hidden="true" />
+              Dirección de entrega predeterminada
+            </span>
+            <input
+              v-model="datos.direccion_entrega"
+              type="text"
+              maxlength="255"
+              placeholder="Ej. Av. Próceres de la Independencia 1840, SJL"
+              class="w-full rounded-lg border border-borde-base bg-superficie-base px-3 py-2 text-texto-primario focus:border-botica-500 focus:outline-none focus:ring-2 focus:ring-botica-500/20"
+            >
+            <span
+              v-if="erroresDatos.direccion_entrega"
+              class="mt-1 block text-xs text-peligro-600"
+            >{{ erroresDatos.direccion_entrega }}</span>
+            <span v-else class="mt-1 block text-xs text-texto-terciario">
+              La precargaremos cuando elijas envío a domicilio al finalizar tu compra.
+            </span>
           </label>
 
           <!-- El DNI no se CAMBIA: identifica a la persona en los
@@ -443,6 +480,22 @@ async function confirmarDesvinculacion() {
             </button>
           </div>
         </form>
+      </article>
+
+      <!-- Preferencias de apariencia -->
+      <article class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-5">
+        <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <h2 class="flex items-center gap-2 text-lg font-semibold text-texto-primario">
+              <Palette class="size-5 text-texto-marca" aria-hidden="true" />
+              Preferencias de apariencia
+            </h2>
+            <p class="mt-0.5 text-sm text-texto-secundario">
+              Elige tema claro, oscuro o automático según la configuración de tu dispositivo.
+            </p>
+          </div>
+          <SelectorTema modo="segmentado" />
+        </div>
       </article>
 
       <!-- Acceso con Google. La tarjeta solo aparece si la cuenta está

@@ -19,6 +19,7 @@ export interface User {
    */
   dni: string | null
   telefono?: string
+  direccion_entrega?: string | null
   foto?: string
   foto_perfil?: string
   foto_portada?: string
