@@ -248,4 +248,180 @@ describe('ProductoDetalleView.vue (Ficha de Producto en /catalogo/:id)', () => {
     await botonZoom.trigger('click')
     expect(botonZoom.attributes('aria-pressed')).toBe('true')
   })
+
+  it('reserva altura compartida entre el skeleton y el detalle, y mantiene placeholder mientras cargan los recomendados', async () => {
+    /* El tipo se deriva del constructor de Promise en vez de escribirse como
+       `(valor: T) => void`: la regla no-unused-vars del proyecto cuenta el
+       nombre del parámetro de un tipo de función como variable sin usar. */
+    type Resolver<T> = Parameters<ConstructorParameters<typeof Promise<T>>[0]>[0]
+    let resolverProducto!: Resolver<Product>
+    let resolverRecomendados!: Resolver<{
+      items: Product[]
+      total: number
+      pagina: number
+      porPagina: number
+      ultimaPagina: number
+    }>
+
+    vi.spyOn(productsService, 'getProductById').mockReturnValue(
+      new Promise((resolve) => {
+        resolverProducto = resolve
+      }),
+    )
+    vi.spyOn(productsService, 'listar').mockReturnValue(
+      new Promise((resolve) => {
+        resolverRecomendados = resolve
+      }),
+    )
+
+    const wrapper = montarComponente()
+    await flushPromises()
+
+    // Fase 1: cargando producto dentro del contenedor con altura reservada
+    const contenedor = wrapper.find('[data-testid="contenedor-ficha-producto"]')
+    expect(contenedor.exists()).toBe(true)
+    expect(contenedor.classes().some((c) => c.startsWith('min-h-'))).toBe(true)
+    expect(contenedor.find('[data-testid="skeleton-producto"]').exists()).toBe(true)
+    expect(contenedor.find('[data-testid="skeleton-producto"] .aspect-square').exists()).toBe(true)
+
+    // Fase 2: llega GET /api/productos/:id, recomendados sigue pendiente
+    resolverProducto(amoxicilina)
+    await flushPromises()
+
+    const mismoContenedor = wrapper.find('[data-testid="contenedor-ficha-producto"]')
+    expect(mismoContenedor.exists()).toBe(true)
+    expect(mismoContenedor.find('[data-testid="skeleton-producto"]').exists()).toBe(false)
+    expect(mismoContenedor.find('[data-testid="detalle-producto"]').exists()).toBe(true)
+    expect(mismoContenedor.find('[data-testid="seccion-recomendados"]').exists()).toBe(true)
+    expect(mismoContenedor.find('[data-testid="skeleton-recomendados"]').exists()).toBe(true)
+
+    // Fase 3: llegan los recomendados y reemplazan el placeholder dentro de la misma sección
+    resolverRecomendados({
+      items: [productoRecomendado],
+      total: 1,
+      pagina: 1,
+      porPagina: 10,
+      ultimaPagina: 1,
+    })
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid="skeleton-recomendados"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="seccion-recomendados"]').text()).toContain('Cefalexina 500 mg')
+  })
+
+  it('usa directamente la ilustración de respaldo si el producto solo tiene default_image.png', async () => {
+    const paracetamol: Product = {
+      ...amoxicilina,
+      id: 210,
+      nombre: 'PARACETAMOL 500 MG',
+      tipo: 'TABLETA',
+      imagen: 'images/default_image.png',
+    }
+    vi.spyOn(productsService, 'getProductById').mockResolvedValue(paracetamol)
+    vi.spyOn(productsService, 'listar').mockResolvedValue({
+      items: [],
+      total: 0,
+      pagina: 1,
+      porPagina: 10,
+      ultimaPagina: 1,
+    })
+
+    const wrapper = montarComponente()
+    await flushPromises()
+
+    expect(wrapper.find('[data-testid="imagen-producto"]').exists()).toBe(false)
+    const respaldo = wrapper.find('[data-testid="ilustracion-referencial"] img')
+    expect(respaldo.exists()).toBe(true)
+    expect(respaldo.attributes('src')).toContain('/formas/')
+  })
+
+  it('mantiene dimensiones explícitas y reemplaza la foto de un recomendado si falla la carga', async () => {
+    const azitromicina: Product = {
+      ...amoxicilina,
+      id: 305,
+      nombre: 'AZITROMICINA 500 MG',
+      tipo: 'TABLETA',
+      imagen: 'storage/productos/14764.webp',
+    }
+    vi.spyOn(productsService, 'getProductById').mockResolvedValue({
+      ...amoxicilina,
+      imagen: 'storage/productos/38530.webp',
+    })
+    vi.spyOn(productsService, 'listar').mockResolvedValue({
+      items: [azitromicina],
+      total: 1,
+      pagina: 1,
+      porPagina: 10,
+      ultimaPagina: 1,
+    })
+
+    const wrapper = montarComponente()
+    await flushPromises()
+
+    const imgPrincipal = wrapper.find('[data-testid="imagen-producto"]')
+    expect(imgPrincipal.exists()).toBe(true)
+    expect(imgPrincipal.attributes('src')).toContain('/storage/productos/38530.webp')
+    expect(imgPrincipal.attributes('width')).toBe('600')
+    expect(imgPrincipal.attributes('height')).toBe('600')
+
+    const recomendados = wrapper.find('[data-testid="seccion-recomendados"]')
+    const imgRec = recomendados.find('img[src*="14764.webp"]')
+    expect(imgRec.exists()).toBe(true)
+    expect(imgRec.attributes('width')).toBe('240')
+    expect(imgRec.attributes('height')).toBe('240')
+
+    await imgRec.trigger('error')
+    await flushPromises()
+
+    expect(recomendados.find('img[src*="14764.webp"]').exists()).toBe(false)
+    expect(recomendados.find('img[src*="/formas/"]').exists()).toBe(true)
+  })
+
+  it('desactiva la transición del zoom manual cuando prefers-reduced-motion está activo y usa tokens del design system', async () => {
+    const matchMediaOriginal = window.matchMedia
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: query === '(prefers-reduced-motion: reduce)',
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
+
+    try {
+      vi.spyOn(productsService, 'getProductById').mockResolvedValue({
+        ...amoxicilina,
+        imagen: 'storage/productos/38530.webp',
+      })
+      vi.spyOn(productsService, 'listar').mockResolvedValue({
+        items: [],
+        total: 0,
+        pagina: 1,
+        porPagina: 10,
+        ultimaPagina: 1,
+      })
+
+      const wrapper = montarComponente()
+      await flushPromises()
+
+      const img = wrapper.find('[data-testid="imagen-producto"]')
+      const marco = img.element.parentElement
+      expect(marco?.className).toContain('bg-superficie-foto')
+      expect(marco?.className).toContain('ring-borde-sutil')
+      expect(marco?.className).not.toContain('bg-white')
+      expect((img.element as HTMLImageElement).style.transition).toBe('none')
+
+      const botonZoom = wrapper.find('button[aria-label="Ampliar imagen de producto"]')
+      await botonZoom.trigger('click')
+      await flushPromises()
+
+      const imgElemento = img.element as HTMLImageElement
+      expect(imgElemento.style.transform).toBe('scale(1.8)')
+      expect(imgElemento.style.transition).toBe('none')
+    } finally {
+      window.matchMedia = matchMediaOriginal
+    }
+  })
 })

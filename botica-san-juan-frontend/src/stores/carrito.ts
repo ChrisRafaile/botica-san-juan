@@ -304,14 +304,17 @@ export const useCartStore = defineStore('cart', () => {
    * No se le pasa el precio: lo vuelve a calcular el servidor sobre el
    * catálogo, igual que al cotizar.
    */
-  const confirmar = async (datosInvitado?: {
-    cliente_nombre: string
-    cliente_documento: string
-    cliente_telefono: string
+  const confirmar = async (datosCheckout?: {
+    modalidad_entrega?: 'recojo' | 'entrega'
+    tipo_comprobante?: 'boleta' | 'factura'
+    direccion?: string
+    cliente_nombre?: string
+    cliente_documento?: string
+    cliente_telefono?: string
   }) => {
     const { data } = await api.post('/pedidos/confirmar', {
       items: guardadas.value,
-      ...(datosInvitado ?? {}),
+      ...(datosCheckout ?? {}),
     })
 
     /* El carrito se vacía SÓLO si el servidor confirmó. Vaciarlo antes, o a la
@@ -321,7 +324,8 @@ export const useCartStore = defineStore('cart', () => {
 
     return data as {
       pedido: { id: number; total: number }
-      comprobante: { tipo: string; identificador: string; estado_sunat: string }
+      modalidad_entrega?: 'recojo' | 'entrega'
+      comprobante: { id?: number; tipo: string; identificador: string; estado_sunat: string }
       seguimiento: { pedido_id: number; invitado: boolean }
     }
   }
