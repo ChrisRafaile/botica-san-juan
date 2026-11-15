@@ -210,8 +210,12 @@
          no el inventario. Decirlo evita que alguien compre de más creyendo que
          le falta media botica. -->
     <p
-      v-if="umbralesSospechosos"
-      class="mb-6 rounded-xl bg-alerta-50 px-4 py-3 text-sm leading-relaxed text-alerta-700 dark:bg-alerta-500/10 dark:text-alerta-500"
+      v-if="umbralesSospechosos || huecoDeUmbralesReservado"
+      :class="[
+        'mb-6 rounded-xl bg-alerta-50 px-4 py-3 text-sm leading-relaxed text-alerta-700 dark:bg-alerta-500/10 dark:text-alerta-500',
+        { invisible: !umbralesSospechosos },
+      ]"
+      :aria-hidden="!umbralesSospechosos"
     >
       La mayoría del catálogo aparece por reponer. Eso suele significar que el
       stock mínimo por defecto no encaja con este inventario: conviene fijar el
@@ -845,13 +849,24 @@ const fetchProducts = async (page = 1) => {
    hueco ya está reservado, o ya no está, antes de que responda la red. */
 const CLAVE_UMBRALES = 'botica:admin:umbrales-sospechosos'
 
-function leerUmbralesRecordados(): boolean {
+function leerUmbralesRecordados(): boolean | null {
   try {
-    return localStorage.getItem(CLAVE_UMBRALES) === '1'
+    const guardado = localStorage.getItem(CLAVE_UMBRALES)
+    return guardado === null ? null : guardado === '1'
   } catch {
-    return false
+    return null
   }
 }
+
+const umbralesRecordados = leerUmbralesRecordados()
+
+/* La primera visita de un navegador no tiene nada recordado, y ahí el aviso
+   volvía a empujar la tabla. Mientras no se sabe la respuesta se reserva su
+   hueco con el propio párrafo, invisible: si resulta que hay que mostrarlo,
+   aparece donde ya estaba; si no, queda un espacio en blanco solo en esa
+   visita. Un hueco de una vez es preferible a un salto bajo el cursor de
+   quien ya iba a pulsar una fila. */
+const huecoDeUmbralesReservado = umbralesRecordados === null
 
 function recordarUmbrales(valor: boolean): void {
   try {
@@ -861,7 +876,7 @@ function recordarUmbrales(valor: boolean): void {
   }
 }
 
-const umbralesSospechosos = ref(leerUmbralesRecordados())
+const umbralesSospechosos = ref(umbralesRecordados === true)
 
 const cargarResumen = async () => {
   try {

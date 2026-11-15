@@ -104,6 +104,68 @@ describe('Panel admin — miniaturas reales y subida segura de imágenes', () =>
     expect(wrapper.find('img[src*="default_image"]').exists()).toBe(false)
   })
 
+  describe('aviso de umbrales sin salto de maquetación', () => {
+    const TEXTO_AVISO = 'La mayoría del catálogo aparece por reponer'
+
+    function mockResumen(umbralesSospechosos: boolean) {
+      vi.spyOn(api, 'get').mockImplementation(async (url: string) => {
+        if (url.startsWith('/productos/resumen')) {
+          return {
+            data: {
+              data: { total: 884, agotados: 300, criticos: 400, bajos: 100, normales: 84 },
+              umbrales_sospechosos: umbralesSospechosos,
+            },
+          } as never
+        }
+        if (url.startsWith('/productos')) {
+          return { data: { data: [productoConFoto], current_page: 1, last_page: 1, total: 1 } } as never
+        }
+        return { data: [] } as never
+      })
+    }
+
+    const montar = () =>
+      mount(AdminProductsView, { global: { stubs: { Teleport: true, ProductModal: true } } })
+
+    const aviso = (w: ReturnType<typeof montar>) =>
+      w.findAll('p').find((p) => p.text().includes(TEXTO_AVISO))
+
+    beforeEach(() => {
+      localStorage.clear()
+    })
+
+    it('en la primera visita reserva el hueco antes de saber la respuesta y luego lo rellena', async () => {
+      mockResumen(true)
+      const wrapper = montar()
+
+      // Antes de que responda la red: el párrafo ocupa su sitio, oculto.
+      expect(aviso(wrapper)?.classes()).toContain('invisible')
+      expect(aviso(wrapper)?.attributes('aria-hidden')).toBe('true')
+
+      await flushPromises()
+
+      expect(aviso(wrapper)?.classes()).not.toContain('invisible')
+      expect(localStorage.getItem('botica:admin:umbrales-sospechosos')).toBe('1')
+    })
+
+    it('con el valor recordado pinta el aviso desde el primer fotograma', () => {
+      localStorage.setItem('botica:admin:umbrales-sospechosos', '1')
+      mockResumen(true)
+
+      expect(aviso(montar())?.classes()).not.toContain('invisible')
+    })
+
+    it('si se recuerda que no hace falta, no reserva nada', async () => {
+      localStorage.setItem('botica:admin:umbrales-sospechosos', '0')
+      mockResumen(false)
+      const wrapper = montar()
+
+      expect(aviso(wrapper)).toBeUndefined()
+      await flushPromises()
+      expect(aviso(wrapper)).toBeUndefined()
+    })
+  })
+
   it('AdminInventoryView renderiza miniaturas reales en tabla y tarjetas móviles', async () => {
     vi.spyOn(api, 'get').mockImplementation(async (url: string) => {
       if (url.startsWith('/productos/resumen')) {
