@@ -56,7 +56,13 @@ describe('ClientPedidosView.vue', () => {
               cantidad: 2,
               precio: 14,
               subtotal: 28,
-              producto: { id: 101, nombre: 'Amoxicilina 500 mg', concentracion: '500 mg', stock: 12 },
+              producto: {
+                id: 101,
+                nombre: 'Amoxicilina 500 mg',
+                concentracion: '500 mg',
+                stock: 12,
+                imagen: 'storage/productos/03210.webp',
+              },
             },
           ],
         },
@@ -93,6 +99,13 @@ describe('ClientPedidosView.vue', () => {
     expect(w.text()).toContain('Pedido #501')
     expect(w.text()).toContain('Pedido #499')
     expect(w.text()).toContain('Amoxicilina 500 mg')
+
+    // El ítem con foto la pinta; el que no tiene se queda con la ilustración.
+    const foto = w.find('img[alt="Amoxicilina 500 mg"]')
+    expect(foto.exists()).toBe(true)
+    expect(foto.attributes('src')).toContain('storage/productos/03210.webp')
+    expect(w.find('img[alt="Paracetamol 500 mg"]').exists()).toBe(false)
+
     expect(w.find('a[href="/checkout/pago?pedido=501"]').exists()).toBe(true)
     expect(w.find('a[href="/checkout/pago?pedido=499"]').exists()).toBe(false)
 

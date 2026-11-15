@@ -14,6 +14,13 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import NotificacionesToast from '@/components/NotificacionesToast.vue'
+import { useTheme } from '@/composables/useTheme'
+
+/* El escuchador de `prefers-color-scheme` se registra al montar quien llame
+   a useTheme. Antes solo lo llamaba el selector, así que las pantallas sin
+   selector —el pago, las de resultado— se quedaban con el tema de la carga
+   aunque el sistema cambiara. Llamarlo en la raíz lo deja activo en todas. */
+useTheme()
 </script>
 
 <style>

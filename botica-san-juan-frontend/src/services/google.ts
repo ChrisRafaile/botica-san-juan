@@ -36,6 +36,39 @@ export type MotivoFallo =
   | 'cuenta-ocupada'
   | 'no-configurado'
 
+/* A nivel de módulo, y no dentro del componente del botón: `<script setup>`
+   se ejecuta una vez por instancia, así que una variable declarada allí no se
+   comparte. La pantalla de acceso monta dos botones —entrar y registrarse— y
+   cada uno hacía su propia consulta. */
+let sondeoDisponible: Promise<boolean> | null = null
+
+/**
+ * ¿Ofrece este entorno el acceso con Google? Se pregunta una vez por carga.
+ *
+ * Cualquier fallo cuenta como «no»: sin respuesta no hay forma de saber si el
+ * botón llevaría a algún sitio, y un botón que termina en error es peor que
+ * no enseñarlo. Un «no» por fallo no se recuerda, para que la siguiente
+ * pantalla lo vuelva a intentar.
+ */
+export function googleDisponible(): Promise<boolean> {
+  sondeoDisponible ??= api
+    .get<{ disponible: boolean }>('/auth/google/disponible', {
+      headers: { 'X-Silenciar-Aviso': '1' },
+    })
+    .then(({ data }) => data?.disponible === true)
+    .catch(() => {
+      sondeoDisponible = null
+      return false
+    })
+
+  return sondeoDisponible
+}
+
+/** Solo para pruebas: olvida la respuesta recordada. */
+export function olvidarSondeoGoogle(): void {
+  sondeoDisponible = null
+}
+
 /**
  * Pide a la API la dirección de Google y lleva allí al navegador.
  *

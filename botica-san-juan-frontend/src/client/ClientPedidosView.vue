@@ -384,7 +384,7 @@ onMounted(async () => {
             class="flex items-center gap-3 py-3"
           >
             <ImagenConRespaldo
-              :src="detalle.producto?.imagen ?? null"
+              :ruta="detalle.producto?.imagen ?? null"
               :alt="detalle.producto?.nombre ?? `Producto #${detalle.producto_id}`"
               clase-contenedor="size-12 shrink-0 rounded-xl border border-borde-sutil"
               clase-imagen="size-12 rounded-xl object-cover"

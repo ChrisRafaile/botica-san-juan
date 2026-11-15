@@ -296,7 +296,7 @@ onUnmounted(() => {
         class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <div
-          v-for="n in 4"
+          v-for="n in 8"
           :key="n"
           class="h-64 animate-pulse rounded-2xl border border-borde-sutil bg-superficie-elevada"
         />
@@ -313,7 +313,7 @@ onUnmounted(() => {
         >
           <RouterLink :to="`/catalogo/${producto.id}`" class="block aspect-4/3 w-full overflow-hidden">
             <ImagenConRespaldo
-              :src="producto.imagen ?? null"
+              :ruta="producto.imagen ?? null"
               :alt="producto.nombre"
               clase-contenedor="h-full w-full"
               clase-imagen="h-full w-full object-cover transition-transform duration-200 hover:scale-105"

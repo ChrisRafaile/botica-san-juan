@@ -87,7 +87,7 @@ describe('ClientHomeView.vue', () => {
                 precio: 18.5,
                 disponible: true,
                 requiere_receta: false,
-                imagen: null,
+                imagen: 'storage/productos/00141.webp',
               },
             ],
           },
@@ -232,6 +232,13 @@ describe('ClientHomeView.vue', () => {
 
     expect(wrapper.text()).toContain('Recomendados y más buscados')
     expect(wrapper.text()).toContain('Panadol Antigripal')
+
+    /* La foto se comprueba en el DOM y no por el título de la sección: esta
+       prueba ya pasaba cuando la vista entregaba la ruta en un atributo que
+       el componente no lee y no se pintaba ni una sola imagen. */
+    const foto = wrapper.find('img[alt="Panadol Antigripal"]')
+    expect(foto.exists()).toBe(true)
+    expect(foto.attributes('src')).toContain('storage/productos/00141.webp')
 
     const btnAgregar = wrapper.findAll('button').find((b) => b.text().trim() === 'Agregar')
     expect(btnAgregar).toBeDefined()

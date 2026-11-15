@@ -10,7 +10,7 @@
           class="foco-dentro inline-flex items-center gap-1.5 rounded-full border border-borde-control bg-superficie-elevada px-3.5 py-1.5 font-medium text-texto-primario transition-colors hover:bg-superficie-interactiva"
           @click.prevent="router.push('/cart')"
         >
-          ← Volver al carrito
+          ← Ver mi carrito
         </a>
         <a
           href="/products"
@@ -28,28 +28,44 @@
         </a>
       </div>
 
-      <div v-if="otrosPedidosPendientes.length > 0" class="flex items-center gap-2">
-        <label for="selector-pedido-pendiente" class="text-xs font-medium text-texto-terciario">
-          Cambiar de pedido:
-        </label>
-        <select
-          id="selector-pedido-pendiente"
-          :value="pedido?.id ? String(pedido.id) : ''"
-          class="foco-dentro rounded-lg border border-borde-control bg-superficie-base px-2.5 py-1.5 text-xs font-semibold text-texto-primario"
-          @change="cambiarPedido($event)"
-        >
-          <option v-if="pedido" :value="String(pedido.id)">
-            Pedido #{{ pedido.id }} (actual)
-          </option>
-          <option
-            v-for="otro in otrosPedidosPendientes"
-            :key="otro.id"
-            :value="String(otro.id)"
+      <div class="flex flex-wrap items-center gap-3">
+        <div v-if="otrosPedidosPendientes.length > 0" class="flex items-center gap-2">
+          <label for="selector-pedido-pendiente" class="text-xs font-medium text-texto-terciario">
+            Cambiar de pedido:
+          </label>
+          <select
+            id="selector-pedido-pendiente"
+            :value="pedido?.id ? String(pedido.id) : ''"
+            class="foco-dentro rounded-lg border border-borde-control bg-superficie-base px-2.5 py-1.5 text-xs font-semibold text-texto-primario"
+            @change="cambiarPedido($event)"
           >
-            Pedido #{{ otro.id }} — {{ formatearMonto(Number(otro.total), 'PEN') }}
-          </option>
-        </select>
+            <option v-if="pedido" :value="String(pedido.id)">
+              Pedido #{{ pedido.id }} (actual)
+            </option>
+            <option
+              v-for="otro in otrosPedidosPendientes"
+              :key="otro.id"
+              :value="String(otro.id)"
+            >
+              Pedido #{{ otro.id }} — {{ formatearMonto(Number(otro.total), 'PEN') }}
+            </option>
+          </select>
+        </div>
+        <SelectorTema />
       </div>
+
+      <!-- Decirlo aquí evita el malentendido que producía pedidos duplicados:
+           quien vuelve al catálogo desde el pago cree estar editando este
+           pedido, y lo que hace es empezar otro. -->
+      <p
+        v-if="pedido"
+        data-testid="aviso-pedido-registrado"
+        class="basis-full text-xs leading-relaxed text-texto-terciario"
+      >
+        El pedido #{{ pedido.id }} ya está registrado y te espera aquí: puedes salir y
+        retomar el pago desde tu carrito o desde «Mis pedidos». Lo que agregues
+        ahora al carrito irá en un pedido aparte.
+      </p>
     </nav>
 
     <div class="mx-auto grid max-w-5xl items-start gap-6 lg:grid-cols-5">
@@ -229,7 +245,11 @@ import {
   type PedidoCliente,
 } from '@/services/pedidosCliente'
 import { useAuthStore } from '@/stores/auth'
+import SelectorTema from '@/components/SelectorTema.vue'
+import { usePedidosPendientes } from '@/composables/usePedidosPendientes'
 import TarjetaBancariaVisual, { type EstadoTarjetaVisual } from './TarjetaBancariaVisual.vue'
+
+const pendientesCompartidos = usePedidosPendientes()
 
 interface LineaPedido {
   id: number
@@ -416,6 +436,9 @@ async function cargarPendientesAlternativos(): Promise<void> {
   try {
     const lista = await cargarPedidosCliente(usuarioId)
     pedidosPendientesCliente.value = lista.filter(pedidoRequierePago)
+    /* El carrito enseña estos mismos pedidos; dejárselos listos evita que el
+       aviso aparezca tarde al volver allí. */
+    pendientesCompartidos.sembrar(usuarioId, lista)
   } catch {
     pedidosPendientesCliente.value = []
   }
