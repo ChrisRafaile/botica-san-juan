@@ -1,15 +1,15 @@
 <template>
   <main
-    class="min-h-screen bg-linear-to-br from-clinico-50 to-clinico-100 flex items-center justify-center px-4 py-12"
+    class="flex min-h-screen items-center justify-center bg-superficie-fondo bg-linear-to-br from-clinico-50 to-clinico-100 px-4 py-12 text-texto-primario dark:from-superficie-fondo dark:to-superficie-hundida"
   >
     <section
-      class="w-full max-w-lg bg-superficie-elevada/90 backdrop-blur-sm rounded-2xl shadow-xl p-10 text-center"
+      class="w-full max-w-lg rounded-2xl border border-borde-sutil bg-superficie-elevada/95 p-10 text-center shadow-xl backdrop-blur-sm"
       aria-labelledby="titulo-procesando"
     >
       <!-- El indicador respeta prefers-reduced-motion: sin movimiento se
            sustituye por un punto estatico, no por una animacion mas lenta. -->
       <div
-        class="mx-auto mb-8 h-16 w-16 rounded-full border-4 border-clinico-100 border-t-blue-600 indicador"
+        class="indicador mx-auto mb-8 h-16 w-16 rounded-full border-4 border-clinico-100 border-t-clinico-600 dark:border-neutro-800 dark:border-t-clinico-400"
         role="progressbar"
         aria-label="Verificando el pago"
       />
@@ -41,7 +41,7 @@
       <button
         v-if="demorado"
         type="button"
-        class="mt-6 text-sm font-medium text-clinico-700 underline underline-offset-4 hover:text-clinico-900"
+        class="foco-dentro mt-6 min-h-10 rounded-lg px-3 py-2 text-sm font-medium text-clinico-700 underline underline-offset-4 hover:text-clinico-900 dark:text-clinico-300 dark:hover:text-clinico-200"
         @click="verificar"
       >
         Verificar de nuevo
@@ -117,7 +117,7 @@ onUnmounted(() => window.clearTimeout(temporizador))
 @media (prefers-reduced-motion: reduce) {
   .indicador {
     animation: none;
-    border-top-color: rgb(37 99 235);
+    border-top-color: var(--color-clinico-600);
   }
 }
 

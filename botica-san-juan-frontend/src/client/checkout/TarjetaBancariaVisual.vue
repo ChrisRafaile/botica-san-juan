@@ -10,14 +10,25 @@
 import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import {
   detectarMarcaTarjeta,
+  esVencimientoValido,
   formatearNumeroTarjeta,
   formatearVencimiento,
   type MarcaTarjeta,
 } from '@/utils/tarjetaBancaria'
 import { ShieldCheckIcon, CreditCardIcon } from 'lucide-vue-next'
 
+export interface EstadoTarjetaVisual {
+  completa: boolean
+  marca: MarcaTarjeta
+}
+
+const emit = defineEmits<{
+  /** Emite únicamente estado no sensible (validez y franquicia) para habilitar el pago sin exponer PAN ni CVV. */
+  (evento: 'cambio-estado', payload: EstadoTarjetaVisual): void
+}>()
+
 type CampoTarjeta = 'numero' | 'titular' | 'vencimiento' | 'cvv'
-type CampoFrontal = Exclude<CampoTarjeta, 'cvv'>
+type CampoFrontal = CampoTarjeta
 
 interface CapaFondoFranquicia {
   id: MarcaTarjeta
@@ -62,6 +73,7 @@ const marcoFocoRef = ref<HTMLElement | null>(null)
 const bloqueNumeroRef = ref<HTMLElement | null>(null)
 const bloqueTitularRef = ref<HTMLElement | null>(null)
 const bloqueVencimientoRef = ref<HTMLElement | null>(null)
+const bloqueCvvFrontalRef = ref<HTMLElement | null>(null)
 
 const marcoFoco = ref({
   x: 0,
@@ -75,12 +87,14 @@ let observadorTamano: ResizeObserver | null = null
 
 /** Detección pura de la red emisora */
 const marca = computed<MarcaTarjeta>(() => detectarMarcaTarjeta(numero.value))
+const esAmex = computed(() => marca.value === 'amex')
 
-/** La tarjeta gira 180 grados únicamente mientras el campo CVV tiene el foco */
-const estaVolteada = computed(() => campoEnfocado.value === 'cvv')
+/** La tarjeta gira 180 grados al enfocar CVV, excepto en Amex cuyo CID de 4 dígitos va en el anverso */
+const estaVolteada = computed(() => campoEnfocado.value === 'cvv' && !esAmex.value)
 
 const campoFrontalActivo = computed<CampoFrontal | null>(() => {
-  if (!campoEnfocado.value || campoEnfocado.value === 'cvv') return null
+  if (!campoEnfocado.value) return null
+  if (campoEnfocado.value === 'cvv' && !esAmex.value) return null
   return campoEnfocado.value
 })
 
@@ -110,6 +124,7 @@ function alEscribirCvv(evento: Event) {
 function obtenerReferenciaCampo(campo: CampoFrontal): HTMLElement | null {
   if (campo === 'numero') return bloqueNumeroRef.value
   if (campo === 'titular') return bloqueTitularRef.value
+  if (campo === 'cvv') return bloqueCvvFrontalRef.value
   return bloqueVencimientoRef.value
 }
 
@@ -215,6 +230,25 @@ const cvvPlaceholder = computed(() => (marca.value === 'amex' ? '••••' :
 const longitudMaxNumero = computed(() => (marca.value === 'amex' ? 17 : 19))
 const longitudMaxCvv = computed(() => (marca.value === 'amex' ? 4 : 3))
 
+const esTarjetaCompleta = computed(() => {
+  const digitosNumero = numero.value.replace(/\D/g, '')
+  const largoEsperado = esAmex.value ? 15 : 16
+  return (
+    digitosNumero.length === largoEsperado &&
+    titular.value.trim().length >= 3 &&
+    esVencimientoValido(vencimiento.value) &&
+    codigoSeguridad.value.length === longitudMaxCvv.value
+  )
+})
+
+watch(
+  [esTarjetaCompleta, marca],
+  ([completa, franquicia]) => {
+    emit('cambio-estado', { completa, marca: franquicia })
+  },
+  { immediate: true },
+)
+
 watch(longitudMaxCvv, (max) => {
   if (codigoSeguridad.value.length > max) {
     codigoSeguridad.value = codigoSeguridad.value.slice(0, max)
@@ -229,6 +263,12 @@ watch(
   { flush: 'post' },
 )
 
+watch(bloqueCvvFrontalRef, (nuevoNodo) => {
+  if (nuevoNodo && observadorTamano) {
+    observadorTamano.observe(nuevoNodo)
+  }
+})
+
 onMounted(() => {
   if (typeof ResizeObserver === 'undefined') return
 
@@ -241,6 +281,7 @@ onMounted(() => {
     bloqueNumeroRef.value,
     bloqueTitularRef.value,
     bloqueVencimientoRef.value,
+    bloqueCvvFrontalRef.value,
   ]
   for (const nodo of nodos) {
     if (nodo) observadorTamano.observe(nodo)
@@ -383,30 +424,64 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <!-- Número de tarjeta con cifras tabulares y animación por dígito -->
-            <div ref="bloqueNumeroRef" class="my-3 rounded-md px-2 py-1.5">
-              <p class="text-2xs font-medium uppercase tracking-widest text-neutro-200">
-                Número de tarjeta
-              </p>
-              <p
-                data-testid="numero-tarjeta-visual"
-                class="cifras-tabulares mt-1 whitespace-nowrap font-mono text-lg font-semibold tracking-widest text-neutro-0 sm:text-xl"
+            <!-- Número de tarjeta con cifras tabulares y CID frontal para Amex -->
+            <div class="my-3 flex items-center justify-between gap-2">
+              <div ref="bloqueNumeroRef" class="min-w-0 flex-1 rounded-md px-2 py-1.5">
+                <p class="text-2xs font-medium uppercase tracking-widest text-neutro-200">
+                  Número de tarjeta
+                </p>
+                <p
+                  data-testid="numero-tarjeta-visual"
+                  class="cifras-tabulares mt-1 whitespace-nowrap font-mono text-lg font-semibold tracking-widest text-neutro-0 sm:text-xl"
+                >
+                  <template v-for="ranura in ranurasNumero" :key="ranura.indice">
+                    <span
+                      v-if="ranura.esEspacio"
+                      class="inline-block w-[0.45ch] whitespace-pre"
+                    >{{ ranura.caracter }}</span>
+                    <span v-else class="relative inline-block">
+                      <Transition name="digito">
+                        <span
+                          :key="`${ranura.indice}-${ranura.caracter}`"
+                          class="inline-block"
+                        >{{ ranura.caracter }}</span>
+                      </Transition>
+                    </span>
+                  </template>
+                </p>
+              </div>
+
+              <!-- CID frontal enmascarado de 4 dígitos exclusivo de American Express -->
+              <div
+                v-if="esAmex"
+                ref="bloqueCvvFrontalRef"
+                class="shrink-0 rounded-md px-2 py-1.5 text-right"
               >
-                <template v-for="ranura in ranurasNumero" :key="ranura.indice">
-                  <span
-                    v-if="ranura.esEspacio"
-                    class="inline-block w-[0.45ch] whitespace-pre"
-                  >{{ ranura.caracter }}</span>
-                  <span v-else class="relative inline-block">
-                    <Transition name="digito">
+                <p class="text-2xs font-medium uppercase tracking-widest text-neutro-200">
+                  CID
+                </p>
+                <div
+                  data-testid="cvv-frontal-visual"
+                  class="cifras-tabulares relative mt-1 flex min-w-10 items-center justify-end font-mono text-sm font-bold tracking-widest text-neutro-0"
+                  aria-label="Código de seguridad CID enmascarado"
+                >
+                  <span class="relative inline-block">
+                    <TransitionGroup
+                      v-if="puntosCvvIngresados.length > 0"
+                      name="digito"
+                      tag="span"
+                      class="relative inline-block text-neutro-0"
+                    >
                       <span
-                        :key="`${ranura.indice}-${ranura.caracter}`"
+                        v-for="indice in puntosCvvIngresados"
+                        :key="`cid-frontal-${indice}`"
                         class="inline-block"
-                      >{{ ranura.caracter }}</span>
-                    </Transition>
+                      >•</span>
+                    </TransitionGroup>
+                    <span v-else class="text-neutro-200">{{ cvvPlaceholder }}</span>
                   </span>
-                </template>
-              </p>
+                </div>
+              </div>
             </div>
 
             <!-- Fila inferior: Titular y Vencimiento -->
@@ -419,19 +494,21 @@ onBeforeUnmount(() => {
                   data-testid="titular-visual"
                   class="truncate font-sans text-sm font-semibold tracking-wide text-neutro-0"
                 >
-                  <TransitionGroup
-                    v-if="titular"
-                    name="digito"
-                    tag="span"
-                    class="inline"
-                  >
-                    <span
-                      v-for="(caracter, indice) in caracteresTitular"
-                      :key="`${indice}-${caracter}`"
-                      class="inline-block whitespace-pre"
-                    >{{ caracter }}</span>
-                  </TransitionGroup>
-                  <span v-else>NOMBRE Y APELLIDO</span>
+                  <span class="relative inline-block">
+                    <TransitionGroup
+                      v-if="titular"
+                      name="digito"
+                      tag="span"
+                      class="relative inline-block"
+                    >
+                      <span
+                        v-for="(caracter, indice) in caracteresTitular"
+                        :key="`${indice}-${caracter}`"
+                        class="inline-block whitespace-pre"
+                      >{{ caracter }}</span>
+                    </TransitionGroup>
+                    <span v-else>NOMBRE Y APELLIDO</span>
+                  </span>
                 </p>
               </div>
 
@@ -443,19 +520,21 @@ onBeforeUnmount(() => {
                   data-testid="vencimiento-visual"
                   class="cifras-tabulares font-mono text-sm font-semibold tracking-widest text-neutro-0"
                 >
-                  <TransitionGroup
-                    v-if="vencimiento"
-                    name="digito"
-                    tag="span"
-                    class="inline"
-                  >
-                    <span
-                      v-for="(caracter, indice) in caracteresVencimiento"
-                      :key="`${indice}-${caracter}`"
-                      class="inline-block whitespace-pre"
-                    >{{ caracter }}</span>
-                  </TransitionGroup>
-                  <span v-else>MM/AA</span>
+                  <span class="relative inline-block">
+                    <TransitionGroup
+                      v-if="vencimiento"
+                      name="digito"
+                      tag="span"
+                      class="relative inline-block"
+                    >
+                      <span
+                        v-for="(caracter, indice) in caracteresVencimiento"
+                        :key="`${indice}-${caracter}`"
+                        class="inline-block whitespace-pre"
+                      >{{ caracter }}</span>
+                    </TransitionGroup>
+                    <span v-else>MM/AA</span>
+                  </span>
                 </p>
               </div>
             </div>
@@ -500,22 +579,24 @@ onBeforeUnmount(() => {
               <!-- CVV enmascarado SIEMPRE con puntos -->
               <div
                 data-testid="cvv-visual"
-                class="cifras-tabulares flex min-w-12 items-center justify-end font-mono text-base font-bold tracking-widest"
+                class="cifras-tabulares relative flex min-w-12 items-center justify-end font-mono text-base font-bold tracking-widest"
                 aria-label="Código de seguridad enmascarado"
               >
-                <TransitionGroup
-                  v-if="puntosCvvIngresados.length > 0"
-                  name="digito"
-                  tag="span"
-                  class="inline text-neutro-950"
-                >
-                  <span
-                    v-for="indice in puntosCvvIngresados"
-                    :key="`cvv-punto-${indice}`"
-                    class="inline-block"
-                  >•</span>
-                </TransitionGroup>
-                <span v-else class="text-neutro-500">{{ cvvPlaceholder }}</span>
+                <span class="relative inline-block">
+                  <TransitionGroup
+                    v-if="puntosCvvIngresados.length > 0"
+                    name="digito"
+                    tag="span"
+                    class="relative inline-block text-neutro-950"
+                  >
+                    <span
+                      v-for="indice in puntosCvvIngresados"
+                      :key="`cvv-punto-${indice}`"
+                      class="inline-block"
+                    >•</span>
+                  </TransitionGroup>
+                  <span v-else class="text-neutro-500">{{ cvvPlaceholder }}</span>
+                </span>
               </div>
             </div>
           </div>
@@ -535,6 +616,7 @@ onBeforeUnmount(() => {
 
     <!-- Formulario de interacción con la tarjeta -->
     <div
+      role="group"
       class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-5 shadow-xs"
       aria-label="Datos de la tarjeta"
     >
@@ -633,7 +715,7 @@ onBeforeUnmount(() => {
               for="tarjeta-cvv"
               class="mb-1 block text-xs font-medium text-texto-secundario"
             >
-              CVV / CVC
+              {{ esAmex ? 'CID (4 dígitos)' : 'CVV / CVC' }}
             </label>
             <input
               id="tarjeta-cvv"
@@ -730,7 +812,6 @@ onBeforeUnmount(() => {
 
 .digito-leave-active {
   position: absolute;
-  left: 0;
   top: 0;
   pointer-events: none;
   transition-property: transform, opacity;

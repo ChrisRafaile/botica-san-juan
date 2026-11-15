@@ -8,6 +8,7 @@ use App\Services\ResumenClienteService;
 use App\Services\ResumenPedidosService;
 use App\Services\VentaService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class PedidoController extends Controller
@@ -124,6 +125,34 @@ class PedidoController extends Controller
         return response()->json(['data' => $resumen->resumen($request->user())]);
     }
 
+    /**
+     * Detalle de un pedido perteneciente al cliente autenticado.
+     *
+     * Permite a la pantalla de checkout y pago cargar los detalles, el estado
+     * del pago y la referencia del comprobante sin abrir el recurso de gestion.
+     */
+    public function miPedido(Request $request, string $id)
+    {
+        $pedido = Pedido::with([
+            'pedidoDetalles.producto',
+            'comprobanteElectronico:id,pedido_id,tipo_comprobante,serie,numero,estado_sunat,total,fecha_emision',
+            'pago',
+            'receta',
+        ])->findOrFail($id);
+
+        $solicitante = $request->user();
+
+        if ((int) $pedido->usuario_id !== (int) $solicitante->id && $solicitante->rol !== 'administrador') {
+            return response()->json([
+                'message' => 'El pedido no pertenece al usuario autenticado.',
+            ], 403);
+        }
+
+        $this->anotarReceta($pedido);
+
+        return response()->json($pedido);
+    }
+
     public function getByUser(Request $request, $usuarioId)
     {
         $solicitante = $request->user();
@@ -182,30 +211,47 @@ class PedidoController extends Controller
            pide el documento aquí, que es exactamente donde hace falta y
            donde el formulario ya sabe pedirlo. */
         $faltaDocumento = $esInvitado || $cliente->necesitaCompletarDni();
+        $tipoComprobante = $request->input('tipo_comprobante');
+        $modalidadEntrega = $request->input('modalidad_entrega');
+
+        $reglasDocumento = match ($tipoComprobante) {
+            'factura' => ['required', 'string', 'regex:/^\d{11}$/'],
+            'boleta'  => [$faltaDocumento ? 'required' : 'nullable', 'string', 'regex:/^\d{8}$/'],
+            default   => [$faltaDocumento ? 'required' : 'nullable', 'string', 'regex:/^(\d{8}|\d{11})$/'],
+        };
 
         $validado = $request->validate([
             'items' => ['required', 'array', 'min:1'],
             'items.*.producto_id' => ['required', 'integer', 'exists:productos,id'],
             'items.*.cantidad' => ['required', 'integer', 'min:1', 'max:1000'],
-            'direccion' => ['nullable', 'string', 'max:255'],
+            'modalidad_entrega' => ['nullable', 'string', Rule::in(['recojo', 'entrega'])],
+            'tipo_comprobante' => ['nullable', 'string', Rule::in(['boleta', 'factura'])],
+            'direccion' => [
+                $modalidadEntrega === 'entrega' ? 'required' : 'nullable',
+                'string',
+                $modalidadEntrega === 'entrega' ? 'min:5' : 'min:0',
+                'max:255',
+            ],
 
             /* Checkout rápido: sin cuenta, pero no sin datos. Estos tres son lo
                mínimo para poder entregar el pedido y avisar cuando esté listo.
                Se exigen SOLO al invitado; quien inició sesión ya los tiene. */
             'cliente_nombre'   => [$esInvitado ? 'required' : 'nullable', 'string', 'max:255'],
-            'cliente_documento' => [
-                $faltaDocumento ? 'required' : 'nullable',
-                'string',
-                /* DNI (8) o RUC (11). El tipo de comprobante se decide con esto:
-                   RUC → factura, DNI → boleta. */
-                'regex:/^(\d{8}|\d{11})$/',
-            ],
+            'cliente_documento' => $reglasDocumento,
             'cliente_telefono' => [$esInvitado ? 'required' : 'nullable', 'string', 'max:30'],
         ], [
             'cliente_nombre.required'    => 'Necesitamos un nombre para preparar el pedido.',
-            'cliente_documento.required' => 'Necesitamos tu DNI o RUC para emitir el comprobante.',
-            'cliente_documento.regex'    => 'El documento debe ser un DNI de 8 dígitos o un RUC de 11.',
+            'cliente_documento.required' => $tipoComprobante === 'factura'
+                ? 'La factura electrónica exige un RUC válido de 11 dígitos.'
+                : 'Necesitamos tu DNI o RUC para emitir el comprobante.',
+            'cliente_documento.regex'    => match ($tipoComprobante) {
+                'factura' => 'El RUC debe tener exactamente 11 dígitos numéricos.',
+                'boleta'  => 'El DNI debe tener exactamente 8 dígitos numéricos.',
+                default   => 'El documento debe ser un DNI de 8 dígitos o un RUC de 11.',
+            },
             'cliente_telefono.required'  => 'Necesitamos un teléfono para avisarte cuando esté listo.',
+            'direccion.required'         => 'Ingresa la dirección completa para el envío a domicilio.',
+            'direccion.min'              => 'La dirección debe ser más específica (al menos 5 caracteres).',
         ]);
 
         /* Este endpoint llamaba a VentaService::confirmar(), un metodo que
@@ -221,22 +267,37 @@ class PedidoController extends Controller
            comprobante debe decir a quién se le vendió el día que se emitió,
            aunque mañana esa persona cambie su nombre en el perfil. */
         $documento = $validado['cliente_documento'] ?? $cliente?->dni;
+        $observacion = match ($modalidadEntrega) {
+            'entrega' => trim((string) ($validado['direccion'] ?? '')),
+            'recojo'  => 'Recojo en botica',
+            default   => $validado['direccion'] ?? null,
+        };
 
         $datosCliente = [
-            'cliente_nombre'    => $validado['cliente_nombre'] ?? $cliente?->nombre,
-            'cliente_documento' => $documento,
+            'cliente_nombre'         => $validado['cliente_nombre'] ?? $cliente?->nombre,
+            'cliente_documento'      => $documento,
             'cliente_tipo_documento' => $this->tipoDeDocumento($documento),
-            'cliente_telefono'  => $validado['cliente_telefono'] ?? $cliente?->telefono,
-            'observacion'       => $validado['direccion'] ?? null,
+            'cliente_telefono'       => $validado['cliente_telefono'] ?? $cliente?->telefono,
+            'observacion'            => $observacion ?: null,
         ];
 
         try {
-            $pedido = $ventas->registrar(
-                items: $validado['items'],
-                datosCliente: $datosCliente,
-                usuarioClienteId: $cliente?->id,
-                origen: Pedido::ORIGEN_WEB,
-            );
+            [$pedido, $comprobante] = DB::transaction(function () use ($ventas, $validado, $datosCliente, $cliente) {
+                $pedidoCreado = $ventas->registrar(
+                    items: $validado['items'],
+                    datosCliente: $datosCliente,
+                    usuarioClienteId: $cliente?->id,
+                    origen: Pedido::ORIGEN_WEB,
+                );
+
+                /* El comprobante se emite en el acto, con el pedido ya cerrado y sus
+                   importes calculados. Es idempotente: un doble clic o un reintento no
+                   produce un segundo comprobante del mismo pedido, que sería duplicidad
+                   tributaria. */
+                $comprobanteEmitido = app(\App\Services\ComprobanteService::class)->emitir($pedidoCreado);
+
+                return [$pedidoCreado, $comprobanteEmitido];
+            });
         } catch (VentaSinStockException $e) {
             /* Falta de stock no es un fallo del sistema: es informacion que el
                cliente necesita para ajustar su pedido. Sin este bloque salia
@@ -248,16 +309,12 @@ class PedidoController extends Controller
             ], 422);
         }
 
-        /* El comprobante se emite en el acto, con el pedido ya cerrado y sus
-           importes calculados. Es idempotente: un doble clic o un reintento no
-           produce un segundo comprobante del mismo pedido, que sería duplicidad
-           tributaria. */
-        $comprobante = app(\App\Services\ComprobanteService::class)->emitir($pedido);
-
         return response()->json([
             'message' => 'Pedido registrado. Queda pendiente de preparacion.',
             'pedido' => $pedido,
+            'modalidad_entrega' => $modalidadEntrega ?? ($observacion && $observacion !== 'Recojo en botica' ? 'entrega' : 'recojo'),
             'comprobante' => [
+                'id'            => $comprobante->id,
                 'tipo'          => $comprobante->tipo_comprobante,
                 'identificador' => $comprobante->serie.'-'.str_pad((string) $comprobante->numero, 8, '0', STR_PAD_LEFT),
                 'estado_sunat'  => $comprobante->estado_sunat,

@@ -98,9 +98,17 @@ describe('TarjetaBancariaVisual.vue', () => {
     expect(cuerpo.classes()).not.toContain('esta-volteada')
     expect(caraFrontal.attributes('aria-hidden')).toBeUndefined()
     expect(caraTrasera.attributes('aria-hidden')).toBe('true')
+
+    // Caso American Express: NO gira al enfocar CVV porque el CID va en el anverso
+    await wrapper.find('#tarjeta-numero').setValue('378282246310005')
+    await inputCvv.trigger('focus')
+
+    expect(cuerpo.classes()).not.toContain('esta-volteada')
+    expect(caraFrontal.attributes('aria-hidden')).toBeUndefined()
+    expect(caraTrasera.attributes('aria-hidden')).toBe('true')
   })
 
-  it('mantiene el CVV enmascarado con puntos en la tarjeta sin exponer los dígitos escritos', async () => {
+  it('mantiene el CVV/CID enmascarado con puntos en el reverso (Visa/MC) o en el anverso (Amex)', async () => {
     const wrapper = mount(TarjetaBancariaVisual)
 
     await wrapper.find('#tarjeta-numero').setValue('4532015012345678')
@@ -112,24 +120,30 @@ describe('TarjetaBancariaVisual.vue', () => {
     await inputCvv.setValue('847')
 
     const cvvVisual = wrapper.find('[data-testid="cvv-visual"]')
+    const caraFrontal = wrapper.find('[data-testid="cara-frontal"]')
     const caraTrasera = wrapper.find('[data-testid="cara-trasera"]')
 
     expect(cvvVisual.text()).toBe('•••')
     expect(cvvVisual.text()).not.toMatch(/\d/)
     expect(caraTrasera.text()).not.toContain('847')
     expect(caraTrasera.text()).not.toMatch(/\d/)
+    expect(wrapper.find('[data-testid="cvv-frontal-visual"]').exists()).toBe(false)
 
-    // Caso Amex: 4 dígitos también enmascarados con puntos
+    // Caso Amex: CID de 4 dígitos enmascarado en el anverso, nunca en la cara trasera
     await wrapper.find('#tarjeta-numero').setValue('378282246310005')
+    await inputCvv.trigger('focus')
     await inputCvv.setValue('4921')
 
-    expect(cvvVisual.text()).toBe('••••')
-    expect(cvvVisual.text()).not.toMatch(/\d/)
+    const cvvFrontalVisual = wrapper.find('[data-testid="cvv-frontal-visual"]')
+    expect(cvvFrontalVisual.exists()).toBe(true)
+    expect(cvvFrontalVisual.text()).toBe('••••')
+    expect(cvvFrontalVisual.text()).not.toMatch(/\d/)
+    expect(caraFrontal.text()).not.toContain('4921')
     expect(caraTrasera.text()).not.toContain('4921')
     expect(caraTrasera.text()).not.toMatch(/\d/)
   })
 
-  it('activa y posiciona el marco luminoso por campo frontal y lo oculta sin foco o al ir al CVV', async () => {
+  it('activa y posiciona el marco luminoso por campo frontal, lo oculta al girar y sigue el CID en Amex', async () => {
     const wrapper = mount(TarjetaBancariaVisual)
     const marco = wrapper.find('[data-testid="marco-foco"]')
 
@@ -152,11 +166,18 @@ describe('TarjetaBancariaVisual.vue', () => {
     expect(marco.attributes('data-visible')).toBe('true')
     expect(marco.attributes('data-campo-activo')).toBe('vencimiento')
 
-    // Al pasar al CVV, el marco de la cara frontal se oculta
+    // En tarjetas estándar al pasar al CVV el marco frontal se oculta porque gira
     await wrapper.find('#tarjeta-cvv').trigger('focus')
     expect(marco.attributes('data-visible')).toBe('false')
     expect(marco.attributes('data-campo-activo')).toBe('ninguno')
     expect((marco.element as HTMLElement).style.opacity).toBe('0')
+
+    // En Amex el CID está en el anverso: el marco sigue al campo CVV/CID
+    await wrapper.find('#tarjeta-numero').setValue('378282246310005')
+    await wrapper.find('#tarjeta-cvv').trigger('focus')
+    expect(marco.attributes('data-visible')).toBe('true')
+    expect(marco.attributes('data-campo-activo')).toBe('cvv')
+    expect((marco.element as HTMLElement).style.opacity).toBe('1')
 
     // Al volver a un campo frontal y luego perder el foco, se activa y luego se oculta
     await wrapper.find('#tarjeta-titular').trigger('focus')
@@ -235,5 +256,23 @@ describe('TarjetaBancariaVisual.vue', () => {
     await wrapper.find('#tarjeta-cvv').setValue('731')
 
     expect(spySetItem).not.toHaveBeenCalled()
+  })
+
+  it('envuelve las transiciones de titular, vencimiento y CVV en contenedores relativos y asigna rol accesible al formulario', async () => {
+    const wrapper = mount(TarjetaBancariaVisual)
+
+    const grupoFormulario = wrapper.find('[aria-label="Datos de la tarjeta"]')
+    expect(grupoFormulario.exists()).toBe(true)
+    expect(grupoFormulario.attributes('role')).toBe('group')
+
+    await wrapper.find('#tarjeta-numero').setValue('378282246310005')
+    await wrapper.find('#tarjeta-titular').setValue('MARIA PEREZ')
+    await wrapper.find('#tarjeta-vencimiento').setValue('0829')
+    await wrapper.find('#tarjeta-cvv').setValue('1234')
+
+    expect(wrapper.find('[data-testid="titular-visual"] .relative').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="vencimiento-visual"] .relative').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="cvv-visual"] .relative').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="cvv-frontal-visual"] .relative').exists()).toBe(true)
   })
 })
