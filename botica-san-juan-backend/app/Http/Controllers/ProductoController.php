@@ -101,6 +101,7 @@ class ProductoController extends Controller
          * es una inyeccion esperando a ocurrir.
          */
         match ((string) $request->input('orden', 'recientes')) {
+            'destacados' => $query->ordenDestacado(),
             'nombre' => $query->orderBy('nombre'),
             'precio_asc' => $query->orderBy('precio'),
             'precio_desc' => $query->orderByDesc('precio'),
@@ -109,16 +110,16 @@ class ProductoController extends Controller
 
         $search = trim((string) $request->input('q', $request->input('search', '')));
         if ($search !== '') {
-            $query->where(function ($inner) use ($search) {
-                $inner->where('nombre', 'like', "%{$search}%")
-                    ->orWhere('codigo_barras', 'like', "%{$search}%")
-                    ->orWhere('codigo_digemid', 'like', "%{$search}%")
-                    ->orWhere('principio_activo', 'like', "%{$search}%")
-                    ->orWhere('tipo', 'like', "%{$search}%")
-                    ->orWhere('laboratorio', 'like', "%{$search}%")
-                    ->orWhere('laboratorio_fabricante', 'like', "%{$search}%")
-                    ->orWhere('presentacion', 'like', "%{$search}%");
-            });
+            $query->buscar($search, [
+                'nombre',
+                'codigo_barras',
+                'codigo_digemid',
+                'principio_activo',
+                'tipo',
+                'laboratorio',
+                'laboratorio_fabricante',
+                'presentacion',
+            ]);
         }
 
         if ($request->filled('tipo') && $request->input('tipo') !== 'all') {

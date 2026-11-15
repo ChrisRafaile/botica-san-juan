@@ -167,6 +167,35 @@ class CatalogoPublicoTest extends TestCase
         $this->assertSame('Ibuprofeno', $respuesta->json('datos.0.nombre'));
     }
 
+    public function test_la_busqueda_ignora_tildes_mayusculas_y_escapa_comodines(): void
+    {
+        $this->producto(['nombre' => 'AMOXICILINA 500 mg']);
+        $this->producto([
+            'nombre' => 'ÁCIDO ACETILSALICÍLICO 100 mg',
+            'principio_activo' => 'Ácido acetilsalicílico',
+        ]);
+        $this->producto(['nombre' => 'Alcohol al 70%']);
+
+        $this->getJson('/api/catalogo?buscar=amoxicilina')
+            ->assertOk()
+            ->assertJsonPath('paginacion.total', 1)
+            ->assertJsonPath('datos.0.nombre', 'AMOXICILINA 500 mg');
+
+        $this->getJson('/api/catalogo?buscar=acido%20acetilsalicilico')
+            ->assertOk()
+            ->assertJsonPath('paginacion.total', 1)
+            ->assertJsonPath('datos.0.nombre', 'ÁCIDO ACETILSALICÍLICO 100 mg');
+
+        $this->getJson('/api/catalogo?buscar=%25')
+            ->assertOk()
+            ->assertJsonPath('paginacion.total', 1)
+            ->assertJsonPath('datos.0.nombre', 'Alcohol al 70%');
+
+        $this->getJson('/api/catalogo?buscar=___')
+            ->assertOk()
+            ->assertJsonPath('paginacion.total', 0);
+    }
+
     public function test_se_puede_filtrar_por_el_slug_de_la_categoria(): void
     {
         /* Por el slug y no solo por el id: un consumidor externo descubre el

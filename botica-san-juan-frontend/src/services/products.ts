@@ -76,7 +76,7 @@ export interface ListadoProductos {
   ultimaPagina: number
 }
 
-export type OrdenCatalogo = 'nombre' | 'precio_asc' | 'precio_desc' | 'recientes'
+export type OrdenCatalogo = 'destacados' | 'nombre' | 'precio_asc' | 'precio_desc' | 'recientes'
 
 export interface OpcionesListado {
   busqueda?: string
@@ -181,10 +181,8 @@ class ProductsService {
     if (opciones.laboratorio) params.laboratorio = opciones.laboratorio
     if (opciones.categoriaId) params.categoria_id = opciones.categoriaId
     if (opciones.soloDisponibles) params.stock_status = 'in_stock'
-    /* El catalogo publico se ordena por nombre: "lo ultimo que se edito en el
-       almacen", que es el orden por omision del servidor, no significa nada
-       para quien viene a comprar. */
-    params.orden = opciones.orden ?? 'nombre'
+    /* Por omisión el catálogo público destaca disponibles con foto real primero. */
+    params.orden = opciones.orden ?? 'destacados'
 
     const respuesta = await api.get('/productos', { params })
     return abrirPaginador(respuesta.data)

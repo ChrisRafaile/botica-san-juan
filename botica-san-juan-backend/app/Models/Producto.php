@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -140,6 +141,77 @@ class Producto extends Model
     public function scopeGravados($query)
     {
         return $query->where('tipo_afectacion_igv', self::GRAVADO);
+    }
+
+    /**
+     * Escapa comodines SQL LIKE (\, %, _) para tratar la entrada del usuario como texto literal.
+     */
+    public static function escaparLike(string $valor): string
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $valor);
+    }
+
+    /**
+     * Búsqueda insensible a mayúsculas y tildes sobre las columnas indicadas.
+     * En PostgreSQL delega en `public.f_unaccent` para aprovechar índices GIN trigram.
+     *
+     * @param  list<string>  $columnas
+     */
+    public function scopeBuscar(
+        Builder $query,
+        string $termino,
+        array $columnas = ['nombre', 'principio_activo', 'laboratorio']
+    ): Builder {
+        $limpio = trim($termino);
+        if ($limpio === '' || $columnas === []) {
+            return $query;
+        }
+
+        $patron = '%'.self::escaparLike($limpio).'%';
+        $esPostgres = $query->getConnection()->getDriverName() === 'pgsql';
+
+        return $query->where(function (Builder $sub) use ($columnas, $patron, $esPostgres) {
+            foreach ($columnas as $columna) {
+                if ($esPostgres) {
+                    $sub->orWhereRaw(
+                        "lower(public.f_unaccent({$columna})) LIKE lower(public.f_unaccent(?)) ESCAPE '\\'",
+                        [$patron]
+                    );
+                } else {
+                    $sub->orWhereRaw(
+                        "lower({$columna}) LIKE lower(?) ESCAPE '\\'",
+                        [$patron]
+                    );
+                }
+            }
+        });
+    }
+
+    /**
+     * Orden «Destacados / Relevancia» para el catálogo público:
+     * 1) disponibles según lotes FEFO vigentes con fotografía real,
+     * 2) disponibles según lotes FEFO vigentes con ilustración referencial,
+     * 3) resto (sin stock FEFO), ordenados alfabéticamente y por id para estabilidad.
+     */
+    public function scopeOrdenDestacado(Builder $query): Builder
+    {
+        $subLotes = Lote::query()
+            ->selectRaw('1')
+            ->whereColumn('lotes.producto_id', 'productos.id')
+            ->disponible();
+
+        $sqlDisponible = "EXISTS ({$subLotes->toSql()})";
+        $sqlFotoReal = "(productos.imagen IS NOT NULL AND trim(productos.imagen) <> '' AND lower(trim(productos.imagen)) <> 'images/default_image.png')";
+
+        $bindings = $subLotes->getBindings();
+
+        return $query
+            ->orderByRaw(
+                "CASE WHEN {$sqlDisponible} AND {$sqlFotoReal} THEN 0 WHEN {$sqlDisponible} THEN 1 ELSE 2 END",
+                array_merge($bindings, $bindings)
+            )
+            ->orderBy('productos.nombre')
+            ->orderBy('productos.id');
     }
 
     /**
