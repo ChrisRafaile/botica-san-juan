@@ -62,13 +62,11 @@ const router = createRouter({
       path: '/products/:id',
       redirect: (to) => `/catalogo/${to.params.id}`,
     },
-    /* El menú de usuario del portal enlazaba aquí desde hacía tiempo y la
-       ruta no existía: «Mi Perfil» llevaba a la pantalla de no encontrado. */
+    /* El menú de usuario antiguo enlazaba aquí; se redirige al nuevo portal. */
     {
       path: '/profile',
       name: 'profile',
-      component: () => import('../client/ProfileView.vue'),
-      meta: { requiresAuth: true },
+      redirect: '/client/perfil',
     },
     /* Acceso y registro comparten pantalla: AuthView desliza un panel entre
        los dos formularios segun la ruta activa. Se mantienen las dos rutas
@@ -156,10 +154,39 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/client/home',
-      name: 'client-home',
-      component: () => import('../client/ClientHomeView.vue'),
+      path: '/client',
+      component: () => import('../client/layouts/ClientLayout.vue'),
       meta: { requiresAuth: true, role: 'cliente' },
+      children: [
+        {
+          path: '',
+          redirect: '/client/home',
+        },
+        {
+          path: 'home',
+          name: 'client-home',
+          component: () => import('../client/ClientHomeView.vue'),
+          meta: { titulo: 'Inicio' },
+        },
+        {
+          path: 'pedidos',
+          name: 'client-pedidos',
+          component: () => import('../client/ClientPedidosView.vue'),
+          meta: { titulo: 'Mis Pedidos' },
+        },
+        {
+          path: 'comprobantes',
+          name: 'client-comprobantes',
+          component: () => import('../client/ClientComprobantesView.vue'),
+          meta: { titulo: 'Mis Comprobantes' },
+        },
+        {
+          path: 'perfil',
+          name: 'client-perfil',
+          component: () => import('../client/ProfileView.vue'),
+          meta: { titulo: 'Mi Perfil y Direcciones' },
+        },
+      ],
     },
     {
       path: '/admin',
