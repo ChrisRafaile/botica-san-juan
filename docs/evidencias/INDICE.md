@@ -97,11 +97,16 @@ SUNAT, la ficha de producto y la tarjeta del checkout: 419 pruebas de backend y
 154 de frontend. `CRT-24` es el acta. `CRT-11`–`CRT-17` se conservan por la
 misma razón que `CRT-01`–`CRT-03`.
 
-`CRT-25`–`CRT-31` son el **corte vigente**, medido el 14-11-2026 sobre `develop`
+`CRT-25`–`CRT-31` son el corte medido el 14-11-2026 sobre `develop`
 tras fusionar las fotos reales del catálogo (PR 47) y el checkout completo del
 cliente (PR 48): 429 pruebas de backend y 172 de frontend. `CRT-31` es el acta, y
 explica por qué la cifra no es la de cada rama por separado. `CRT-18`–`CRT-24`
 se conservan como rastro de cómo creció la suite.
+
+`CRT-32`–`CRT-38` son el **corte vigente**, medido el 15-11-2026 sobre `develop`
+tras fusionar el portal del cliente (PR 53) y la corrección de su auditoría en
+navegador (PR 54): 440 pruebas de backend y 196 de frontend, 636 en total.
+`CRT-38` es el acta. `CRT-25`–`CRT-31` se conservan por la misma razón.
 
 ### `R` · `recetas/`
 El flujo clínico completo y en orden: pedido que exige receta, zona de
