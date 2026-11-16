@@ -49,7 +49,7 @@ detectar: la Tabla 64 del APF3 ya está entregada y calificada.
 
 | N.º | Qué se hizo | Resultado verificado | Evidencia |
 |---|---|---|---|
-| **O-B1** | Se volvió a ejecutar la suite completa y se recompusieron las figuras desde la salida literal | **379** pruebas de backend y **116** de frontend al cerrar la observación (`CRT-11` a `CRT-17`). El corte vigente, medido de nuevo el 15-11-2026 tras fusionar el portal del cliente y la corrección de su auditoría en navegador, es de **440** de backend (1 325 aserciones, 36 clases) y **196** de frontend (30 archivos): 636 en total | `CRT-32` a `CRT-38`; Figuras 78 y 79 |
+| **O-B1** | Se volvió a ejecutar la suite completa y se recompusieron las figuras desde la salida literal | **379** pruebas de backend y **116** de frontend al cerrar la observación (`CRT-11` a `CRT-17`). El corte vigente, medido de nuevo el 16-11-2026 tras incorporar la arquitectura SOA, la concurrencia y la cancelación de pedidos (v0.5.0), es de **462** de backend (1 446 aserciones, 40 clases) y **200** de frontend (31 archivos): 662 en total | `CRT-32` a `CRT-38`; Figuras 78 y 79 |
 | **O-B2** | En vez de retocar el PNG se escribió `docs/scripts/generar-figura11.py`, que **cuenta** los archivos de migración | **54** migraciones, contadas por el script. La cifra no puede volver a quedarse vieja sin que alguien ejecute el script y lo vea | `docs/evidencias/figura11/` |
 | **O-B3** | Decisión de negocio tomada y aplicada a las cuatro vistas públicas | Homologado: «+800 productos farmacéuticos», «Más de 8 años de servicio en San Juan de Lurigancho», «Atención directa en nuestro local principal y delivery local» | `Hero.vue`, `Stats.vue`, `AboutContent.vue`, `Footer.vue` |
 | **O-B4** | Se comprobó el archivo real servido en producción, en lugar de suponer la causa | `200`, `image/png`, **2 255 B**, **512×512**, decodifica correctamente | `M02`, `M03` |
@@ -206,7 +206,7 @@ indicador.
 | Contención 15 min / restauración 60 min | Sección XXXI | INC-01 se atendió en ~12 minutos |
 | RPO 24 h / RTO 60 min | M9 | Procedimiento verificado; programación diaria no activa |
 | Comprobantes SUNAT ≥ 99 % | M10 | Sin cambio |
-| Pruebas en verde 100 % | M11 | Cumplido: 440 de backend y 196 de frontend |
+| Pruebas en verde 100 % | M11 | Cumplido: 462 de backend y 200 de frontend |
 | — | M6, M7, M8, M12 | Cuatro indicadores nuevos: M6 y M12 los pide la experiencia del proyecto, M7 y M8 la referencia |
 
 *Nota.* Elaboración propia. Los indicadores de negocio del APF1 —reducción del
@@ -608,9 +608,9 @@ razonadas que como incumplimientos, siempre que la matriz las muestre.
 
 | Dimensión | Valor | Evidencia |
 |---|---|---|
-| Pruebas de backend | **440** (1 325 aserciones, 36 clases) | `CRT-32`, `CRT-35` |
-| Pruebas de frontend | **196** (30 archivos) | `CRT-34`, `CRT-37` |
-| Total de pruebas automatizadas | **636** | `CRT-38` |
+| Pruebas de backend | **462** (1 446 aserciones, 40 clases) | `docs/evidencias/soa-concurrencia-v050/INFORME-QA-SOA.md` |
+| Pruebas de frontend | **200** (31 archivos) | `docs/evidencias/soa-concurrencia-v050/INFORME-QA-SOA.md` |
+| Total de pruebas automatizadas | **662** | `docs/evidencias/soa-concurrencia-v050/INFORME-QA-SOA.md` |
 | Migraciones versionadas y reversibles | **54** | `docs/evidencias/figura11/` |
 | Productos en el catálogo de producción | **884** | `CON-01` |
 | Productos con fotografía real en producción | **194**, las 194 servidas con `200` | `docs/evidencias/produccion/INFORME-QA-PROD.md` |
@@ -618,7 +618,7 @@ razonadas que como incumplimientos, siempre que la matriz las muestre.
 | Entornos en producción | API y portal desplegados; documentación pública | `DEP-01`, `DEP-02`, `SOA-06`, `SOA-07` |
 | Contrato público de la API | OpenAPI **3.1**, navegable con Scalar y Stoplight | `SOA-10`, `SOA-11` |
 
-*Nota.* Elaboración propia.
+*Nota.* Elaboración propia. Las Figuras 78 y 79 conservan las capturas del corte del 15-11-2026 (440 y 196 pruebas); el corte del 16-11-2026 (462 y 200) consta en el informe de evidencias de la v0.5.0.
 
 **Figura 78.** Suite de backend: 440 pruebas y 1 325 aserciones sobre
 PostgreSQL 16.

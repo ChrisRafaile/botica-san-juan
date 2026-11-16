@@ -43,22 +43,44 @@ use Illuminate\Http\Request;
 class CatalogoPublicoController extends Controller
 {
     /** Tope de elementos por página. Sin él, `?per_page=100000` es una descarga de la tabla. */
-    private const MAXIMO_POR_PAGINA = 100;
+    public const MAXIMO_POR_PAGINA = 100;
 
     private const POR_PAGINA = 20;
 
     /**
-     * Listado paginado del catálogo.
+     * Listado paginado del catálogo público con búsqueda sin tildes.
      *
-     * Filtros: `buscar`, `categoria` (slug o id), `requiere_receta`.
+     * Fachada de solo lectura para consumo externo sin autenticación.
+     *
+     * Parámetros de consulta (query):
+     * - `buscar` (string, máx 120): Término de búsqueda insensible a mayúsculas y sin tildes (utiliza PostgreSQL unaccent) sobre `nombre`, `principio_activo` y `laboratorio`. Ejemplo: `amoxicilina` o `panadol`.
+     * - `categoria` (string, máx 120): Filtro por slug o identificador numérico de la categoría. Ejemplo: `medicamentos`.
+     * - `requiere_receta` (boolean): Filtro según requiera o no receta médica obligatoria (`true` o `false`).
+     * - `per_page` (integer, máx 100): Cantidad de elementos por página (por omisión 20, máximo 100).
+     * - `page` (integer, mín 1): Número de página solicitada.
      */
     public function index(Request $request): JsonResponse
     {
         $datos = $request->validate([
+            /**
+             * Término de búsqueda sin tildes (unaccent) sobre nombre, principio activo y laboratorio.
+             */
             'buscar' => ['nullable', 'string', 'max:120'],
+            /**
+             * Filtro por categoría mediante slug o identificador numérico.
+             */
             'categoria' => ['nullable', 'string', 'max:120'],
+            /**
+             * Filtro por productos que requieren receta médica obligatoria.
+             */
             'requiere_receta' => ['nullable', 'boolean'],
+            /**
+             * Cantidad de productos por página (mínimo 1, máximo 100).
+             */
             'per_page' => ['nullable', 'integer', 'min:1', 'max:'.self::MAXIMO_POR_PAGINA],
+            /**
+             * Número de página para la paginación de resultados.
+             */
             'page' => ['nullable', 'integer', 'min:1'],
         ]);
 

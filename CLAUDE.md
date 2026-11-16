@@ -130,17 +130,17 @@ cueste una segunda.
 Son los comandos reales, con las rutas que funcionan en esta máquina. `pnpm`
 por corepack está roto aquí, así que se invocan los binarios directamente.
 
-Corte vigente, medido el 2026-11-15 (`CRT-32` a `CRT-38`): **440** pruebas de
-backend y **196** de frontend, **636** en total. Producción sirve **194**
+Corte vigente, medido el 2026-11-16 (v0.5.0): **462** pruebas de
+backend y **200** de frontend, **662** en total. Producción sirve **194**
 productos con fotografía real de 884; la base local tiene 195, así que la
 cifra que se cita es la de producción.
 
 ```powershell
-# Backend (440 pruebas, 1325 aserciones)
+# Backend (462 pruebas, 1446 aserciones)
 cd botica-san-juan-backend
 php artisan test
 
-# Frontend (196 pruebas; Footer.spec necesita VITE_BOTICA_WHATSAPP en el .env local)
+# Frontend (200 pruebas; Footer.spec necesita VITE_BOTICA_WHATSAPP en el .env local)
 cd botica-san-juan-frontend
 .\node_modules\.bin\vitest.cmd run
 

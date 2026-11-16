@@ -66,6 +66,12 @@ services:
         value: database
       - key: QUEUE_CONNECTION
         value: database
+      # Sin esto Laravel arranca en ingles (config/app.php cae a 'en') y los
+      # formularios muestran los mensajes de validacion en otro idioma.
+      - key: APP_LOCALE
+        value: es
+      - key: APP_FALLBACK_LOCALE
+        value: en
 
       # /docs/api y /docs/v1 quedan abiertas SIN declarar nada: el valor por
       # omision de config/scramble.php ya es true, justamente para que
@@ -84,6 +90,34 @@ services:
         sync: false             # la URL que Render asigne a este servicio
       - key: CORS_ALLOWED_ORIGINS
         sync: false             # la URL del front en Vercel, exacta y sin barra final
+      # NO es lo mismo que CORS_ALLOWED_ORIGINS, aunque lleven el mismo valor:
+      # esta es adonde el backend REDIRIGE (retorno de Google, enlaces de los
+      # correos). Sin ella cae a http://localhost:5173 y quien entra con
+      # Google en produccion acaba en una pagina que no existe.
+      - key: FRONTEND_URL
+        sync: false             # la URL del front en Vercel, sin barra final
+
+      # --- Acceso con Google. Con cualquiera de las tres vacia, el boton no
+      #     se pinta y /api/auth/google/disponible responde false. Ver
+      #     docs/CHECKLIST-ACTIVACION-GOOGLE-RESEND.md. ---
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        sync: false             # {APP_URL}/api/auth/google/callback, caracter a caracter
+
+      # --- Correo transaccional. Sin MAIL_MAILER el valor por omision es
+      #     `log`: los correos se escriben en el log del contenedor y no le
+      #     llegan a nadie, sin ningun error que lo delate. ---
+      - key: MAIL_MAILER
+        sync: false             # resend
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false             # direccion de un dominio verificado en Resend
+      - key: MAIL_FROM_NAME
+        sync: false
       # Los nombres los fija config/demostracion.php, que es de donde los lee
       # el seeder. Si no coinciden, el arranque omite las cuentas en silencio.
       - key: DEMO_ADMIN_PASSWORD

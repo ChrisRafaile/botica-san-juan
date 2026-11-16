@@ -121,6 +121,27 @@ php artisan catalogo:poblar-imagenes \
     || echo "!!! No se pudieron asignar las fotos del catalogo; se sirve con la ilustracion de respaldo"
 
 # ---------------------------------------------------------------------------
+# Planificador
+# ---------------------------------------------------------------------------
+# El plan gratuito de Render no ofrece cron, y sin planificador las reservas
+# vencidas (`pedidos:liberar-expirados`) no devolverian nunca su stock a los
+# lotes. `schedule:work` es el planificador de Laravel en primer plano: aqui
+# se deja en segundo plano dentro del mismo contenedor.
+#
+# LO QUE ESTO IMPLICA
+#
+# Cuando el servicio se duerme por inactividad, el planificador se duerme con
+# el. No es un problema: mientras duerme nadie esta comprando, y al despertar
+# la siguiente pasada libera todo lo vencido de golpe. Lo que no garantiza es
+# puntualidad al minuto.
+#
+# Si el planificador muere, la API sigue atendiendo: por eso va con `&` y no
+# encadenado al arranque. Una reserva que tarda en liberarse es stock que no
+# se ve; una botica caida no vende.
+echo "==> Arrancando el planificador"
+php artisan schedule:work >/dev/stderr 2>&1 &
+
+# ---------------------------------------------------------------------------
 # Servidor
 # ---------------------------------------------------------------------------
 # `php-server` monta la configuracion de Caddy equivalente a un `try_files`

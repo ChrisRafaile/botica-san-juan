@@ -48,6 +48,9 @@ export interface PedidoCliente {
   receta_estado?: string | null
   receta?: RecetaPedidoResumen | null
   pedido_detalles?: DetallePedido[]
+  expira_en?: string | null
+  anulado_en?: string | null
+  motivo_anulacion?: string | null
 }
 
 export interface ResumenCliente {
@@ -167,4 +170,27 @@ export async function cargarProductosDestacados(limite = 8): Promise<ProductoDes
     params: { limite },
   })
   return Array.isArray(data?.datos) ? data.datos : []
+}
+
+/**
+ * Solicita la anulación controlada de un pedido abierto y sin pago confirmado.
+ * El servidor devuelve el stock al lote original bajo FEFO y actualiza el comprobante a anulada.
+ */
+export async function cancelarPedido(
+  id: number | string,
+  claveIdempotencia?: string,
+): Promise<{ ok: boolean; pedido: PedidoCliente; comprobante?: any }> {
+  const headers: Record<string, string> = {}
+  if (claveIdempotencia) {
+    headers['Idempotency-Key'] = claveIdempotencia
+  } else if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    headers['Idempotency-Key'] = crypto.randomUUID()
+  }
+
+  const { data } = await api.post<{ ok: boolean; pedido: PedidoCliente; comprobante?: any }>(
+    `/pedidos/${id}/cancelar`,
+    {},
+    { headers },
+  )
+  return data
 }

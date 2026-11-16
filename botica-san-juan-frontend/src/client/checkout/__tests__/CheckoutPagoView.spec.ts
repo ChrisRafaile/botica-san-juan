@@ -164,10 +164,14 @@ describe('CheckoutPagoView.vue', () => {
     await botonPagar!.trigger('click')
     await flushPromises()
 
-    expect(simularPago).toHaveBeenCalledWith('BSJ-405-SIM', {
-      resultado: 'aprobar',
-      marca_tarjeta: 'amex',
-    })
+    expect(simularPago).toHaveBeenCalledWith(
+      'BSJ-405-SIM',
+      {
+        resultado: 'aprobar',
+        marca_tarjeta: 'amex',
+      },
+      expect.any(String),
+    )
     expect(mockRouter.push).toHaveBeenCalledWith({
       path: '/checkout/procesando',
       query: { ref: 'BSJ-405-SIM' },
