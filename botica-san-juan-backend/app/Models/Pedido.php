@@ -72,6 +72,11 @@ class Pedido extends Model
         'medio_pago',
         'subtotal_inafecto',
 
+        /* Trazabilidad de expiración y anulación SOA */
+        'expira_en',
+        'anulado_en',
+        'motivo_anulacion',
+
         /* Trazabilidad de la venta cobrada sin conexion. `uuid_local` es la
            clave de idempotencia de la sincronizacion; ver
            docs/ARQUITECTURA-OFFLINE.md. */
@@ -90,6 +95,8 @@ class Pedido extends Model
         'tasa_igv'           => 'decimal:4',
         'fecha'              => 'datetime',
         'fecha_pedido'       => 'datetime',
+        'expira_en'          => 'datetime',
+        'anulado_en'         => 'datetime',
     ];
 
     /** Venta hecha en mostrador, no por el portal web. */

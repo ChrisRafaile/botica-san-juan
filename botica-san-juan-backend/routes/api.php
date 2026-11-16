@@ -181,7 +181,7 @@ Route::post('/carrito/cotizar', [CarritoPublicoController::class, 'cotizar'])
    Lleva su propio limitador: un endpoint publico que escribe en la base y
    descuenta inventario no puede quedar bajo el limite general. */
 Route::post('/pedidos/confirmar', [PedidoController::class, 'confirmar'])
-    ->middleware('throttle:checkout');
+    ->middleware(['throttle:checkout', 'idempotencia']);
 /*
 |--------------------------------------------------------------------------
 | Consultor de interacciones
@@ -352,12 +352,19 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
 
     // Cobro y lectura de pedido del propio cliente. El importe lo toma del pedido, nunca de la peticion.
     Route::get('pedidos/{pedido}/mi-pedido', [PedidoController::class, 'miPedido']);
-    Route::post('pedidos/{pedido}/pago', [PagoController::class, 'iniciar']);
+    Route::post('pedidos/{pedido}/cancelar', [PedidoController::class, 'cancelar'])
+        ->whereNumber('pedido')
+        ->middleware(['throttle:pagos', 'idempotencia']);
+    Route::post('pedidos/{pedido}/pago', [PagoController::class, 'iniciar'])
+        ->whereNumber('pedido')
+        ->middleware(['throttle:pagos', 'idempotencia']);
     Route::get('pagos/{referencia}/estado', [PagoController::class, 'estado']);
     if (! app()->isProduction()) {
-        Route::post('pagos/{referencia}/simular', [PagoController::class, 'simular']);
+        Route::post('pagos/{referencia}/simular', [PagoController::class, 'simular'])
+            ->middleware(['throttle:pagos', 'idempotencia']);
     }
-    Route::post('pagos/validar-retorno', [PagoController::class, 'validarRetorno']);
+    Route::post('pagos/validar-retorno', [PagoController::class, 'validarRetorno'])
+        ->middleware('throttle:pagos');
 
     // Additional routes for cart by user
     Route::get('carrito/usuario/{usuarioId}', [CarritoController::class, 'getByUser']);

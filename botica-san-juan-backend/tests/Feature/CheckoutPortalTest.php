@@ -270,7 +270,7 @@ class CheckoutPortalTest extends TestCase
         $this->assertEqualsWithDelta(40.00, (float) $r->json('pedido.total'), 0.01);
     }
 
-    public function test_sin_stock_responde_422_y_no_un_error_del_servidor(): void
+    public function test_sin_stock_responde_409_y_no_un_error_del_servidor(): void
     {
         $producto = $this->producto(20.00, 1);
         Lote::where('producto_id', $producto->id)->update(['cantidad_actual' => 0]);
@@ -280,7 +280,7 @@ class CheckoutPortalTest extends TestCase
             'cliente_nombre'    => 'Sin Suerte',
             'cliente_documento' => '12345678',
             'cliente_telefono'  => '999111222',
-        ])->assertStatus(422)->assertJsonPath('sin_stock', true);
+        ])->assertStatus(409)->assertJsonPath('sin_stock', true)->assertJsonPath('codigo', 'stock_insuficiente');
     }
 
     public function test_el_desglose_del_pedido_usa_el_mismo_calculo_fiscal_que_el_carrito(): void

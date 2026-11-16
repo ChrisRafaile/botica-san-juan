@@ -40,8 +40,10 @@ use RuntimeException;
  */
 class VentaService
 {
-    public function __construct(private readonly InventarioService $inventario)
-    {
+    public function __construct(
+        private readonly InventarioService $inventario,
+        private readonly InventarioFefoService $inventarioFefo,
+    ) {
     }
 
     /**
@@ -116,6 +118,11 @@ class VentaService
         }
 
         return DB::transaction(function () use ($items, $datosCliente, $vendedorId, $usuarioClienteId, $pagos, $origen) {
+            /* Bloqueo canónico global: productos (id asc) y lotes (id asc) antes de
+               cualquier descuento para evitar interbloqueos concurrentes. */
+            $productoIds = array_values(array_unique(array_map(fn ($it) => (int) $it['producto_id'], $items)));
+            sort($productoIds, SORT_NUMERIC);
+            $this->inventarioFefo->bloquearParaVenta($productoIds);
 
             $fiscal  = app(DesgloseFiscalService::class);
             $tasaIgv = $fiscal->tasa();

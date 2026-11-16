@@ -125,7 +125,9 @@ class ConfirmacionVentaTest extends TestCase
             ->postJson('/api/pedidos/confirmar', [
                 'items' => [['producto_id' => $producto->id, 'cantidad' => 5]],
             ])
-            ->assertStatus(422);
+            ->assertStatus(409)
+            ->assertJsonPath('sin_stock', true)
+            ->assertJsonPath('codigo', 'stock_insuficiente');
 
         $this->assertSame(2, (int) $producto->fresh()->stock);
         $this->assertDatabaseCount('pedidos', 0);
