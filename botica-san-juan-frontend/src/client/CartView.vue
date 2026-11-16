@@ -1328,6 +1328,7 @@ async function enviarPedido() {
     const payload = {
       modalidad_entrega: formulario.value.modalidad_entrega,
       tipo_comprobante: formulario.value.tipo_comprobante,
+      metodo_pago: (metodoPago.value === 'tarjeta' ? 'tarjeta' : 'contra_entrega') as 'tarjeta' | 'contra_entrega',
       direccion: formulario.value.modalidad_entrega === 'entrega' ? formulario.value.direccion.trim() : undefined,
       cliente_nombre:
         !autenticado.value || formulario.value.tipo_comprobante === 'factura'
@@ -1354,21 +1355,31 @@ async function enviarPedido() {
     confirmado.value = respuesta
   } catch (e) {
     const r = (e as {
-      response?: { status?: number; data?: { errors?: Record<string, string[]>; message?: string; sin_stock?: boolean } }
+      response?: {
+        status?: number
+        data?: {
+          codigo?: string
+          errors?: Record<string, string[]>
+          message?: string
+          sin_stock?: boolean
+        }
+      }
     })?.response
 
-    if (r?.status === 422 && r.data?.errors) {
+    if (r?.status === 409 || r?.data?.sin_stock || r?.data?.codigo === 'contencion') {
+      /* Se vuelve a cotizar para que el carrito refleje lo que SÍ hay, en vez
+         de dejar al cliente con unas cantidades que el servidor ya rechazó por contención. */
+      errorEnvio.value =
+        r?.data?.message ??
+        'Hubo una contención de inventario con otro comprador o el stock ya no está disponible. Hemos actualizado tu carrito.'
+      await carrito.cotizar()
+    } else if (r?.status === 422 && r.data?.errors) {
       errores.value = Object.fromEntries(
         Object.entries(r.data.errors).map(([campo, msgs]) => [campo, msgs[0] ?? '']),
       )
       errorEnvio.value = 'Revisa los campos marcados.'
-    } else if (r?.data?.sin_stock) {
-      /* Se vuelve a cotizar para que el carrito refleje lo que SÍ hay, en vez
-         de dejar al cliente con unas cantidades que el servidor ya rechazó. */
-      errorEnvio.value = r.data.message ?? 'Ya no hay stock suficiente.'
-      await carrito.cotizar()
     } else {
-      errorEnvio.value = 'No pudimos registrar el pedido. Inténtalo de nuevo o llámanos.'
+      errorEnvio.value = r?.data?.message ?? 'No pudimos registrar el pedido. Inténtalo de nuevo o llámanos.'
     }
   } finally {
     enviando.value = false
