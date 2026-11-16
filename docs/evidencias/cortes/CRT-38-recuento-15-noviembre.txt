@@ -1,0 +1,91 @@
+EVIDENCIA CRT-38 · Recuento de la suite automatizada tras el portal del cliente
+y la correccion de su auditoria en navegador
+Sistema Web de Gestion Botica San Juan · 2026-11-15 23:22 (hora de Lima)
+===============================================================================
+
+POR QUE EXISTE ESTA EVIDENCIA
+-----------------------------------------------------------------------------
+CRT-31 fijo el recuento en 429 pruebas de backend y 172 de frontend. Un dia
+despues se fusionaron en develop el portal del cliente (PR 53) y la correccion
+de los hallazgos de su auditoria en navegador (PR 54). Cada uno trajo sus
+pruebas, asi que la cifra de CRT-31 volvio a quedarse corta.
+
+Esta evidencia mide de nuevo sobre develop, con los dos PR ya fusionados
+(commit 3873add), y deja las dos salidas literales al lado.
+
+
+RECUENTO MEDIDO
+-----------------------------------------------------------------------------
+  BACKEND   php artisan test
+            440 passed (1325 assertions)
+            36 clases de prueba
+            31,84 s sobre PostgreSQL 16
+
+  FRONTEND  .\node_modules\.bin\vitest.cmd run
+            196 passed (196)
+            30 archivos de prueba
+            5,24 s
+
+  TOTAL     636 pruebas automatizadas
+
+  Diferencia con CRT-31: +11 en el backend (+64 aserciones, mismas 36 clases)
+  y +24 en el frontend (+6 archivos). +35 en total.
+
+
+ARCHIVOS DE ESTA EVIDENCIA
+-----------------------------------------------------------------------------
+  CRT-32  Salida literal del backend, completa y sin limpiar.
+  CRT-33  Guion de la figura del backend.
+  CRT-34  Salida literal del frontend, sin los codigos de color de la consola.
+  CRT-35  Figura del backend (440).
+  CRT-36  Guion de la figura del frontend.
+  CRT-37  Figura del frontend (196).
+
+Los dos guiones no se escribieron a mano: los extrae
+docs/scripts/guion-de-suite.py de CRT-32 y CRT-34, y se niega a escribirlos si
+las marcas de prueba superada no suman el total del resumen, si el numero de
+archivos listados no coincide con el del resumen o si las pruebas por archivo
+no dan el total. Las figuras las compone docs/scripts/render_terminal.py.
+
+
+UNA CONDICION DEL ENTORNO QUE CONVIENE CONOCER
+-----------------------------------------------------------------------------
+Footer.spec.ts comprueba el boton flotante de WhatsApp, que solo se pinta si
+VITE_BOTICA_WHATSAPP tiene valor. Esa variable vive en el .env local del
+frontend, que no se versiona. En un arbol recien clonado sin ese archivo la
+suite da 195 de 196. No es una prueba rota: es una prueba que depende de una
+variable que el repositorio no trae.
+
+
+LO QUE NO SE TOCO
+-----------------------------------------------------------------------------
+CRT-25 a CRT-31 (429 y 172) SE CONSERVAN, por la misma razon por la que CRT-31
+conservo CRT-18 a CRT-24: son el rastro de como crecio la suite
+(198 -> 379 -> 419 -> 429 -> 440 en el backend).
+
+
+COMO REPRODUCIRLO
+-----------------------------------------------------------------------------
+  cd botica-san-juan-backend
+  php artisan test
+
+  cd botica-san-juan-frontend
+  $env:NO_COLOR = '1'
+  .\node_modules\.bin\vitest.cmd run
+
+  # Volver a extraer un guion desde su salida literal
+  python docs/scripts/guion-de-suite.py backend `
+      docs/evidencias/cortes/CRT-32-backend-suite-440.txt `
+      docs/evidencias/cortes/CRT-33-guion-suite-440.json `
+      "Suite de backend sobre PostgreSQL 16 - corte del 15-11-2026"
+
+  # Volver a componer una figura
+  python docs/scripts/render_terminal.py `
+      docs/evidencias/cortes/CRT-33-guion-suite-440.json `
+      docs/evidencias/cortes/CRT-35-suite-440.png
+
+render_terminal.py busca DejaVu Sans Mono en la ruta de Linux. En Windows no
+existe: estas dos figuras se compusieron cargando el modulo y apuntando MONO y
+MONO_B a la copia de DejaVu que trae matplotlib, sin modificar el script.
+Vitest sigue emitiendo codigos de color aunque NO_COLOR este definido cuando la
+salida se redirige a un archivo; CRT-34 se guardo quitandolos despues.

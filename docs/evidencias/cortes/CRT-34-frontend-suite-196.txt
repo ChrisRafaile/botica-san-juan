@@ -1,0 +1,305 @@
+
+ RUN  v3.2.4 C:/tareas universitarios/TAREAS U/Tareas Univ/Ciclo 5/Taller de programacion Web/botica_san_juan/botica-san-juan-frontend
+
+(node:40652) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:56956) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12380) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:49832) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55716) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:48412) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:56144) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:500) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42128) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55044) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:48468) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51168) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:23008) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:48848) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:42084) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:12516) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:49440) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18408) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:48464) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:22736) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:55488) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32588) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:32560) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:632) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2328) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:50208) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13716) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:53772) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39516) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:56800) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ src/utils/__tests__/media.spec.ts (4 tests) 3ms
+ ✓ src/utils/__tests__/validacionServidor.spec.ts (9 tests) 5ms
+ ✓ src/utils/__tests__/tarjetaBancaria.spec.ts (13 tests) 5ms
+ ✓ src/observabilidad/__tests__/depurador.spec.ts (26 tests) 18ms
+ ✓ src/client/__tests__/TarjetaResumen.spec.ts (5 tests) 61ms
+ ✓ src/auth/__tests__/CampoTexto.spec.ts (6 tests) 67ms
+ ✓ src/components/__tests__/ImagenConRespaldo.spec.ts (9 tests) 88ms
+ ✓ src/offline/__tests__/notaContingencia.spec.ts (4 tests) 22ms
+ ✓ src/auth/__tests__/verificar-correo.spec.ts (5 tests) 49ms
+ ✓ src/offline/__tests__/catalogo.spec.ts (9 tests) 7ms
+stdout | src/client/checkout/__tests__/CheckoutPagoView.spec.ts
+🟣 2026-11-16T04:22:43.459Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+stdout | src/admin/__tests__/ImagenesPanelAdmin.spec.ts
+🟣 2026-11-16T04:22:43.460Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+ ✓ src/client/checkout/__tests__/CheckoutResultadoView.spec.ts (1 test) 70ms
+ ✓ src/components/__tests__/zona-de-receta.spec.ts (9 tests) 163ms
+ ✓ src/components/__tests__/SelectorTema.spec.ts (3 tests) 109ms
+ ✓ src/components/__tests__/DialogoConfirmacion.spec.ts (5 tests) 111ms
+stdout | src/services/__tests__/envio-de-archivos.spec.ts
+🟣 2026-11-16T04:22:43.563Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+stdout | src/client/__tests__/desvincular-google.spec.ts
+🟣 2026-11-16T04:22:43.568Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > manda el FormData tal cual, sin convertirlo a JSON
+🟣 2026-11-16T04:22:43.579Z [DEBUG]: Peticion HTTP { method: 'POST', url: '/api/perfil/foto', autenticada: false }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > manda el FormData tal cual, sin convertirlo a JSON
+🟣 2026-11-16T04:22:43.580Z [DEBUG]: Respuesta HTTP { status: 200, url: '/perfil/foto', method: 'POST' }
+
+ ✓ src/auth/__tests__/restablecer-contrasena.spec.ts (8 tests) 155ms
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > no deja puesto application/json cuando el cuerpo es un FormData
+🟣 2026-11-16T04:22:43.584Z [DEBUG]: Peticion HTTP { method: 'POST', url: '/api/perfil/foto', autenticada: false }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > no deja puesto application/json cuando el cuerpo es un FormData
+🟣 2026-11-16T04:22:43.585Z [DEBUG]: Respuesta HTTP { status: 200, url: '/perfil/foto', method: 'POST' }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > conserva el nombre del campo que espera el backend
+🟣 2026-11-16T04:22:43.586Z [DEBUG]: Peticion HTTP { method: 'POST', url: '/api/perfil/foto', autenticada: false }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > conserva el nombre del campo que espera el backend
+🟣 2026-11-16T04:22:43.586Z [DEBUG]: Respuesta HTTP { status: 200, url: '/perfil/foto', method: 'POST' }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > sigue mandando application/json cuando el cuerpo es un objeto
+🟣 2026-11-16T04:22:43.588Z [DEBUG]: Peticion HTTP { method: 'PUT', url: '/api/perfil', autenticada: false }
+
+stdout | src/services/__tests__/envio-de-archivos.spec.ts > envio de archivos por la API > sigue mandando application/json cuando el cuerpo es un objeto
+🟣 2026-11-16T04:22:43.588Z [DEBUG]: Respuesta HTTP { status: 200, url: '/perfil', method: 'PUT' }
+
+ ✓ src/stores/__tests__/offline.spec.ts (15 tests) 180ms
+ ✓ src/services/__tests__/envio-de-archivos.spec.ts (4 tests) 17ms
+stdout | src/client/__tests__/ProductsView.spec.ts
+🟣 2026-11-16T04:22:43.631Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+stdout | src/client/__tests__/PerfilYFlujoReversible.spec.ts
+🟣 2026-11-16T04:22:43.686Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+stdout | src/client/__tests__/ClientComprobantesView.spec.ts
+🟣 2026-11-16T04:22:43.686Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+stdout | src/client/__tests__/ClientHomeView.spec.ts
+🟣 2026-11-16T04:22:43.687Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+stdout | src/client/__tests__/CartView.spec.ts
+🟣 2026-11-16T04:22:43.686Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+stdout | src/client/__tests__/ProductoDetalleView.spec.ts
+🟣 2026-11-16T04:22:43.686Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+stdout | src/client/__tests__/ClientPedidosView.spec.ts
+🟣 2026-11-16T04:22:43.689Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+stdout | src/client/__tests__/ClientLayout.spec.ts
+🟣 2026-11-16T04:22:43.690Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+ ✓ src/client/__tests__/ClientComprobantesView.spec.ts (1 test) 132ms
+stdout | src/components/__tests__/Footer.spec.ts
+🟣 2026-11-16T04:22:43.926Z [DEBUG]: Cliente API inicializado { baseURL: '/api' }
+
+ ✓ src/client/__tests__/desvincular-google.spec.ts (6 tests) 134ms
+ ✓ src/client/checkout/__tests__/CheckoutPagoView.spec.ts (2 tests) 172ms
+ ✓ src/client/__tests__/ClientLayout.spec.ts (3 tests) 187ms
+ ✓ src/client/__tests__/ClientPedidosView.spec.ts (2 tests) 140ms
+ ✓ src/components/__tests__/Footer.spec.ts (3 tests) 137ms
+ ✓ src/client/__tests__/ClientHomeView.spec.ts (3 tests) 192ms
+ ✓ src/client/checkout/__tests__/TarjetaBancariaVisual.spec.ts (12 tests) 788ms
+stdout | src/client/__tests__/CartView.spec.ts > CartView.vue (Checkout cliente) > valida dirección y RUC para Factura antes de enviar y redirige a la pasarela con Tarjeta 3D
+🟣 2026-11-16T04:22:44.216Z [DEBUG]: Peticion HTTP { method: 'GET', url: '/api/pedidos/usuario/9', autenticada: false }
+
+ ✓ src/client/__tests__/ProductsView.spec.ts (4 tests) 193ms
+stderr | src/client/__tests__/CartView.spec.ts > CartView.vue (Checkout cliente) > valida dirección y RUC para Factura antes de enviar y redirige a la pasarela con Tarjeta 3D
+Error: AggregateError
+    at Object.dispatchError (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\xhr\xhr-utils.js:62:19)
+    at Request.<anonymous> (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\xhr\XMLHttpRequest-impl.js:655:18)
+    at Request.emit (node:events:526:24)
+    at ClientRequest.<anonymous> (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\helpers\http-request.js:127:14)
+    at ClientRequest.emit (node:events:514:20)
+    at emitErrorEvent (node:_http_client:115:11)
+    at Socket.socketErrorListener (node:_http_client:794:5)
+    at Socket.emit (node:events:514:20)
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3) undefined
+
+stderr | src/client/__tests__/CartView.spec.ts > CartView.vue (Checkout cliente) > valida dirección y RUC para Factura antes de enviar y redirige a la pasarela con Tarjeta 3D
+🔴 2026-11-16T04:22:44.337Z [ERROR]: Error HTTP {
+  status: undefined,
+  url: '/pedidos/usuario/9',
+  method: 'GET',
+  code: 'ERR_NETWORK',
+  message: 'Network Error'
+}
+
+stdout | src/client/__tests__/CartView.spec.ts > CartView.vue (Checkout cliente) > permite confirmar con Boleta para recojo y pago contraentrega ofreciendo Ver mis pedidos
+🟣 2026-11-16T04:22:44.409Z [DEBUG]: Peticion HTTP { method: 'GET', url: '/api/pedidos/usuario/9', autenticada: false }
+
+stderr | src/client/__tests__/CartView.spec.ts > CartView.vue (Checkout cliente) > permite confirmar con Boleta para recojo y pago contraentrega ofreciendo Ver mis pedidos
+Error: AggregateError
+    at Object.dispatchError (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\xhr\xhr-utils.js:62:19)
+    at Request.<anonymous> (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\xhr\XMLHttpRequest-impl.js:655:18)
+    at Request.emit (node:events:526:24)
+    at ClientRequest.<anonymous> (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\helpers\http-request.js:127:14)
+    at ClientRequest.emit (node:events:514:20)
+    at emitErrorEvent (node:_http_client:115:11)
+    at Socket.socketErrorListener (node:_http_client:794:5)
+    at Socket.emit (node:events:514:20)
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3) undefined
+
+stderr | src/client/__tests__/CartView.spec.ts > CartView.vue (Checkout cliente) > permite confirmar con Boleta para recojo y pago contraentrega ofreciendo Ver mis pedidos
+🔴 2026-11-16T04:22:44.453Z [ERROR]: Error HTTP {
+  status: undefined,
+  url: '/pedidos/usuario/9',
+  method: 'GET',
+  code: 'ERR_NETWORK',
+  message: 'Network Error'
+}
+
+stdout | src/client/__tests__/CartView.spec.ts > CartView.vue (Checkout cliente) > atrapa el foco en el modal de checkout, cierra con Escape y lo devuelve al disparador
+🟣 2026-11-16T04:22:44.465Z [DEBUG]: Peticion HTTP { method: 'GET', url: '/api/pedidos/usuario/9', autenticada: false }
+
+stderr | src/client/__tests__/CartView.spec.ts > CartView.vue (Checkout cliente) > atrapa el foco en el modal de checkout, cierra con Escape y lo devuelve al disparador
+Error: AggregateError
+    at Object.dispatchError (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\xhr\xhr-utils.js:62:19)
+    at Request.<anonymous> (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\xhr\XMLHttpRequest-impl.js:655:18)
+    at Request.emit (node:events:526:24)
+    at ClientRequest.<anonymous> (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\helpers\http-request.js:127:14)
+    at ClientRequest.emit (node:events:514:20)
+    at emitErrorEvent (node:_http_client:115:11)
+    at Socket.socketErrorListener (node:_http_client:794:5)
+    at Socket.emit (node:events:514:20)
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3) undefined
+
+stderr | src/client/__tests__/CartView.spec.ts > CartView.vue (Checkout cliente) > atrapa el foco en el modal de checkout, cierra con Escape y lo devuelve al disparador
+🔴 2026-11-16T04:22:44.493Z [ERROR]: Error HTTP {
+  status: undefined,
+  url: '/pedidos/usuario/9',
+  method: 'GET',
+  code: 'ERR_NETWORK',
+  message: 'Network Error'
+}
+
+ ✓ src/client/__tests__/ProductoDetalleView.spec.ts (9 tests) 433ms
+stdout | src/client/__tests__/PerfilYFlujoReversible.spec.ts > Perfil (dirección y tema) y flujo reversible de compra > precarga la dirección de entrega predeterminada al abrir el checkout desde CartView
+🟣 2026-11-16T04:22:44.456Z [DEBUG]: Peticion HTTP { method: 'GET', url: '/api/pedidos/usuario/9', autenticada: false }
+
+stderr | src/client/__tests__/PerfilYFlujoReversible.spec.ts > Perfil (dirección y tema) y flujo reversible de compra > precarga la dirección de entrega predeterminada al abrir el checkout desde CartView
+[Vue Router warn]: No match found for location with path "/checkout/pago"
+[Vue Router warn]: No match found for location with path "/checkout/pago"
+[Vue Router warn]: No match found for location with path "/checkout/pago"
+[Vue Router warn]: No match found for location with path "/checkout/pago"
+
+stdout | src/client/__tests__/CartView.spec.ts > CartView.vue (Checkout cliente) > limpia el temporizador de copiarPedido y los escuchadores al desmontar
+🟣 2026-11-16T04:22:44.497Z [DEBUG]: Peticion HTTP { method: 'GET', url: '/api/pedidos/usuario/9', autenticada: false }
+stderr | src/client/__tests__/PerfilYFlujoReversible.spec.ts > Perfil (dirección y tema) y flujo reversible de compra > precarga la dirección de entrega predeterminada al abrir el checkout desde CartView
+[Vue Router warn]: No match found for location with path "/checkout/pago"
+[Vue Router warn]: No match found for location with path "/checkout/pago"
+
+
+stderr | src/client/__tests__/CartView.spec.ts > CartView.vue (Checkout cliente) > limpia el temporizador de copiarPedido y los escuchadores al desmontar
+Error: AggregateError
+    at Object.dispatchError (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\xhr\xhr-utils.js:62:19)
+    at Request.<anonymous> (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\xhr\XMLHttpRequest-impl.js:655:18)
+    at Request.emit (node:events:526:24)
+    at ClientRequest.<anonymous> (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\helpers\http-request.js:127:14)
+    at ClientRequest.emit (node:events:514:20)
+    at emitErrorEvent (node:_http_client:115:11)
+    at Socket.socketErrorListener (node:_http_client:794:5)
+    at Socket.emit (node:events:514:20)
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3) undefined
+
+stderr | src/client/__tests__/PerfilYFlujoReversible.spec.ts > Perfil (dirección y tema) y flujo reversible de compra > precarga la dirección de entrega predeterminada al abrir el checkout desde CartView
+[Vue Router warn]: No match found for location with path "/checkout/pago"
+[Vue Router warn]: No match found for location with path "/checkout/pago"
+
+stderr | src/client/__tests__/CartView.spec.ts > CartView.vue (Checkout cliente) > limpia el temporizador de copiarPedido y los escuchadores al desmontar
+🔴 2026-11-16T04:22:44.497Z [ERROR]: Error HTTP {
+  status: undefined,
+  url: '/pedidos/usuario/9',
+  method: 'GET',
+  code: 'ERR_NETWORK',
+  message: 'Network Error'
+}
+
+ ✓ src/client/__tests__/CartView.spec.ts (6 tests) 464ms
+stderr | src/client/__tests__/PerfilYFlujoReversible.spec.ts > Perfil (dirección y tema) y flujo reversible de compra > precarga la dirección de entrega predeterminada al abrir el checkout desde CartView
+[Vue Router warn]: No match found for location with path "/checkout/pago"
+[Vue Router warn]: No match found for location with path "/checkout/pago"
+
+stderr | src/client/__tests__/PerfilYFlujoReversible.spec.ts > Perfil (dirección y tema) y flujo reversible de compra > precarga la dirección de entrega predeterminada al abrir el checkout desde CartView
+Error: AggregateError
+    at Object.dispatchError (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\xhr\xhr-utils.js:62:19)
+    at Request.<anonymous> (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\xhr\XMLHttpRequest-impl.js:655:18)
+    at Request.emit (node:events:526:24)
+    at ClientRequest.<anonymous> (C:\tareas universitarios\TAREAS U\Tareas Univ\Ciclo 5\Taller de programacion Web\botica_san_juan\botica-san-juan-frontend\node_modules\.pnpm\jsdom@26.1.0_supports-color@7.2.0\node_modules\jsdom\lib\jsdom\living\helpers\http-request.js:127:14)
+    at ClientRequest.emit (node:events:514:20)
+    at emitErrorEvent (node:_http_client:115:11)
+    at Socket.socketErrorListener (node:_http_client:794:5)
+    at Socket.emit (node:events:514:20)
+    at emitErrorNT (node:internal/streams/destroy:170:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:129:3) undefined
+
+stderr | src/client/__tests__/PerfilYFlujoReversible.spec.ts > Perfil (dirección y tema) y flujo reversible de compra > precarga la dirección de entrega predeterminada al abrir el checkout desde CartView
+🔴 2026-11-16T04:22:44.538Z [ERROR]: Error HTTP {
+  status: undefined,
+  url: '/pedidos/usuario/9',
+  method: 'GET',
+  code: 'ERR_NETWORK',
+  message: 'Network Error'
+}
+
+ ✓ src/client/__tests__/PerfilYFlujoReversible.spec.ts (3 tests) 287ms
+ ✓ src/admin/__tests__/ImagenesPanelAdmin.spec.ts (7 tests) 260ms
+
+ Test Files  30 passed (30)
+      Tests  196 passed (196)
+   Start at  23:22:39
+   Duration  5.24s (transform 15.71s, setup 1.64s, collect 45.33s, tests 4.65s, environment 49.56s, prepare 10.30s)
+

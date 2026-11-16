@@ -130,6 +130,11 @@ cueste una segunda.
 Son los comandos reales, con las rutas que funcionan en esta máquina. `pnpm`
 por corepack está roto aquí, así que se invocan los binarios directamente.
 
+Corte vigente, medido el 2026-11-15 (`CRT-32` a `CRT-38`): **440** pruebas de
+backend y **196** de frontend, **636** en total. Producción sirve **194**
+productos con fotografía real de 884; la base local tiene 195, así que la
+cifra que se cita es la de producción.
+
 ```powershell
 # Backend (440 pruebas, 1325 aserciones)
 cd botica-san-juan-backend
@@ -149,6 +154,19 @@ corrección de interfaz, además, se comprueba midiendo en un navegador de
 verdad: el modal se cerró cuando se verificó que el contenido de 1231 px
 cabía en un área desplazable de 453 px y que el botón de enviar quedaba a
 y=659 de 720, no cuando el CSS pareció razonable.
+
+### Auditorías QA en navegador con agentes
+
+Mientras `gemini-4-argon` recupera su cuota semanal (se agotó el 2026-11-15
+tras una auditoría larga más una re-verificación), las auditorías
+QA/Playwright se lanzan con `hydrogen`:
+
+```powershell
+agy --model gemini-4-hydrogen-high --effort low --mode auto -i "<tarea>"
+```
+
+`--effort medium` solo si la auditoría incluye ajustes de código. Cuando
+`argon` vuelva a tener cuota, esta nota sobra y se borra.
 
 ---
 
@@ -179,6 +197,8 @@ y=659 de 720, no cuando el CSS pareció razonable.
 | `docs/INFORME-APF2.md` | Entregable académico del APF2. |
 | `docs/evidencias/imagenes-catalogo/INFORME-SEGUNDA-PASADA.md` | Segunda pasada del extractor de fotos: criterios, emparejamientos y cómo reproducirla. |
 | `docs/evidencias/auditoria-portal-cliente/INFORME.md` | Auditoría en navegador del portal cliente, el flujo de compra y las imágenes en admin, con su re-verificación. |
+| `docs/evidencias/auditoria-portal-cliente/INFORME-QA-LOCAL.md` | Tercera pasada en navegador sobre local: portal cliente, tema, flujo de compra, Admin y el CLS en frío de `/admin/products`. |
+| `docs/evidencias/produccion/INFORME-QA-PROD.md` | Auditoría de producción: 194 fotos, búsqueda sin tildes y consola limpia. El portal cliente y Admin autenticados quedaron sin medir por falta de credencial. |
 | `docs/evidencias/figura11/LEEME.md` | Figura 11 corregida para el informe final, y por qué el APF3 no se tocó. |
 
 El APF3 ya se entregó y se calificó: es un registro histórico y no se modifica.
