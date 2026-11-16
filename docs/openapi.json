@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "API Botica San Juan",
-        "version": "0.0.1",
+        "version": "0.5.0",
         "description": "Servicios del sistema de gesti\u00f3n de la Botica San Juan: cat\u00e1logo, inventario, punto de venta, pedidos del portal, sincronizaci\u00f3n de ventas en contingencia y facturaci\u00f3n electr\u00f3nica. Las rutas protegidas esperan un token Bearer emitido por /api/login."
     },
     "servers": [
@@ -747,6 +747,440 @@
                 "security": []
             }
         },
+        "/catalogo": {
+            "get": {
+                "operationId": "catalogoPublico.index",
+                "description": "Fachada de solo lectura para consumo externo sin autenticaci\u00f3n.\n\nPar\u00e1metros de consulta (query):\n- `buscar` (string, m\u00e1x 120): T\u00e9rmino de b\u00fasqueda insensible a may\u00fasculas y sin tildes (utiliza PostgreSQL unaccent) sobre `nombre`, `principio_activo` y `laboratorio`. Ejemplo: `amoxicilina` o `panadol`.\n- `categoria` (string, m\u00e1x 120): Filtro por slug o identificador num\u00e9rico de la categor\u00eda. Ejemplo: `medicamentos`.\n- `requiere_receta` (boolean): Filtro seg\u00fan requiera o no receta m\u00e9dica obligatoria (`true` o `false`).\n- `per_page` (integer, m\u00e1x 100): Cantidad de elementos por p\u00e1gina (por omisi\u00f3n 20, m\u00e1ximo 100).\n- `page` (integer, m\u00edn 1): N\u00famero de p\u00e1gina solicitada.",
+                "summary": "Listado paginado del cat\u00e1logo p\u00fablico con b\u00fasqueda sin tildes",
+                "tags": [
+                    "CatalogoPublico"
+                ],
+                "parameters": [
+                    {
+                        "name": "buscar",
+                        "in": "query",
+                        "description": "T\u00e9rmino de b\u00fasqueda sin tildes (unaccent) sobre nombre, principio activo y laboratorio.",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 120
+                        }
+                    },
+                    {
+                        "name": "categoria",
+                        "in": "query",
+                        "description": "Filtro por categor\u00eda mediante slug o identificador num\u00e9rico.",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 120
+                        }
+                    },
+                    {
+                        "name": "requiere_receta",
+                        "in": "query",
+                        "description": "Filtro por productos que requieren receta m\u00e9dica obligatoria.",
+                        "schema": {
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Cantidad de productos por p\u00e1gina (m\u00ednimo 1, m\u00e1ximo 100).",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "N\u00famero de p\u00e1gina para la paginaci\u00f3n de resultados.",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "datos": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "nombre": {
+                                                        "type": "string"
+                                                    },
+                                                    "concentracion": {
+                                                        "type": "string"
+                                                    },
+                                                    "presentacion": {
+                                                        "type": "string"
+                                                    },
+                                                    "laboratorio": {
+                                                        "type": "string"
+                                                    },
+                                                    "principio_activo": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "categoria": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "categoria_slug": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "precio": {
+                                                        "type": [
+                                                            "number",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "moneda": {
+                                                        "type": "string",
+                                                        "const": "PEN"
+                                                    },
+                                                    "requiere_receta": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "disponible": {
+                                                        "type": "boolean",
+                                                        "description": "Si hay existencias, no cu\u00e1ntas. Ver la cabecera de la clase."
+                                                    },
+                                                    "imagen": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "nombre",
+                                                    "concentracion",
+                                                    "presentacion",
+                                                    "laboratorio",
+                                                    "principio_activo",
+                                                    "categoria",
+                                                    "categoria_slug",
+                                                    "precio",
+                                                    "moneda",
+                                                    "requiere_receta",
+                                                    "disponible",
+                                                    "imagen"
+                                                ]
+                                            }
+                                        },
+                                        "paginacion": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "por_pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "string"
+                                                },
+                                                "paginas": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "pagina",
+                                                "por_pagina",
+                                                "total",
+                                                "paginas"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "datos",
+                                        "paginacion"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/catalogo/destacados": {
+            "get": {
+                "operationId": "catalogoPublico.destacados",
+                "description": "QU\u00c9 SIGNIFICA \u00abDESTACADO\u00bb AQU\u00cd\n\nNo hay una columna `destacado` ni nadie marca productos a mano, as\u00ed que\ninventarse un criterio opaco ser\u00eda peor que no tener el endpoint. El\ncriterio es expl\u00edcito y comprobable: productos **con existencias** y\n**sin receta**, ordenados por nombre.\n\nSin receta porque es una vitrina p\u00fablica: una lista de medicamentos\ncontrolados en la portada de una API abierta no es una buena idea aunque\nlos datos sean p\u00fablicos. Con existencias porque destacar lo que no se\npuede comprar no ayuda a nadie.",
+                "summary": "Una muestra corta del cat\u00e1logo",
+                "tags": [
+                    "CatalogoPublico"
+                ],
+                "parameters": [
+                    {
+                        "name": "limite",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "minimum": 1,
+                            "maximum": 50
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "datos": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "nombre": {
+                                                        "type": "string"
+                                                    },
+                                                    "concentracion": {
+                                                        "type": "string"
+                                                    },
+                                                    "presentacion": {
+                                                        "type": "string"
+                                                    },
+                                                    "laboratorio": {
+                                                        "type": "string"
+                                                    },
+                                                    "principio_activo": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "categoria": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "categoria_slug": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "precio": {
+                                                        "type": [
+                                                            "number",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "moneda": {
+                                                        "type": "string",
+                                                        "const": "PEN"
+                                                    },
+                                                    "requiere_receta": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "disponible": {
+                                                        "type": "boolean",
+                                                        "description": "Si hay existencias, no cu\u00e1ntas. Ver la cabecera de la clase."
+                                                    },
+                                                    "imagen": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "nombre",
+                                                    "concentracion",
+                                                    "presentacion",
+                                                    "laboratorio",
+                                                    "principio_activo",
+                                                    "categoria",
+                                                    "categoria_slug",
+                                                    "precio",
+                                                    "moneda",
+                                                    "requiere_receta",
+                                                    "disponible",
+                                                    "imagen"
+                                                ]
+                                            }
+                                        },
+                                        "criterio": {
+                                            "type": "string",
+                                            "const": "Productos con existencias y de venta sin receta; primero los disponibles con fotograf\u00eda real."
+                                        }
+                                    },
+                                    "required": [
+                                        "datos",
+                                        "criterio"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/catalogo/{producto}": {
+            "get": {
+                "operationId": "catalogoPublico.show",
+                "description": "Devuelve 404 cuando no existe, nunca 500: la ruta restringe el\npar\u00e1metro a d\u00edgitos, as\u00ed que `/api/catalogo/destacados` no llega aqu\u00ed\nintentando convertir \u00abdestacados\u00bb en un entero.",
+                "summary": "Un producto por su identificador",
+                "tags": [
+                    "CatalogoPublico"
+                ],
+                "parameters": [
+                    {
+                        "name": "producto",
+                        "in": "path",
+                        "required": true,
+                        "description": "The producto ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "datos": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "nombre": {
+                                                    "type": "string"
+                                                },
+                                                "concentracion": {
+                                                    "type": "string"
+                                                },
+                                                "presentacion": {
+                                                    "type": "string"
+                                                },
+                                                "laboratorio": {
+                                                    "type": "string"
+                                                },
+                                                "principio_activo": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "categoria": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "categoria_slug": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "precio": {
+                                                    "type": [
+                                                        "number",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "moneda": {
+                                                    "type": "string",
+                                                    "const": "PEN"
+                                                },
+                                                "requiere_receta": {
+                                                    "type": "boolean"
+                                                },
+                                                "disponible": {
+                                                    "type": "boolean",
+                                                    "description": "Si hay existencias, no cu\u00e1ntas. Ver la cabecera de la clase."
+                                                },
+                                                "imagen": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "nombre",
+                                                "concentracion",
+                                                "presentacion",
+                                                "laboratorio",
+                                                "principio_activo",
+                                                "categoria",
+                                                "categoria_slug",
+                                                "precio",
+                                                "moneda",
+                                                "requiere_receta",
+                                                "disponible",
+                                                "imagen"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "datos"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                },
+                "security": []
+            }
+        },
         "/categorias": {
             "get": {
                 "operationId": "categorias.index",
@@ -922,7 +1356,7 @@
                 "security": []
             },
             "put": {
-                "operationId": "categoria.update_79",
+                "operationId": "categoria.update_108",
                 "tags": [
                     "Categoria"
                 ],
@@ -965,7 +1399,7 @@
                 }
             },
             "patch": {
-                "operationId": "categoria.update_80",
+                "operationId": "categoria.update_109",
                 "tags": [
                     "Categoria"
                 ],
@@ -1514,7 +1948,7 @@
                 }
             },
             "put": {
-                "operationId": "compra.update_91",
+                "operationId": "compra.update_120",
                 "tags": [
                     "Compra"
                 ],
@@ -1594,7 +2028,7 @@
                 }
             },
             "patch": {
-                "operationId": "compra.update_92",
+                "operationId": "compra.update_121",
                 "tags": [
                     "Compra"
                 ],
@@ -2963,6 +3397,128 @@
                 }
             }
         },
+        "/password/olvide": {
+            "post": {
+                "operationId": "contrasena.solicitar",
+                "summary": "Envia el enlace de restablecimiento, si hay cuenta",
+                "tags": [
+                    "Contrasena"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 255
+                                    }
+                                },
+                                "required": [
+                                    "email"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Si existe una cuenta con ese correo, te enviamos un enlace para restablecer la contrase\u00f1a. Revisa tambi\u00e9n la carpeta de no deseados."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/password/restablecer": {
+            "post": {
+                "operationId": "contrasena.restablecer",
+                "summary": "Fija la contrasena nueva a partir del token del correo",
+                "tags": [
+                    "Contrasena"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "token": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 255
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "minLength": 8
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "minLength": 8
+                                    }
+                                },
+                                "required": [
+                                    "token",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Tu contrase\u00f1a qued\u00f3 actualizada. Ya puedes iniciar sesi\u00f3n."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
         "/digemid-catalogo/alertas-cumplimiento": {
             "get": {
                 "operationId": "digemidCatalogo.alertasCumplimiento",
@@ -3282,7 +3838,7 @@
                 "security": []
             },
             "put": {
-                "operationId": "digemidCatalogo.update_96",
+                "operationId": "digemidCatalogo.update_125",
                 "tags": [
                     "DigemidCatalogo"
                 ],
@@ -3368,7 +3924,7 @@
                 }
             },
             "patch": {
-                "operationId": "digemidCatalogo.update_97",
+                "operationId": "digemidCatalogo.update_126",
                 "tags": [
                     "DigemidCatalogo"
                 ],
@@ -3588,6 +4144,200 @@
                 }
             }
         },
+        "/eventos/resumen": {
+            "get": {
+                "operationId": "eventoOperacion.resumen",
+                "description": "Va aparte del listado porque responde a otra pregunta. El listado dice\n\u00abqu\u00e9 pas\u00f3\u00bb; esto dice \u00abcu\u00e1nto de cada cosa\u00bb, que es lo que se mira\nprimero para saber d\u00f3nde buscar.\n\nLos recuentos se calculan sobre la tabla ENTERA y no sobre la p\u00e1gina\nvisible: un contador que cambia al pasar de p\u00e1gina no sirve para nada.",
+                "summary": "Resumen para las pastillas de la cabecera y para el selector de c\u00f3digos",
+                "tags": [
+                    "EventoOperacion"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "niveles": {
+                                            "type": "object",
+                                            "properties": {
+                                                "info": {
+                                                    "type": "integer"
+                                                },
+                                                "warning": {
+                                                    "type": "integer"
+                                                },
+                                                "error": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "info",
+                                                "warning",
+                                                "error"
+                                            ]
+                                        },
+                                        "total": {
+                                            "type": "integer"
+                                        },
+                                        "codigos": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "codigo": {
+                                                        "type": "string"
+                                                    },
+                                                    "total": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "codigo",
+                                                    "total"
+                                                ]
+                                            }
+                                        },
+                                        "ultimo": {}
+                                    },
+                                    "required": [
+                                        "niveles",
+                                        "total",
+                                        "codigos",
+                                        "ultimo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/eventos": {
+            "get": {
+                "operationId": "eventoOperacion.index",
+                "description": "Los filtros son los que se usan de verdad cuando algo va mal: \u00abens\u00e9\u00f1ame\nlos errores\u00bb, \u00abens\u00e9\u00f1ame qu\u00e9 pas\u00f3 con este c\u00f3digo\u00bb, \u00abens\u00e9\u00f1ame el d\u00eda del\nincidente\u00bb. No hay m\u00e1s, a prop\u00f3sito: un formulario con doce campos se\nusa con dos.\u26a0\ufe0f Cannot generate request documentation: Cannot evaluate validation rules (1 evaluators failed):\n  [NodeRulesEvaluator] Cannot access private constant App\\Http\\Controllers\\EventoOperacionController::MAXIMO_POR_PAGINA (at C:\\tareas universitarios\\TAREAS U\\Tareas Univ\\Ciclo 5\\Taller de programacion Web\\botica_san_juan\\botica-san-juan-backend\\vendor\\dedoc\\scramble\\src\\Support\\OperationExtensions\\RulesEvaluator\\ConstFetchEvaluator.php:42)",
+                "summary": "Listado con filtros",
+                "tags": [
+                    "EventoOperacion"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "datos": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "nivel": {
+                                                        "type": "string"
+                                                    },
+                                                    "codigo": {
+                                                        "type": "string"
+                                                    },
+                                                    "mensaje": {
+                                                        "type": "string"
+                                                    },
+                                                    "origen": {
+                                                        "type": "string"
+                                                    },
+                                                    "dispositivo": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "usuario_id": {
+                                                        "type": [
+                                                            "integer",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "pedido_id": {
+                                                        "type": [
+                                                            "integer",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "contexto": {
+                                                        "type": [
+                                                            "object",
+                                                            "null"
+                                                        ],
+                                                        "additionalProperties": {}
+                                                    },
+                                                    "ocurrio_en": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "nivel",
+                                                    "codigo",
+                                                    "mensaje",
+                                                    "origen",
+                                                    "dispositivo",
+                                                    "usuario_id",
+                                                    "pedido_id",
+                                                    "contexto",
+                                                    "ocurrio_en"
+                                                ]
+                                            }
+                                        },
+                                        "paginacion": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "por_pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "paginas": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "pagina",
+                                                "por_pagina",
+                                                "total",
+                                                "paginas"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "datos",
+                                        "paginacion"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/facturacion/documentos": {
             "get": {
                 "operationId": "facturacion.index",
@@ -3771,6 +4521,8 @@
         "/facturacion/documentos/{comprobante}/pdf": {
             "get": {
                 "operationId": "facturacion.descargarPdf",
+                "description": "El controlador solo entrega: qu\u00e9 se imprime y c\u00f3mo cuadra lo decide\n`RepresentacionImpresa`, para que la misma composici\u00f3n sirva el d\u00eda que\nel PDF se adjunte a un correo o se guarde junto al XML.",
+                "summary": "Representaci\u00f3n impresa del comprobante",
                 "tags": [
                     "Facturacion"
                 ],
@@ -3791,7 +4543,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "type": "object"
                                 }
                             }
                         }
@@ -4294,10 +5046,619 @@
                 }
             }
         },
+        "/auth/google/disponible": {
+            "get": {
+                "operationId": "google.disponible",
+                "description": "La pantalla de acceso lo pregunta al cargar para decidir si pinta el\nbot\u00f3n. Antes lo averiguaba pidiendo la URL de ida, que tiene tres\ncostes para una simple visita: genera y guarda un `state` que nadie va\na usar, gasta el cupo de `throttle:acceso-google` de quien luego s\u00ed\nquiere entrar, y sin credenciales responde 503, que el navegador anota\ncomo error en cada carga de la pantalla. \u00abNo configurado\u00bb no es una\naver\u00eda: es una respuesta, y va con 200.\n\nDevuelve `{\"disponible\": true}` si las tres credenciales de Google OAuth\n(`client_id`, `client_secret` y `redirect`) est\u00e1n configuradas en el servidor,\no `{\"disponible\": false}` en caso contrario.",
+                "summary": "Dice si este entorno ofrece el acceso con Google, y nada m\u00e1s",
+                "tags": [
+                    "Google"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "disponible": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "disponible"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/auth/google/redirect": {
+            "get": {
+                "operationId": "google.redirigir",
+                "description": "Devuelve JSON en lugar de redirigir porque quien llama es el portal,\ndesde otro origen: una redirecci\u00f3n de la API no mover\u00eda su ventana.",
+                "summary": "Devuelve la URL de Google a la que el portal debe enviar al navegador",
+                "tags": [
+                    "Google"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "url": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "url"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "El acceso con Google no est\u00e1 configurado en este entorno."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/auth/google/callback": {
+            "get": {
+                "operationId": "google.callback",
+                "description": "Quien llega aqu\u00ed es el navegador de una persona, no un programa: un\nerror devuelto como JSON la dejar\u00eda mirando una llave y un corchete.",
+                "summary": "Retorno de Google. Termina siempre en el portal, nunca en un JSON",
+                "tags": [
+                    "Google"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/auth/google/intercambio": {
+            "post": {
+                "operationId": "google.intercambiar",
+                "summary": "Canjea el c\u00f3digo por el token de sesi\u00f3n. Un solo uso",
+                "tags": [
+                    "Google"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "codigo": {
+                                        "type": "string",
+                                        "minLength": 48,
+                                        "maxLength": 48
+                                    }
+                                },
+                                "required": [
+                                    "codigo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "user": {
+                                            "anyOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/Usuario"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        },
+                                        "token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "const": "Bearer"
+                                        },
+                                        "necesita_dni": {
+                                            "type": "boolean",
+                                            "description": "El portal lo usa para avisar de que falta el documento antes de\nque la persona llegue al checkout y se lleve la sorpresa."
+                                        }
+                                    },
+                                    "required": [
+                                        "user",
+                                        "token",
+                                        "token_type",
+                                        "necesita_dni"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/tablero/indicadores": {
+            "get": {
+                "operationId": "indicadores.index",
+                "tags": [
+                    "Indicadores"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "vencimientos": {
+                                            "type": "object",
+                                            "properties": {
+                                                "tramos": {
+                                                    "type": "array",
+                                                    "prefixItems": [
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "clave": {
+                                                                    "type": "string",
+                                                                    "const": "vencido"
+                                                                },
+                                                                "etiqueta": {
+                                                                    "type": "string",
+                                                                    "const": "Ya vencido"
+                                                                },
+                                                                "color": {
+                                                                    "type": "string",
+                                                                    "const": "peligro"
+                                                                },
+                                                                "lotes": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "unidades": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "clave",
+                                                                "etiqueta",
+                                                                "color",
+                                                                "lotes",
+                                                                "unidades"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "clave": {
+                                                                    "type": "string",
+                                                                    "const": "t30"
+                                                                },
+                                                                "etiqueta": {
+                                                                    "type": "string",
+                                                                    "const": "Vence en 30 d\u00edas"
+                                                                },
+                                                                "color": {
+                                                                    "type": "string",
+                                                                    "const": "peligro"
+                                                                },
+                                                                "lotes": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "unidades": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "clave",
+                                                                "etiqueta",
+                                                                "color",
+                                                                "lotes",
+                                                                "unidades"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "clave": {
+                                                                    "type": "string",
+                                                                    "const": "t60"
+                                                                },
+                                                                "etiqueta": {
+                                                                    "type": "string",
+                                                                    "const": "Vence en 60 d\u00edas"
+                                                                },
+                                                                "color": {
+                                                                    "type": "string",
+                                                                    "const": "alerta"
+                                                                },
+                                                                "lotes": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "unidades": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "clave",
+                                                                "etiqueta",
+                                                                "color",
+                                                                "lotes",
+                                                                "unidades"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "clave": {
+                                                                    "type": "string",
+                                                                    "const": "t90"
+                                                                },
+                                                                "etiqueta": {
+                                                                    "type": "string",
+                                                                    "const": "Vence en 90 d\u00edas"
+                                                                },
+                                                                "color": {
+                                                                    "type": "string",
+                                                                    "const": "ambar"
+                                                                },
+                                                                "lotes": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "unidades": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "clave",
+                                                                "etiqueta",
+                                                                "color",
+                                                                "lotes",
+                                                                "unidades"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "clave": {
+                                                                    "type": "string",
+                                                                    "const": "holgado"
+                                                                },
+                                                                "etiqueta": {
+                                                                    "type": "string",
+                                                                    "const": "M\u00e1s de 90 d\u00edas"
+                                                                },
+                                                                "color": {
+                                                                    "type": "string",
+                                                                    "const": "exito"
+                                                                },
+                                                                "lotes": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "unidades": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "clave",
+                                                                "etiqueta",
+                                                                "color",
+                                                                "lotes",
+                                                                "unidades"
+                                                            ]
+                                                        }
+                                                    ],
+                                                    "minItems": 5,
+                                                    "maxItems": 5
+                                                },
+                                                "sin_fecha": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "lotes": {
+                                                            "type": "integer"
+                                                        },
+                                                        "unidades": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "lotes",
+                                                        "unidades"
+                                                    ]
+                                                },
+                                                "lotes_con_existencia": {
+                                                    "type": "number"
+                                                },
+                                                "cobertura": {
+                                                    "type": "number",
+                                                    "description": "La cobertura es la cifra que de verdad manda: un sem\u00e1foro\ncalculado sobre el 2 % del inventario no describe el almac\u00e9n,\ny la pantalla tiene que poder decirlo."
+                                                }
+                                            },
+                                            "required": [
+                                                "tramos",
+                                                "sin_fecha",
+                                                "lotes_con_existencia",
+                                                "cobertura"
+                                            ]
+                                        },
+                                        "arqueo": {
+                                            "type": "object",
+                                            "properties": {
+                                                "medios": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "medio": {
+                                                                "type": "string"
+                                                            },
+                                                            "etiqueta": {
+                                                                "type": "string"
+                                                            },
+                                                            "operaciones": {
+                                                                "type": "integer"
+                                                            },
+                                                            "total": {
+                                                                "type": "number"
+                                                            },
+                                                            "porcentaje": {
+                                                                "type": "number"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "medio",
+                                                            "etiqueta",
+                                                            "operaciones",
+                                                            "total",
+                                                            "porcentaje"
+                                                        ]
+                                                    }
+                                                },
+                                                "total": {
+                                                    "type": "number"
+                                                }
+                                            },
+                                            "required": [
+                                                "medios",
+                                                "total"
+                                            ]
+                                        },
+                                        "mas_vendidos": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "producto_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "nombre": {
+                                                        "type": "string"
+                                                    },
+                                                    "unidades": {
+                                                        "type": "integer"
+                                                    },
+                                                    "importe": {
+                                                        "type": "number"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "producto_id",
+                                                    "nombre",
+                                                    "unidades",
+                                                    "importe"
+                                                ]
+                                            }
+                                        },
+                                        "ventana_dias": {},
+                                        "generado_en": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "vencimientos",
+                                        "arqueo",
+                                        "mas_vendidos",
+                                        "ventana_dias",
+                                        "generado_en"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/interacciones/evaluar": {
+            "post": {
+                "operationId": "interacciones.evaluar",
+                "tags": [
+                    "Interacciones"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "productos": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "minItems": 1,
+                                        "maxItems": 50
+                                    }
+                                },
+                                "required": [
+                                    "productos"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "revisados": {
+                                            "type": "string"
+                                        },
+                                        "no_identificados": {
+                                            "type": "string"
+                                        },
+                                        "avisos": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "severidad": {
+                                                        "type": "string"
+                                                    },
+                                                    "principios": {
+                                                        "type": "array",
+                                                        "prefixItems": [
+                                                            {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "minItems": 2,
+                                                        "maxItems": 2
+                                                    },
+                                                    "productos": {
+                                                        "type": "array",
+                                                        "prefixItems": [
+                                                            {
+                                                                "type": "object",
+                                                                "additionalProperties": {}
+                                                            },
+                                                            {
+                                                                "type": "object",
+                                                                "additionalProperties": {}
+                                                            }
+                                                        ],
+                                                        "minItems": 2,
+                                                        "maxItems": 2
+                                                    },
+                                                    "efecto": {
+                                                        "type": "string"
+                                                    },
+                                                    "recomendacion": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "severidad",
+                                                    "principios",
+                                                    "productos",
+                                                    "efecto",
+                                                    "recomendacion"
+                                                ]
+                                            }
+                                        },
+                                        "concluyente": {
+                                            "type": "string"
+                                        },
+                                        "derivar": {
+                                            "type": "string",
+                                            "description": "Se deriva siempre que haya algo que un profesional deba mirar:\nun aviso, o un producto que no se pudo revisar."
+                                        },
+                                        "mensaje": {
+                                            "type": "string"
+                                        },
+                                        "aviso_legal": {
+                                            "type": "string",
+                                            "const": "Esta revisi\u00f3n es orientativa y se basa en una tabla de interacciones registradas en el sistema. No sustituye la evaluaci\u00f3n de un profesional de la salud. Ante cualquier duda, y siempre que haya tratamiento en curso, consulta al qu\u00edmico farmac\u00e9utico de la botica."
+                                        }
+                                    },
+                                    "required": [
+                                        "revisados",
+                                        "no_identificados",
+                                        "avisos",
+                                        "concluyente",
+                                        "derivar",
+                                        "mensaje",
+                                        "aviso_legal"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                },
+                "security": []
+            }
+        },
         "/pedidos/{pedidoId}/pago": {
             "post": {
                 "operationId": "pago.iniciar",
-                "summary": "Prepara el cobro de un pedido y devuelve al navegador lo justo para\ndesplegar el formulario del proveedor: el token de formulario y la\nllave publica. La llave privada nunca sale del backend",
+                "description": "Devuelve al navegador el token de formulario (`form_token`) y la llave p\u00fablica (`public_key`).\n\nCabecera `Idempotency-Key` (opcional, string de 8 a 120 caracteres alfanum\u00e9ricos o `_ . : -`):\nProtege contra doble cobro o inicializaciones redundantes.\n- `400 Bad Request`: Clave con formato no permitido.\n- `422 Unprocessable Content`: Conflicto de idempotencia (`codigo: \"idempotencia_conflicto\"`).\n- `409 Conflict`: Operaci\u00f3n en curso (`Retry-After: 1`).\n- Reproducci\u00f3n: Respuesta original con cabecera `Idempotency-Replayed: true`.\n\nRespuestas `409 Conflict`:\nDevuelve `{ \"ok\": false, \"message\": string, \"motivo\": string }` cuando el pedido no puede ser pagado:\n- `motivo: \"reserva_vencida\"`: La reserva de stock ha superado el tiempo l\u00edmite (`expira_en`) y ha expirado.\n- `motivo: \"ya_anulado\"`: El pedido ha sido cancelado o anulado previamente y no admite pago.",
+                "summary": "Prepara el cobro de un pedido web e inicializa la pasarela de pagos",
                 "tags": [
                     "Pago"
                 ],
@@ -4318,6 +5679,32 @@
                             "application/json": {
                                 "schema": {
                                     "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ok": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "motivo": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "ok",
+                                        "message",
+                                        "motivo"
+                                    ]
                                 }
                             }
                         }
@@ -4435,12 +5822,39 @@
                                         },
                                         "es_final": {
                                             "type": "boolean"
+                                        },
+                                        "comprobante": {
+                                            "type": [
+                                                "object",
+                                                "null"
+                                            ],
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "tipo": {
+                                                    "type": "string"
+                                                },
+                                                "identificador": {
+                                                    "type": "string"
+                                                },
+                                                "estado_sunat": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "tipo",
+                                                "identificador",
+                                                "estado_sunat"
+                                            ]
                                         }
                                     },
                                     "required": [
                                         "pago",
                                         "pedido_id",
-                                        "es_final"
+                                        "es_final",
+                                        "comprobante"
                                     ]
                                 }
                             }
@@ -4464,6 +5878,124 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/pagos/{referencia}/simular": {
+            "post": {
+                "operationId": "pago.simular",
+                "description": "Solo disponible en entornos de desarrollo y pruebas locales.\n\nCabecera `Idempotency-Key` (opcional, string de 8 a 120 caracteres alfanum\u00e9ricos o `_ . : -`):\nEvita ejecuciones duplicadas de simulaci\u00f3n.\n- `400 Bad Request`: Clave con formato inv\u00e1lido.\n- `422 Unprocessable Content`: Conflicto de idempotencia (`codigo: \"idempotencia_conflicto\"`).\n- `409 Conflict`: Petici\u00f3n en curso (`Retry-After: 1`).\n- Reproducci\u00f3n: Respuesta original con cabecera `Idempotency-Replayed: true`.",
+                "summary": "Resuelve un cobro en modo simulado sin recibir ni registrar n\u00famero de tarjeta ni CVV",
+                "tags": [
+                    "Pago"
+                ],
+                "parameters": [
+                    {
+                        "name": "referencia",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "resultado": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "enum": [
+                                            "aprobar",
+                                            "rechazar",
+                                            null
+                                        ]
+                                    },
+                                    "marca_tarjeta": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "enum": [
+                                            "visa",
+                                            "mastercard",
+                                            "amex",
+                                            "desconocida",
+                                            null
+                                        ]
+                                    },
+                                    "ultimos4": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "pattern": "^\\d{4}$"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "El pago no pertenece al usuario autenticado."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Recurso no encontrado."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -4734,8 +6266,8 @@
         "/pedidos/confirmar": {
             "post": {
                 "operationId": "pedido.confirmar",
-                "description": "El consumidor declara unicamente que producto y que cantidad quiere. El\nprecio y el total los determina el servidor a partir del catalogo\nvigente, de modo que un cliente manipulado no puede fijar el importe.",
-                "summary": "Confirma una venta: crea el pedido con su detalle y descuenta el stock\ndentro de una unica transaccion",
+                "description": "Crea el pedido con su detalle y reserva el stock de productos mediante asignaci\u00f3n FEFO\ndentro de una \u00fanica transacci\u00f3n.\n\nCabecera `Idempotency-Key` (opcional, string de 8 a 120 caracteres alfanum\u00e9ricos o `_ . : -`):\nProtege contra \u00f3rdenes duplicadas por reintentos de red.\n- `400 Bad Request`: Formato de clave inv\u00e1lido.\n- `422 Unprocessable Content`: Conflicto de idempotencia (`codigo: \"idempotencia_conflicto\"`) si la misma clave se reutiliza con un cuerpo diferente.\n- `409 Conflict`: Petici\u00f3n concurrente en curso (con cabecera `Retry-After: 1`).\n- Reproducci\u00f3n: Si la clave ya fue procesada, reproduce la respuesta original acompa\u00f1ada de la cabecera `Idempotency-Replayed: true`.\n\nRespuestas `409 Conflict` de negocio:\n- `codigo: \"stock_insuficiente\"`: Cuando no hay existencias vendibles suficientes para uno o m\u00e1s productos.\n- `codigo: \"contencion\"`: En caso de alta contenci\u00f3n o interbloqueo transaccional sobre las filas de inventario (incluye cabecera `Retry-After: 1`).\n\nRespuesta `201 Created`:\nIncluye el objeto `pedido`, `comprobante`, `seguimiento` y el campo `expira_en` (string ISO 8601 o null).\n`expira_en` fija el TTL de reserva (15 minutos por omisi\u00f3n) \u00fanicamente si el cliente tiene sesi\u00f3n y seleccion\u00f3 `metodo_pago: \"tarjeta\"`.",
+                "summary": "Confirma una venta del portal cliente y reserva stock",
                 "tags": [
                     "Pedido"
                 ],
@@ -4767,11 +6299,46 @@
                                         },
                                         "minItems": 1
                                     },
+                                    "modalidad_entrega": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "enum": [
+                                            "recojo",
+                                            "entrega",
+                                            null
+                                        ]
+                                    },
+                                    "tipo_comprobante": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "enum": [
+                                            "boleta",
+                                            "factura",
+                                            null
+                                        ]
+                                    },
+                                    "metodo_pago": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "description": "M\u00e9todo de pago seleccionado: 'tarjeta' (pasarela online con reserva temporal de stock) o 'contra_entrega' (pago al recibir o recoger).",
+                                        "enum": [
+                                            "tarjeta",
+                                            "contra_entrega",
+                                            null
+                                        ]
+                                    },
                                     "direccion": {
                                         "type": [
                                             "string",
                                             "null"
                                         ],
+                                        "minLength": 0,
                                         "maxLength": 255
                                     },
                                     "cliente_nombre": {
@@ -4783,11 +6350,7 @@
                                         "maxLength": 255
                                     },
                                     "cliente_documento": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ],
-                                        "pattern": "^(\\d{8}|\\d{11})$"
+                                        "type": "string"
                                     },
                                     "cliente_telefono": {
                                         "type": [
@@ -4819,9 +6382,19 @@
                                         "pedido": {
                                             "$ref": "#/components/schemas/Pedido"
                                         },
+                                        "expira_en": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "modalidad_entrega": {},
                                         "comprobante": {
                                             "type": "object",
                                             "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
                                                 "tipo": {
                                                     "type": "string"
                                                 },
@@ -4833,6 +6406,7 @@
                                                 }
                                             },
                                             "required": [
+                                                "id",
                                                 "tipo",
                                                 "identificador",
                                                 "estado_sunat"
@@ -4858,8 +6432,58 @@
                                     "required": [
                                         "message",
                                         "pedido",
+                                        "expira_en",
+                                        "modalidad_entrega",
                                         "comprobante",
                                         "seguimiento"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "const": "Alta contenci\u00f3n en el inventario. Por favor reintente."
+                                                },
+                                                "codigo": {
+                                                    "type": "string",
+                                                    "const": "contencion"
+                                                }
+                                            },
+                                            "required": [
+                                                "message",
+                                                "codigo"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                },
+                                                "sin_stock": {
+                                                    "type": "boolean"
+                                                },
+                                                "codigo": {
+                                                    "type": "string",
+                                                    "const": "stock_insuficiente"
+                                                }
+                                            },
+                                            "required": [
+                                                "message",
+                                                "sin_stock",
+                                                "codigo"
+                                            ]
+                                        }
                                     ]
                                 }
                             }
@@ -5496,9 +7120,233 @@
                 }
             }
         },
+        "/pedidos/{id}/mi-pedido": {
+            "get": {
+                "operationId": "pedido.miPedido",
+                "description": "Permite a la pantalla de checkout y pago cargar los detalles, el estado\ndel pago y la referencia del comprobante sin abrir el recurso de gestion.\n\nIncluye el campo `expira_en` (timestamp ISO 8601 o null), que indica la fecha y\nhora l\u00edmite de expiraci\u00f3n de la reserva de stock para pedidos pagados con tarjeta.",
+                "summary": "Detalle de un pedido perteneciente al cliente autenticado",
+                "tags": [
+                    "Pedido"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Pedido"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "El pedido no pertenece al usuario autenticado."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/pedidos/{id}/cancelar": {
+            "post": {
+                "operationId": "pedido.cancelar",
+                "description": "Permite al cliente autenticado (o administrador) cancelar un pedido que no ha sido pagado ni completado.\nRestituye inmediatamente las cantidades a los lotes de origen y anula el comprobante asociado si estaba pendiente.\n\nCabecera `Idempotency-Key` (opcional, string de 8 a 120 caracteres alfanum\u00e9ricos o `_ . : -`):\nEvita ejecuciones duplicadas de cancelaci\u00f3n.\n- `400 Bad Request`: Clave de idempotencia con formato no permitido.\n- `422 Unprocessable Content`: Conflicto de idempotencia (`codigo: \"idempotencia_conflicto\"`).\n- `409 Conflict`: Operaci\u00f3n en curso concurrente (`Retry-After: 1`).\n- Reproducci\u00f3n: Respuesta almacenada con cabecera `Idempotency-Replayed: true`.\n\nRespuestas `409 Conflict` (PedidoNoCancelableException):\nDevuelve `{ \"message\": string, \"motivo\": string }` cuando el pedido no admite cancelaci\u00f3n seg\u00fan las reglas de negocio:\n- `motivo: \"pago_confirmado\"`: El pedido ya registra un pago aprobado en la pasarela.\n- `motivo: \"ya_anulado\"`: El pedido ya se encuentra cancelado o anulado.\n- `motivo: \"comprobante_aceptado\"`: El comprobante electr\u00f3nico ya fue informado y aceptado por SUNAT (exige nota de cr\u00e9dito).\n- `motivo: \"venta_mostrador\"`: Es una venta de mostrador (POS), las cuales nacen completadas y no admiten este flujo.\n- `motivo: \"estado_invalido\"`: El estado actual del pedido no pertenece a los estados abiertos cancelables.\n- `motivo: \"pago_invalido\"`: El estado de pago en la pasarela no permite cancelar la operaci\u00f3n.",
+                "summary": "Cancela un pedido web abierto y restituye el stock reservado a sus lotes",
+                "tags": [
+                    "Pedido"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Pedido cancelado correctamente."
+                                        },
+                                        "pedido": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "estado": {
+                                                    "type": "string"
+                                                },
+                                                "estado_pago": {
+                                                    "type": "string"
+                                                },
+                                                "anulado_en": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "motivo_anulacion": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "estado",
+                                                "estado_pago",
+                                                "anulado_en",
+                                                "motivo_anulacion"
+                                            ]
+                                        },
+                                        "comprobante": {
+                                            "type": [
+                                                "object",
+                                                "null"
+                                            ],
+                                            "properties": {
+                                                "identificador": {
+                                                    "type": "string"
+                                                },
+                                                "estado_sunat": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "identificador",
+                                                "estado_sunat"
+                                            ]
+                                        },
+                                        "stock_restituido": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "lote_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "codigo_lote": {
+                                                        "type": "string"
+                                                    },
+                                                    "producto_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "cantidad": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "lote_id",
+                                                    "codigo_lote",
+                                                    "producto_id",
+                                                    "cantidad"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "pedido",
+                                        "comprobante",
+                                        "stock_restituido"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "motivo": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "motivo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "No est\u00e1s autorizado para cancelar este pedido."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/pedidos/usuario/{usuarioId}": {
             "get": {
                 "operationId": "pedido.getByUser",
+                "description": "Consulta el historial de pedidos del cliente autenticado (o cualquiera si es administrador).\nCada pedido incluye el detalle de productos, comprobante, estado de receta y el campo\n`expira_en` (timestamp ISO 8601 o null) con el l\u00edmite de expiraci\u00f3n de la reserva de stock.",
+                "summary": "Pedidos de un usuario espec\u00edfico",
                 "tags": [
                     "Pedido"
                 ],
@@ -5805,6 +7653,389 @@
                                     },
                                     "required": [
                                         "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/perfil": {
+            "get": {
+                "operationId": "perfil.mostrar",
+                "description": "Incluye datos personales, rol, estado de verificaci\u00f3n de correo,\nvinculaci\u00f3n con Google, autenticaci\u00f3n multifactor (MFA) y direcci\u00f3n de entrega predeterminada (`direccion_entrega`).",
+                "summary": "Devuelve los datos de la cuenta actual",
+                "tags": [
+                    "Perfil"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Usuario"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "perfil.actualizar",
+                "description": "Permite modificar nombre, tel\u00e9fono, direcci\u00f3n habitual de entrega (`direccion_entrega`)\ny correo electr\u00f3nico. El DNI solo puede completarse una \u00fanica vez si la cuenta naci\u00f3 sin \u00e9l.",
+                "summary": "Actualiza los datos personales de la cuenta actual",
+                "tags": [
+                    "Perfil"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nombre": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "telefono": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 20
+                                    },
+                                    "direccion_entrega": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "description": "Direcci\u00f3n habitual o predeterminada para entregas a domicilio (delivery).\nSe precarga autom\u00e1ticamente en el formulario del carrito si el usuario no ha especificado otra.",
+                                        "maxLength": 255
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "maxLength": 255
+                                    },
+                                    "dni": {
+                                        "type": "string",
+                                        "description": "El rol NO se acepta aqu\u00ed a prop\u00f3sito. Si se aceptara, cualquier\ncliente podr\u00eda ascenderse a administrador editando su perfil. El DNI tampoco se CAMBIA: identifica a la persona ante la SUNAT\ny ya figura en los comprobantes emitidos.\n\nPero s\u00ed se puede COMPLETAR una vez, y solo si est\u00e1 vac\u00edo. Ese\nes el caso de quien entr\u00f3 con Google: Google acredita un correo\ny no sabe el documento de nadie, as\u00ed que esas cuentas nacen sin\nDNI. Sin esta puerta, la \u00fanica forma de ponerlo ser\u00eda tecleando\nel documento en cada compra, para siempre.\n\n`sometimes` + la comprobaci\u00f3n de abajo: la regla de validaci\u00f3n\nno puede por s\u00ed sola distinguir \u00abvac\u00edo\u00bb de \u00abya tiene uno\u00bb.",
+                                        "pattern": "^\\d{8}$",
+                                        "minLength": 8,
+                                        "maxLength": 8
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "$ref": "#/components/schemas/Usuario"
+                                        },
+                                        {
+                                            "type": "null"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/perfil/contrasena": {
+            "put": {
+                "operationId": "perfil.cambiarContrasena",
+                "description": "Se exige la contrase\u00f1a vigente aunque la sesi\u00f3n ya est\u00e9 iniciada: un\nequipo desatendido en el mostrador es el escenario habitual en una\nbotica, y sin esta comprobaci\u00f3n bastar\u00eda con sentarse delante para\nquedarse con la cuenta.",
+                "summary": "Cambia la contrase\u00f1a de la cuenta actual",
+                "tags": [
+                    "Perfil"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "contrasena_actual": {
+                                        "type": "string"
+                                    },
+                                    "contrasena": {
+                                        "type": "string",
+                                        "minLength": 8
+                                    },
+                                    "contrasena_confirmation": {
+                                        "type": "string",
+                                        "minLength": 8
+                                    }
+                                },
+                                "required": [
+                                    "contrasena_actual",
+                                    "contrasena",
+                                    "contrasena_confirmation"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mensaje": {
+                                            "type": "string",
+                                            "const": "Contrase\u00f1a actualizada."
+                                        }
+                                    },
+                                    "required": [
+                                        "mensaje"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/perfil/foto": {
+            "delete": {
+                "operationId": "perfil.eliminarFoto",
+                "summary": "Quita la foto y vuelve a las iniciales",
+                "tags": [
+                    "Perfil"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mensaje": {
+                                            "type": "string",
+                                            "const": "Foto eliminada."
+                                        },
+                                        "usuario": {
+                                            "anyOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/Usuario"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "mensaje",
+                                        "usuario"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "perfil.subirFoto",
+                "description": "Reglas que importan, y por qu\u00e9:\n\n- `File::image()` comprueba el contenido, no la extensi\u00f3n. Un `.jpg` que\n  por dentro es un script deja de pasar.\n- El nombre lo genera Laravel. Usar el que trae el archivo permite\n  recorridos de ruta y colisiones entre usuarios.\n- Hay tope de peso y de dimensiones: sin ellos, una foto de 40 megap\u00edxeles\n  entra entera y luego hay que servirla en un c\u00edrculo de 32 p\u00edxeles.\n- La anterior se borra. Si no, cada cambio deja basura que nadie recoge.",
+                "summary": "Sustituye la foto de perfil",
+                "tags": [
+                    "Perfil"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "foto": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "contentMediaType": "application/octet-stream",
+                                        "description": "Maximum file size: 2048 kilobytes."
+                                    }
+                                },
+                                "required": [
+                                    "foto"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mensaje": {
+                                            "type": "string",
+                                            "const": "Foto actualizada."
+                                        },
+                                        "foto_perfil": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "usuario": {
+                                            "anyOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/Usuario"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "mensaje",
+                                        "foto_perfil",
+                                        "usuario"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/perfil/google": {
+            "delete": {
+                "operationId": "perfil.desvincularGoogle",
+                "description": "LA REGLA QUE PROTEGE ESTE ENDPOINT\n\nUna cuenta nacida con Google tiene en `password` un hash aleatorio de 64\ncaracteres que nadie ha visto. Quitarle Google sin m\u00e1s la deja sin\nninguna v\u00eda de entrada: el bot\u00f3n ya no la reconoce y la contrase\u00f1a no\nexiste para nadie. No es un error que se note al instante \u2014la sesi\u00f3n en\ncurso sigue abierta\u2014 sino al d\u00eda siguiente, cuando ya no se puede\narreglar desde dentro.\n\nPor eso el permiso se consulta al modelo, que exige contrase\u00f1a propia y\ncorreo verificado, y devuelve el motivo concreto cuando falta algo. Ver\nUsuario::motivoParaNoDesvincularGoogle.\n\nNO SE PIDE LA CONTRASE\u00d1A ACTUAL, y es deliberado: a diferencia de\ncambiarla, esto no da acceso a nada. Resta una v\u00eda de entrada en lugar\nde abrir una, as\u00ed que el peor caso de un equipo desatendido es una\nmolestia reversible: el due\u00f1o vuelve a pulsar \u00abentrar con Google\u00bb.",
+                "summary": "Desvincula la cuenta de Google",
+                "tags": [
+                    "Perfil"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "mensaje": {
+                                            "type": "string",
+                                            "const": "Google desvinculado. A partir de ahora entra con tu correo y contrase\u00f1a."
+                                        },
+                                        "usuario": {
+                                            "anyOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/Usuario"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "mensaje",
+                                        "usuario"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ],
+                                            "enum": [
+                                                "Antes de desvincular Google necesitas confirmar tu correo. Sin eso no podr\u00edas recuperar la contrase\u00f1a si la olvidas.",
+                                                "Antes de desvincular Google necesitas una contrase\u00f1a propia. P\u00eddela desde \u00abolvid\u00e9 mi contrase\u00f1a\u00bb: el enlace llega al correo que Google ya verific\u00f3.",
+                                                "Esta cuenta no est\u00e1 vinculada con Google.",
+                                                null
+                                            ]
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "properties": {
+                                                "google": {
+                                                    "type": "array",
+                                                    "prefixItems": [
+                                                        {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ],
+                                                            "enum": [
+                                                                "Antes de desvincular Google necesitas confirmar tu correo. Sin eso no podr\u00edas recuperar la contrase\u00f1a si la olvidas.",
+                                                                "Antes de desvincular Google necesitas una contrase\u00f1a propia. P\u00eddela desde \u00abolvid\u00e9 mi contrase\u00f1a\u00bb: el enlace llega al correo que Google ya verific\u00f3.",
+                                                                "Esta cuenta no est\u00e1 vinculada con Google.",
+                                                                null
+                                                            ]
+                                                        }
+                                                    ],
+                                                    "minItems": 1,
+                                                    "maxItems": 1
+                                                }
+                                            },
+                                            "required": [
+                                                "google"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "errors"
                                     ]
                                 }
                             }
@@ -7567,6 +9798,8 @@
         "/productos/resumen": {
             "get": {
                 "operationId": "producto.resumen",
+                "description": "GET /api/productos/resumen\n\nCuenta en la base de datos la cantidad global de productos en cada estado\nde stock (cr\u00edtico, bajo, normal, sin stock) e identifica si los umbrales\nconfigurados resultan sospechosos o inconsistentes.",
+                "summary": "Resumen de productos por estado de stock sobre todo el cat\u00e1logo",
                 "tags": [
                     "Producto"
                 ],
@@ -7626,7 +9859,7 @@
         "/productos/facetas": {
             "get": {
                 "operationId": "producto.facetas",
-                "description": "GET /api/productos/facetas   (p\u00fablico)\n\nPOR QU\u00c9 UN ENDPOINT Y NO DEDUCIRLOS DE LA P\u00c1GINA\n\nLa pantalla p\u00fablica constru\u00eda sus desplegables con los tipos y\nlaboratorios que ven\u00edan en la p\u00e1gina cargada. Con 48 productos de 3 361\neso significa que el desplegable ofrec\u00eda un pu\u00f1ado de valores y el resto\ndel cat\u00e1logo era inalcanzable: filtrar por un laboratorio que no hubiera\nsalido en esa p\u00e1gina era imposible, y nada en la interfaz lo dec\u00eda.\n\nEs el mismo error que ya apareci\u00f3 en el tablero y en inventario: contar\no listar sobre lo cargado en vez de pregunt\u00e1rselo a quien tiene todos los\ndatos. Aqu\u00ed son tres agregaciones en SQL sobre la tabla entera.\n\nEl recuento no es decorativo: es lo que permite no ofrecer un filtro que\ns\u00f3lo puede devolver una lista vac\u00eda.",
+                "description": "GET /api/productos/facetas (p\u00fablico)\n\nPOR QU\u00c9 UN ENDPOINT Y NO DEDUCIRLOS DE LA P\u00c1GINA\n\nLa pantalla p\u00fablica constru\u00eda sus desplegables con los tipos y\nlaboratorios que ven\u00edan en la p\u00e1gina cargada. Con 48 productos de 3 361\neso significa que el desplegable ofrec\u00eda un pu\u00f1ado de valores y el resto\ndel cat\u00e1logo era inalcanzable: filtrar por un laboratorio que no hubiera\nsalido en esa p\u00e1gina era imposible, y nada en la interfaz lo dec\u00eda.\n\nEs el mismo error que ya apareci\u00f3 en el tablero y en inventario: contar\no listar sobre lo cargado en vez de pregunt\u00e1rselo a quien tiene todos los\ndatos. Aqu\u00ed son tres agregaciones en SQL sobre la tabla entera.\n\nEl recuento no es decorativo: es lo que permite no ofrecer un filtro que\ns\u00f3lo puede devolver una lista vac\u00eda.",
                 "summary": "Valores disponibles para los filtros del cat\u00e1logo, con su recuento",
                 "tags": [
                     "Producto"
@@ -7684,7 +9917,8 @@
         "/productos": {
             "get": {
                 "operationId": "productos.index",
-                "summary": "Display a listing of the resource",
+                "description": "Permite consultar y filtrar el cat\u00e1logo completo de productos.\n\nPar\u00e1metros de consulta (query):\n- `q` o `search` (string): T\u00e9rmino de b\u00fasqueda insensible a may\u00fasculas y sin tildes (utiliza la funci\u00f3n PostgreSQL `f_unaccent`) sobre los campos `nombre`, `principio_activo`, `laboratorio`, `laboratorio_fabricante`, `codigo_barras`, `codigo_digemid`, `tipo` y `presentacion`.\n- `orden` (string): Criterio de ordenaci\u00f3n. Valores aceptados: `recientes` (por omisi\u00f3n), `destacados`, `nombre`, `precio_asc`, `precio_desc`.\n- `tipo` (string): Filtro por forma o tipo de producto farmac\u00e9utico (ej. `TABLETA`, `JARABE`).\n- `laboratorio` (string): Filtro exacto por laboratorio fabricante.\n- `categoria_id` (integer): Identificador num\u00e9rico de la categor\u00eda.\n- `subcategoria_id` (integer): Identificador num\u00e9rico de la subcategor\u00eda.\n- `requiere_receta` (boolean): Filtro seg\u00fan requiera o no receta m\u00e9dica obligatoria.\n- `digemid_status` (string): `with_code` (con c\u00f3digo DIGEMID) o `without_code` (sin c\u00f3digo DIGEMID).\n- `stock_status` (string): Filtro por estado de stock (`critical`, `low`, `in_stock`, `out_of_stock`, `normal`).\n- `per_page` (integer): Cantidad de elementos por p\u00e1gina (1 a 100, por omisi\u00f3n 10).\n- `page` (integer): N\u00famero de p\u00e1gina solicitada.",
+                "summary": "Listado paginado de productos con filtros avanzados y b\u00fasqueda sin tildes",
                 "tags": [
                     "Producto"
                 ],
@@ -7965,6 +10199,12 @@
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "description": "Maximum file size: 2048 kilobytes."
+                                    },
+                                    "quitar_imagen": {
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ]
                                     }
                                 },
                                 "required": [
@@ -8035,7 +10275,7 @@
                 "security": []
             },
             "put": {
-                "operationId": "producto.update_74",
+                "operationId": "producto.update_103",
                 "summary": "Update the specified resource in storage",
                 "tags": [
                     "Producto"
@@ -8205,6 +10445,12 @@
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "description": "Maximum file size: 2048 kilobytes."
+                                    },
+                                    "quitar_imagen": {
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ]
                                     }
                                 }
                             }
@@ -8231,7 +10477,7 @@
                 }
             },
             "patch": {
-                "operationId": "producto.update_75",
+                "operationId": "producto.update_104",
                 "summary": "Update the specified resource in storage",
                 "tags": [
                     "Producto"
@@ -8401,6 +10647,12 @@
                                         "format": "binary",
                                         "contentMediaType": "application/octet-stream",
                                         "description": "Maximum file size: 2048 kilobytes."
+                                    },
+                                    "quitar_imagen": {
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ]
                                     }
                                 }
                             }
@@ -8875,7 +11127,7 @@
                 }
             },
             "put": {
-                "operationId": "proveedor.update_87",
+                "operationId": "proveedor.update_116",
                 "tags": [
                     "Proveedor"
                 ],
@@ -8975,7 +11227,7 @@
                 }
             },
             "patch": {
-                "operationId": "proveedor.update_88",
+                "operationId": "proveedor.update_117",
                 "tags": [
                     "Proveedor"
                 ],
@@ -9104,6 +11356,515 @@
                                     },
                                     "required": [
                                         "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/pedidos/{pedido}/receta": {
+            "get": {
+                "operationId": "receta.mostrar",
+                "summary": "Estado de la receta de un pedido, para el portal y para el panel",
+                "tags": [
+                    "Receta"
+                ],
+                "parameters": [
+                    {
+                        "name": "pedido",
+                        "in": "path",
+                        "required": true,
+                        "description": "The pedido ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "requiere_receta": {
+                                            "type": "boolean"
+                                        },
+                                        "receta": {
+                                            "type": [
+                                                "object",
+                                                "null"
+                                            ],
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "estado": {
+                                                    "type": "string"
+                                                },
+                                                "nombre_original": {
+                                                    "type": "string"
+                                                },
+                                                "tipo_mime": {
+                                                    "type": "string"
+                                                },
+                                                "es_imagen": {
+                                                    "type": "boolean"
+                                                },
+                                                "tamano_bytes": {
+                                                    "type": "integer"
+                                                },
+                                                "version": {
+                                                    "type": "integer"
+                                                },
+                                                "motivo_rechazo": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "revisada_en": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "date-time"
+                                                },
+                                                "revisada_por": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "estado",
+                                                "nombre_original",
+                                                "tipo_mime",
+                                                "es_imagen",
+                                                "tamano_bytes",
+                                                "version",
+                                                "motivo_rechazo",
+                                                "revisada_en",
+                                                "revisada_por",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "requiere_receta",
+                                        "receta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "receta.subir",
+                "description": "No admite `pedido_id` en el cuerpo: viene en la ruta y se comprueba\ncontra la cuenta en sesi\u00f3n. Aceptarlo del cuerpo permitir\u00eda adjuntar\nuna receta al pedido de otra persona.",
+                "summary": "Adjunta o sustituye la receta de un pedido",
+                "tags": [
+                    "Receta"
+                ],
+                "parameters": [
+                    {
+                        "name": "pedido",
+                        "in": "path",
+                        "required": true,
+                        "description": "The pedido ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "archivo": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "archivo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Receta adjuntada. El qu\u00edmico farmac\u00e9utico la revisar\u00e1 antes de preparar tu pedido."
+                                        },
+                                        "receta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "estado": {
+                                                    "type": "string"
+                                                },
+                                                "nombre_original": {
+                                                    "type": "string"
+                                                },
+                                                "tipo_mime": {
+                                                    "type": "string"
+                                                },
+                                                "es_imagen": {
+                                                    "type": "boolean"
+                                                },
+                                                "tamano_bytes": {
+                                                    "type": "integer"
+                                                },
+                                                "version": {
+                                                    "type": "integer"
+                                                },
+                                                "motivo_rechazo": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "revisada_en": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "date-time"
+                                                },
+                                                "revisada_por": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "estado",
+                                                "nombre_original",
+                                                "tipo_mime",
+                                                "es_imagen",
+                                                "tamano_bytes",
+                                                "version",
+                                                "motivo_rechazo",
+                                                "revisada_en",
+                                                "revisada_por",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "receta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Esta receta ya fue validada. Si necesitas cambiarla, av\u00edsanos en el mostrador."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/pedidos/{pedido}/receta/archivo": {
+            "get": {
+                "operationId": "receta.archivo",
+                "description": "Se transmite desde el disco privado en lugar de devolver una URL. Una\nURL, aunque est\u00e9 firmada, se puede reenviar; aqu\u00ed cada petici\u00f3n vuelve a\npasar por la comprobaci\u00f3n de qui\u00e9n pide.",
+                "summary": "Entrega el archivo",
+                "tags": [
+                    "Receta"
+                ],
+                "parameters": [
+                    {
+                        "name": "pedido",
+                        "in": "path",
+                        "required": true,
+                        "description": "The pedido ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Transfer-Encoding": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string",
+                                    "enum": [
+                                        "chunked"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/pedidos/{pedido}/receta/revision": {
+            "put": {
+                "operationId": "receta.revisar",
+                "description": "Validar y rechazar comparten endpoint a prop\u00f3sito: son la misma acci\u00f3n\n\u2014alguien revis\u00f3 y decidi\u00f3\u2014 y separarlas invitar\u00eda a que una de las dos\nolvidara dejar constancia de qui\u00e9n fue.",
+                "summary": "Registra la decisi\u00f3n del profesional sobre la receta",
+                "tags": [
+                    "Receta"
+                ],
+                "parameters": [
+                    {
+                        "name": "pedido",
+                        "in": "path",
+                        "required": true,
+                        "description": "The pedido ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "estado": {
+                                        "type": "string",
+                                        "enum": [
+                                            "validada",
+                                            "rechazada"
+                                        ]
+                                    },
+                                    "motivo_rechazo": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "description": "El motivo es obligatorio al rechazar. Un rechazo sin motivo deja\nal cliente adivinando qu\u00e9 tiene que repetir, y acaba en una\nsegunda receta igual de inservible.",
+                                        "maxLength": 300
+                                    }
+                                },
+                                "required": [
+                                    "estado"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Receta validada.",
+                                                "Receta rechazada. El cliente ver\u00e1 el motivo y podr\u00e1 adjuntar otra."
+                                            ]
+                                        },
+                                        "receta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "estado": {
+                                                    "type": "string"
+                                                },
+                                                "nombre_original": {
+                                                    "type": "string"
+                                                },
+                                                "tipo_mime": {
+                                                    "type": "string"
+                                                },
+                                                "es_imagen": {
+                                                    "type": "boolean"
+                                                },
+                                                "tamano_bytes": {
+                                                    "type": "integer"
+                                                },
+                                                "version": {
+                                                    "type": "integer"
+                                                },
+                                                "motivo_rechazo": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "revisada_en": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "date-time"
+                                                },
+                                                "revisada_por": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "estado",
+                                                "nombre_original",
+                                                "tipo_mime",
+                                                "es_imagen",
+                                                "tamano_bytes",
+                                                "version",
+                                                "motivo_rechazo",
+                                                "revisada_en",
+                                                "revisada_por",
+                                                "created_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "receta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/recetas/pendientes": {
+            "get": {
+                "operationId": "receta.pendientes",
+                "summary": "Cola de recetas por revisar",
+                "tags": [
+                    "Receta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "array",
+                                                "items": {}
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "total"
                                     ]
                                 }
                             }
@@ -10181,7 +12942,7 @@
                 "security": []
             },
             "put": {
-                "operationId": "subcategoria.update_83",
+                "operationId": "subcategoria.update_112",
                 "tags": [
                     "Subcategoria"
                 ],
@@ -10224,7 +12985,7 @@
                 }
             },
             "patch": {
-                "operationId": "subcategoria.update_84",
+                "operationId": "subcategoria.update_113",
                 "tags": [
                     "Subcategoria"
                 ],
@@ -10722,6 +13483,9 @@
                                             "type": "string",
                                             "const": "Bearer"
                                         },
+                                        "verificacion_enviada": {
+                                            "type": "boolean"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "const": "Usuario registrado exitosamente"
@@ -10731,6 +13495,7 @@
                                         "user",
                                         "token",
                                         "token_type",
+                                        "verificacion_enviada",
                                         "message"
                                     ]
                                 }
@@ -11149,20 +13914,6 @@
                                             "null"
                                         ],
                                         "maxLength": 255
-                                    },
-                                    "foto_perfil": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ],
-                                        "maxLength": 255
-                                    },
-                                    "foto_portada": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ],
-                                        "maxLength": 255
                                     }
                                 },
                                 "required": [
@@ -11281,20 +14032,6 @@
                                             "null"
                                         ],
                                         "maxLength": 255
-                                    },
-                                    "foto_perfil": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ],
-                                        "maxLength": 255
-                                    },
-                                    "foto_portada": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ],
-                                        "maxLength": 255
                                     }
                                 }
                             }
@@ -11351,6 +14088,103 @@
                                     },
                                     "required": [
                                         "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/email/verificar/{id}/{hash}": {
+            "get": {
+                "operationId": "verificacion.verificar",
+                "tags": [
+                    "Verificacion"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/email/verificacion/reenviar": {
+            "post": {
+                "operationId": "verificacion.reenviar",
+                "description": "Exige sesion a proposito: si aceptara un correo arbitrario seria un\nmotor de envio gratuito contra terceros, y ademas revelaria que cuentas\nexisten segun si el envio ocurre o no.",
+                "summary": "Reenvia el correo de verificacion al usuario de la sesion",
+                "tags": [
+                    "Verificacion"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "enviado": {
+                                                    "type": "boolean"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "const": "Te enviamos un correo de confirmaci\u00f3n. Revisa tu bandeja y la carpeta de no deseados."
+                                                }
+                                            },
+                                            "required": [
+                                                "enviado",
+                                                "message"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "enviado": {
+                                                    "type": "boolean"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "const": "Tu correo ya est\u00e1 confirmado."
+                                                }
+                                            },
+                                            "required": [
+                                                "enviado",
+                                                "message"
+                                            ]
+                                        }
                                     ]
                                 }
                             }
@@ -11774,6 +14608,19 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "anulado_en": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "motivo_anulacion": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 },
                 "required": [
@@ -11801,7 +14648,9 @@
                     "estado_comision",
                     "cdr_path",
                     "cdr_recibido_en",
-                    "cdr_hash"
+                    "cdr_hash",
+                    "anulado_en",
+                    "motivo_anulacion"
                 ],
                 "title": "ComprobanteElectronico"
             },
@@ -12162,6 +15011,26 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "expira_en": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "anulado_en": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "motivo_anulacion": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 },
                 "required": [
@@ -12192,7 +15061,10 @@
                     "uuid_local",
                     "nota_contingencia",
                     "registrado_offline_en",
-                    "dispositivo_origen"
+                    "dispositivo_origen",
+                    "expira_en",
+                    "anulado_en",
+                    "motivo_anulacion"
                 ],
                 "title": "Pedido"
             },
@@ -12406,6 +15278,12 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "principio_activo_id": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
                     }
                 },
                 "required": [
@@ -12438,7 +15316,8 @@
                     "precio_caja",
                     "afecto_igv",
                     "tipo_afectacion_igv",
-                    "base_legal_exoneracion"
+                    "base_legal_exoneracion",
+                    "principio_activo_id"
                 ],
                 "title": "Producto"
             },
@@ -12692,7 +15571,10 @@
                         "type": "string"
                     },
                     "dni": {
-                        "type": "string"
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "foto": {
                         "type": [
@@ -12744,6 +15626,42 @@
                             "null"
                         ],
                         "format": "date-time"
+                    },
+                    "email_verified_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "google_vinculado_en": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "contrasena_establecida_en": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "direccion_entrega": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "tiene_google": {
+                        "type": "boolean"
+                    },
+                    "tiene_contrasena": {
+                        "type": "boolean"
+                    },
+                    "puede_desvincular_google": {
+                        "type": "boolean"
                     }
                 },
                 "required": [
@@ -12759,7 +15677,14 @@
                     "foto_portada",
                     "rol",
                     "mfa_enabled",
-                    "mfa_enabled_at"
+                    "mfa_enabled_at",
+                    "email_verified_at",
+                    "google_vinculado_en",
+                    "contrasena_establecida_en",
+                    "direccion_entrega",
+                    "tiene_google",
+                    "tiene_contrasena",
+                    "puede_desvincular_google"
                 ],
                 "title": "Usuario"
             }
