@@ -198,15 +198,24 @@ describe('CartView.vue (Checkout cliente)', () => {
     await wrapper.find('form').trigger('submit')
     await flushPromises()
 
-    expect(api.post).toHaveBeenCalledWith('/pedidos/confirmar', {
-      items: [{ producto_id: 101, cantidad: 2 }],
-      modalidad_entrega: 'entrega',
-      tipo_comprobante: 'factura',
-      direccion: 'Av. Los Pinos 450, SJL',
-      cliente_nombre: 'Comercial Salud EIRL',
-      cliente_documento: '20999888777',
-      cliente_telefono: undefined,
-    })
+    expect(api.post).toHaveBeenCalledWith(
+      '/pedidos/confirmar',
+      expect.objectContaining({
+        items: [{ producto_id: 101, cantidad: 2 }],
+        modalidad_entrega: 'entrega',
+        tipo_comprobante: 'factura',
+        metodo_pago: 'tarjeta',
+        direccion: 'Av. Los Pinos 450, SJL',
+        cliente_nombre: 'Comercial Salud EIRL',
+        cliente_documento: '20999888777',
+        cliente_telefono: undefined,
+      }),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'Idempotency-Key': expect.any(String),
+        }),
+      }),
+    )
 
     expect(mockRouter.push).toHaveBeenCalledWith({
       path: '/checkout/pago',
@@ -226,15 +235,24 @@ describe('CartView.vue (Checkout cliente)', () => {
     await wrapper.find('form').trigger('submit')
     await flushPromises()
 
-    expect(api.post).toHaveBeenCalledWith('/pedidos/confirmar', {
-      items: [{ producto_id: 101, cantidad: 2 }],
-      modalidad_entrega: 'recojo',
-      tipo_comprobante: 'boleta',
-      direccion: undefined,
-      cliente_nombre: undefined,
-      cliente_documento: undefined,
-      cliente_telefono: undefined,
-    })
+    expect(api.post).toHaveBeenCalledWith(
+      '/pedidos/confirmar',
+      expect.objectContaining({
+        items: [{ producto_id: 101, cantidad: 2 }],
+        modalidad_entrega: 'recojo',
+        tipo_comprobante: 'boleta',
+        metodo_pago: 'contra_entrega',
+        direccion: undefined,
+        cliente_nombre: undefined,
+        cliente_documento: undefined,
+        cliente_telefono: undefined,
+      }),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'Idempotency-Key': expect.any(String),
+        }),
+      }),
+    )
 
     expect(wrapper.text()).toContain('Pedido registrado')
     expect(wrapper.text()).toContain('#612')

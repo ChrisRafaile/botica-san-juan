@@ -137,6 +137,27 @@
               <span class="font-medium text-texto-primario">Comprobante:</span> {{ etiquetaComprobante }}
             </p>
           </div>
+
+          <div
+            v-if="pedido.expira_en && !pedidoAnuladoOExpirado"
+            data-testid="indicador-reserva-expira"
+            class="mt-4 flex items-center gap-2 rounded-xl border border-ambar-200 bg-ambar-50 px-4 py-3 text-xs font-medium text-ambar-800 dark:border-ambar-900/50 dark:bg-ambar-950/20 dark:text-ambar-300"
+          >
+            <span aria-hidden="true">⏳</span>
+            <span>Reserva válida hasta las <strong>{{ formatearHora(pedido.expira_en) }}</strong> (liberación automática tras 15 minutos).</span>
+          </div>
+
+          <div v-if="!pedidoAnuladoOExpirado" class="mt-6 border-t border-borde-sutil pt-4">
+            <button
+              type="button"
+              data-testid="boton-cancelar-pedido-checkout"
+              class="foco-dentro inline-flex items-center gap-1.5 rounded-full border border-peligro-300 bg-superficie-elevada px-4 py-2 text-xs font-semibold text-peligro-700 transition hover:bg-peligro-50 dark:border-peligro-800 dark:text-peligro-400 dark:hover:bg-peligro-950/20 disabled:cursor-not-allowed disabled:opacity-60"
+              :disabled="cancelando"
+              @click="dialogoCancelarAbierto = true"
+            >
+              {{ cancelando ? 'Cancelando pedido…' : 'Cancelar este pedido' }}
+            </button>
+          </div>
         </template>
       </section>
 
@@ -145,107 +166,149 @@
         class="lg:col-span-2 rounded-2xl border border-borde-sutil bg-superficie-elevada/95 p-8 shadow-xl backdrop-blur-sm"
         aria-labelledby="titulo-pago"
       >
-        <h2
-          id="titulo-pago"
-          class="mb-2 text-xl font-bold text-texto-primario"
-        >
-          Pago seguro
-        </h2>
-        <p class="mb-6 text-sm text-texto-secundario">
-          Los datos de tu tarjeta se ingresan directamente en el entorno de la
-          pasarela. Botica San Juan no los recibe ni los almacena.
-        </p>
-
-        <!-- Tarjeta bancaria interactiva propia con tokens del proyecto -->
-        <TarjetaBancariaVisual
-          class="mb-6"
-          @cambio-estado="alCambiarTarjeta"
-        />
-
-        <!--
-          Contenedor del formulario del proveedor.
-
-          Ningún campo de tarjeta, código de verificación ni vencimiento
-          pertenece a esta aplicación: el proveedor los dibuja dentro de marcos
-          aislados servidos desde su propio dominio, de modo que este código no
-          puede leerlos aunque lo intentara.
-        -->
-        <div
-          v-show="formularioMontado"
-          id="izipay-container"
-        >
-          <div class="kr-smart-form" />
-        </div>
-
-        <div
-          v-if="!formularioMontado"
-          class="min-h-[8rem] rounded-xl border border-dashed border-borde-sutil bg-superficie-hundida/70 p-4 text-center text-sm text-texto-terciario"
-          aria-live="polite"
-        >
-          <template v-if="modoSimulado">
-            Modo simulado: aquí se monta el formulario de la pasarela cuando hay
-            credenciales configuradas.
-          </template>
-          <template v-else-if="procesando">
-            Cargando el formulario de pago…
-          </template>
-          <template v-else>
-            Pulsa el botón para continuar con el pago.
-          </template>
-        </div>
-
-        <p
-          v-if="error"
-          class="mt-4 rounded-lg bg-peligro-50 px-4 py-3 text-sm text-peligro-700 dark:bg-peligro-500/10 dark:text-peligro-500"
-          role="alert"
-          aria-live="assertive"
-        >
-          {{ error }}
-        </p>
-
-        <button
-          v-if="!formularioMontado"
-          type="button"
-          class="foco-dentro mt-6 min-h-11 w-full rounded-xl bg-clinico-600 px-6 py-3 font-medium text-neutro-0 shadow-lg shadow-clinico-600/20 transition hover:bg-clinico-700 disabled:cursor-not-allowed disabled:opacity-60"
-          :disabled="procesando || cargando"
-          @click="pagar"
-        >
-          {{ procesando ? 'Preparando el pago…' : `Pagar ${formatearMonto(total, moneda)}` }}
-        </button>
-
-        <p class="mt-4 flex items-center justify-center gap-2 text-xs text-texto-terciario">
-          <svg
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            aria-hidden="true"
+        <template v-if="pedidoAnuladoOExpirado">
+          <div
+            data-testid="aviso-pedido-anulado-expirado"
+            class="rounded-xl border border-peligro-200 bg-peligro-50 p-5 text-sm text-peligro-800 dark:border-peligro-900/50 dark:bg-peligro-950/20 dark:text-peligro-300"
+            role="alert"
           >
-            <rect x="4" y="10" width="16" height="10" rx="2" />
-            <path d="M8 10V7a4 4 0 0 1 8 0v3" />
-          </svg>
-          Conexión cifrada · No almacenamos datos de tu tarjeta
-        </p>
+            <h3 class="font-bold text-base text-peligro-900 dark:text-peligro-200">
+              {{ pedido?.estado === 'anulado' ? 'Pedido cancelado' : 'Reserva de stock vencida' }}
+            </h3>
+            <p class="mt-2 leading-relaxed">
+              {{ pedido?.estado === 'anulado'
+                ? 'Este pedido fue cancelado y las unidades fueron devueltas al inventario disponible.'
+                : 'El tiempo límite de 15 minutos para completar el pago ha expirado y las unidades reservadas se liberaron para otros clientes.' }}
+            </p>
+            <div class="mt-5 flex flex-wrap gap-2.5">
+              <RouterLink
+                to="/client/pedidos"
+                class="rounded-full bg-peligro-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-peligro-700"
+              >
+                Ver mis pedidos
+              </RouterLink>
+              <RouterLink
+                to="/products"
+                class="rounded-full border border-borde-control bg-superficie-base px-4 py-2 text-xs font-semibold text-texto-primario transition hover:bg-superficie-interactiva"
+              >
+                Volver al catálogo
+              </RouterLink>
+            </div>
+          </div>
+        </template>
+
+        <template v-else>
+          <h2
+            id="titulo-pago"
+            class="mb-2 text-xl font-bold text-texto-primario"
+          >
+            Pago seguro
+          </h2>
+          <p class="mb-6 text-sm text-texto-secundario">
+            Los datos de tu tarjeta se ingresan directamente en el entorno de la
+            pasarela. Botica San Juan no los recibe ni los almacena.
+          </p>
+
+          <!-- Tarjeta bancaria interactiva propia con tokens del proyecto -->
+          <TarjetaBancariaVisual
+            class="mb-6"
+            @cambio-estado="alCambiarTarjeta"
+          />
+
+          <!--
+            Contenedor del formulario del proveedor.
+          -->
+          <div
+            v-show="formularioMontado"
+            id="izipay-container"
+          >
+            <div class="kr-smart-form" />
+          </div>
+
+          <div
+            v-if="!formularioMontado"
+            class="min-h-[8rem] rounded-xl border border-dashed border-borde-sutil bg-superficie-hundida/70 p-4 text-center text-sm text-texto-terciario"
+            aria-live="polite"
+          >
+            <template v-if="modoSimulado">
+              Modo simulado: aquí se monta el formulario de la pasarela cuando hay
+              credenciales configuradas.
+            </template>
+            <template v-else-if="procesando">
+              Cargando el formulario de pago…
+            </template>
+            <template v-else>
+              Pulsa el botón para continuar con el pago.
+            </template>
+          </div>
+
+          <p
+            v-if="error"
+            class="mt-4 rounded-lg bg-peligro-50 px-4 py-3 text-sm text-peligro-700 dark:bg-peligro-500/10 dark:text-peligro-500"
+            role="alert"
+            aria-live="assertive"
+          >
+            {{ error }}
+          </p>
+
+          <button
+            v-if="!formularioMontado"
+            type="button"
+            class="foco-dentro mt-6 min-h-11 w-full rounded-xl bg-clinico-600 px-6 py-3 font-medium text-neutro-0 shadow-lg shadow-clinico-600/20 transition hover:bg-clinico-700 disabled:cursor-not-allowed disabled:opacity-60"
+            :disabled="procesando || cargando"
+            @click="pagar"
+          >
+            {{ procesando ? 'Preparando el pago…' : `Pagar ${formatearMonto(total, moneda)}` }}
+          </button>
+
+          <p class="mt-4 flex items-center justify-center gap-2 text-xs text-texto-terciario">
+            <svg
+              class="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              aria-hidden="true"
+            >
+              <rect x="4" y="10" width="16" height="10" rx="2" />
+              <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+            </svg>
+            Conexión cifrada · No almacenamos datos de tu tarjeta
+          </p>
+        </template>
       </section>
     </div>
+
+    <DialogoConfirmacion
+      :abierto="dialogoCancelarAbierto"
+      id="dialogo-cancelar-pedido-checkout"
+      titulo="¿Deseas cancelar este pedido?"
+      texto="Al cancelar, los medicamentos reservados volverán al inventario disponible de inmediato y el comprobante asociado se anulará."
+      etiqueta-confirmar="Sí, cancelar pedido"
+      etiqueta-cancelar="No, continuar con el pago"
+      :peligroso="true"
+      @confirmar="ejecutarCancelacion"
+      @cancelar="dialogoCancelarAbierto = false"
+    />
   </main>
 </template>
 
 <script setup lang="ts">
 import { computed, getCurrentInstance, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import type { Pinia } from 'pinia'
-import { useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import api from '@/services/api'
 import { montarFormulario, type RetornoVerificable } from '@/services/izipay'
 import { formatearMonto, iniciarPago, simularPago, validarRetorno, rutaDelEstado } from '@/services/pagos'
 import {
+  cancelarPedido,
   cargarPedidosCliente,
   pedidoRequierePago,
   type PedidoCliente,
 } from '@/services/pedidosCliente'
 import { useAuthStore } from '@/stores/auth'
 import SelectorTema from '@/components/SelectorTema.vue'
+import DialogoConfirmacion from '@/components/DialogoConfirmacion.vue'
 import { usePedidosPendientes } from '@/composables/usePedidosPendientes'
 import TarjetaBancariaVisual, { type EstadoTarjetaVisual } from './TarjetaBancariaVisual.vue'
 
@@ -262,11 +325,15 @@ interface LineaPedido {
 
 interface PedidoResumen {
   id: number
+  estado?: string
   total: string | number
   moneda?: string
   address?: string | null
   observacion?: string | null
   estado_pago?: string
+  expira_en?: string | null
+  anulado_en?: string | null
+  motivo_anulacion?: string | null
   comprobante_electronico?: {
     id: number
     tipo_comprobante: string
@@ -288,6 +355,9 @@ const pedido = ref<PedidoResumen | null>(null)
 const pedidosPendientesCliente = ref<PedidoCliente[]>([])
 const cargando = ref(true)
 const procesando = ref(false)
+const cancelando = ref(false)
+const dialogoCancelarAbierto = ref(false)
+const claveIdempotenciaPago = ref<string | null>(null)
 const error = ref('')
 const modoSimulado = ref(false)
 const formularioMontado = ref(false)
@@ -308,8 +378,25 @@ const etiquetaComprobante = computed(() => {
   return `${tipo} ${correlativo}`
 })
 
+const pedidoAnuladoOExpirado = computed(() => {
+  if (!pedido.value) return false
+  if (pedido.value.estado === 'anulado') return true
+  if (pedido.value.expira_en) {
+    return new Date(pedido.value.expira_en).getTime() < Date.now()
+  }
+  return false
+})
+
+function formatearHora(fechaIso?: string | null): string {
+  if (!fechaIso) return ''
+  const d = new Date(fechaIso)
+  if (isNaN(d.getTime())) return String(fechaIso)
+  return d.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })
+}
+
 function alCambiarTarjeta(estado: EstadoTarjetaVisual) {
   tarjetaEstado.value = estado
+  claveIdempotenciaPago.value = null
   if (estado.completa && error.value.includes('tarjeta 3D')) {
     error.value = ''
   }
@@ -332,6 +419,29 @@ async function encaminar(referencia: string, retorno?: RetornoVerificable): Prom
   }
 
   await router.push({ path: '/checkout/procesando', query: { ref: referencia } })
+}
+
+/**
+ * Cancela el pedido voluntariamente liberando la reserva y devolviendo los productos.
+ */
+async function ejecutarCancelacion(): Promise<void> {
+  if (!pedido.value || cancelando.value) return
+  cancelando.value = true
+  dialogoCancelarAbierto.value = false
+  error.value = ''
+
+  try {
+    await cancelarPedido(pedido.value.id)
+    if (auth?.user?.id) {
+      pendientesCompartidos.refrescar(auth.user.id)
+    }
+    await router.push({ path: '/client/pedidos', query: { cancelado: String(pedido.value.id) } })
+  } catch (e: any) {
+    const msg = e?.response?.data?.message || 'No se pudo cancelar el pedido. Puede que ya haya sido pagado o procesado.'
+    error.value = msg
+  } finally {
+    cancelando.value = false
+  }
 }
 
 /**
@@ -368,10 +478,22 @@ async function pagar(): Promise<void> {
         return
       }
 
-      await simularPago(referencia, {
-        resultado: 'aprobar',
-        marca_tarjeta: tarjetaEstado.value.marca,
-      })
+      if (!claveIdempotenciaPago.value) {
+        claveIdempotenciaPago.value =
+          typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : `pago-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+      }
+
+      await simularPago(
+        referencia,
+        {
+          resultado: 'aprobar',
+          marca_tarjeta: tarjetaEstado.value.marca,
+        },
+        claveIdempotenciaPago.value,
+      )
+      claveIdempotenciaPago.value = null
       await encaminar(referencia)
       return
     }
@@ -384,8 +506,15 @@ async function pagar(): Promise<void> {
     })
 
     formularioMontado.value = true
-  } catch {
-    error.value = 'No pudimos contactar a la pasarela. Intenta nuevamente en unos segundos.'
+  } catch (e: any) {
+    if (e?.response?.status === 409) {
+      error.value = e?.response?.data?.message || 'La reserva de este pedido ha expirado o ya no está disponible.'
+      if (pedido.value) {
+        await cargarPedido(pedido.value.id)
+      }
+    } else {
+      error.value = 'No pudimos contactar a la pasarela. Intenta nuevamente en unos segundos.'
+    }
   } finally {
     procesando.value = false
   }

@@ -126,8 +126,17 @@ export async function simularPago(
     marca_tarjeta?: string
     ultimos4?: string
   } = {},
+  claveIdempotencia?: string,
 ): Promise<SimulacionDePago> {
-  const { data } = await api.post<SimulacionDePago>(`/pagos/${referencia}/simular`, datos)
+  const headers: Record<string, string> = {}
+  if (claveIdempotencia) {
+    headers['Idempotency-Key'] = claveIdempotencia
+  }
+  const { data } = await api.post<SimulacionDePago>(
+    `/pagos/${referencia}/simular`,
+    datos,
+    { headers },
+  )
   return data
 }
 

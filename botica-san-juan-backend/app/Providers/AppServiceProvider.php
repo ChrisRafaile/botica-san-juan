@@ -99,6 +99,16 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        /* Limitador para operaciones de pago, cancelación y simulación. */
+        RateLimiter::for('pagos', function (Request $request) {
+            $clave = $request->user()?->id ?: $request->ip();
+
+            return [
+                Limit::perMinute(10)->by('pagos|'.$clave),
+                Limit::perHour(60)->by('pagos|'.$clave),
+            ];
+        });
+
         /* El orden importa: la cabecera se registra en la configuración por
            omisión y la referencia Scalar se clona de ella. Al revés, la
            segunda interfaz saldría con el título de fábrica. */

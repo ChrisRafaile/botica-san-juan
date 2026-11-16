@@ -35,13 +35,23 @@ class PerfilController extends Controller
     /** Carpeta dentro del disco público. */
     private const CARPETA = 'perfiles';
 
-    /** Devuelve los datos de la cuenta actual. */
+    /**
+     * Devuelve los datos de la cuenta actual.
+     *
+     * Incluye datos personales, rol, estado de verificación de correo,
+     * vinculación con Google, autenticación multifactor (MFA) y dirección de entrega predeterminada (`direccion_entrega`).
+     */
     public function mostrar(Request $request)
     {
         return response()->json($request->user());
     }
 
-    /** Actualiza los datos personales de la cuenta actual. */
+    /**
+     * Actualiza los datos personales de la cuenta actual.
+     *
+     * Permite modificar nombre, teléfono, dirección habitual de entrega (`direccion_entrega`)
+     * y correo electrónico. El DNI solo puede completarse una única vez si la cuenta nació sin él.
+     */
     public function actualizar(Request $request)
     {
         $usuario = $request->user();
@@ -49,6 +59,10 @@ class PerfilController extends Controller
         $validado = $request->validate([
             'nombre' => ['sometimes', 'required', 'string', 'max:255'],
             'telefono' => ['nullable', 'string', 'max:20'],
+            /**
+             * Dirección habitual o predeterminada para entregas a domicilio (delivery).
+             * Se precarga automáticamente en el formulario del carrito si el usuario no ha especificado otra.
+             */
             'direccion_entrega' => ['nullable', 'string', 'max:255'],
             'email' => [
                 'sometimes', 'required', 'email', 'max:255',

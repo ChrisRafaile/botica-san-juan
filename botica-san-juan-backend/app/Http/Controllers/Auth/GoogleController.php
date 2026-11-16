@@ -70,6 +70,10 @@ class GoogleController extends Controller
      * quiere entrar, y sin credenciales responde 503, que el navegador anota
      * como error en cada carga de la pantalla. «No configurado» no es una
      * avería: es una respuesta, y va con 200.
+     *
+     * Devuelve `{"disponible": true}` si las tres credenciales de Google OAuth
+     * (`client_id`, `client_secret` y `redirect`) están configuradas en el servidor,
+     * o `{"disponible": false}` en caso contrario.
      */
     public function disponible(): JsonResponse
     {

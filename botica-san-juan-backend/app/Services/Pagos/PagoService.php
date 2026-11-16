@@ -2,6 +2,8 @@
 
 namespace App\Services\Pagos;
 
+use App\Exceptions\PedidoNoCancelableException;
+use App\Models\EventoOperacion;
 use App\Models\Pago;
 use App\Models\PagoEvento;
 use App\Models\Pedido;
@@ -42,7 +44,22 @@ class PagoService
     public function iniciar(Pedido $pedido, string $correoCliente): array
     {
         $pago = DB::transaction(function () use ($pedido) {
-            $existente = Pago::where('pedido_id', $pedido->id)
+            // Bloqueo pesimista: primero el pedido y luego el pago con FOR UPDATE.
+            // POR QUÉ NO SE BLOQUEAN PRODUCTOS NI LOTES AQUÍ:
+            // El pago no modifica stock (el inventario ya fue descontado al confirmar el
+            // pedido) y bloquear productos o lotes durante el cobro solo aumentaría la
+            // contención y probabilidad de interbloqueos sin aportar ninguna garantía.
+            $pedidoBloqueado = Pedido::whereKey($pedido->id)->lockForUpdate()->firstOrFail();
+
+            if ($pedidoBloqueado->estado === Pedido::ESTADO_ANULADO) {
+                throw new PedidoNoCancelableException('ya_anulado', 'El pedido ha sido anulado y no admite pago.');
+            }
+
+            if ($pedidoBloqueado->expira_en !== null && $pedidoBloqueado->expira_en->isPast()) {
+                throw new PedidoNoCancelableException('reserva_vencida', 'La reserva del pedido ha expirado.');
+            }
+
+            $existente = Pago::where('pedido_id', $pedidoBloqueado->id)
                 ->lockForUpdate()
                 ->first();
 
@@ -51,12 +68,12 @@ class PagoService
             }
 
             return Pago::create([
-                'pedido_id' => $pedido->id,
+                'pedido_id' => $pedidoBloqueado->id,
                 'proveedor' => 'izipay',
-                'referencia_pedido' => 'BSJ-' . str_pad((string) $pedido->id, 8, '0', STR_PAD_LEFT) . '-' . Str::lower(Str::random(6)),
+                'referencia_pedido' => 'BSJ-' . str_pad((string) $pedidoBloqueado->id, 8, '0', STR_PAD_LEFT) . '-' . Str::lower(Str::random(6)),
                 'estado' => EstadoPago::PENDIENTE,
-                'monto' => (float) $pedido->total,
-                'moneda' => $pedido->moneda ?: (string) config('services.izipay.currency', 'PEN'),
+                'monto' => (float) $pedidoBloqueado->total,
+                'moneda' => $pedidoBloqueado->moneda ?: (string) config('services.izipay.currency', 'PEN'),
             ]);
         });
 
@@ -323,7 +340,30 @@ class PagoService
     private function aplicar(Pago $pago, string $estadoNuevo, array $datos): void
     {
         DB::transaction(function () use ($pago, $estadoNuevo, $datos) {
-            $pago->refresh();
+            // Bloqueo pesimista: primero el pedido y luego el pago con FOR UPDATE.
+            // POR QUÉ NO SE BLOQUEAN PRODUCTOS NI LOTES AQUÍ:
+            // El pago no altera inventario ni cantidades de stock. Bloquearlos aquí solo
+            // generaría contención entre ventas simultáneas.
+            $pedido = Pedido::whereKey($pago->pedido_id)->lockForUpdate()->first();
+            $pago = Pago::whereKey($pago->id)->lockForUpdate()->first();
+
+            // Si llega una notificación PAID para un pedido ya anulado:
+            // no se revive el pedido; Log::critical + bitácora porque es dinero que hay que devolver a mano.
+            if ($pedido !== null && $pedido->estado === Pedido::ESTADO_ANULADO) {
+                if ($estadoNuevo === EstadoPago::PAGADO) {
+                    Log::critical('pagos.notificacion_pedido_ya_anulado', [
+                        'pedido_id' => $pedido->id,
+                        'pago_id' => $pago->id,
+                        'referencia' => $pago->referencia_pedido,
+                    ]);
+                    EventoOperacion::error(
+                        'PAGO_RECIBIDO_PEDIDO_ANULADO',
+                        "Se recibió pago para el pedido #{$pedido->id} que ya se encuentra anulado. Requiere devolución manual.",
+                        ['pedido_id' => $pedido->id, 'contexto' => ['pago_id' => $pago->id, 'datos' => $datos]]
+                    );
+                }
+                return;
+            }
 
             if (!EstadoPago::permiteTransicion($pago->estado, $estadoNuevo)) {
                 return;
@@ -357,9 +397,12 @@ class PagoService
 
             $pago->save();
 
-            $pedido = $pago->pedido;
             if ($pedido !== null) {
                 $pedido->estado_pago = $estadoNuevo;
+                if ($estadoNuevo === EstadoPago::PAGADO) {
+                    // Al pasar a pagado: la reserva se consumió
+                    $pedido->expira_en = null;
+                }
                 $pedido->save();
             }
         });

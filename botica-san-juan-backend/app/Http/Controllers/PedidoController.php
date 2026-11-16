@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\PedidoNoCancelableException;
 use App\Exceptions\VentaSinStockException;
 use App\Models\Pedido;
+use App\Services\PedidoService;
 use App\Services\ResumenClienteService;
 use App\Services\ResumenPedidosService;
 use App\Services\VentaService;
@@ -130,6 +132,9 @@ class PedidoController extends Controller
      *
      * Permite a la pantalla de checkout y pago cargar los detalles, el estado
      * del pago y la referencia del comprobante sin abrir el recurso de gestion.
+     *
+     * Incluye el campo `expira_en` (timestamp ISO 8601 o null), que indica la fecha y
+     * hora límite de expiración de la reserva de stock para pedidos pagados con tarjeta.
      */
     public function miPedido(Request $request, string $id)
     {
@@ -153,6 +158,13 @@ class PedidoController extends Controller
         return response()->json($pedido);
     }
 
+    /**
+     * Pedidos de un usuario específico.
+     *
+     * Consulta el historial de pedidos del cliente autenticado (o cualquiera si es administrador).
+     * Cada pedido incluye el detalle de productos, comprobante, estado de receta y el campo
+     * `expira_en` (timestamp ISO 8601 o null) con el límite de expiración de la reserva de stock.
+     */
     public function getByUser(Request $request, $usuarioId)
     {
         $solicitante = $request->user();
@@ -182,14 +194,27 @@ class PedidoController extends Controller
     }
 
     /**
-     * Confirma una venta: crea el pedido con su detalle y descuenta el stock
-     * dentro de una unica transaccion.
+     * Confirma una venta del portal cliente y reserva stock.
      *
-     * El consumidor declara unicamente que producto y que cantidad quiere. El
-     * precio y el total los determina el servidor a partir del catalogo
-     * vigente, de modo que un cliente manipulado no puede fijar el importe.
+     * Crea el pedido con su detalle y reserva el stock de productos mediante asignación FEFO
+     * dentro de una única transacción.
+     *
+     * Cabecera `Idempotency-Key` (opcional, string de 8 a 120 caracteres alfanuméricos o `_ . : -`):
+     * Protege contra órdenes duplicadas por reintentos de red.
+     * - `400 Bad Request`: Formato de clave inválido.
+     * - `422 Unprocessable Content`: Conflicto de idempotencia (`codigo: "idempotencia_conflicto"`) si la misma clave se reutiliza con un cuerpo diferente.
+     * - `409 Conflict`: Petición concurrente en curso (con cabecera `Retry-After: 1`).
+     * - Reproducción: Si la clave ya fue procesada, reproduce la respuesta original acompañada de la cabecera `Idempotency-Replayed: true`.
+     *
+     * Respuestas `409 Conflict` de negocio:
+     * - `codigo: "stock_insuficiente"`: Cuando no hay existencias vendibles suficientes para uno o más productos.
+     * - `codigo: "contencion"`: En caso de alta contención o interbloqueo transaccional sobre las filas de inventario (incluye cabecera `Retry-After: 1`).
+     *
+     * Respuesta `201 Created`:
+     * Incluye el objeto `pedido`, `comprobante`, `seguimiento` y el campo `expira_en` (string ISO 8601 o null).
+     * `expira_en` fija el TTL de reserva (15 minutos por omisión) únicamente si el cliente tiene sesión y seleccionó `metodo_pago: "tarjeta"`.
      */
-    public function confirmar(Request $request, VentaService $ventas)
+    public function confirmar(Request $request, PedidoService $pedidos)
     {
         /* Quién es el cliente: la sesión si la hay, nadie si no.
            `auth('sanctum')` resuelve el token cuando viene en la cabecera y
@@ -226,6 +251,10 @@ class PedidoController extends Controller
             'items.*.cantidad' => ['required', 'integer', 'min:1', 'max:1000'],
             'modalidad_entrega' => ['nullable', 'string', Rule::in(['recojo', 'entrega'])],
             'tipo_comprobante' => ['nullable', 'string', Rule::in(['boleta', 'factura'])],
+            /**
+             * Método de pago seleccionado: 'tarjeta' (pasarela online con reserva temporal de stock) o 'contra_entrega' (pago al recibir o recoger).
+             */
+            'metodo_pago' => ['nullable', 'string', Rule::in(['tarjeta', 'contra_entrega'])],
             'direccion' => [
                 $modalidadEntrega === 'entrega' ? 'required' : 'nullable',
                 'string',
@@ -254,14 +283,6 @@ class PedidoController extends Controller
             'direccion.min'              => 'La dirección debe ser más específica (al menos 5 caracteres).',
         ]);
 
-        /* Este endpoint llamaba a VentaService::confirmar(), un metodo que
-           dejo de existir cuando el servicio se unifico para el punto de
-           venta. Desde entonces el checkout del portal respondia 500: la
-           suite de pruebas lo senalaba, pero nadie ejecutaba la suite.
-
-           Se pasa el origen explicitamente. Sin ese argumento el pedido
-           nacería como venta de mostrador —completado y pagado— y un encargo
-           web sin cobrar entraria en la caja del dia. */
         /* Los datos del cliente: los del formulario si vinieron, y si no los de
            la cuenta. Se copian al pedido aunque haya sesión porque el
            comprobante debe decir a quién se le vendió el día que se emitió,
@@ -282,36 +303,32 @@ class PedidoController extends Controller
         ];
 
         try {
-            [$pedido, $comprobante] = DB::transaction(function () use ($ventas, $validado, $datosCliente, $cliente) {
-                $pedidoCreado = $ventas->registrar(
-                    items: $validado['items'],
-                    datosCliente: $datosCliente,
-                    usuarioClienteId: $cliente?->id,
-                    origen: Pedido::ORIGEN_WEB,
-                );
-
-                /* El comprobante se emite en el acto, con el pedido ya cerrado y sus
-                   importes calculados. Es idempotente: un doble clic o un reintento no
-                   produce un segundo comprobante del mismo pedido, que sería duplicidad
-                   tributaria. */
-                $comprobanteEmitido = app(\App\Services\ComprobanteService::class)->emitir($pedidoCreado);
-
-                return [$pedidoCreado, $comprobanteEmitido];
-            });
+            [$pedido, $comprobante] = $pedidos->confirmarDelPortal(
+                items: $validado['items'],
+                datosCliente: $datosCliente,
+                cliente: $cliente,
+                metodoPago: $validado['metodo_pago'] ?? null,
+            );
         } catch (VentaSinStockException $e) {
-            /* Falta de stock no es un fallo del sistema: es informacion que el
-               cliente necesita para ajustar su pedido. Sin este bloque salia
-               como 500 y el portal mostraba "error del servidor" cuando lo
-               unico que pasaba es que no habia suficientes unidades. */
             return response()->json([
                 'message'   => $e->getMessage(),
                 'sin_stock' => true,
-            ], 422);
+                'codigo'    => 'stock_insuficiente',
+            ], 409);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (in_array($e->getCode(), ['40P01', '55P03'], true) || str_contains($e->getMessage(), 'deadlock') || str_contains($e->getMessage(), 'lock timeout')) {
+                return response()->json([
+                    'message' => 'Alta contención en el inventario. Por favor reintente.',
+                    'codigo'  => 'contencion',
+                ], 409)->header('Retry-After', '1');
+            }
+            throw $e;
         }
 
         return response()->json([
             'message' => 'Pedido registrado. Queda pendiente de preparacion.',
             'pedido' => $pedido,
+            'expira_en' => $pedido->expira_en?->toIso8601String(),
             'modalidad_entrega' => $modalidadEntrega ?? ($observacion && $observacion !== 'Recojo en botica' ? 'entrega' : 'recojo'),
             'comprobante' => [
                 'id'            => $comprobante->id,
@@ -462,5 +479,71 @@ class PedidoController extends Controller
         $pedido->delete();
 
         return response()->json(['message' => 'Pedido deleted successfully']);
+    }
+
+    /**
+     * Cancela un pedido web abierto y restituye el stock reservado a sus lotes.
+     *
+     * Permite al cliente autenticado (o administrador) cancelar un pedido que no ha sido pagado ni completado.
+     * Restituye inmediatamente las cantidades a los lotes de origen y anula el comprobante asociado si estaba pendiente.
+     *
+     * Cabecera `Idempotency-Key` (opcional, string de 8 a 120 caracteres alfanuméricos o `_ . : -`):
+     * Evita ejecuciones duplicadas de cancelación.
+     * - `400 Bad Request`: Clave de idempotencia con formato no permitido.
+     * - `422 Unprocessable Content`: Conflicto de idempotencia (`codigo: "idempotencia_conflicto"`).
+     * - `409 Conflict`: Operación en curso concurrente (`Retry-After: 1`).
+     * - Reproducción: Respuesta almacenada con cabecera `Idempotency-Replayed: true`.
+     *
+     * Respuestas `409 Conflict` (PedidoNoCancelableException):
+     * Devuelve `{ "message": string, "motivo": string }` cuando el pedido no admite cancelación según las reglas de negocio:
+     * - `motivo: "pago_confirmado"`: El pedido ya registra un pago aprobado en la pasarela.
+     * - `motivo: "ya_anulado"`: El pedido ya se encuentra cancelado o anulado.
+     * - `motivo: "comprobante_aceptado"`: El comprobante electrónico ya fue informado y aceptado por SUNAT (exige nota de crédito).
+     * - `motivo: "venta_mostrador"`: Es una venta de mostrador (POS), las cuales nacen completadas y no admiten este flujo.
+     * - `motivo: "estado_invalido"`: El estado actual del pedido no pertenece a los estados abiertos cancelables.
+     * - `motivo: "pago_invalido"`: El estado de pago en la pasarela no permite cancelar la operación.
+     */
+    public function cancelar(Request $request, string $id, PedidoService $pedidoService)
+    {
+        $pedido = Pedido::findOrFail($id);
+        $solicitante = $request->user();
+
+        if ((int) $pedido->usuario_id !== (int) $solicitante->id && $solicitante->rol !== 'administrador') {
+            return response()->json([
+                'message' => 'No estás autorizado para cancelar este pedido.',
+            ], 403);
+        }
+
+        $motivo = $solicitante->rol === 'administrador' && (int) $pedido->usuario_id !== (int) $solicitante->id
+            ? 'administrador'
+            : 'cliente';
+
+        try {
+            $resultado = $pedidoService->cancelar($pedido, $motivo, (int) $solicitante->id);
+        } catch (PedidoNoCancelableException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'motivo'  => $e->getMotivo(),
+            ], 409);
+        }
+
+        $pedidoAnulado = $resultado['pedido'];
+        $comprobante = $resultado['comprobante'];
+
+        return response()->json([
+            'message' => 'Pedido cancelado correctamente.',
+            'pedido'  => [
+                'id'               => $pedidoAnulado->id,
+                'estado'           => $pedidoAnulado->estado,
+                'estado_pago'      => $pedidoAnulado->estado_pago,
+                'anulado_en'       => $pedidoAnulado->anulado_en?->toIso8601String(),
+                'motivo_anulacion' => $pedidoAnulado->motivo_anulacion,
+            ],
+            'comprobante' => $comprobante ? [
+                'identificador' => $comprobante->serie . '-' . str_pad((string) $comprobante->numero, 8, '0', STR_PAD_LEFT),
+                'estado_sunat'  => $comprobante->estado_sunat,
+            ] : null,
+            'stock_restituido' => $resultado['stock_restituido'],
+        ], 200);
     }
 }

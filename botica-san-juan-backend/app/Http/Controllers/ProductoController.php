@@ -13,18 +13,9 @@ use Illuminate\Validation\ValidationException;
 class ProductoController extends Controller
 {
     /**
-     * Cuántos productos hay en cada estado de stock, sobre TODO el catálogo.
-     *
-     * GET /api/productos/resumen
-     *
-     * Existe porque la pantalla lo calculaba sobre la página que tenía cargada:
-     * con 3361 productos y diez por página, mostraba "2 en stock". Un resumen
-     * del catálogo se cuenta en la base, no sobre lo que cabe en pantalla.
-     */
-    /**
      * Valores disponibles para los filtros del catálogo, con su recuento.
      *
-     * GET /api/productos/facetas   (público)
+     * GET /api/productos/facetas (público)
      *
      * POR QUÉ UN ENDPOINT Y NO DEDUCIRLOS DE LA PÁGINA
      *
@@ -71,6 +62,15 @@ class ProductoController extends Controller
         ]);
     }
 
+    /**
+     * Resumen de productos por estado de stock sobre todo el catálogo.
+     *
+     * GET /api/productos/resumen
+     *
+     * Cuenta en la base de datos la cantidad global de productos en cada estado
+     * de stock (crítico, bajo, normal, sin stock) e identifica si los umbrales
+     * configurados resultan sospechosos o inconsistentes.
+     */
     public function resumen(\App\Services\ResumenInventarioService $inventario)
     {
         $resumen = $inventario->porEstadoDeStock();
@@ -82,7 +82,22 @@ class ProductoController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+     * Listado paginado de productos con filtros avanzados y búsqueda sin tildes.
+     *
+     * Permite consultar y filtrar el catálogo completo de productos.
+     *
+     * Parámetros de consulta (query):
+     * - `q` o `search` (string): Término de búsqueda insensible a mayúsculas y sin tildes (utiliza la función PostgreSQL `f_unaccent`) sobre los campos `nombre`, `principio_activo`, `laboratorio`, `laboratorio_fabricante`, `codigo_barras`, `codigo_digemid`, `tipo` y `presentacion`.
+     * - `orden` (string): Criterio de ordenación. Valores aceptados: `recientes` (por omisión), `destacados`, `nombre`, `precio_asc`, `precio_desc`.
+     * - `tipo` (string): Filtro por forma o tipo de producto farmacéutico (ej. `TABLETA`, `JARABE`).
+     * - `laboratorio` (string): Filtro exacto por laboratorio fabricante.
+     * - `categoria_id` (integer): Identificador numérico de la categoría.
+     * - `subcategoria_id` (integer): Identificador numérico de la subcategoría.
+     * - `requiere_receta` (boolean): Filtro según requiera o no receta médica obligatoria.
+     * - `digemid_status` (string): `with_code` (con código DIGEMID) o `without_code` (sin código DIGEMID).
+     * - `stock_status` (string): Filtro por estado de stock (`critical`, `low`, `in_stock`, `out_of_stock`, `normal`).
+     * - `per_page` (integer): Cantidad de elementos por página (1 a 100, por omisión 10).
+     * - `page` (integer): Número de página solicitada.
      */
     public function index(Request $request)
     {

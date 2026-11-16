@@ -9,9 +9,11 @@ import {
   PackageOpen,
   RotateCcw,
   ShoppingCart,
+  XCircle,
 } from 'lucide-vue-next'
 
 import {
+  cancelarPedido,
   cargarPedidosCliente,
   claseEstadoPedido,
   etiquetaEstadoPedido,
@@ -25,9 +27,11 @@ import {
 import type { EstadoReceta } from '@/services/recetas'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/carrito'
+import { usePedidosPendientes } from '@/composables/usePedidosPendientes'
 import DistintivoReceta from '@/components/DistintivoReceta.vue'
 import RecetaDelPedido from '@/components/RecetaDelPedido.vue'
 import ImagenConRespaldo from '@/components/ImagenConRespaldo.vue'
+import DialogoConfirmacion from '@/components/DialogoConfirmacion.vue'
 
 const FILTROS: { valor: EstadoFiltroPedido; etiqueta: string }[] = [
   { valor: 'todos', etiqueta: 'Todos' },
@@ -40,6 +44,7 @@ const FILTROS: { valor: EstadoFiltroPedido; etiqueta: string }[] = [
 const route = useRoute()
 const auth = useAuthStore()
 const carrito = useCartStore()
+const pendientesCompartidos = usePedidosPendientes()
 
 const pedidos = ref<PedidoCliente[]>([])
 const cargando = ref(true)
@@ -47,6 +52,9 @@ const error = ref('')
 const filtro = ref<EstadoFiltroPedido>('todos')
 const recetaAbierta = ref<number | null>(null)
 const reordenandoId = ref<number | null>(null)
+const cancelandoId = ref<number | null>(null)
+const pedidoACancelar = ref<PedidoCliente | null>(null)
+const dialogoCancelarAbierto = ref(false)
 
 const feedbackReorden = ref<{
   pedidoId: number
@@ -155,6 +163,53 @@ async function volverAPedir(pedido: PedidoCliente): Promise<void> {
   }
 
   reordenandoId.value = null
+}
+
+function abrirConfirmacionCancelacion(pedido: PedidoCliente): void {
+  pedidoACancelar.value = pedido
+  dialogoCancelarAbierto.value = true
+}
+
+async function confirmarCancelacion(): Promise<void> {
+  const p = pedidoACancelar.value
+  if (!p || cancelandoId.value) return
+
+  cancelandoId.value = p.id
+  dialogoCancelarAbierto.value = false
+
+  try {
+    await cancelarPedido(p.id)
+
+    // Actualizar pedido localmente sin recargar toda la lista
+    p.estado = 'anulado'
+    p.estado_pago = 'cancelado'
+
+    // Notificar al composable compartido y re-cotizar carrito
+    if (auth.user?.id) {
+      pendientesCompartidos.refrescar(auth.user.id)
+    }
+    await carrito.cotizar()
+
+    feedbackReorden.value = {
+      pedidoId: p.id,
+      tipo: 'exito',
+      mensaje: `El pedido #${p.id} ha sido cancelado con éxito y sus existencias fueron devueltas al inventario.`,
+      ajustes: [],
+    }
+  } catch (e: any) {
+    const msg =
+      e?.response?.data?.message ||
+      'No se pudo cancelar el pedido. Puede que ya haya sido pagado o procesado.'
+    feedbackReorden.value = {
+      pedidoId: p.id,
+      tipo: 'error',
+      mensaje: msg,
+      ajustes: [],
+    }
+  } finally {
+    cancelandoId.value = null
+    pedidoACancelar.value = null
+  }
 }
 
 watch(() => route.query.estado, aplicarFiltroDesdeRuta)
@@ -364,6 +419,18 @@ onMounted(async () => {
             </RouterLink>
 
             <button
+              v-if="pedidoRequierePago(pedido)"
+              type="button"
+              data-testid="boton-cancelar-pedido-lista"
+              :disabled="cancelandoId === pedido.id"
+              class="inline-flex min-h-10 items-center gap-1.5 rounded-full border border-peligro-300 bg-superficie-elevada px-4 py-2 text-xs font-semibold text-peligro-700 transition hover:bg-peligro-50 dark:border-peligro-800 dark:text-peligro-400 dark:hover:bg-peligro-950/20 disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
+              @click="abrirConfirmacionCancelacion(pedido)"
+            >
+              <XCircle class="size-3.5" aria-hidden="true" />
+              {{ cancelandoId === pedido.id ? 'Cancelando…' : 'Cancelar pedido' }}
+            </button>
+
+            <button
               v-if="(pedido.pedido_detalles?.length ?? 0) > 0"
               type="button"
               :disabled="reordenandoId === pedido.id"
@@ -434,5 +501,17 @@ onMounted(async () => {
         </div>
       </li>
     </ul>
+
+    <DialogoConfirmacion
+      :abierto="dialogoCancelarAbierto"
+      id="dialogo-cancelar-pedido-lista"
+      :titulo="`¿Cancelar el pedido #${pedidoACancelar?.id}?`"
+      texto="Los medicamentos reservados serán devueltos inmediatamente al inventario disponible para otros clientes y el comprobante asociado quedará anulado."
+      etiqueta-confirmar="Sí, cancelar pedido"
+      etiqueta-cancelar="No, mantener pedido"
+      :peligroso="true"
+      @confirmar="confirmarCancelacion"
+      @cancelar="dialogoCancelarAbierto = false"
+    />
   </section>
 </template>

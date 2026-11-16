@@ -138,6 +138,8 @@ export const useCartStore = defineStore('cart', () => {
   const error = ref<string | null>(null)
   /** Evita pintar "tu carrito está vacío" antes de la primera cotización. */
   const cotizadoAlgunaVez = ref(false)
+  /** Clave de intención que viaja como Idempotency-Key en /pedidos/confirmar. */
+  const claveIdempotenciaConfirmar = ref<string | null>(null)
 
   /* Toda escritura pasa por aquí: así no hay forma de cambiar el carrito y
      olvidarse de persistirlo. */
@@ -231,6 +233,7 @@ export const useCartStore = defineStore('cart', () => {
    * tope lo pone el servidor al cotizar.
    */
   const agregar = (productoId: number, cantidad = 1, stockDisponible?: number) => {
+    claveIdempotenciaConfirmar.value = null
     const existente = guardadas.value.find((l) => l.producto_id === productoId)
     const techo = Math.min(MAX_POR_LINEA, stockDisponible ?? MAX_POR_LINEA)
 
@@ -249,6 +252,7 @@ export const useCartStore = defineStore('cart', () => {
 
   /** Fija la cantidad exacta. Con 0 o menos, quita la línea. */
   const fijarCantidad = (productoId: number, cantidad: number, stockDisponible?: number) => {
+    claveIdempotenciaConfirmar.value = null
     const techo = Math.min(MAX_POR_LINEA, stockDisponible ?? MAX_POR_LINEA)
     const valor = Math.min(techo, Math.trunc(cantidad))
 
@@ -276,11 +280,13 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   const quitar = (productoId: number) => {
+    claveIdempotenciaConfirmar.value = null
     guardadas.value = guardadas.value.filter((l) => l.producto_id !== productoId)
     lineas.value = lineas.value.filter((l) => l.producto_id !== productoId)
   }
 
   const vaciar = () => {
+    claveIdempotenciaConfirmar.value = null
     guardadas.value = []
     lineas.value = []
     ajustes.value = []
@@ -307,23 +313,40 @@ export const useCartStore = defineStore('cart', () => {
   const confirmar = async (datosCheckout?: {
     modalidad_entrega?: 'recojo' | 'entrega'
     tipo_comprobante?: 'boleta' | 'factura'
+    metodo_pago?: 'tarjeta' | 'contra_entrega'
     direccion?: string
     cliente_nombre?: string
     cliente_documento?: string
     cliente_telefono?: string
   }) => {
-    const { data } = await api.post('/pedidos/confirmar', {
-      items: guardadas.value,
-      ...(datosCheckout ?? {}),
-    })
+    if (!claveIdempotenciaConfirmar.value) {
+      claveIdempotenciaConfirmar.value =
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `confirm-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+    }
+
+    const { data } = await api.post(
+      '/pedidos/confirmar',
+      {
+        items: guardadas.value,
+        ...(datosCheckout ?? {}),
+      },
+      {
+        headers: {
+          'Idempotency-Key': claveIdempotenciaConfirmar.value,
+        },
+      },
+    )
 
     /* El carrito se vacía SÓLO si el servidor confirmó. Vaciarlo antes, o a la
        vez que se envía, pierde el pedido del cliente cuando la respuesta trae
-       un 422 por falta de stock. */
+       un 409 o 422 por falta de stock. */
     vaciar()
+    claveIdempotenciaConfirmar.value = null
 
     return data as {
-      pedido: { id: number; total: number }
+      pedido: { id: number; total: number; expira_en?: string | null }
       modalidad_entrega?: 'recojo' | 'entrega'
       comprobante: { id?: number; tipo: string; identificador: string; estado_sunat: string }
       seguimiento: { pedido_id: number; invitado: boolean }
@@ -350,5 +373,6 @@ export const useCartStore = defineStore('cart', () => {
     vaciar,
     descartarAjustes,
     confirmar,
+    claveIdempotenciaConfirmar,
   }
 })

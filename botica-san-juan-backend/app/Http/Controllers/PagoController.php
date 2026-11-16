@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\PedidoNoCancelableException;
 use App\Models\Pago;
 use App\Models\Pedido;
 use App\Services\Pagos\EstadoPago;
@@ -19,9 +20,21 @@ class PagoController extends Controller
     }
 
     /**
-     * Prepara el cobro de un pedido y devuelve al navegador lo justo para
-     * desplegar el formulario del proveedor: el token de formulario y la
-     * llave publica. La llave privada nunca sale del backend.
+     * Prepara el cobro de un pedido web e inicializa la pasarela de pagos.
+     *
+     * Devuelve al navegador el token de formulario (`form_token`) y la llave pública (`public_key`).
+     *
+     * Cabecera `Idempotency-Key` (opcional, string de 8 a 120 caracteres alfanuméricos o `_ . : -`):
+     * Protege contra doble cobro o inicializaciones redundantes.
+     * - `400 Bad Request`: Clave con formato no permitido.
+     * - `422 Unprocessable Content`: Conflicto de idempotencia (`codigo: "idempotencia_conflicto"`).
+     * - `409 Conflict`: Operación en curso (`Retry-After: 1`).
+     * - Reproducción: Respuesta original con cabecera `Idempotency-Replayed: true`.
+     *
+     * Respuestas `409 Conflict`:
+     * Devuelve `{ "ok": false, "message": string, "motivo": string }` cuando el pedido no puede ser pagado:
+     * - `motivo: "reserva_vencida"`: La reserva de stock ha superado el tiempo límite (`expira_en`) y ha expirado.
+     * - `motivo: "ya_anulado"`: El pedido ha sido cancelado o anulado previamente y no admite pago.
      */
     public function iniciar(Request $request, string $pedidoId)
     {
@@ -32,7 +45,15 @@ class PagoController extends Controller
             return response()->json(['message' => 'El pedido no pertenece al usuario autenticado.'], 403);
         }
 
-        $resultado = $this->pagos->iniciar($pedido, (string) $request->user()->email);
+        try {
+            $resultado = $this->pagos->iniciar($pedido, (string) $request->user()->email);
+        } catch (PedidoNoCancelableException $e) {
+            return response()->json([
+                'ok' => false,
+                'message' => $e->getMessage(),
+                'motivo' => $e->getMotivo(),
+            ], 409);
+        }
 
         return response()->json([
             'ok' => $resultado['ok'],
@@ -79,7 +100,16 @@ class PagoController extends Controller
     }
 
     /**
-     * Resuelve un cobro en modo simulado sin recibir ni registrar numero de tarjeta ni CVV.
+     * Resuelve un cobro en modo simulado sin recibir ni registrar número de tarjeta ni CVV.
+     *
+     * Solo disponible en entornos de desarrollo y pruebas locales.
+     *
+     * Cabecera `Idempotency-Key` (opcional, string de 8 a 120 caracteres alfanuméricos o `_ . : -`):
+     * Evita ejecuciones duplicadas de simulación.
+     * - `400 Bad Request`: Clave con formato inválido.
+     * - `422 Unprocessable Content`: Conflicto de idempotencia (`codigo: "idempotencia_conflicto"`).
+     * - `409 Conflict`: Petición en curso (`Retry-After: 1`).
+     * - Reproducción: Respuesta original con cabecera `Idempotency-Replayed: true`.
      */
     public function simular(Request $request, string $referencia)
     {
