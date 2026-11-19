@@ -79,3 +79,21 @@ Para maximizar el impacto operativo en mostrador con el menor riesgo arquitectó
    Reduce errores de digitación en boletas > S/ 700 y facturas, aprovechando que `AdminPosView.vue` ya tiene el selector `dni`/`ruc` y atajos de teclado.
 4. **Mejoras de Dashboard ejecutivo + Toggle "Ocultar montos" (Esfuerzo S):**  
    Conecta los endpoints existentes de `TableroController` / `IndicadoresController` con comparativa semanal, Top productos y desglose de métodos de pago para darle al dueño lectura inmediata del negocio al abrir la app.
+
+---
+
+## 5. Alcance Aprobado y Diferido
+
+### Implementado en esta iteración
+- **P1 — Semáforo de días de vencimiento (`Nd` / `VENCIDO`) y Alertas 30/60/90d** con KPI *Valor en riesgo*.
+- **POS (parcial):** badge de vencimiento `Nd` / `VENCIDO` del lote FEFO activo en cada tarjeta de producto.
+- **P2 — Control de Caja:** apertura, movimientos manuales, arqueo, cierre con diferencia, historial y vinculación de ventas en efectivo del POS.
+- **P5 — Mejoras de Dashboard:** comparativa últimos 7 días vs. semana anterior, Top 5 productos, distribución por método de pago y toggle *Ocultar montos*.
+
+### Diferido
+Se difieren para iteraciones posteriores los siguientes módulos del benchmark:
+- **P3 (parcial):** consulta externa automática de DNI/RUC (RENIEC/SUNAT), vista previa de comprobante y venta a crédito.
+- **P4:** módulo de promociones, cupones, combos y descuentos programados.
+- **P6:** Notas de Crédito/Débito SUNAT y filtro de pagos pendientes en facturación.
+- **P7:** módulo de gastos operativos y rentabilidad neta.
+- **P8:** cotizaciones y órdenes de compra.

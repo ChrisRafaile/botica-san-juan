@@ -88,8 +88,24 @@ class PosController extends Controller
             ->groupBy('producto_id')
             ->pluck('total', 'producto_id');
 
-        $respuesta = $productos->map(function (Producto $p) use ($disponibles) {
+        /* Primer lote FEFO que se consumiría al vender, resuelto en una sola
+           consulta (DISTINCT ON de PostgreSQL) para pintar el semáforo Nd
+           en cada tarjeta del mostrador sin caer en N+1. */
+        $lotesFefo = $idsProductos->isEmpty()
+            ? collect()
+            : Lote::query()
+                ->selectRaw('DISTINCT ON (producto_id) id, producto_id, fecha_vencimiento')
+                ->whereIn('producto_id', $idsProductos)
+                ->disponible()
+                ->orderBy('producto_id')
+                ->orderByRaw('fecha_vencimiento ASC NULLS LAST')
+                ->orderBy('id')
+                ->get()
+                ->keyBy('producto_id');
+
+        $respuesta = $productos->map(function (Producto $p) use ($disponibles, $lotesFefo) {
             $disponible = (int) ($disponibles[$p->id] ?? 0);
+            $loteFefo = $lotesFefo->get($p->id);
 
             return [
                 'id'                  => $p->id,
@@ -108,6 +124,8 @@ class PosController extends Controller
                 'afectacion'          => $p->etiquetaAfectacion(),
                 'stock_contable'      => (int) $p->stock,
                 'stock_disponible'    => $disponible,
+                'dias_para_vencer'    => $loteFefo?->diasParaVencer(),
+                'nivel_vencimiento'   => $loteFefo?->nivelVencimiento(),
                 'venta_fraccionada'   => (bool) $p->venta_fraccionada,
                 /* Formas de venta con su precio y su equivalencia. El POS las
                    pinta tal cual: no tiene que calcular nada. */

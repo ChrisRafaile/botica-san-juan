@@ -54,6 +54,8 @@ export interface ProductoPos {
   afectacion: string
   stock_contable: number
   stock_disponible: number
+  dias_para_vencer?: number | null
+  nivel_vencimiento?: string | null
   venta_fraccionada: boolean
   formas_venta: FormaVenta[]
 }

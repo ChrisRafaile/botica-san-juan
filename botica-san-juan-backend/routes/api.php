@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\ContrasenaController;
+use App\Http\Controllers\AlertaVencimientoController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\VerificacionController;
 use App\Http\Controllers\CarritoController;
@@ -531,6 +532,7 @@ Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->
     // La exportacion consolida informacion comercial y financiera de toda la
     // botica: se restringe al rol administrador, no solo a estar autenticado.
     Route::get('reportes/gerencial/export/csv', [ReporteController::class, 'exportGerencialCsv']);
+    Route::get('inventario/vencimientos', [AlertaVencimientoController::class, 'index']);
 
     Route::post('facturacion/generar-desde-pedidos', [FacturacionController::class, 'generarDesdePedidos']);
     Route::post('facturacion/documentos/{id}/enviar-sunat', [FacturacionController::class, 'enviarSunat']);
