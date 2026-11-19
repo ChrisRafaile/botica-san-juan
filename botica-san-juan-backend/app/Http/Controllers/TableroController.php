@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Lote;
 use App\Models\Pedido;
 use App\Models\Producto;
+use App\Services\ResumenInventarioService;
+use App\Services\ResumenTableroService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Tablero del panel.
@@ -32,8 +33,10 @@ use Illuminate\Support\Facades\DB;
  */
 class TableroController extends Controller
 {
-    public function __construct(private readonly \App\Services\ResumenInventarioService $resumen)
-    {
+    public function __construct(
+        private readonly ResumenInventarioService $resumen,
+        private readonly ResumenTableroService $tablero,
+    ) {
     }
 
     public function index(): JsonResponse
@@ -42,12 +45,14 @@ class TableroController extends Controller
         $ayer  = $hoy->copy()->subDay();
 
         return response()->json([
-            'ventas'        => $this->ventas($hoy, $ayer),
-            'vencimientos'  => $this->vencimientos(),
-            'reposicion'    => $this->reposicion(),
-            'catalogo'      => $this->catalogo(),
-            'ultimas'       => $this->ultimasVentas(),
-            'mas_vendidos'  => $this->masVendidos(),
+            'ventas'              => $this->ventas($hoy, $ayer),
+            'vencimientos'        => $this->vencimientos(),
+            'reposicion'          => $this->reposicion(),
+            'catalogo'            => $this->catalogo(),
+            'ultimas'             => $this->ultimasVentas(),
+            'mas_vendidos'        => $this->tablero->topProductos(30, 5),
+            'comparativa_semanal' => $this->tablero->comparativaSemanal($hoy),
+            'metodos_pago'        => $this->tablero->distribucionMetodosPago(30),
         ]);
     }
 
@@ -160,35 +165,6 @@ class TableroController extends Controller
                 'medio_pago' => $p->medio_pago ?? 'efectivo',
                 'origen'     => $p->origen,
                 'cliente'    => $p->cliente_nombre,
-            ])
-            ->all();
-    }
-
-    /**
-     * Lo más vendido de los últimos 30 días, en unidades.
-     *
-     * Se cuenta en unidades y no en número de líneas: vender una caja de 100 y
-     * una unidad suelta son dos líneas iguales en la boleta, pero no en el
-     * anaquel ni a la hora de reponer.
-     */
-    private function masVendidos(): array
-    {
-        return DB::table('pedido_detalles as d')
-            ->join('pedidos as p', 'p.id', '=', 'd.pedido_id')
-            ->join('productos as pr', 'pr.id', '=', 'd.producto_id')
-            ->where('p.fecha', '>=', Carbon::today()->subDays(30))
-            ->where('p.estado', '!=', 'anulado')
-            ->groupBy('pr.id', 'pr.nombre', 'pr.concentracion')
-            ->selectRaw('pr.id, pr.nombre, pr.concentracion, SUM(d.cantidad_unidades) AS unidades, SUM(d.subtotal) AS importe')
-            ->orderByDesc('unidades')
-            ->limit(6)
-            ->get()
-            ->map(fn ($f) => [
-                'id'            => (int) $f->id,
-                'nombre'        => $f->nombre,
-                'concentracion' => $f->concentracion,
-                'unidades'      => (int) $f->unidades,
-                'importe'       => round((float) $f->importe, 2),
             ])
             ->all();
     }
