@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\ContrasenaController;
 use App\Http\Controllers\AlertaVencimientoController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\CajaController;
 use App\Http\Controllers\Auth\VerificacionController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\CatalogoPublicoController;
@@ -533,6 +534,16 @@ Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->
     // botica: se restringe al rol administrador, no solo a estar autenticado.
     Route::get('reportes/gerencial/export/csv', [ReporteController::class, 'exportGerencialCsv']);
     Route::get('inventario/vencimientos', [AlertaVencimientoController::class, 'index']);
+
+    Route::prefix('caja')->group(function () {
+        Route::get('/actual', [CajaController::class, 'actual']);
+        Route::get('/historial', [CajaController::class, 'historial']);
+        Route::post('/abrir', [CajaController::class, 'abrir']);
+        Route::post('/movimientos', [CajaController::class, 'registrarMovimiento']);
+        Route::post('/{sesion}/cerrar', [CajaController::class, 'cerrar'])
+            ->whereNumber('sesion')
+            ->middleware('audit.critical');
+    });
 
     Route::post('facturacion/generar-desde-pedidos', [FacturacionController::class, 'generarDesdePedidos']);
     Route::post('facturacion/documentos/{id}/enviar-sunat', [FacturacionController::class, 'enviarSunat']);

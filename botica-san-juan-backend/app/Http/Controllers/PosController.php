@@ -7,6 +7,7 @@ use App\Models\Lote;
 use App\Models\Pedido;
 use App\Models\PedidoPago;
 use App\Models\Producto;
+use App\Services\CajaService;
 use App\Services\InventarioService;
 use App\Services\VentaService;
 use Illuminate\Http\JsonResponse;
@@ -28,6 +29,7 @@ class PosController extends Controller
     public function __construct(
         private readonly InventarioService $inventario,
         private readonly VentaService $ventas,
+        private readonly CajaService $caja,
     ) {
     }
 
@@ -378,9 +380,23 @@ class PosController extends Controller
             ], 422);
         }
 
+        $cajaVinculada = false;
+        $cajaAviso = null;
+        $tieneEfectivo = $venta->pagos->contains(fn ($p) => $p->medio === 'efectivo');
+
+        if ($tieneEfectivo && $request->user() !== null) {
+            $movCaja = $this->caja->vincularVentaEfectivo($request->user()->id, $venta);
+            $cajaVinculada = $movCaja !== null;
+            if (! $cajaVinculada) {
+                $cajaAviso = 'Venta registrada sin sesión de caja abierta; abre caja para cuadrar el efectivo del turno.';
+            }
+        }
+
         return response()->json([
-            'message' => 'Venta registrada.',
-            'data'    => $this->formatearVenta($venta),
+            'message'       => 'Venta registrada.',
+            'data'          => $this->formatearVenta($venta),
+            'caja_vinculada' => $cajaVinculada,
+            'caja_aviso'    => $cajaAviso,
         ], 201);
     }
 
