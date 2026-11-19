@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\ContrasenaController;
 use App\Http\Controllers\AlertaVencimientoController;
+use App\Http\Controllers\AsistenteController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\CajaController;
 use App\Http\Controllers\Auth\VerificacionController;
@@ -230,6 +231,19 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('perfil')->group(fun
 
 Route::post('/perfil/foto', [PerfilController::class, 'subirFoto'])
     ->middleware(['auth:sanctum', 'throttle:subida-foto']);
+
+/*
+|--------------------------------------------------------------------------
+| Asistente IA de Botica
+|--------------------------------------------------------------------------
+| Disponible para cualquier usuario autenticado (cliente, farmacéutico o
+| administrador). Las herramientas disponibles se filtran por rol en el agente
+| y se revalidan dentro de cada herramienta.
+*/
+Route::middleware('auth:sanctum')->prefix('asistente')->group(function () {
+    Route::get('/estado', [AsistenteController::class, 'estado'])->middleware('throttle:api');
+    Route::post('/mensajes', [AsistenteController::class, 'responder'])->middleware('throttle:asistente');
+});
 
 /*
 |--------------------------------------------------------------------------
