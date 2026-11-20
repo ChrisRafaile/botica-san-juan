@@ -1,0 +1,114 @@
+[
+  {
+    "k": "docs scalar versión 0.8.0",
+    "v": true
+  },
+  {
+    "k": "docs scalar contiene 0.5.0",
+    "v": false
+  },
+  {
+    "k": "docs scalar VR002",
+    "v": false
+  },
+  {
+    "k": "docs scalar endpoints _N",
+    "v": 0
+  },
+  {
+    "k": "docs stoplight versión 0.8.0",
+    "v": true
+  },
+  {
+    "k": "docs stoplight contiene 0.5.0",
+    "v": false
+  },
+  {
+    "k": "docs stoplight VR002",
+    "v": false
+  },
+  {
+    "k": "docs stoplight endpoints _N",
+    "v": 0
+  },
+  {
+    "k": "1280 url tras login",
+    "v": "http://127.0.0.1:5173/admin/home"
+  },
+  {
+    "k": "1280 /admin/products imágenes",
+    "v": {
+      "t": 0,
+      "ok": 0
+    }
+  },
+  {
+    "k": "1280 botón asistente (admin)",
+    "v": 1
+  },
+  {
+    "k": "1280 botón adjuntar (admin)",
+    "v": 1
+  },
+  {
+    "k": "1280 desborde horizontal",
+    "v": "no"
+  },
+  {
+    "k": "texto tras confirmar",
+    "v": "Asistente de Botica\n\nModo gestión e inventario\n\nImportación confirmada: 3 fila(s) procesada(s), 3 producto(s) nuevo(s), 3 lote(s) y 135 unidades ingresadas."
+  },
+  {
+    "k": "1280 /admin/pos imágenes",
+    "v": {
+      "t": 12,
+      "ok": 4
+    }
+  },
+  {
+    "k": "1280 CLS acumulado",
+    "v": 0
+  },
+  {
+    "k": "360 url tras login",
+    "v": "http://127.0.0.1:5173/admin/home"
+  },
+  {
+    "k": "360 /admin/products imágenes",
+    "v": {
+      "t": 0,
+      "ok": 0
+    }
+  },
+  {
+    "k": "360 botón asistente (admin)",
+    "v": 1
+  },
+  {
+    "k": "360 botón adjuntar (admin)",
+    "v": 1
+  },
+  {
+    "k": "360 desborde horizontal",
+    "v": "no"
+  },
+  {
+    "k": "360 /admin/pos imágenes",
+    "v": {
+      "t": 12,
+      "ok": 1
+    }
+  },
+  {
+    "k": "360 CLS acumulado",
+    "v": 0
+  },
+  {
+    "k": "cliente: botón asistente",
+    "v": 1
+  },
+  {
+    "k": "cliente: botón adjuntar",
+    "v": 0
+  }
+]

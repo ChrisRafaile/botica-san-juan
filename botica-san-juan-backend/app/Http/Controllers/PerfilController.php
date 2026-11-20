@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
 
@@ -56,7 +57,7 @@ class PerfilController extends Controller
     {
         $usuario = $request->user();
 
-        $validado = $request->validate([
+        $validado = Validator::make($request->all(), [
             'nombre' => ['sometimes', 'required', 'string', 'max:255'],
             'telefono' => ['nullable', 'string', 'max:20'],
             /**
@@ -83,6 +84,18 @@ class PerfilController extends Controller
                `sometimes` + la comprobación de abajo: la regla de validación
                no puede por sí sola distinguir «vacío» de «ya tiene uno». */
             'dni' => ['sometimes', 'required', 'string', 'size:8', 'regex:/^\d{8}$/', Rule::unique('usuarios', 'dni')],
+        ])->validate();
+
+        /* Contrato documentable: Scramble no puede evaluar la regla
+           `unique(...)->ignore($usuario->id)` (VR002). Esta llamada repite sin
+           ella los campos de arriba, que ya pasaron la validación real, solo
+           para que /docs/v1 describa el cuerpo de la petición. */
+        $request->validate([
+            'nombre' => ['sometimes', 'required', 'string', 'max:255'],
+            'telefono' => ['nullable', 'string', 'max:20'],
+            'direccion_entrega' => ['nullable', 'string', 'max:255'],
+            'email' => ['sometimes', 'required', 'email', 'max:255'],
+            'dni' => ['sometimes', 'required', 'string', 'size:8', 'regex:/^\d{8}$/'],
         ]);
 
         if (array_key_exists('dni', $validado) && ! $usuario->necesitaCompletarDni()) {

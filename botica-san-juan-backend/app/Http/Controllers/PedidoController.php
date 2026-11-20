@@ -11,6 +11,7 @@ use App\Services\ResumenPedidosService;
 use App\Services\VentaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class PedidoController extends Controller
@@ -245,7 +246,7 @@ class PedidoController extends Controller
             default   => [$faltaDocumento ? 'required' : 'nullable', 'string', 'regex:/^(\d{8}|\d{11})$/'],
         };
 
-        $validado = $request->validate([
+        $validado = Validator::make($request->all(), [
             'items' => ['required', 'array', 'min:1'],
             'items.*.producto_id' => ['required', 'integer', 'exists:productos,id'],
             'items.*.cantidad' => ['required', 'integer', 'min:1', 'max:1000'],
@@ -281,6 +282,24 @@ class PedidoController extends Controller
             'cliente_telefono.required'  => 'Necesitamos un teléfono para avisarte cuando esté listo.',
             'direccion.required'         => 'Ingresa la dirección completa para el envío a domicilio.',
             'direccion.min'              => 'La dirección debe ser más específica (al menos 5 caracteres).',
+        ])->validate();
+
+        /* Contrato documentable. Las reglas de arriba dependen de la sesión y
+           del tipo de comprobante, y Scramble no puede evaluarlas de forma
+           estática (VR002). Esta llamada es un subconjunto literal de las
+           mismas, ya garantizado por la validación anterior, y existe solo
+           para que /docs/v1 describa el cuerpo de la petición. */
+        $request->validate([
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.producto_id' => ['required', 'integer', 'exists:productos,id'],
+            'items.*.cantidad' => ['required', 'integer', 'min:1', 'max:1000'],
+            'modalidad_entrega' => ['nullable', 'string', Rule::in(['recojo', 'entrega'])],
+            'tipo_comprobante' => ['nullable', 'string', Rule::in(['boleta', 'factura'])],
+            'metodo_pago' => ['nullable', 'string', Rule::in(['tarjeta', 'contra_entrega'])],
+            'direccion' => ['nullable', 'string', 'max:255'],
+            'cliente_nombre' => ['nullable', 'string', 'max:255'],
+            'cliente_documento' => ['nullable', 'string', 'regex:/^(\d{8}|\d{11})$/'],
+            'cliente_telefono' => ['nullable', 'string', 'max:30'],
         ]);
 
         /* Los datos del cliente: los del formulario si vinieron, y si no los de
