@@ -76,7 +76,7 @@ const ESTILOS: Record<Tono, { suave: string; solido: string; punto: string }> = 
     punto: 'bg-venc-medio',
   },
   vigente: {
-    suave: 'bg-venc-vigente-suave text-exito-700 dark:bg-exito-500/15 dark:text-exito-500',
+    suave: 'bg-venc-vigente-suave text-exito-700 dark:bg-exito-500/15 dark:text-exito-300',
     solido: 'bg-venc-vigente text-white',
     punto: 'bg-venc-vigente',
   },
