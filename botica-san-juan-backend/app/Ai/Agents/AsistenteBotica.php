@@ -5,11 +5,13 @@ namespace App\Ai\Agents;
 use App\Ai\Tools\AlertasVencimientoTool;
 use App\Ai\Tools\BuscarMedicamentosTool;
 use App\Ai\Tools\ConsultarStockYLotesFefoTool;
+use App\Ai\Tools\ImportarInventarioDesdeExcelTool;
 use App\Ai\Tools\ResumenVentasYCajaTool;
 use App\Models\Usuario;
 use App\Services\AlertaVencimientoService;
 use App\Services\CajaService;
 use App\Services\Clinico\ConsultorDeInteracciones;
+use App\Services\Importador\ImportadorInventarioService;
 use App\Services\ResumenTableroService;
 use Laravel\Ai\Attributes\MaxSteps;
 use Laravel\Ai\Contracts\Agent;
@@ -92,6 +94,13 @@ class AsistenteBotica implements Agent, Conversational, HasTools
                 $this->usuario,
                 app(ResumenTableroService::class),
                 app(CajaService::class),
+            );
+        }
+
+        if ($this->usuario->rol === 'administrador') {
+            $herramientas[] = new ImportarInventarioDesdeExcelTool(
+                $this->usuario,
+                app(ImportadorInventarioService::class),
             );
         }
 

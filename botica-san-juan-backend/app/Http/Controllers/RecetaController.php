@@ -61,7 +61,7 @@ class RecetaController extends Controller
             'archivo' => [
                 'required',
                 File::types(['jpg', 'jpeg', 'png', 'webp', 'pdf'])
-                    ->max(self::MAX_KB),
+                    ->max(8 * 1024), // = MAX_KB; literal para que Scramble lo evalúe (VR002)
             ],
         ]);
 
