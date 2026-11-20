@@ -44,6 +44,11 @@ return [
         'Accept',
         /* La envia el propio cliente para silenciar su aviso global; sin declararla aqui el preflight la rechaza. */
         'X-Silenciar-Aviso',
+        /* El portal la manda al iniciar y cancelar un pago (middleware `idempotencia`).
+           Sin declararla aqui, el preflight del navegador la rechaza y axios lo
+           reporta como «Sin conexion con el servidor» en /cart. En local no se ve
+           porque Vite hace de proxy y la llamada es del mismo origen. */
+        'Idempotency-Key',
     ],
 
     'supports_credentials' => true,
