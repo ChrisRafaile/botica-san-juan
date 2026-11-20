@@ -170,6 +170,39 @@ class ProductoApiTest extends TestCase
         $this->assertDatabaseHas('productos', ['categoria_id' => $categoria->id]);
     }
 
+    public function test_pos_explora_el_catalogo_por_categoria_sin_termino_y_devuelve_imagen(): void
+    {
+        $token = $this->tokenAdministrador();
+        $analgesicos = Categoria::create(['nombre' => 'Analgésicos', 'slug' => 'analgesicos', 'descripcion' => 'Dolor']);
+        $antibioticos = Categoria::create(['nombre' => 'Antibióticos', 'slug' => 'antibioticos', 'descripcion' => 'Infecciones']);
+
+        Producto::create($this->datosDeProducto([
+            'nombre' => 'PARACETAMOL 500 mg',
+            'categoria_id' => $analgesicos->id,
+            'imagen' => 'storage/productos/paracetamol.jpg',
+        ]));
+        Producto::create($this->datosDeProducto([
+            'nombre' => 'AMOXICILINA 500 mg',
+            'categoria_id' => $antibioticos->id,
+        ]));
+
+        $cabecera = ['Authorization' => "Bearer {$token}"];
+
+        // Sin `explorar`, un término vacío sigue sin devolver nada.
+        $this->withHeaders($cabecera)->getJson('/api/pos/productos')->assertOk()->assertJsonCount(0, 'data');
+
+        $this->withHeaders($cabecera)->getJson('/api/pos/productos?explorar=1')
+            ->assertOk()->assertJsonCount(2, 'data');
+
+        $this->withHeaders($cabecera)
+            ->getJson("/api/pos/productos?explorar=1&categoria_id={$analgesicos->id}")
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.nombre', 'PARACETAMOL 500 mg')
+            ->assertJsonPath('data.0.imagen', 'storage/productos/paracetamol.jpg')
+            ->assertJsonPath('data.0.categoria_id', $analgesicos->id);
+    }
+
     public function test_busqueda_en_productos_y_pos_ignora_tildes_y_mayusculas(): void
     {
         $amoxicilina = Producto::create($this->datosDeProducto([
