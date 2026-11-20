@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\ContrasenaController;
 use App\Http\Controllers\AlertaVencimientoController;
 use App\Http\Controllers\AsistenteController;
+use App\Http\Controllers\AsistenteImportacionController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\CajaController;
 use App\Http\Controllers\Auth\VerificacionController;
@@ -40,7 +41,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware('auth:sanctum')->name('sistema.usuario');
 
 /* Ruta de diagnostico, SOLO en local.
    Estaba publica en produccion devolviendo "API is working". No filtra datos,
@@ -48,7 +49,7 @@ Route::get('/user', function (Request $request) {
    hace falta: para saber si el servicio responde ya esta /api/salud, que ademas
    comprueba la base. */
 if (app()->environment('local')) {
-    Route::get('/test', fn () => response()->json(['message' => 'API is working']));
+    Route::get('/test', fn () => response()->json(['message' => 'API is working']))->name('sistema.prueba');
 }
 
 Route::get('/health', function () {
@@ -57,7 +58,7 @@ Route::get('/health', function () {
         'service' => 'botica-san-juan-backend',
         'timestamp' => now()->toIso8601String(),
     ]);
-});
+})->name('sistema.health');
 
 Route::get('/health/db', function () {
     try {
@@ -76,7 +77,7 @@ Route::get('/health/db', function () {
             'timestamp' => now()->toIso8601String(),
         ], 503);
     }
-});
+})->name('sistema.health_db');
 
 // Public routes (no authentication required)
 
@@ -106,7 +107,7 @@ Route::get('/salud', function () {
         'base' => $baseViva,
         'hora' => now()->toIso8601String(),
     ], $baseViva ? 200 : 503);
-})->middleware('throttle:api');
+})->middleware('throttle:api')->name('sistema.salud');
 
 // Authentication routes
 Route::post('/login', [UsuarioController::class, 'login'])->middleware('throttle:login');
@@ -243,6 +244,12 @@ Route::post('/perfil/foto', [PerfilController::class, 'subirFoto'])
 Route::middleware('auth:sanctum')->prefix('asistente')->group(function () {
     Route::get('/estado', [AsistenteController::class, 'estado'])->middleware('throttle:api');
     Route::post('/mensajes', [AsistenteController::class, 'responder'])->middleware('throttle:asistente');
+
+    Route::middleware('admin')->prefix('importaciones')->group(function () {
+        Route::post('/previsualizar', [AsistenteImportacionController::class, 'previsualizar'])->middleware('throttle:asistente');
+        Route::post('/confirmar', [AsistenteImportacionController::class, 'confirmar'])->middleware('throttle:asistente');
+        Route::post('/cancelar', [AsistenteImportacionController::class, 'cancelar'])->middleware('throttle:api');
+    });
 });
 
 /*
