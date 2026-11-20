@@ -33,6 +33,18 @@ class AsistenteBoticaTest extends TestCase
         config()->set('ai.providers.openrouter.key', null);
     }
 
+    public function test_groq_es_el_proveedor_primario_por_defecto(): void
+    {
+        config()->set('ai.providers.gemini.key', 'clave-de-prueba');
+        config()->set('ai.providers.groq.key', 'clave-de-prueba');
+        config()->set('ai.providers.openrouter.key', null);
+
+        $proveedores = app(\App\Services\AsistenteService::class)->proveedoresConfigurados();
+
+        $this->assertSame(['groq', 'gemini'], array_keys($proveedores));
+        $this->assertSame('openai/gpt-oss-120b', $proveedores['groq']);
+    }
+
     public function test_sin_token_devuelve_401(): void
     {
         $this->getJson('/api/asistente/estado')->assertUnauthorized();

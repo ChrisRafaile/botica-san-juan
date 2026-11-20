@@ -15,7 +15,8 @@ return [
     | Proveedor primario y modelos por proveedor (tier gratuito)
     |--------------------------------------------------------------------------
     */
-    'proveedor_primario' => env('ASISTENTE_PROVEEDOR', 'gemini'),
+    // ASISTENTE_IA_MODELO fija el modelo del proveedor primario (Groq por defecto).
+    'proveedor_primario' => env('ASISTENTE_IA_PROVEEDOR', env('ASISTENTE_PROVEEDOR', 'groq')),
 
     'proveedores' => [
         'gemini' => [
@@ -23,7 +24,7 @@ return [
             'key_env' => 'GEMINI_API_KEY',
         ],
         'groq' => [
-            'modelo'  => env('ASISTENTE_GROQ_MODELO', 'llama-3.3-70b-versatile'),
+            'modelo'  => env('ASISTENTE_IA_MODELO', env('ASISTENTE_GROQ_MODELO', 'openai/gpt-oss-120b')),
             'key_env' => 'GROQ_API_KEY',
         ],
         'openrouter' => [
@@ -37,7 +38,7 @@ return [
     | Orden de respaldo (failover)
     |--------------------------------------------------------------------------
     */
-    'fallback' => ['gemini', 'groq', 'openrouter'],
+    'fallback' => ['groq', 'gemini', 'openrouter'],
 
     /*
     |--------------------------------------------------------------------------

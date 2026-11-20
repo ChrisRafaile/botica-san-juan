@@ -33,7 +33,7 @@ class AsistenteService
     public function proveedoresConfigurados(): array
     {
         $primario = (string) config('asistente.proveedor_primario', 'gemini');
-        $fallback = (array) config('asistente.fallback', ['gemini', 'groq', 'openrouter']);
+        $fallback = (array) config('asistente.fallback', ['groq', 'gemini', 'openrouter']);
         $orden = array_values(array_unique(array_merge([$primario], $fallback)));
 
         $definiciones = (array) config('asistente.proveedores', []);

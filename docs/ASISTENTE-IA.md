@@ -16,8 +16,8 @@ Todos los proveedores configurados soportan nivel gratuito y se leen exclusivame
 
 | Orden | Proveedor | Variable de clave | Modelo por defecto |
 |---|---|---|---|
-| Primario | Google AI Studio (`gemini`) | `GEMINI_API_KEY` | `gemini-2.5-flash` |
-| Respaldo 1 | Groq (`groq`) | `GROQ_API_KEY` | `llama-3.3-70b-versatile` |
+| Primario | Groq (`groq`) | `GROQ_API_KEY` | `openai/gpt-oss-120b` |
+| Respaldo 1 | Google AI Studio (`gemini`) | `GEMINI_API_KEY` | `gemini-flash-latest` |
 | Respaldo 2 | OpenRouter (`openrouter`) | `OPENROUTER_API_KEY` | `google/gemini-2.0-flash-exp:free` |
 
 En `botica-san-juan-backend/.env.example` las tres claves se dejan **vacías a propósito**: sin ninguna clave configurada, `AsistenteService::estaDisponible()` devuelve `false`, el endpoint `POST /api/asistente/mensajes` responde `503 Service Unavailable` con un mensaje claro en español, no se invoca el SDK de IA y el widget muestra el estado deshabilitado.
@@ -40,3 +40,5 @@ Todas las herramientas llaman a los servicios y modelos del dominio (nunca SQL d
 - **Límites configurables (`config/asistente.php`):** máximo 12 mensajes de historial, 1000 caracteres por mensaje, 4 pasos de herramientas, 25 s de timeout y 15 peticiones/minuto por usuario autenticado.
 - **Límites clínicos:** el prompt del sistema prohíbe emitir diagnósticos o indicar dosis, remitiendo siempre al químico farmacéutico.
 - **Frontend seguro:** `renderizarMarkdownSeguro()` escapa todo HTML antes de aplicar formato Markdown mínimo (`**negrita**`, `*cursiva*`, listas y código en línea).
+
+`ASISTENTE_IA_PROVEEDOR` y `ASISTENTE_IA_MODELO` (o `ASISTENTE_PROVEEDOR`) cambian el proveedor y el modelo primarios desde el entorno, sin tocar código.
