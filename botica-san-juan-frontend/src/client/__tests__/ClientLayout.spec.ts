@@ -118,6 +118,11 @@ describe('ClientLayout.vue', () => {
     w.unmount()
   })
 
+  it('/perfil (retorno de Google) redirige al portal y no da 404', () => {
+    const ruta = appRouter.getRoutes().find((r) => r.path === '/perfil')
+    expect(ruta?.redirect).toBe('/client/perfil')
+  })
+
   it('mantiene /profile redirigiendo a /client/perfil en el router principal', () => {
     const rutaProfile = appRouter.getRoutes().find((r) => r.path === '/profile')
     expect(rutaProfile?.redirect).toBe('/client/perfil')

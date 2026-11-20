@@ -52,12 +52,17 @@ class PosController extends Controller
         $datos = $request->validate([
             'q'     => ['nullable', 'string', 'max:120'],
             'limit' => ['nullable', 'integer', 'min:1', 'max:50'],
+            /* Modo catálogo para la cuadrícula del mostrador: lista productos
+               sin exigir término de búsqueda, opcionalmente de una categoría. */
+            'explorar'     => ['nullable', 'boolean'],
+            'categoria_id' => ['nullable', 'integer', 'exists:categorias,id'],
         ]);
 
-        $termino = trim($datos['q'] ?? '');
-        $limite  = (int) ($datos['limit'] ?? 20);
+        $termino  = trim($datos['q'] ?? '');
+        $limite   = (int) ($datos['limit'] ?? 20);
+        $explorar = (bool) ($datos['explorar'] ?? false);
 
-        if (mb_strlen($termino) < 2) {
+        if (! $explorar && mb_strlen($termino) < 2) {
             return response()->json(['data' => []]);
         }
 
@@ -68,11 +73,15 @@ class PosController extends Controller
                 'unidades_por_blister', 'blisters_por_caja', 'venta_fraccionada',
                 'codigo_barras', 'principio_activo', 'requiere_receta',
                 'afecto_igv', 'tipo_afectacion_igv', 'base_legal_exoneracion', 'stock',
+                'imagen', 'categoria_id',
             ])
-            ->where(function ($q) use ($termino) {
-                $q->buscar($termino, ['nombre', 'principio_activo'])
-                  ->orWhere('codigo_barras', '=', $termino);
+            ->when(mb_strlen($termino) >= 2, function ($consulta) use ($termino) {
+                $consulta->where(function ($q) use ($termino) {
+                    $q->buscar($termino, ['nombre', 'principio_activo'])
+                      ->orWhere('codigo_barras', '=', $termino);
+                });
             })
+            ->when(! empty($datos['categoria_id']), fn ($consulta) => $consulta->where('categoria_id', $datos['categoria_id']))
             ->orderBy('nombre')
             ->limit($limite)
             ->get();
@@ -117,6 +126,8 @@ class PosController extends Controller
                 'laboratorio'         => $p->laboratorio,
                 'principio_activo'    => $p->principio_activo,
                 'codigo_barras'       => $p->codigo_barras,
+                'imagen'              => $p->imagen,
+                'categoria_id'        => $p->categoria_id,
                 'requiere_receta'     => (bool) $p->requiere_receta,
                 'afecto_igv'          => (bool) $p->afecto_igv,
                 /* El tratamiento es del producto y vale igual para las tres

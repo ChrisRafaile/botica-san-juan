@@ -65,7 +65,7 @@ onMounted(async () => {
     /* Se deja ver un momento el resultado antes de navegar. Sin esta pausa
        la pantalla parpadea y la persona no llega a saber qué pasó. */
     window.setTimeout(() => {
-      router.replace(sesion.necesita_dni ? '/perfil' : '/client/home')
+      router.replace(sesion.necesita_dni ? '/client/perfil' : '/client/home')
     }, 1200)
   } catch (e: unknown) {
     const datos = (e as { response?: { data?: { message?: string } } }).response?.data

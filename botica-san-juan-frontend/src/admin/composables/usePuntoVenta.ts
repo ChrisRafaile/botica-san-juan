@@ -58,6 +58,9 @@ export interface ProductoPos {
   nivel_vencimiento?: string | null
   venta_fraccionada: boolean
   formas_venta: FormaVenta[]
+  /** Ruta de la foto tal como la guarda la base; ausente en el catálogo local. */
+  imagen?: string | null
+  categoria_id?: number | null
 }
 
 /** Una línea del carrito, ya resuelta a precio y unidades. */
@@ -162,6 +165,33 @@ export function usePuntoVenta() {
 
   const lineas = ref<LineaVenta[]>(guardado?.lineas ?? [])
   const buscando = ref(false)
+
+  /* Cuadrícula del mostrador: catálogo navegable por categoría, aparte de los
+     resultados de la búsqueda por teclado. */
+  const catalogo = ref<ProductoPos[]>([])
+  const cargandoCatalogo = ref(false)
+  let peticionCatalogo: AbortController | null = null
+
+  async function cargarCatalogo(categoriaId: number | null = null): Promise<void> {
+    peticionCatalogo?.abort()
+    peticionCatalogo = new AbortController()
+    cargandoCatalogo.value = true
+
+    try {
+      const { data } = await api.get<{ data: ProductoPos[] }>('/pos/productos', {
+        params: { explorar: 1, limit: 48, ...(categoriaId ? { categoria_id: categoriaId } : {}) },
+        signal: peticionCatalogo.signal,
+      })
+      catalogo.value = data.data
+    } catch (error: unknown) {
+      if ((error as { code?: string })?.code === 'ERR_CANCELED') return
+      /* Sin red la cuadrícula queda vacía y el buscador sigue sirviendo del
+         catálogo guardado en la caja. */
+      catalogo.value = []
+    } finally {
+      cargandoCatalogo.value = false
+    }
+  }
   const resultados = ref<ProductoPos[]>([])
   /* Dice si lo que se ve salio del catalogo guardado en la caja. La
      pantalla lo necesita para avisar de que el stock no esta verificado. */
@@ -476,6 +506,9 @@ export function usePuntoVenta() {
     resultados,
     desdeCatalogoLocal,
     buscando,
+    catalogo,
+    cargandoCatalogo,
+    cargarCatalogo,
     registrando,
     cliente,
     totales,
