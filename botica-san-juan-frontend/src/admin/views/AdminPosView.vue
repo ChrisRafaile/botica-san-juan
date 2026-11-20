@@ -39,6 +39,8 @@ import { etiquetaVencimiento, tonoVencimiento } from '../utils/vencimientos'
 import BoticaEstadoVacio from '../components/ui/BoticaEstadoVacio.vue'
 import EstadoConexionCaja from '../components/EstadoConexionCaja.vue'
 import TicketContingencia from '../components/TicketContingencia.vue'
+import ImagenConRespaldo from '@/components/ImagenConRespaldo.vue'
+import api from '@/services/api'
 import { useOfflineStore } from '@/stores/offline'
 import { useAuthStore } from '@/stores/auth'
 import { reconciliarCorrelativo, siguienteNotaContingencia } from '@/offline/notaContingencia'
@@ -46,12 +48,35 @@ import { sincronizarCatalogo } from '@/offline/catalogo'
 import type { VentaLocal } from '@/offline/tipos'
 
 const {
-  lineas, resultados, desdeCatalogoLocal, buscando, registrando, cliente, totales, carritoRecuperado,
+  lineas, resultados, catalogo, cargandoCatalogo, cargarCatalogo, desdeCatalogoLocal, buscando, registrando, cliente, totales, carritoRecuperado,
   buscar, limpiarBusqueda, agregar, cambiarCantidad, quitar, vaciar,
   verificar, registrar,
 } = usePuntoVenta()
 
 const { notifyError, notifySuccess } = useAdminToast()
+
+/* Filtros rápidos de la cuadrícula. «Todas» es null. */
+const categorias = ref<{ id: number; nombre: string }[]>([])
+const categoriaActiva = ref<number | null>(null)
+
+async function cargarCategorias() {
+  try {
+    type Cat = { id: number; nombre: string; productos_count?: number }
+    const { data } = await api.get<Cat[] | { data: Cat[] }>('/categorias', {
+      params: { activa: 1, with_counts: 1 },
+    })
+    const lista = Array.isArray(data) ? data : data.data
+    /* Un filtro que deja la cuadrícula vacía es ruido: solo las que tienen productos. */
+    categorias.value = lista.filter((c) => (c.productos_count ?? 1) > 0)
+  } catch {
+    categorias.value = []
+  }
+}
+
+function elegirCategoria(id: number | null) {
+  categoriaActiva.value = id
+  void cargarCatalogo(id)
+}
 
 const termino = ref('')
 const campoBusqueda = ref<HTMLInputElement | null>(null)
@@ -540,6 +565,8 @@ function alPulsar(evento: KeyboardEvent) {
 onMounted(async () => {
   window.addEventListener('keydown', alPulsar)
   enfocarBusqueda()
+  void cargarCategorias()
+  void cargarCatalogo(null)
 
   /* La caja abre el almacén local y empieza a vigilar la red. Si esto
      fallara, cobrar en línea seguiría funcionando: la contingencia es una
@@ -586,10 +613,10 @@ const etiquetaForma: Record<string, string> = {
 </script>
 
 <template>
-  <div class="mx-auto flex h-[calc(100dvh-7rem)] max-w-[110rem] flex-col gap-4 lg:flex-row">
+  <div class="mx-auto flex h-[calc(100dvh-7rem)] max-w-[110rem] flex-col gap-4 max-lg:h-auto lg:flex-row">
     <!-- ================= Columna izquierda: búsqueda y carrito ============ -->
     <section
-      class="flex min-h-0 flex-1 flex-col gap-3"
+      class="flex min-h-0 min-w-0 flex-1 flex-col gap-3"
       aria-label="Productos de la venta"
     >
       <!-- Estado de la conexión y de la cola de contingencia -->
@@ -730,8 +757,117 @@ const etiquetaForma: Record<string, string> = {
         </ul>
       </div>
 
+      <!-- Filtros rápidos por categoría -->
+      <div
+        class="flex shrink-0 gap-2 overflow-x-auto pb-1"
+        role="group"
+        aria-label="Filtrar por categoría"
+      >
+        <button
+          type="button"
+          class="shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors"
+          :class="categoriaActiva === null
+            ? 'border-borde-marca bg-botica-600 text-white'
+            : 'border-borde-base bg-superficie-elevada text-texto-secundario hover:border-borde-marca'"
+          :aria-pressed="categoriaActiva === null"
+          @click="elegirCategoria(null)"
+        >
+          Todas
+        </button>
+        <button
+          v-for="categoria in categorias"
+          :key="categoria.id"
+          type="button"
+          class="shrink-0 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors"
+          :class="categoriaActiva === categoria.id
+            ? 'border-borde-marca bg-botica-600 text-white'
+            : 'border-borde-base bg-superficie-elevada text-texto-secundario hover:border-borde-marca'"
+          :aria-pressed="categoriaActiva === categoria.id"
+          @click="elegirCategoria(categoria.id)"
+        >
+          {{ categoria.nombre }}
+        </button>
+      </div>
+
+      <!-- Cuadrícula de productos: un clic agrega la presentación por defecto.
+           La altura mínima evita que el cambio de categoría mueva la página. -->
+      <div
+        class="min-h-48 flex-1 overflow-y-auto rounded-xl border border-borde-sutil bg-superficie-hundida p-3 max-lg:h-[26rem] max-lg:flex-none"
+        aria-label="Catálogo de productos"
+        :aria-busy="cargandoCatalogo"
+      >
+        <p
+          v-if="!catalogo.length && !cargandoCatalogo"
+          class="py-10 text-center text-sm text-texto-terciario"
+        >
+          No hay productos en esta categoría.
+        </p>
+        <ul
+          v-else
+          class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
+        >
+          <li
+            v-for="producto in catalogo"
+            :key="producto.id"
+            class="min-w-0"
+          >
+            <button
+              type="button"
+              class="flex h-full w-full flex-col overflow-hidden rounded-xl border border-borde-sutil bg-superficie-elevada text-left shadow-xs transition hover:border-borde-marca hover:shadow-[var(--elev-2)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-botica-400 disabled:cursor-not-allowed disabled:opacity-60"
+              :disabled="producto.stock_disponible === 0"
+              :aria-label="`Agregar ${producto.nombre} a la venta`"
+              @click="agregarProducto(producto)"
+            >
+              <ImagenConRespaldo
+                :ruta="producto.imagen"
+                :alt="producto.nombre"
+                clase-contenedor="aspect-square w-full bg-botica-50"
+                clase-imagen="h-full w-full object-cover"
+              >
+                <template #respaldo>
+                  <div class="flex h-full w-full items-center justify-center bg-botica-50">
+                    <Package
+                      class="size-8 text-texto-marca"
+                      aria-hidden="true"
+                    />
+                  </div>
+                </template>
+              </ImagenConRespaldo>
+              <div class="flex min-h-0 flex-1 flex-col gap-1 p-2.5">
+                <p class="line-clamp-2 text-sm font-medium leading-snug text-texto-primario">
+                  {{ producto.nombre }}
+                  <span
+                    v-if="producto.concentracion"
+                    class="font-normal text-texto-secundario"
+                  >{{ producto.concentracion }}</span>
+                </p>
+                <p class="truncate text-xs text-texto-terciario">
+                  {{ producto.presentacion }}
+                  <template v-if="producto.laboratorio"> · {{ producto.laboratorio }}</template>
+                </p>
+                <div class="mt-auto flex flex-wrap items-center gap-1.5 pt-1">
+                  <BoticaBadge
+                    v-if="producto.dias_para_vencer !== null && producto.dias_para_vencer !== undefined"
+                    :tono="tonoVencimiento(producto.dias_para_vencer, producto.nivel_vencimiento)"
+                    :title="`Primer lote FEFO vence en ${producto.dias_para_vencer} día(s)`"
+                  >
+                    {{ etiquetaVencimiento(producto.dias_para_vencer) }}
+                  </BoticaBadge>
+                  <BoticaBadge :tono="producto.stock_disponible > 0 ? 'normal' : 'critico'">
+                    {{ producto.stock_disponible }} disp.
+                  </BoticaBadge>
+                </div>
+                <p class="cifras-tabulares text-base font-semibold text-texto-primario">
+                  {{ soles(formaPorDefecto(producto)?.precio ?? producto.formas_venta[0]?.precio ?? 0) }}
+                </p>
+              </div>
+            </button>
+          </li>
+        </ul>
+      </div>
+
       <!-- Carrito -->
-      <div class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-borde-sutil bg-superficie-elevada">
+      <div class="flex max-h-64 min-h-40 shrink-0 flex-col overflow-hidden rounded-xl border border-borde-sutil bg-superficie-elevada">
         <div class="flex shrink-0 items-center justify-between border-b border-borde-sutil px-4 py-2.5">
           <h2 class="flex items-center gap-2 font-display text-md font-semibold text-texto-primario">
             <ShoppingCart

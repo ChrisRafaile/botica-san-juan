@@ -69,7 +69,10 @@ class IzipayClient implements PasarelaPago
         $clave = (string) config('services.izipay.password', '');
 
         if ($usuario === '' || $clave === '') {
-            return $this->fallo($referencia, 'Integracion Izipay no configurada (IZIPAY_USERNAME o IZIPAY_PASSWORD faltante).');
+            // El cliente no debe ver nombres de variables de entorno: el detalle va al registro.
+            Log::warning('Izipay en modo api sin IZIPAY_USERNAME o IZIPAY_PASSWORD.');
+
+            return $this->fallo($referencia, 'El pago con tarjeta no está disponible por ahora. Elige pagar al recibir o recoger, o inténtalo más tarde.');
         }
 
         $cuerpoPeticion = [

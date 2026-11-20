@@ -62,6 +62,12 @@ const router = createRouter({
       path: '/products/:id',
       redirect: (to) => `/catalogo/${to.params.id}`,
     },
+    /* `/perfil` es la ruta que usaba el retorno de Google antes de existir el
+       portal: un enlace guardado o un despliegue a medias no debe dar 404. */
+    {
+      path: '/perfil',
+      redirect: '/client/perfil',
+    },
     /* El menú de usuario antiguo enlazaba aquí; se redirige al nuevo portal. */
     {
       path: '/profile',
