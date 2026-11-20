@@ -53,6 +53,20 @@ class AsistenteBoticaTest extends TestCase
             ->assertJsonStructure(['message']);
     }
 
+    public function test_fallo_del_proveedor_devuelve_502_y_no_marca_el_asistente_como_deshabilitado(): void
+    {
+        $this->configurarClaveGemini('clave-de-prueba');
+        Sanctum::actingAs($this->crearAdministrador());
+
+        AsistenteBotica::fake(fn () => throw new \RuntimeException('proveedor caído'));
+
+        $this->postJson('/api/asistente/mensajes', ['mensaje' => '¿Hay amoxicilina?'])
+            ->assertStatus(502)
+            ->assertJsonStructure(['message']);
+
+        $this->getJson('/api/asistente/estado')->assertJsonPath('habilitado', true);
+    }
+
     public function test_rol_cliente_solo_recibe_herramienta_publica_y_admin_todas(): void
     {
         $cliente = $this->crearCliente();

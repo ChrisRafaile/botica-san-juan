@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\AsistenteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Throwable;
 
@@ -60,10 +61,17 @@ class AsistenteController extends Controller
                 $datos['mensaje'],
                 $datos['historial'] ?? [],
             );
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            // Solo la clase: el mensaje de un proveedor puede arrastrar la URL o
+            // el contenido de la consulta. Sin esta línea, una clave sin saldo o
+            // un modelo retirado se veían idénticos desde fuera.
+            Log::warning('El proveedor de IA no respondió', ['excepcion' => $e::class]);
+
+            // 502 y no 503: el cliente web trata 503 como «asistente deshabilitado»
+            // y bloqueaba el campo de entrada tras un fallo pasajero del proveedor.
             return response()->json([
                 'message' => 'El asistente no pudo responder en este momento. Inténtalo nuevamente en unos segundos.',
-            ], 503);
+            ], 502);
         }
 
         return response()->json([

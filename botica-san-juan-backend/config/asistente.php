@@ -19,7 +19,7 @@ return [
 
     'proveedores' => [
         'gemini' => [
-            'modelo'  => env('ASISTENTE_GEMINI_MODELO', 'gemini-2.5-flash'),
+            'modelo'  => env('ASISTENTE_GEMINI_MODELO', 'gemini-flash-latest'),
             'key_env' => 'GEMINI_API_KEY',
         ],
         'groq' => [
