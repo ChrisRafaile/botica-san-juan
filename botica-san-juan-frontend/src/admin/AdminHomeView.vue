@@ -213,7 +213,7 @@ const etiquetaMedio: Record<string, string> = {
 
     <!-- Esqueleto mientras carga: mantiene la forma de la pantalla para que
          no salte el contenido al aparecer. -->
-    <div v-if="cargando" class="grid gap-4 lg:grid-cols-3">
+    <div v-if="cargando" class="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <div
         v-for="n in 3"
         :key="n"
@@ -223,7 +223,7 @@ const etiquetaMedio: Record<string, string> = {
 
     <template v-else-if="datos">
       <!-- ================= Cifras del día ============================== -->
-      <section class="grid gap-4 lg:grid-cols-3">
+      <section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <!-- La venta del día ocupa el doble: es lo que se mira primero. -->
         <article class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-6 lg:col-span-2">
           <div class="flex items-start justify-between gap-4">
@@ -341,7 +341,7 @@ const etiquetaMedio: Record<string, string> = {
           </h2>
         </div>
 
-        <div class="mt-4 grid gap-4 sm:grid-cols-3">
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <RouterLink
             v-for="grupo in [
               { clave: 'agotados', etiqueta: 'Agotados', valor: datos.reposicion.agotados, tono: 'text-peligro-600' },
@@ -372,7 +372,7 @@ const etiquetaMedio: Record<string, string> = {
       </section>
 
       <!-- ================= Detalle ===================================== -->
-      <div class="grid gap-5 lg:grid-cols-2">
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <!-- Últimas ventas -->
         <section class="rounded-2xl border border-borde-sutil bg-superficie-elevada">
           <div class="flex items-center justify-between border-b border-borde-sutil px-5 py-3">
@@ -466,7 +466,7 @@ const etiquetaMedio: Record<string, string> = {
       </div>
 
       <!-- ================= Comparativa semanal y métodos de pago ======== -->
-      <div class="grid gap-5 lg:grid-cols-2">
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <section
           v-if="datos.comparativa_semanal"
           class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-5"

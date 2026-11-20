@@ -392,7 +392,7 @@ onMounted(fetchInventory)
     </header>
 
     <div
-      class="flex flex-wrap gap-2 border-b border-borde-sutil pb-3"
+      class="flex gap-2 overflow-x-auto border-b border-borde-sutil pb-3"
       role="tablist"
       aria-label="Secciones de inventario"
     >
@@ -400,7 +400,7 @@ onMounted(fetchInventory)
         type="button"
         role="tab"
         :aria-selected="tabActiva === 'stock'"
-        class="rounded-lg px-3.5 py-2 text-sm font-medium transition-colors"
+        class="shrink-0 whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition-colors"
         :class="tabActiva === 'stock'
           ? 'bg-botica-700 text-white'
           : 'bg-superficie-elevada text-texto-secundario hover:text-texto-primario'"
@@ -412,7 +412,7 @@ onMounted(fetchInventory)
         type="button"
         role="tab"
         :aria-selected="tabActiva === 'vencimientos'"
-        class="rounded-lg px-3.5 py-2 text-sm font-medium transition-colors"
+        class="shrink-0 whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition-colors"
         :class="tabActiva === 'vencimientos'
           ? 'bg-botica-700 text-white'
           : 'bg-superficie-elevada text-texto-secundario hover:text-texto-primario'"
@@ -472,7 +472,7 @@ onMounted(fetchInventory)
       class="rounded-xl border border-borde-sutil bg-superficie-elevada p-3 sm:p-4"
       aria-label="Filtros de inventario"
     >
-      <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_200px_200px_110px]">
+      <div class="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_200px_200px_110px]">
         <div class="relative">
           <Search
             class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-texto-terciario"
