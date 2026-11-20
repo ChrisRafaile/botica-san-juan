@@ -30,7 +30,7 @@ class EventoOperacionController extends Controller
 {
     private const POR_PAGINA = 25;
 
-    private const MAXIMO_POR_PAGINA = 100;
+    public const MAXIMO_POR_PAGINA = 100;
 
     /**
      * Listado con filtros.
