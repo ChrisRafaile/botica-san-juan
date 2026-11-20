@@ -25,6 +25,7 @@ import {
   BarChart3,
   ScrollText,
   Settings,
+  Wallet,
 } from 'lucide-vue-next'
 
 export interface SubElementoMenu {
@@ -64,6 +65,13 @@ export const MENU_ADMIN: ElementoMenu[] = [
     etiqueta: 'Punto de venta',
     icono: ScanLine,
     ruta: '/admin/pos',
+    seccion: 'operacion',
+  },
+  {
+    id: 'caja',
+    etiqueta: 'Control de caja',
+    icono: Wallet,
+    ruta: '/admin/caja',
     seccion: 'operacion',
   },
   {

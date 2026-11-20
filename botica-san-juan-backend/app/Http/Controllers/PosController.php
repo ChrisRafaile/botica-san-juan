@@ -7,6 +7,7 @@ use App\Models\Lote;
 use App\Models\Pedido;
 use App\Models\PedidoPago;
 use App\Models\Producto;
+use App\Services\CajaService;
 use App\Services\InventarioService;
 use App\Services\VentaService;
 use Illuminate\Http\JsonResponse;
@@ -28,6 +29,7 @@ class PosController extends Controller
     public function __construct(
         private readonly InventarioService $inventario,
         private readonly VentaService $ventas,
+        private readonly CajaService $caja,
     ) {
     }
 
@@ -88,8 +90,24 @@ class PosController extends Controller
             ->groupBy('producto_id')
             ->pluck('total', 'producto_id');
 
-        $respuesta = $productos->map(function (Producto $p) use ($disponibles) {
+        /* Primer lote FEFO que se consumiría al vender, resuelto en una sola
+           consulta (DISTINCT ON de PostgreSQL) para pintar el semáforo Nd
+           en cada tarjeta del mostrador sin caer en N+1. */
+        $lotesFefo = $idsProductos->isEmpty()
+            ? collect()
+            : Lote::query()
+                ->selectRaw('DISTINCT ON (producto_id) id, producto_id, fecha_vencimiento')
+                ->whereIn('producto_id', $idsProductos)
+                ->disponible()
+                ->orderBy('producto_id')
+                ->orderByRaw('fecha_vencimiento ASC NULLS LAST')
+                ->orderBy('id')
+                ->get()
+                ->keyBy('producto_id');
+
+        $respuesta = $productos->map(function (Producto $p) use ($disponibles, $lotesFefo) {
             $disponible = (int) ($disponibles[$p->id] ?? 0);
+            $loteFefo = $lotesFefo->get($p->id);
 
             return [
                 'id'                  => $p->id,
@@ -108,6 +126,8 @@ class PosController extends Controller
                 'afectacion'          => $p->etiquetaAfectacion(),
                 'stock_contable'      => (int) $p->stock,
                 'stock_disponible'    => $disponible,
+                'dias_para_vencer'    => $loteFefo?->diasParaVencer(),
+                'nivel_vencimiento'   => $loteFefo?->nivelVencimiento(),
                 'venta_fraccionada'   => (bool) $p->venta_fraccionada,
                 /* Formas de venta con su precio y su equivalencia. El POS las
                    pinta tal cual: no tiene que calcular nada. */
@@ -360,9 +380,23 @@ class PosController extends Controller
             ], 422);
         }
 
+        $cajaVinculada = false;
+        $cajaAviso = null;
+        $tieneEfectivo = $venta->pagos->contains(fn ($p) => $p->medio === 'efectivo');
+
+        if ($tieneEfectivo && $request->user() !== null) {
+            $movCaja = $this->caja->vincularVentaEfectivo($request->user()->id, $venta);
+            $cajaVinculada = $movCaja !== null;
+            if (! $cajaVinculada) {
+                $cajaAviso = 'Venta registrada sin sesión de caja abierta; abre caja para cuadrar el efectivo del turno.';
+            }
+        }
+
         return response()->json([
-            'message' => 'Venta registrada.',
-            'data'    => $this->formatearVenta($venta),
+            'message'       => 'Venta registrada.',
+            'data'          => $this->formatearVenta($venta),
+            'caja_vinculada' => $cajaVinculada,
+            'caja_aviso'    => $cajaAviso,
         ], 201);
     }
 

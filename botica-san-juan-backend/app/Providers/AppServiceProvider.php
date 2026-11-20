@@ -196,6 +196,15 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        /* Límite por usuario autenticado para proteger la cuota gratuita del
+           proveedor de IA sin afectar al resto de la API. */
+        RateLimiter::for('asistente', function (Request $request) {
+            $limite = max(1, (int) config('asistente.limites.rate_limit_por_minuto', 15));
+            $clave = 'asistente:' . ($request->user()?->id ?: $request->ip());
+
+            return Limit::perMinute($limite)->by($clave);
+        });
+
         $this->forzarHttpsFueraDeLocal();
         $this->identificarDocumentoOpenApi();
         $this->registrarReferenciaScalar();

@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\Auth\ContrasenaController;
+use App\Http\Controllers\AlertaVencimientoController;
+use App\Http\Controllers\AsistenteController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\CajaController;
 use App\Http\Controllers\Auth\VerificacionController;
 use App\Http\Controllers\CarritoController;
 use App\Http\Controllers\CatalogoPublicoController;
@@ -228,6 +231,19 @@ Route::middleware(['auth:sanctum', 'throttle:api'])->prefix('perfil')->group(fun
 
 Route::post('/perfil/foto', [PerfilController::class, 'subirFoto'])
     ->middleware(['auth:sanctum', 'throttle:subida-foto']);
+
+/*
+|--------------------------------------------------------------------------
+| Asistente IA de Botica
+|--------------------------------------------------------------------------
+| Disponible para cualquier usuario autenticado (cliente, farmacéutico o
+| administrador). Las herramientas disponibles se filtran por rol en el agente
+| y se revalidan dentro de cada herramienta.
+*/
+Route::middleware('auth:sanctum')->prefix('asistente')->group(function () {
+    Route::get('/estado', [AsistenteController::class, 'estado'])->middleware('throttle:api');
+    Route::post('/mensajes', [AsistenteController::class, 'responder'])->middleware('throttle:asistente');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -531,6 +547,17 @@ Route::middleware(['auth:sanctum', 'admin', 'throttle:api', 'audit.critical'])->
     // La exportacion consolida informacion comercial y financiera de toda la
     // botica: se restringe al rol administrador, no solo a estar autenticado.
     Route::get('reportes/gerencial/export/csv', [ReporteController::class, 'exportGerencialCsv']);
+    Route::get('inventario/vencimientos', [AlertaVencimientoController::class, 'index']);
+
+    Route::prefix('caja')->group(function () {
+        Route::get('/actual', [CajaController::class, 'actual']);
+        Route::get('/historial', [CajaController::class, 'historial']);
+        Route::post('/abrir', [CajaController::class, 'abrir']);
+        Route::post('/movimientos', [CajaController::class, 'registrarMovimiento']);
+        Route::post('/{sesion}/cerrar', [CajaController::class, 'cerrar'])
+            ->whereNumber('sesion')
+            ->middleware('audit.critical');
+    });
 
     Route::post('facturacion/generar-desde-pedidos', [FacturacionController::class, 'generarDesdePedidos']);
     Route::post('facturacion/documentos/{id}/enviar-sunat', [FacturacionController::class, 'enviarSunat']);

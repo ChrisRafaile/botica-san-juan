@@ -47,6 +47,7 @@ import BoticaBadge from '../components/ui/BoticaBadge.vue'
 import BoticaStat from '../components/ui/BoticaStat.vue'
 import BoticaButton from '../components/ui/BoticaButton.vue'
 import BoticaEstadoVacio from '../components/ui/BoticaEstadoVacio.vue'
+import PanelAlertasVencimiento from '../components/PanelAlertasVencimiento.vue'
 
 interface InventoryProduct {
   id: number
@@ -128,6 +129,8 @@ let searchTimeout: number | undefined
 
 const isStockRoute = computed(() => route.path.endsWith('/inventory/stock'))
 const isAlertsRoute = computed(() => route.path.endsWith('/inventory/alerts'))
+const tabActiva = ref<'stock' | 'vencimientos'>(route.query.tab === 'vencimientos' ? 'vencimientos' : 'stock')
+const panelVencimientosRef = ref<InstanceType<typeof PanelAlertasVencimiento> | null>(null)
 
 const titulo = computed(() =>
   isAlertsRoute.value
@@ -278,6 +281,10 @@ const changePage = async (page: number) => {
 }
 
 const refreshInventory = async () => {
+  if (tabActiva.value === 'vencimientos') {
+    await panelVencimientosRef.value?.cargar()
+    return
+  }
   await fetchInventory(currentPage.value)
 }
 
@@ -374,7 +381,7 @@ onMounted(fetchInventory)
           Actualizar
         </BoticaButton>
         <BoticaButton
-          v-if="!isAlertsRoute"
+          v-if="!isAlertsRoute && tabActiva === 'stock'"
           variante="primario"
           :icono="Plus"
           @click="openAdjustModal(null)"
@@ -384,6 +391,43 @@ onMounted(fetchInventory)
       </div>
     </header>
 
+    <div
+      class="flex gap-2 overflow-x-auto border-b border-borde-sutil pb-3"
+      role="tablist"
+      aria-label="Secciones de inventario"
+    >
+      <button
+        type="button"
+        role="tab"
+        :aria-selected="tabActiva === 'stock'"
+        class="shrink-0 whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition-colors"
+        :class="tabActiva === 'stock'
+          ? 'bg-botica-700 text-white'
+          : 'bg-superficie-elevada text-texto-secundario hover:text-texto-primario'"
+        @click="tabActiva = 'stock'"
+      >
+        Stock por producto
+      </button>
+      <button
+        type="button"
+        role="tab"
+        :aria-selected="tabActiva === 'vencimientos'"
+        class="shrink-0 whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-medium transition-colors"
+        :class="tabActiva === 'vencimientos'
+          ? 'bg-botica-700 text-white'
+          : 'bg-superficie-elevada text-texto-secundario hover:text-texto-primario'"
+        @click="tabActiva = 'vencimientos'"
+      >
+        Alertas de vencimiento
+      </button>
+    </div>
+
+    <PanelAlertasVencimiento
+      v-if="tabActiva === 'vencimientos'"
+      ref="panelVencimientosRef"
+    />
+
+    <template v-else>
     <!-- Indicadores -->
     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <BoticaStat
@@ -428,7 +472,7 @@ onMounted(fetchInventory)
       class="rounded-xl border border-borde-sutil bg-superficie-elevada p-3 sm:p-4"
       aria-label="Filtros de inventario"
     >
-      <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_200px_200px_110px]">
+      <div class="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_200px_200px_110px]">
         <div class="relative">
           <Search
             class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-texto-terciario"
@@ -862,6 +906,7 @@ onMounted(fetchInventory)
         </BoticaButton>
       </div>
     </nav>
+    </template>
 
     <!-- Modal de ajuste -->
     <Teleport to="body">
