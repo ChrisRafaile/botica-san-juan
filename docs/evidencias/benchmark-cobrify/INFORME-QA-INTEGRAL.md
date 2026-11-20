@@ -98,29 +98,34 @@ Mismo método (Chrome real con `playwright-core`, API local `:8083`, frontend `:
 
 CLS medido a 360 px, contexto nuevo por ruta y tema: Tablero 0,0003–0,0028, Inventario (ambas pestañas) 0,0005–0,0007, Indicadores 0,0003–0,0077, Caja 0,0004; todos por debajo del límite de 0,015. A 1280 px el máximo es 0,0017 (Caja).
 
-### Asistente IA con proveedor configurado
+### Asistente IA en vivo (Groq)
 
-La clave de Gemini está en el `.env` local y en el servicio de Render, pero **no fue posible obtener una respuesta real del modelo**. Se encontraron tres causas, una detrás de otra:
+El proveedor primario pasa a ser **Groq** (`GROQ_API_KEY`). Gemini queda como respaldo: su proyecto de Google no tiene saldo (402 «prepayment credits are depleted») y `gemini-2.5-flash` está retirado, así que no se pudo validar con él.
 
-1. **Entorno local sin certificados.** El PHP de esta máquina no tiene `curl.cainfo`: la llamada a Google fallaba con `cURL error 60`. Se resolvió solo para la sesión de prueba, con un `.ini` temporal fuera del repositorio.
-2. **Modelo retirado.** `gemini-2.5-flash` y `gemini-2.5-flash-lite` responden 404 «no longer available to new users». El valor por defecto de `ASISTENTE_GEMINI_MODELO` pasa a `gemini-flash-latest`.
-3. **Cuenta sin saldo.** Con modelos vigentes (`gemini-flash-latest`, `gemini-3.5-flash`, `gemini-3.1-flash-lite`) el proveedor responde **402 «prepayment credits are depleted»**. Mientras el proyecto de Google de esa clave no tenga saldo, el asistente no puede contestar, ni en local ni en Render.
+Hallazgos de la validación:
 
-Lo que sí se comprobó en vivo, con el 402 todavía presente:
+1. **Entorno local sin certificados.** El PHP de esta máquina no tiene `curl.cainfo` (`cURL error 60`). Se resolvió solo para la sesión de prueba, con un `.ini` temporal fuera del repositorio.
+2. **Modelo retirado en Groq.** `llama-3.3-70b-versatile` responde 404 `model_not_found` para esta cuenta. `GET /openai/v1/models` lista, entre los modelos de chat, `openai/gpt-oss-120b`, `openai/gpt-oss-20b` y `qwen/qwen3.8-27b`. El modelo por defecto pasa a `openai/gpt-oss-120b`; se cambia con `ASISTENTE_IA_MODELO`.
+3. **D5, ya corregido.** Un fallo del proveedor devolvía 503, que el widget lee como «asistente deshabilitado». Ahora devuelve 502 y el campo sigue habilitado.
+4. **Moneda.** El modelo escribía «€» y «$». Se añadió una regla a las instrucciones del agente para usar `S/`; en la segunda pasada todos los importes salieron en soles.
 
-| Rol | Resultado |
-|---|---|
-| Administrador | `GET /asistente/estado` → 200 `habilitado: true`; `POST /asistente/mensajes` → 502 con el mensaje «no pudo responder en este momento»; el campo de entrada sigue habilitado |
-| Cliente | Igual, con el modo «Consultas de catálogo» |
+Consultas reales en Chrome, con herramientas reales y base local (todas HTTP 200, campo de entrada habilitado):
 
-Esto destapó un defecto adicional **que ya estaba en la rama** (D5): cualquier fallo del proveedor devolvía 503, y el widget interpreta 503 como «asistente deshabilitado», así que mostraba «no hay un proveedor de IA configurado» y bloqueaba la entrada aunque la clave existiera. Ahora el fallo del proveedor devuelve **502**, se registra la clase de la excepción (sin el mensaje, que puede arrastrar URL o consulta) y el 503 queda solo para «sin proveedor configurado». Hay una prueba nueva que lo cubre.
+| Rol | Consulta | Resultado |
+|---|---|---|
+| Administrador | ¿Qué productos tienen stock crítico? | Dice con honestidad que no tiene herramienta para listar stock crítico y pide un producto. **Limitación del diseño:** no existe una herramienta de stock crítico global |
+| Administrador | Lotes de amoxicilina por FEFO | Tabla de lotes con cantidad y stock mínimo; todos son el lote «INICIAL» sin fecha de vencimiento, y lo indica |
+| Administrador | Valor en riesgo por vencimiento a 90 días | `S/ 0`, coherente con que los datos locales no tienen fechas |
+| Administrador | ¿Cómo va la caja hoy? | Ventas del día S/ 0, 11 comprobantes en efectivo (S/ 468.50), comparativa semanal y «sin caja abierta para tu usuario» |
+| Cliente | ¿Tienen amoxicilina disponible? | Presentaciones, stock y precio público S/ 10; remite al químico farmacéutico |
+| Cliente | Costo de compra y número de lote | **Rechaza**: «no puedo proporcionar información de costos internos ni números de lote» |
 
-**Pendiente:** con saldo en la cuenta, repetir las consultas de administrador (stock crítico, vencimientos FEFO, caja) y de cliente (que no reciba costos, márgenes ni lotes). Esa propiedad sigue cubierta solo por las pruebas con el SDK simulado (`AsistenteBoticaTest`).
+Límites de esta validación: los datos locales no tienen fechas de vencimiento, así que el orden FEFO real no se pudo ver con fechas distintas; y «stock crítico» sigue sin herramienta propia.
 
 ### Pruebas automáticas (salida real)
 
 ```
-Backend   Tests: 476 passed (1541 assertions)   Duration: 44.40s
+Backend   Tests: 477 passed (1543 assertions)   Duration: 51.79s
 Frontend  Test Files 35 passed (35) · Tests 207 passed (207)
 vue-tsc   --noEmit → exit 0 · --build --force → exit 0
 vite build  ✓ built in 5.60s
@@ -128,4 +133,4 @@ vite build  ✓ built in 5.60s
 
 ### Capturas (`qa/post-correccion/`)
 
-`tablero-360-*`, `inventario-360-*`, `indicadores-360-*` (claro y oscuro, página completa), `pos-badge-fefo-{1280,360}-{claro,oscuro}` y `asistente-{admin,cliente}` (estado de error tras el 502, con la entrada habilitada).
+`tablero-360-*`, `inventario-360-*`, `indicadores-360-*` (claro y oscuro, página completa), `pos-badge-fefo-{1280,360}-{claro,oscuro}` y `groq-asistente-{admin-1..4,cliente-1..2}` (consultas en vivo al asistente).
