@@ -1,0 +1,99 @@
+# Benchmark Funcional: Cobrify (Demo Farmacia) vs. Botica San Juan
+
+**Fecha de evaluación:** 18 de noviembre de 2026  
+**Modo de inspección:** Solo lectura sobre el demo público de Cobrify (`v4.77.0`, rubro Farmacia) y auditoría de solo lectura del repositorio de Botica San Juan (Laravel 12 + Vue 3 + PostgreSQL, arquitectura SOA con `Services`).  
+**Evidencias visuales (1280 px):** `docs/evidencias/benchmark-cobrify/01-dashboard.png` a `18-configuracion.png`.
+
+---
+
+## 1. Matriz Comparativa por Módulo (Cobrify vs. Botica San Juan)
+
+| # | Módulo en Cobrify | Evidencia (1280 px) | Qué ofrece Cobrify (acciones, columnas, filtros, badges) | Estado en Botica San Juan | Sustento en el repo de Botica San Juan |
+|---|---|---|---|---|---|
+| 1 | **Dashboard** (`/dashboard`) | `01-dashboard.png` | 4 KPIs con botón *Ocultar montos* (Ventas del Día, Ventas del Mes, Ticket Promedio, N° Ventas), 3 gráficos (Ventas del mes día a día, Últimos 7 días vs semana anterior, Curva 12 meses), Top 5 productos, Métodos de pago (Efectivo/Yape/Plin/Tarjeta/Transferencia), Top 5 clientes y Facturas Recientes. | **Parcial** | Existen `AdminHomeView.vue` (`/tablero`) y `AdminIndicadoresView.vue` (`/indicadores`), pero faltan comparativas visuales rápidas (7 días vs semana anterior), Top clientes/productos en el tablero principal y toggle de privacidad (*Ocultar montos*). |
+| 2 | **Punto de Venta** (`/pos`) | `02-pos.png` | Buscador + toggle vista grilla/lista, filtro por categorías, tarjetas con precio, stock y **badge de vencimiento en días** (ej. `44d`), selector de almacén, tipo de comprobante (Boleta/Factura/Nota de Venta), **consulta DNI/RUC**, forma de pago (**Contado / Crédito**), anticipos, vista previa y procesar venta. | **Parcial** | `AdminPosView.vue` + `PosController` + `VentaService` ya soportan venta **offline-first**, atajos de teclado (`1/2/3` para unidad/blíster/caja), vuelto, `TicketContingencia` y DNI/RUC manual. Faltan: consulta externa DNI/RUC, badge `Nd` en tarjeta, venta a crédito y vista previa de comprobante. |
+| 3 | **Pedidos Online** (`/pedidos-online`) | `03-pedidos-online.png` | Tabs *En gestión* / *Historial*, contadores (*Recibidos*, *Aceptados*, *Listos*), filtros rápidos y buscador por cliente/número/teléfono. | **Tenemos** | `AdminOrdersView.vue` + `PedidoService` + `PedidoController` superan al demo al incluir validación de recetas (`VisorDeReceta.vue`), reserva de stock con TTL y cancelación con restitución exacta por lotes. |
+| 4 | **Control de Caja** (`/caja`) | `04-control-caja.png` | Apertura de caja con monto inicial, movimientos de efectivo del turno, arqueo/cierre, tab *Historial* con KPIs (Total Sesiones, Total Ventas, Diferencia Acumulada) y detalle por sesión (Ventas, Cierre, Diferencia). | **Falta** | No existe entidad/servicio de sesiones de caja, apertura, arqueo ni cierre con cálculo de diferencia. |
+| 5 | **Ventas / Comprobantes** (`/facturas`) | `05-ventas.png` | KPIs (Comprobantes, Pagadas, Pendientes, Monto Total + IGV), filtros por período/mes/tipo/estado/vendedor/pago/conversión, acciones `+ Nota de Crédito`, `Pagos Pendientes`, `Por entregar`, `Exportar Excel`, columna estado SUNAT (`Aceptado`). | **Parcial** | `AdminBillingView.vue` + `ComprobanteService` + `FacturadorSunat` cubren boletas/facturas, envío SUNAT, XML/PDF y comisiones. Faltan: Notas de Crédito/Débito en UI, filtro de pagos pendientes y exportación Excel directa. |
+| 6 | **Clientes** (`/clientes`) | `06-clientes.png` | KPIs (*Total Clientes*, *Total Pedidos*, *Ingresos Totales*, *Promedio por Cliente* con ocultar montos), filtros de orden y cumpleaños, botón *Fidelización*, *Importar/Exportar Excel*, tabla con Documento, Contacto, Dirección, Cumple, Ped., Gastado. | **Parcial** | `AdminClientsView.vue` + `ResumenClienteService` gestionan la cartera de clientes; faltan importación/exportación Excel, filtro de cumpleaños, métricas de gasto promedio y enlace a fidelización. |
+| 7 | **Promociones** (`/promociones`) | `07-promociones.png` | 6 submódulos en pestañas: *Tarjeta de sellos*, *Combos*, *Packs*, *Cupones*, *Certificados* y *Descuentos*, con KPIs de tarjetas/sellos/canjes. | **Falta** | Solo existe el parámetro `maxDiscount` en `AdminSettingsView.vue`; no hay motor ni UI de cupones, combos, packs o descuentos programados. |
+| 8 | **Medicamentos** (`/productos`) | `08-medicamentos.png` | KPIs (*Total Productos*, *Valor Inventario* a venta/costo, *Stock Bajo*), filtros rápidos (*Próximos a vencer*, *Sin imagen*), columnas SKU, Cód. Barras, Precio/Unidad, Costo, **Utilidad (monto y %)**, Categoría, Marca, Stock por almacén, **Vencimiento (`561d` + fecha)**. | **Tenemos** | `AdminProductsView.vue` + `AdminBulkUploadView.vue` + `ProductoController` cubren catálogo, categorías/subcategorías, presentaciones y carga masiva. Faltaría mostrar margen/utilidad y filtro rápido *Próximos a vencer* en la tabla de productos. |
+| 9 | **Inventario** (`/inventario`) | `09-inventario.png` | Tabs *Todos / Productos / Insumos*, KPIs (*Total Items*, *Valor Venta/Costo* con recálculo desde compras, *Stock Bajo*, *Agotados*), filtros por estado, rotación, almacén y control de stock, exportación Excel. | **Tenemos** | `AdminInventoryView.vue` + `AdminConteoView.vue` + `InventarioService` + `ConteoService` cubren stock vendible vs. no vendible (excluyendo vencidos/retirados) y conteo físico por ciclos. Falta valorización comparativa costo vs. venta y filtro por rotación. |
+| 10 | **Mi Catálogo Online** (`/configuracion?tab=catalogo`) | `10-catalogo-online.png` | Enlace público configurable, **código QR descargable**, mensaje/eslogan, sección destacados, switch de pedidos vs. solo vitrina WhatsApp, opción de pedir boleta/factura en checkout. | **Tenemos** | Botica San Juan cuenta con un portal e-commerce completo (`ProductsView.vue`, `ProductoDetalleView.vue`, `CartView.vue`, `CheckoutPagoView.vue` con Izipay). Solo falta el generador de QR descargable para mostrador/redes. |
+| 11 | **Documentos** (`/cotizaciones`, `/guias-remision`, `/flota`) | `11-documentos-cotizaciones.png` | Cotizaciones (`COT-00001`, estados Borrador/Enviada/Aceptada/Convertida a factura, Válida Hasta), Guías de Remisión Electrónica (GRE Remitente) y Conductores/Vehículos. | **Falta** | No existen cotizaciones ni GRE Remitente / gestión de flota. |
+| 12 | **Lotes & Vencimientos** (`/control-lotes`, `/alertas-vencimiento`, `/laboratorios`) | `12-lotes-control.png`, `13-lotes-alertas.png` | *Control de Lotes* (KPIs Productos/Con Lotes/Total Lotes/Por Vencer, filtro 90d, sincronización). *Alertas de Vencimiento*: buckets clickeables (`Vencidos`, `30 días`, `60 días`, `90 días`, `Todos`), **Valor en riesgo (próximos 90 días)**, tabla con Lote, Vencimiento, Stock, Valor y **semáforo de días** (`VENCIDO`, `18d`, `27d`, `44d`, `76d`, `OK`) + Exportar CSV. | **Parcial** | El backend ya tiene `Lote`, `InventarioFefoService` y `design-system.css` ya define los tokens `--color-venc-critico` (<=30d), `--color-venc-alto` (<=60d), `--color-venc-medio` (<=90d) y `--color-venc-vigente`. Falta la vista dedicada de Alertas con buckets 30/60/90d, *Valor en riesgo* y badges `Nd`. |
+| 13 | **Almacenes & Stock** (`/almacenes`, `/movimientos`) | `14-almacenes.png` | Multi-sucursal y multi-almacén (ej. *Mostrador* y *Almacén*), series de facturación por sucursal (`F001 · B001`), diagnóstico de stock y movimientos entre almacenes. | **Falta** | Botica San Juan opera como sede/almacén único; `MovimientoStock` registra kardex pero no transferencias entre sucursales/almacenes. |
+| 14 | **Compras** (`/compras`, `/ordenes-compra`, `/proveedores`) | `15-compras.png` | Registro de facturas de compra, filtro Contado/Crédito/Pendientes (*Por Pagar*), Órdenes de Compra previas y Proveedores. | **Parcial** | `AdminSupplyView.vue` + `CompraController` + `ProveedorController` cubren compras, proveedores y catálogo DIGEMID; faltan Órdenes de Compra y cuentas por pagar a crédito. |
+| 15 | **Gestión de usuarios** (`/vendedores`) | `16-usuarios-vendedores.png` | Panel de vendedores con KPIs de *Ventas de Hoy*, *Órdenes de Hoy*, *Comisión* y filtro por período. | **Parcial** | `UsuarioController` y `ComisionController` gestionan roles y comisiones por comprobante (`AdminBillingView.vue`), pero falta un ranking/panel de desempeño por vendedor. |
+| 16 | **Reportes & Finanzas** (`/reportes`, `/gastos`, `/flujo-caja`, `/cuentas`, `/contabilidad`) | `17-reportes.png` | Tabs de análisis (Resumen, Ventas, Productos, Marcas, Clientes, Zonas, Vendedores, Gastos, Rentabilidad), KPIs de **Ingresos − Costo = Utilidad − Gastos = Ganancia Final**, gráficos de tendencia y distribución, descarga Excel. Además módulos separados de Gastos, Flujo de Caja, Cuentas y Contabilidad. | **Parcial** | `AdminReportsView.vue`, `ReporteContableService` y `DesgloseFiscalService` cubren ventas, inventario, desglose IGV y exportación CSV contable. Faltan registro de Gastos, Flujo de Caja y cálculo de Rentabilidad neta. |
+| 17 | **Otros (Libro de Reclamos)** (`/reclamos`) | — (vía menú lateral) | Gestión de Libro de Reclamaciones conforme a normativa peruana. | **Tenemos** | `LibroReclamacionesView.vue` ya implementado para cumplimiento INDECOPI. |
+| 18 | **Configuración** (`/configuracion`) | `18-configuracion.png` | Tabs *Mi Empresa* (consulta RUC, dirección/ubigeo, logo), *Series*, *Punto de venta*, *Impresión* (ticket/A4), *Módulos*, *Integraciones*, *Cuenta y seguridad*. | **Parcial** | `AdminSettingsView.vue` cubre datos de botica, impuestos/descuentos, umbrales de alerta, seguridad y flags. Faltan gestión visual de `SerieComprobante` y personalización de formato de impresión. |
+
+---
+
+## 2. Qué ya tenemos resuelto y mejor en Botica San Juan
+
+El análisis del repositorio confirma que Botica San Juan posee una base transaccional y clínica **superior** en ingeniería de dominio frente a un SaaS generalista:
+
+1. **Concurrencia SOA + FEFO libre de interbloqueos (`InventarioFefoService.php`):**  
+   `bloquearParaVenta()` ejecuta `SELECT ... FOR UPDATE` dentro de una transacción activa adquiriendo bloqueos pesimistas en **orden canónico global ascendente** (primero `productos` por `id`, luego `lotes` por `id`). Soporta reparto automático entre múltiples lotes FEFO y trazabilidad exacta por unidad en `pedido_detalle_lotes`.
+2. **Reserva de stock con TTL y restitución atómica (`PedidoService.php`):**  
+   `confirmarDelPortal()` aplica `DB::transaction(..., 3)` con expiración configurable (`expira_en`) para pagos con tarjeta, evitando bloqueos indefinidos de inventario. `cancelar()` bloquea en orden estricto (`pedidos` -> `pagos` -> `productos` -> `lotes`) y devuelve cada unidad a su lote original, reactivando lotes `agotado` a `activo`.
+3. **Idempotencia transaccional (`ClaveIdempotencia.php`, `PagoEvento.php`):**  
+   Protección explícita contra doble cobro o doble descuento de stock ante reintentos de red o webhooks de pasarela (`IzipayClient`, `PagoService`).
+4. **POS Offline-First real (`AdminPosView.vue` + `/offline`):**  
+   Operación continua ante caídas de red con catálogo local sincronizado en segundo plano, cola de sincronización (`SincronizacionVentasService`), emisión de `TicketContingencia` y atajos de teclado por presentación (`1` unidad, `2` blíster, `3` caja) con precios diferenciados.
+5. **Venta parcial controlada (`VentaService.php` + `IncidenciaVenta.php`):**  
+   Nunca genera stock negativo ni bloquea una venta por desajuste de estantería: entrega lo disponible, registra la incidencia y cobra exactamente lo atendido.
+6. **Diferenciadores farmacéuticos ausentes en Cobrify:**  
+   Catálogo regulatorio DIGEMID (`DigemidCatalogoController`), consultor de interacciones farmacológicas (`ConsultorDeInteracciones`) y flujo de validación de recetas médicas (`RecetaController`, `VisorDeReceta.vue`).
+
+---
+
+## 3. Lista Priorizada de Mejoras e Incorporaciones
+
+Todas las propuestas deben implementarse usando los **tokens propios** de `botica-san-juan-frontend/src/styles/design-system.css` (`--color-botica-*`, `--color-clinico-*`, `--color-venc-critico/alto/medio/vigente`) sin copiar identidad ni estilos de Cobrify.
+
+| Prioridad | Mejora / Módulo | Impacto | Esfuerzo | Dependencias | Adaptación a Botica San Juan |
+|---|---|---|---|---|---|
+| **P1** | **Semáforo de días de vencimiento (`Nd` / `VENCIDO`) y Alertas 30/60/90d** | Alto (reduce merma y evita dispensar vencidos) | **S** | Lotes FEFO existentes (`Lote`, `InventarioService`) y tokens `--color-venc-*` ya definidos en `design-system.css`. | Exponer `dias_para_vencer` del lote FEFO activo en `/pos` (badge en tarjeta) y crear vista/pestaña en `AdminInventoryView.vue` con buckets `Vencidos`, `<=30d`, `<=60d`, `<=90d` y KPI *Valor en riesgo*. |
+| **P2** | **Control de Caja (Apertura, Movimientos, Arqueo y Cierre)** | Alto (control operativo diario de efectivo) | **M** | `Usuario`, `PedidoPago`, `PosController`. | Crear `CajaService` + tabla `sesiones_caja` y `movimientos_caja`; vincular ventas en efectivo del POS al turno abierto, calcular monto esperado vs. contado y guardar historial de diferencias. |
+| **P3** | **Flujo rápido en POS (Consulta DNI/RUC, Vista previa, Crédito)** | Alto (velocidad en mostrador y facturación) | **M** | `AdminPosView.vue`, `Cliente`/SUNAT-RENIEC proxy, `VentaService`. | Añadir botón lupa junto al campo DNI/RUC ya existente en `AdminPosView.vue`, modal de vista previa de comprobante antes de emitir y modalidad de pago a crédito con límite configurado (`creditLimit` en `AdminSettingsView.vue`). |
+| **P4** | **Promociones, Descuentos y Cupones** | Medio-Alto (ticket promedio y rotación de stock cercano a vencer) | **M** | `VentaService`, `CarritoPublicoController`, `maxDiscount` en settings. | Crear `PromocionService` con reglas de descuento (% o monto por producto/categoría), cupones y combos; aplicar validación de tope máximo en backend y mostrar ahorro en POS y carrito web. |
+| **P5** | **Mejoras de Dashboard (`AdminHomeView.vue` / `AdminIndicadoresView.vue`)** | Medio (visibilidad gerencial diaria) | **S** | `TableroController`, `IndicadoresController`, `ReporteController`. | Incorporar comparativa *Últimos 7 días vs. semana anterior*, Top 5 productos/clientes del mes, distribución por método de pago y botón *Ocultar montos* con tokens `--color-clinico-*`. |
+| **P6** | **Notas de Crédito SUNAT y Filtro de Pagos Pendientes** | Medio (cumplimiento tributario y cobranza) | **M** | `ComprobanteService`, `FacturadorSunat`, `AdminBillingView.vue`. | Habilitar emisión de Nota de Crédito vinculada a boleta/factura desde `AdminBillingView.vue` y exportación a Excel/CSV filtrada. |
+| **P7** | **Módulo de Gastos y Rentabilidad Neta** | Medio (finanzas reales) | **L** | `ReporteContableService`, `Compra`. | Registrar gastos operativos (alquiler, servicios, planilla) para calcular `Utilidad Bruta - Gastos = Ganancia Neta` en `AdminReportsView.vue`. |
+| **P8** | **Cotizaciones y Órdenes de Compra** | Bajo-Medio (B2B / reposición formal) | **L** | `Cliente`, `Proveedor`, `CompraController`. | Flujo de cotización convertible a venta/comprobante y orden de compra convertible a ingreso de mercadería con lotes. |
+
+---
+
+## 4. Recomendación: Qué 3–4 Ítems Implementar Primero
+
+Para maximizar el impacto operativo en mostrador con el menor riesgo arquitectónico, se recomienda ejecutar en este orden:
+
+1. **Semáforo de vencimiento en días (`Nd`) en POS + Panel de Alertas 30/60/90d con "Valor en riesgo" (Esfuerzo S):**  
+   Es la victoria más rápida porque los datos de lotes FEFO y los tokens semánticos (`--color-venc-critico`, `--color-venc-alto`, `--color-venc-medio`, `--color-venc-vigente`) **ya existen** en el proyecto. Permite al vendedor detectar en 1 segundo qué producto está a `18d` o `44d` de vencer y priorizar su salida o promoción.
+2. **Control de Caja: Apertura, Movimientos, Arqueo y Cierre de Turno (Esfuerzo M):**  
+   Es el vacío operativo más crítico frente a Cobrify para una botica real. Sin arqueo de caja, el cuadre diario de efectivo/Yape/Plin/tarjeta depende de hojas externas.
+3. **Flujo rápido de POS: Consulta DNI/RUC automática + Vista previa de ticket/comprobante (Esfuerzo M):**  
+   Reduce errores de digitación en boletas > S/ 700 y facturas, aprovechando que `AdminPosView.vue` ya tiene el selector `dni`/`ruc` y atajos de teclado.
+4. **Mejoras de Dashboard ejecutivo + Toggle "Ocultar montos" (Esfuerzo S):**  
+   Conecta los endpoints existentes de `TableroController` / `IndicadoresController` con comparativa semanal, Top productos y desglose de métodos de pago para darle al dueño lectura inmediata del negocio al abrir la app.
+
+---
+
+## 5. Alcance Aprobado y Diferido
+
+### Implementado en esta iteración
+- **P1 — Semáforo de días de vencimiento (`Nd` / `VENCIDO`) y Alertas 30/60/90d** con KPI *Valor en riesgo*.
+- **POS (parcial):** badge de vencimiento `Nd` / `VENCIDO` del lote FEFO activo en cada tarjeta de producto.
+- **P2 — Control de Caja:** apertura, movimientos manuales, arqueo, cierre con diferencia, historial y vinculación de ventas en efectivo del POS.
+- **P5 — Mejoras de Dashboard:** comparativa últimos 7 días vs. semana anterior, Top 5 productos, distribución por método de pago y toggle *Ocultar montos*.
+
+### Diferido
+Se difieren para iteraciones posteriores los siguientes módulos del benchmark:
+- **P3 (parcial):** consulta externa automática de DNI/RUC (RENIEC/SUNAT), vista previa de comprobante y venta a crédito.
+- **P4:** módulo de promociones, cupones, combos y descuentos programados.
+- **P6:** Notas de Crédito/Débito SUNAT y filtro de pagos pendientes en facturación.
+- **P7:** módulo de gastos operativos y rentabilidad neta.
+- **P8:** cotizaciones y órdenes de compra.

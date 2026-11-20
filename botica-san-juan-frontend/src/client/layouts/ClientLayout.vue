@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-vue-next'
 import BoticaAvatar from '@/admin/components/ui/BoticaAvatar.vue'
+import AsistenteBoticaWidget from '@/components/AsistenteBoticaWidget.vue'
 import DialogoConfirmacion from '@/components/DialogoConfirmacion.vue'
 import SelectorTema from '@/components/SelectorTema.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -517,5 +518,6 @@ onUnmounted(() => {
       @confirmar="confirmarCerrarSesion"
       @cancelar="confirmarSalida = false"
     />
+    <AsistenteBoticaWidget :rol="authStore.user?.rol ?? 'cliente'" />
   </div>
 </template>

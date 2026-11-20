@@ -30,7 +30,7 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import {
   TrendingUp, TrendingDown, CalendarClock, PackageSearch, Receipt,
-  ArrowRight, ClipboardList, Minus,
+  ArrowRight, ClipboardList, Minus, Eye, EyeOff, BarChart3, Wallet,
 } from 'lucide-vue-next'
 import api from '@/services/api'
 import { useAdminToast } from './composables/useAdminToast'
@@ -67,6 +67,44 @@ interface Tablero {
     unidades: number
     importe: number
   }>
+  comparativa_semanal?: {
+    dias: Array<{
+      etiqueta: string
+      fecha: string
+      actual: number
+      anterior: number
+    }>
+    total_actual: number
+    total_anterior: number
+    variacion_absoluta: number
+  }
+  metodos_pago?: Array<{
+    medio: string
+    comprobantes: number
+    importe: number
+    porcentaje: number
+  }>
+}
+
+const CLAVE_OCULTAR_MONTOS = 'botica_ocultar_montos'
+
+function leerPreferenciaOcultar(): boolean {
+  try {
+    return localStorage.getItem(CLAVE_OCULTAR_MONTOS) === '1'
+  } catch {
+    return false
+  }
+}
+
+const ocultarMontos = ref(leerPreferenciaOcultar())
+
+function alternarOcultarMontos() {
+  ocultarMontos.value = !ocultarMontos.value
+  try {
+    localStorage.setItem(CLAVE_OCULTAR_MONTOS, ocultarMontos.value ? '1' : '0')
+  } catch {
+    /* Sin persistencia; se mantiene en memoria durante la sesión. */
+  }
 }
 
 const { notifyError } = useAdminToast()
@@ -90,7 +128,20 @@ async function cargar() {
 onMounted(cargar)
 
 const soles = (n: number) =>
-  `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  ocultarMontos.value
+    ? 'S/ ••••'
+    : `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+const maxComparativa = computed(() => {
+  const dias = datos.value?.comparativa_semanal?.dias ?? []
+  const max = Math.max(...dias.flatMap((d) => [d.actual, d.anterior]), 0)
+  return max > 0 ? max : 1
+})
+
+function altoBarra(valor: number): string {
+  if (valor <= 0) return '4%'
+  return `${Math.max(8, Math.round((valor / maxComparativa.value) * 100))}%`
+}
 
 const hora = (iso: string | null) =>
   iso
@@ -139,18 +190,30 @@ const etiquetaMedio: Record<string, string> = {
 
 <template>
   <div data-admin class="space-y-5">
-    <header>
-      <h1 class="font-display text-2xl font-semibold text-texto-primario">
-        Tablero
-      </h1>
-      <p class="mt-1 text-sm text-texto-secundario">
-        Cómo va el día y qué necesita atención.
-      </p>
+    <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h1 class="font-display text-2xl font-semibold text-texto-primario">
+          Tablero
+        </h1>
+        <p class="mt-1 text-sm text-texto-secundario">
+          Cómo va el día y qué necesita atención.
+        </p>
+      </div>
+      <button
+        type="button"
+        class="inline-flex shrink-0 items-center gap-2 self-start rounded-xl border border-borde-base bg-superficie-elevada px-3.5 py-2 text-xs font-medium text-texto-primario transition-colors hover:bg-superficie-interactiva focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco sm:self-auto"
+        :aria-pressed="ocultarMontos"
+        @click="alternarOcultarMontos"
+      >
+        <EyeOff v-if="ocultarMontos" class="size-4 text-texto-terciario" aria-hidden="true" />
+        <Eye v-else class="size-4 text-texto-terciario" aria-hidden="true" />
+        {{ ocultarMontos ? 'Mostrar montos' : 'Ocultar montos' }}
+      </button>
     </header>
 
     <!-- Esqueleto mientras carga: mantiene la forma de la pantalla para que
          no salte el contenido al aparecer. -->
-    <div v-if="cargando" class="grid gap-4 lg:grid-cols-3">
+    <div v-if="cargando" class="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <div
         v-for="n in 3"
         :key="n"
@@ -160,7 +223,7 @@ const etiquetaMedio: Record<string, string> = {
 
     <template v-else-if="datos">
       <!-- ================= Cifras del día ============================== -->
-      <section class="grid gap-4 lg:grid-cols-3">
+      <section class="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <!-- La venta del día ocupa el doble: es lo que se mira primero. -->
         <article class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-6 lg:col-span-2">
           <div class="flex items-start justify-between gap-4">
@@ -278,7 +341,7 @@ const etiquetaMedio: Record<string, string> = {
           </h2>
         </div>
 
-        <div class="mt-4 grid gap-4 sm:grid-cols-3">
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <RouterLink
             v-for="grupo in [
               { clave: 'agotados', etiqueta: 'Agotados', valor: datos.reposicion.agotados, tono: 'text-peligro-600' },
@@ -309,7 +372,7 @@ const etiquetaMedio: Record<string, string> = {
       </section>
 
       <!-- ================= Detalle ===================================== -->
-      <div class="grid gap-5 lg:grid-cols-2">
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <!-- Últimas ventas -->
         <section class="rounded-2xl border border-borde-sutil bg-superficie-elevada">
           <div class="flex items-center justify-between border-b border-borde-sutil px-5 py-3">
@@ -357,7 +420,7 @@ const etiquetaMedio: Record<string, string> = {
         <!-- Más vendidos -->
         <section class="rounded-2xl border border-borde-sutil bg-superficie-elevada">
           <div class="border-b border-borde-sutil px-5 py-3">
-            <h2 class="text-sm font-semibold text-texto-primario">Más vendidos</h2>
+            <h2 class="text-sm font-semibold text-texto-primario">Top 5 productos</h2>
             <p class="text-xs text-texto-terciario">
               Últimos 30 días, en unidades entregadas.
             </p>
@@ -399,6 +462,101 @@ const etiquetaMedio: Record<string, string> = {
               </span>
             </li>
           </ol>
+        </section>
+      </div>
+
+      <!-- ================= Comparativa semanal y métodos de pago ======== -->
+      <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <section
+          v-if="datos.comparativa_semanal"
+          class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-5"
+          aria-label="Comparativa últimos 7 días contra semana anterior"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <BarChart3 class="size-4 text-texto-terciario" aria-hidden="true" />
+              <h2 class="text-sm font-semibold text-texto-primario">
+                Últimos 7 días vs. semana anterior
+              </h2>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-texto-secundario">
+              <span class="inline-flex items-center gap-1.5">
+                <span class="size-2.5 rounded-sm bg-botica-600" aria-hidden="true" />
+                Actual ({{ soles(datos.comparativa_semanal.total_actual) }})
+              </span>
+              <span class="inline-flex items-center gap-1.5">
+                <span class="size-2.5 rounded-sm bg-clinico-300 dark:bg-clinico-700" aria-hidden="true" />
+                Anterior ({{ soles(datos.comparativa_semanal.total_anterior) }})
+              </span>
+            </div>
+          </div>
+
+          <div class="mt-5 grid h-40 grid-cols-7 items-end gap-2 border-b border-borde-sutil pb-2">
+            <div
+              v-for="dia in datos.comparativa_semanal.dias"
+              :key="dia.fecha"
+              class="flex h-full flex-col items-center justify-end gap-1"
+            >
+              <div class="flex h-full w-full items-end justify-center gap-1">
+                <div
+                  class="w-2.5 rounded-t bg-clinico-300 transition-[height] duration-300 dark:bg-clinico-700 sm:w-3"
+                  :style="{ height: altoBarra(dia.anterior) }"
+                  :title="`Semana anterior (${dia.etiqueta}): ${soles(dia.anterior)}`"
+                />
+                <div
+                  class="w-2.5 rounded-t bg-botica-600 transition-[height] duration-300 sm:w-3"
+                  :style="{ height: altoBarra(dia.actual) }"
+                  :title="`Esta semana (${dia.etiqueta}): ${soles(dia.actual)}`"
+                />
+              </div>
+              <span class="text-2xs font-medium text-texto-terciario">{{ dia.etiqueta }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section
+          v-if="datos.metodos_pago"
+          class="rounded-2xl border border-borde-sutil bg-superficie-elevada p-5"
+          aria-label="Distribución por método de pago"
+        >
+          <div class="flex items-center gap-2">
+            <Wallet class="size-4 text-texto-terciario" aria-hidden="true" />
+            <h2 class="text-sm font-semibold text-texto-primario">
+              Métodos de pago (30 días)
+            </h2>
+          </div>
+
+          <BoticaEstadoVacio
+            v-if="datos.metodos_pago.length === 0"
+            :icono="Wallet"
+            titulo="Sin pagos registrados"
+            descripcion="Los cobros por efectivo, Yape, Plin o tarjeta aparecerán aquí."
+            class="py-8"
+          />
+
+          <ul v-else class="mt-4 space-y-3">
+            <li
+              v-for="m in datos.metodos_pago"
+              :key="m.medio"
+              class="space-y-1"
+            >
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-medium text-texto-primario">
+                  {{ etiquetaMedio[m.medio] ?? m.medio }}
+                  <span class="font-normal text-texto-terciario">({{ m.comprobantes }})</span>
+                </span>
+                <span class="tabular-nums text-texto-secundario">
+                  {{ soles(m.importe) }} · {{ m.porcentaje }}%
+                </span>
+              </div>
+              <div class="h-2 w-full overflow-hidden rounded-full bg-superficie-hundida">
+                <div
+                  class="h-full rounded-full bg-clinico-500 transition-[width] duration-300"
+                  :style="{ width: `${Math.max(2, m.porcentaje)}%` }"
+                />
+              </div>
+            </li>
+          </ul>
         </section>
       </div>
     </template>

@@ -26,6 +26,7 @@ import { useAuthStore } from '../../stores/auth'
 import AdminSidebar from '../components/AdminSidebar.vue'
 import AdminTopbar from '../components/AdminTopbar.vue'
 import AdminToastStack from '../components/AdminToastStack.vue'
+import AsistenteBoticaWidget from '../../components/AsistenteBoticaWidget.vue'
 import DialogoConfirmacion from '../../components/DialogoConfirmacion.vue'
 /* Estilos heredados de las vistas del panel (.btn-primary, .admin-theme…).
    Se conserva la importación para no romper las 12 vistas existentes mientras
@@ -237,6 +238,7 @@ function salir() {
     </div>
 
     <AdminToastStack />
+    <AsistenteBoticaWidget :rol="authStore.user?.rol ?? 'administrador'" />
   </div>
   <DialogoConfirmacion
     :abierto="confirmandoSalida"

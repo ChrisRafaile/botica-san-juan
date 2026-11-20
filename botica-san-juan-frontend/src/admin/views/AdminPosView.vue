@@ -35,6 +35,7 @@ import {
 import { useAdminToast } from '../composables/useAdminToast'
 import BoticaButton from '../components/ui/BoticaButton.vue'
 import BoticaBadge from '../components/ui/BoticaBadge.vue'
+import { etiquetaVencimiento, tonoVencimiento } from '../utils/vencimientos'
 import BoticaEstadoVacio from '../components/ui/BoticaEstadoVacio.vue'
 import EstadoConexionCaja from '../components/EstadoConexionCaja.vue'
 import TicketContingencia from '../components/TicketContingencia.vue'
@@ -693,6 +694,13 @@ const etiquetaForma: Record<string, string> = {
                 </BoticaBadge>
                 <BoticaBadge v-else :tono="producto.stock_disponible > 0 ? 'normal' : 'critico'">
                   {{ producto.stock_disponible }} disp.
+                </BoticaBadge>
+                <BoticaBadge
+                  v-if="producto.dias_para_vencer !== null && producto.dias_para_vencer !== undefined"
+                  :tono="tonoVencimiento(producto.dias_para_vencer, producto.nivel_vencimiento)"
+                  :title="`Primer lote FEFO vence en ${producto.dias_para_vencer} día(s)`"
+                >
+                  {{ etiquetaVencimiento(producto.dias_para_vencer) }}
                 </BoticaBadge>
               </div>
             </div>

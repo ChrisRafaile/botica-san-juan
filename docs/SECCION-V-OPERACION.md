@@ -579,7 +579,7 @@ está verificado, por correcto que parezca el código.
 | **RNF04** | Matriz de pruebas de compatibilidad | **Parcial** | Diseño adaptable verificado a 1280×720 y 1440×950. No existe la **matriz** que pedía la verificación |
 | **RNF05** | Monitoreo cada cinco minutos | **Pendiente** | El script existe sin programar, y el 99 % no es verificable en esta infraestructura (apartado 29.5) |
 | **RNF06** | Prueba de interrupción forzada | **Verificado por vía inesperada** | `DB::transaction` con `lockForUpdate`. **El simulacro de restauración lo demostró**: la llave foránea impidió borrar un producto con ventas (apartado 32.4) |
-| **RNF07** | Ejecución del pipeline de CI | **Parcial** | 54 migraciones versionadas y reversibles. El pipeline corre pruebas, `vue-tsc` y un escáner de secretos; **no ejecuta Pint, PHPStan ni ESLint**. `CI-01`–`CI-03` |
+| **RNF07** | Ejecución del pipeline de CI | **Parcial** | 59 migraciones versionadas y reversibles. El pipeline corre pruebas, `vue-tsc` y un escáner de secretos; **no ejecuta Pint, PHPStan ni ESLint**. `CI-01`–`CI-03` |
 | **RNF08** | Simulacro de restauración | **Parcial** | **El simulacro se ejecutó** y recuperó lo borrado; RTO medido 0,93 s (`CON-01`, `CON-03`). Sigue pendiente la **programación diaria** del respaldo |
 
 *Nota.* Elaboración propia. **2 verificados, 4 parciales, 2 pendientes.**
@@ -611,7 +611,7 @@ razonadas que como incumplimientos, siempre que la matriz las muestre.
 | Pruebas de backend | **462** (1 446 aserciones, 40 clases) | `docs/evidencias/soa-concurrencia-v050/INFORME-QA-SOA.md` |
 | Pruebas de frontend | **200** (31 archivos) | `docs/evidencias/soa-concurrencia-v050/INFORME-QA-SOA.md` |
 | Total de pruebas automatizadas | **662** | `docs/evidencias/soa-concurrencia-v050/INFORME-QA-SOA.md` |
-| Migraciones versionadas y reversibles | **54** | `docs/evidencias/figura11/` |
+| Migraciones versionadas y reversibles | **59** | `docs/evidencias/figura11/` |
 | Productos en el catálogo de producción | **884** | `CON-01` |
 | Productos con fotografía real en producción | **194**, las 194 servidas con `200` | `docs/evidencias/produccion/INFORME-QA-PROD.md` |
 | Archivos de evidencia | **156** en 19 carpetas | `docs/evidencias/INDICE.md` |

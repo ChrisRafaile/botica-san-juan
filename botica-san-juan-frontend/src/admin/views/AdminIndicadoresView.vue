@@ -51,12 +51,12 @@ const soles = (valor: number) =>
 
 <template>
   <div class="space-y-6 p-4 sm:p-6 lg:p-8">
-    <header class="flex flex-wrap items-end justify-between gap-4">
+    <header class="flex flex-col items-start gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
       <div>
         <h1 class="text-3xl font-bold text-texto-primario">
           Indicadores
         </h1>
-        <p class="mt-1 text-texto-secundario">
+        <p class="mt-1 text-texto-secundario max-sm:min-h-12">
           Qué se vence, cómo te pagan y qué se mueve.
         </p>
       </div>
@@ -106,10 +106,12 @@ const soles = (valor: number) =>
       {{ error }}
     </p>
 
-    <div class="grid gap-6 xl:grid-cols-2">
-      <!-- Vencimientos. min-h idéntico en los tres estados: el hueco no cambia. -->
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <!-- Vencimientos. min-h idéntico en los tres estados: el hueco no cambia.
+           max-sm: a 360 px los gráficos cargados miden más que el esqueleto
+           (33, 20 y 37 rem), así que el hueco se reserva entero. -->
       <section
-        class="min-h-[26rem] rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80 xl:col-span-2"
+        class="min-h-[26rem] max-sm:min-h-[34rem] rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80 xl:col-span-2"
       >
         <h2 class="mb-1 text-lg font-semibold text-texto-primario">
           Vencimiento de lotes
@@ -136,7 +138,7 @@ const soles = (valor: number) =>
       </section>
 
       <!-- Arqueo -->
-      <section class="min-h-[18rem] rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
+      <section class="min-h-[18rem] max-sm:min-h-[20.5rem] rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
         <h2 class="mb-1 text-lg font-semibold text-texto-primario">
           Arqueo por medio de pago
         </h2>
@@ -172,7 +174,7 @@ const soles = (valor: number) =>
       </section>
 
       <!-- Más vendidos -->
-      <section class="min-h-[18rem] rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
+      <section class="min-h-[18rem] max-sm:min-h-[37rem] rounded-2xl bg-superficie-elevada p-6 shadow-lg ring-1 ring-borde-sutil/80">
         <h2 class="mb-1 text-lg font-semibold text-texto-primario">
           Más entregados
         </h2>

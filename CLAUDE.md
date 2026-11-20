@@ -200,6 +200,7 @@ agy --model gemini-4-hydrogen-high --effort low --mode auto -i "<tarea>"
 | `docs/evidencias/auditoria-portal-cliente/INFORME-QA-LOCAL.md` | Tercera pasada en navegador sobre local: portal cliente, tema, flujo de compra, Admin y el CLS en frío de `/admin/products`. |
 | `docs/evidencias/produccion/INFORME-QA-PROD.md` | Auditoría de producción: 194 fotos, búsqueda sin tildes y consola limpia. El portal cliente y Admin autenticados quedaron sin medir por falta de credencial. |
 | `docs/evidencias/figura11/LEEME.md` | Figura 11 corregida para el informe final, y por qué el APF3 no se tocó. |
+| `docs/ASISTENTE-IA.md` | Arquitectura del asistente IA, proveedores gratuitos, matriz herramienta×rol y privacidad. |
 
 El APF3 ya se entregó y se calificó: es un registro histórico y no se modifica.
 Lo que lo corrige se entrega como archivo aparte en `docs/evidencias/`.
