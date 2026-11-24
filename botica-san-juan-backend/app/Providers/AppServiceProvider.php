@@ -22,7 +22,21 @@ class AppServiceProvider extends ServiceProvider
             \App\Services\Pagos\IzipayClient::class
         );
 
-        //
+        /* El SDK de Resend crea su cliente HTTP sin tiempo de espera. Los
+           correos salen dentro de la petición, así que un proveedor que acepta
+           la conexión y no responde dejaría colgado el registro o la compra
+           que ya está hecha. Se conserva el cliente del paquete y solo se le
+           cambia el transporte. */
+        $this->app->extend(
+            \Resend\Contracts\Client::class,
+            fn () => new \Resend\Client(new \Resend\Transporters\HttpTransporter(
+                new \GuzzleHttp\Client(['connect_timeout' => 3, 'timeout' => 8]),
+                \Resend\ValueObjects\Transporter\BaseUri::from(getenv('RESEND_BASE_URL') ?: 'api.resend.com'),
+                \Resend\ValueObjects\Transporter\Headers::withAuthorization(
+                    \Resend\ValueObjects\ApiKey::from((string) (config('resend.api_key') ?? config('services.resend.key')))
+                ),
+            ))
+        );
     }
 
     /**

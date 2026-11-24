@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Usuario;
+use App\Services\Correo\CorreoTransaccional;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -35,15 +36,27 @@ class ContrasenaController extends Controller
     /**
      * Envia el enlace de restablecimiento, si hay cuenta.
      */
-    public function solicitar(Request $request): JsonResponse
+    public function solicitar(Request $request, CorreoTransaccional $correos): JsonResponse
     {
         $validado = $request->validate([
             'email' => ['required', 'string', 'email', 'max:255'],
         ]);
 
-        /* El resultado del broker se descarta a proposito. Tanto
-           RESET_LINK_SENT como INVALID_USER salen por la misma puerta. */
-        Password::broker()->sendResetLink(['email' => $validado['email']]);
+        /* Si no existe cuenta, no se envía ni se registra evento (equivale a
+           INVALID_USER). Si existe, pasa por CorreoTransaccional para que un
+           fallo del proveedor no devuelva 500 y convierta el endpoint en un
+           oráculo de enumeración. */
+        $usuario = Password::broker()->getUser(['email' => $validado['email']]);
+
+        if ($usuario !== null) {
+            $correos->enviar(
+                'recuperacion_contrasena',
+                /* Solo RESET_LINK_SENT es un envío: con RESET_THROTTLED no salió
+                   ningún correo y anotarlo como enviado falsearía la bitácora. */
+                fn () => Password::broker()->sendResetLink(['email' => $validado['email']]) === Password::RESET_LINK_SENT,
+                usuarioId: $usuario instanceof Usuario ? $usuario->id : null,
+            );
+        }
 
         return response()->json([
             'message' => 'Si existe una cuenta con ese correo, te enviamos un enlace para restablecer la contraseña. Revisa también la carpeta de no deseados.',

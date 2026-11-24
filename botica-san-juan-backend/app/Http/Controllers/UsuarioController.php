@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Mail\BienvenidaCliente;
 use App\Models\Usuario;
+use App\Services\Correo\CorreoTransaccional;
 use App\Support\TotpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 
 class UsuarioController extends Controller
@@ -140,7 +143,7 @@ class UsuarioController extends Controller
         return response()->json(['message' => 'Usuario deleted successfully']);
     }
 
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request, CorreoTransaccional $correos)
     {
         $validated = $request->validated();
 
@@ -167,22 +170,18 @@ class UsuarioController extends Controller
            devolver 500 dejaria al cliente creyendo que su registro fallo
            cuando en realidad existe —y con la contrasena que acaba de elegir,
            que no volvera a ver—. Se registra el fallo y se sigue: la cuenta
-           queda sin verificar y el reenvio esta a un boton de distancia.
+           queda sin verificar y el reenvio esta a un boton de distancia. */
+        $verificacionEnviada = $correos->enviar(
+            'verificacion',
+            fn () => $usuario->sendEmailVerificationNotification(),
+            usuarioId: $usuario->id,
+        );
 
-           En el log va el id, no el correo: un log de aplicacion no es el
-           sitio donde deben acumularse direcciones de clientes. */
-        $verificacionEnviada = true;
-
-        try {
-            $usuario->sendEmailVerificationNotification();
-        } catch (\Throwable $e) {
-            $verificacionEnviada = false;
-
-            Log::warning('No se pudo enviar el correo de verificacion', [
-                'usuario_id' => $usuario->id,
-                'excepcion' => $e::class,
-            ]);
-        }
+        $correos->enviar(
+            'bienvenida',
+            fn () => Mail::to($usuario->email)->send(new BienvenidaCliente($usuario)),
+            usuarioId: $usuario->id,
+        );
 
         return response()->json([
             'user' => $usuario,
