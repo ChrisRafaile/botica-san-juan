@@ -1,8 +1,7 @@
 # Correos transaccionales
 
-> Estado: implementado y probado de punta a punta en local con el transporte
-> `log`. **Nunca se ha enviado un correo real todavía**: falta un dominio
-> verificado y el visto bueno para mandar el primero.
+> Estado: implementado y probado en producción el 2026-11-23, solo hacia el
+> titular de la cuenta de Resend: falta un dominio verificado.
 
 ## 1. Qué hay y qué no
 
@@ -15,7 +14,7 @@
 | Recuperación de contraseña | Funciona |
 | Bienvenida al registrarse o entrar por primera vez con Google | Implementada (Mailable `BienvenidaCliente`, envío síncrono) |
 | Confirmación de compra registrada (clientes con sesión) | Implementada (Mailable `CompraRegistrada`, envío síncrono) |
-| Envío real contra Resend | **Sin ejecutar** |
+| Envío real contra Resend | Probado en producción el 2026-11-23: 4 de 4 `delivered`; Gmail mandó 2 a Spam |
 
 Sin dominio verificado, Resend solo acepta `onboarding@resend.dev` como
 remitente y **solo entrega al correo de la persona dueña de la cuenta**. Eso
@@ -169,8 +168,8 @@ Las capturas y el texto de los dos correos están en
 1. **Verificar un dominio en Resend** y cambiar `MAIL_FROM_ADDRESS` a una
    dirección propia (`no-responder@…`). Hasta entonces no se puede escribir a
    clientes.
-2. **Enviar el primer correo real** y comprobar entrega, SPF/DKIM y que no cae
-   en no deseados.
+2. **Salir de Spam**: confirmación y recuperación cayeron en no deseados en la
+   prueba real. Depende del punto 1 (SPF/DKIM de un dominio propio).
 3. Decidir si la verificación pasa a ser **obligatoria** para comprar. Hoy no
    lo es: se avisa en el perfil y nada más. Las cuentas que ya existían
    quedaron marcadas con la fecha de su propio registro, no con «ahora», porque

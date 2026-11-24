@@ -13,7 +13,7 @@ La **Tabla 64** de `docs/INFORME-APF3.md` dejó cuatro observaciones abiertas (`
 | N.º | Observación original (Tabla 64 del APF3) | Corrección aplicada | Estado actual | Evidencia |
 |---|---|---|---|---|
 | **O-B1** | Las Figuras 43 y C.3 muestran ejecuciones de la suite con 98/246 y 139/421, cifras ya superadas. | Se re-ejecutaron las suites completas sobre PostgreSQL 16 y Vitest para reflejar el corte final (**500** pruebas de backend, **209** de frontend, **709** en total). | **Cerrada** (actualizada al corte v0.8.0) | `docs/evidencias/cortes/CRT-35-suite-440.png`, `CRT-37-suite-frontend-196.png`, informe v0.5.0 y corte final **709** |
-| **O-B2** | La Figura 11 rotula «26 migraciones versionadas» dentro del PNG; en APF3 eran 46/49. | Se creó `docs/scripts/generar-figura11.py` para contar dinámicamente los archivos de migración y regenerar el diagrama sin cifras fijas. | **Cerrada** | `docs/evidencias/figura11/LEEME.md` (54 migraciones al momento del script; **59** al cierre) |
+| **O-B2** | La Figura 11 rotula «26 migraciones versionadas» dentro del PNG; en APF3 eran 46/49. | Se creó `docs/scripts/generar-figura11.py` para contar dinámicamente los archivos de migración y regenerar el diagrama sin cifras fijas. | **Cerrada** | `docs/evidencias/figura11/LEEME.md` (54 migraciones al momento del script; **61** al cierre) |
 | **O-B3** | Las cifras del portal público («más de 10 años», «8k clientes») no coinciden entre Inicio, Sobre Nosotros y el pie. | Se homologó el texto por decisión de negocio en las cuatro vistas públicas («+800 productos farmacéuticos», «Más de 8 años de servicio en San Juan de Lurigancho», «Atención directa en nuestro local principal y delivery local»). | **Cerrada** | `Hero.vue`, `Stats.vue`, `AboutContent.vue`, `Footer.vue` |
 | **O-B4** | Los 884 productos del catálogo apuntan a `images/default_image.png`, archivo que respondía 404. | Se verificó el archivo servido en producción y se ejecutaron pasadas de extracción/emparejamiento de fotografías reales. | **Cerrada** | `docs/evidencias/produccion/INFORME-QA-PROD.md` (`200`, `image/png`, 2 255 B, 512×512; **194** productos con foto real en producción) |
 
@@ -74,6 +74,17 @@ flowchart LR
 
 En la capa gratuita de Render la instancia se suspende tras **15 minutos sin tráfico**, con ~50 s de arranque en frío. Un sondeo cada 5 minutos mantendría artificialmente despierta la instancia, fabricando disponibilidad en lugar de medirla. Por ello, el compromiso del **99 % (RNF05)** se declara **no verificable en la infraestructura actual** y sujeto a migración a un plan de pago.
 
+### 29.5. Estados de alerta y recuperación
+
+| Estado | Condición | Ejemplo con `/api/salud` (M1) | Ejemplo con la bitácora (M12) | Respuesta |
+|---|---|---|---|---|
+| **INFO** | Dentro del umbral | `200` con `ok:true` | Eventos `info`, como `CORREO_ENVIADO` | Se registra, sin acción |
+| **WARNING** | Cruza el preventivo | < 99,5 % en 7 días | > 10 errores en 24 h | Revisar el mismo día |
+| **ERROR** | Cruza el crítico | 2 sondeos seguidos fallidos (10 min) | > 50 en 24 h o 5 del mismo código en 1 h | Abrir incidente y priorizar |
+| **RECOVERY** | Vuelve al rango | Sondeo en `200` verificado | Sin eventos nuevos del código afectado | Verificar, cerrar y anotar la causa |
+
+> **Nota:** `RECOVERY` es un estado del procedimiento, no un nivel de `EventoOperacion`: la bitácora guarda `info`, `warning` y `error`. El sondeo automático no está programado, así que hoy la transición la comprueba una persona.
+
 ![Estado de salud del servicio](../evidencias/informe-final/EF-01-salud.png)
 
 ---
@@ -103,14 +114,16 @@ La gestión de eventos se apoya en el modelo `App\Models\EventoOperacion` (`boti
 | `info` | `PEDIDO_CANCELADO` | `PedidoService.php` | Cancelación de pedido con restitución de stock por lote. |
 | `info` | `PERFIL_CONTRASENA_CAMBIADA` | `PerfilController.php` | Cambio de contraseña y revocación de otras sesiones (`PERFIL_FOTO_ACTUALIZADA`, `PERFIL_GOOGLE_DESVINCULADO`). |
 | `info` | `SUNAT_CDR_RECIBIDO` | `FacturadorSunat.php` | Constancia CDR recibida y guardada con código y estado. |
-| `info` | `CORREO_ENVIADO` *(nuevo en esta rama)* | Flujo de correo transaccional | Envío exitoso de correo transaccional (verificación, recuperación, bienvenida o compra registrada). |
+| `info` | `CORREO_ENVIADO` | Flujo de correo transaccional | Envío exitoso de correo transaccional (verificación, recuperación, bienvenida o compra registrada). |
 | `warning` | `SYNC_VENTA_DUPLICADA` | `SincronizacionVentasService.php` | Reenvío idempotente de un `uuid_local` ya registrado; se ignora sin duplicar pedido. |
 | `warning` | `SYNC_STOCK_INSUFICIENTE` | `SincronizacionVentasService.php` | Venta offline aceptada que generó incidencia de inventario por falta de stock. |
 | `error` *(mapeo de crítico)* | `SYNC_VENTA_RECHAZADA` | `SincronizacionVentasService.php` | Venta offline rechazada por datos inválidos (ej. producto inexistente). |
 | `error` *(mapeo de crítico)* | `PAGO_RECIBIDO_PEDIDO_ANULADO` | `PagoService.php` | Pago confirmado sobre un pedido ya anulado; requiere devolución manual. |
 | `error` *(mapeo de crítico)* | `SUNAT_ENVIO_FALLIDO` | `FacturadorSunat.php` | Excepción de transporte/envío hacia SUNAT; comprobante queda en `pendiente`. |
-| `error` *(mapeo de crítico)* | `CORREO_FALLIDO` *(nuevo en esta rama)* | Flujo de correo transaccional | Fallo al despachar correo transaccional sin abortar la operación principal. |
-| `error` *(mapeo de crítico)* | `CORREO_TRANSPORTE_INVALIDO` *(nuevo en esta rama)* | Flujo de correo transaccional | Configuración o transporte de correo inválido detectado al intentar enviar. |
+| `error` *(mapeo de crítico)* | `CORREO_FALLIDO` | Flujo de correo transaccional | Fallo al despachar correo transaccional sin abortar la operación principal. |
+| `error` *(mapeo de crítico)* | `CORREO_TRANSPORTE_INVALIDO` | Flujo de correo transaccional | Configuración o transporte de correo inválido detectado al intentar enviar. |
+
+En producción, la prueba de correo del 23 de noviembre de 2026 dejó **4** eventos `CORREO_ENVIADO`; la bitácora mostraba **7** `info`, **0** `warning` y **0** `error` (`15-admin-eventos-resend-ok.png`).
 
 ![Bitácora de eventos de operación](../evidencias/informe-final/EF-02-bitacora.png)
 
@@ -121,17 +134,16 @@ La gestión de eventos se apoya en el modelo `App\Models\EventoOperacion` (`boti
 ### 31.1. Flujo de atención de 10 etapas
 
 ```mermaid
-flowchart LR
-    E1["1. Detección"] --> E2["2. Registro"]
-    E2 --> E3["3. Clasificación"]
-    E3 --> E4["4. Priorización (P1-P4)"]
-    E4 --> E5["5. Diagnóstico inicial"]
-    E5 --> E6{"6. ¿Requiere escalamiento?"}
-    E6 -- Sí --> E7["7. Investigación y diagnóstico"]
-    E6 -- No --> E7
-    E7 --> E8["8. Resolución y recuperación"]
-    E8 --> E9["9. Verificación"]
-    E9 --> E10["10. Cierre y lecciones aprendidas"]
+flowchart TB
+    subgraph A["Entrada y análisis"]
+        direction LR
+        E1["1 · Detección"] --> E2["2 · Registro"] --> E3["3 · Clasificación"] --> E4["4 · Priorización P1-P4"] --> E5["5 · Diagnóstico inicial"]
+    end
+    subgraph B["Resolución y cierre"]
+        direction LR
+        E6["6 · Escalamiento, si procede"] --> E7["7 · Investigación"] --> E8["8 · Resolución y recuperación"] --> E9["9 · Verificación"] --> E10["10 · Cierre y lecciones"]
+    end
+    A --> B
 ```
 
 ### 31.2. Matriz Impacto / Urgencia y prioridades P1–P4
@@ -212,6 +224,50 @@ Además de los incidentes previos **INC-01** (P1, fallo silencioso de `config:ca
 
 Evidencia del simulacro: `docs/evidencias/continuidad/` (`CON-01`, `CON-03`).
 
+### 32.4. BCM, ITSCM y DR
+
+| Disciplina | Pregunta que responde | En Botica San Juan |
+|---|---|---|
+| **BCM** (continuidad del negocio) | ¿Cómo sigue atendiendo la botica? | Venta en mostrador con el POS offline y nota interna de contingencia |
+| **ITSCM** (continuidad del servicio de TI) | ¿Cómo se sostienen los servicios que el negocio necesita? | Monitoreo, respaldos, umbrales, roles y simulacro de restauración |
+| **DR** (recuperación ante desastres) | ¿Cómo se restaura lo que cayó? | Restauración de PostgreSQL, redespliegue de API y portal, verificación |
+
+### 32.5. Análisis de impacto (BIA)
+
+Los límites globales comprometidos son **RTO ≤ 60 min** y **RPO ≤ 24 h** (`docs/CONTINUIDAD_OPERATIVA.md`). El reparto por servicio es el **objetivo propuesto** en este informe; no es una medición.
+
+| Servicio crítico | Impacto si cae | Prioridad | RTO objetivo | RPO objetivo | Alternativa |
+|---|---|---|---|---|---|
+| Venta en mostrador (POS) | Se detiene la venta presencial | P1 | 15 min | 0 para ventas en cola local | POS offline con cola e idempotencia |
+| Base de datos PostgreSQL | Sin catálogo, stock ni comprobantes | P1 | 60 min | 24 h | Restaurar el último respaldo |
+| API (Render) | Portal y panel sin servicio | P1 | 60 min | No aplica | Reactivar el despliegue anterior |
+| Portal del cliente (Vercel) | Sin pedidos web | P2 | 60 min | No aplica | Atención en mostrador y WhatsApp |
+| Comprobantes electrónicos | Emisión diferida | P2 | 24 h | 24 h | Quedan en `pendiente` y se reenvían |
+| Correo transaccional (Resend) | Sin avisos ni recuperación de clave | P3 | 24 h | No aplica | La operación continúa; queda `CORREO_FALLIDO` |
+| Archivos subidos (recetas y fotos) | Se pierden al redesplegar | P2 | No cubierto | No cubierto | Pendiente: almacenamiento de objetos |
+
+### 32.6. Componentes del plan de recuperación (DRP)
+
+| Componente | Contenido | Estado |
+|---|---|---|
+| Activación | API caída o base no disponible (Sev-1), 2 sondeos fallidos | Definido |
+| Roles | Administrador técnico, soporte de operaciones y responsable funcional | Definido |
+| Inventario | Vercel, Render, Neon, repositorio y scripts de `infra/` | Definido |
+| Procedimiento | Confirmar, registrar, contener, restaurar en ensayo, restaurar, verificar y cerrar | Definido |
+| Comunicación | Aviso al responsable de la farmacia y paso a contingencia | Definido; sin ensayo registrado |
+| Pruebas | Simulacro de restauración sobre PostgreSQL 16 | Ejecutado (`CON-01`, `CON-03`) |
+| Retorno | `/api/salud` en `200`, conteos verificados y cola del POS sincronizada | Definido |
+
+### 32.7. Estrategia de respaldos y regla 3-2-1
+
+| Regla | Qué exige | Situación actual | Brecha |
+|---|---|---|---|
+| **3** copias | Original y dos copias | Base en Neon y respaldos con `backup_postgres.ps1` a demanda | Falta la segunda copia sistemática |
+| **2** medios | Dos soportes distintos | Servicio gestionado y disco local | Cumple solo cuando se ejecuta el respaldo |
+| **1** fuera de sitio | Copia en otro lugar | No hay destino externo automático del respaldo | Enviar a S3 o R2 |
+
+La retención por omisión de `backup_postgres.ps1` es de **14 días**. La regla 3-2-1 es el **objetivo**: hoy se cumple **en parte**, porque la ejecución diaria no está programada.
+
 ---
 
 ## 33. Resultados finales y matriz de requerimientos
@@ -223,7 +279,7 @@ Evidencia del simulacro: `docs/evidencias/continuidad/` (`CON-01`, `CON-03`).
 | Pruebas de backend | **500** |
 | Pruebas de frontend | **209** |
 | Total de pruebas automatizadas | **709** |
-| Migraciones versionadas y reversibles | **59** |
+| Migraciones versionadas y reversibles | **61** |
 | Catálogo en producción | **884** productos (**194** con fotografía real servida con `200`) |
 | Contrato API pública | **OpenAPI 0.8.0** (OpenAPI 3.1, navegable en Scalar y Stoplight) |
 
@@ -259,12 +315,12 @@ Evidencia del simulacro: `docs/evidencias/continuidad/` (`CON-01`, `CON-03`).
 | **RNF04** | Interfaces adaptables (matriz de compatibilidad) | **Parcial** | Verificado en 1280×720 y 1440×950 (`EVT-01`–`EVT-03`), sin matriz formal de navegadores/resoluciones. |
 | **RNF05** | Disponibilidad ≥ 99 % (monitoreo cada 5 min) | **Pendiente** | Script existe sin programar; no verificable en capa gratuita de Render que duerme a los 15 min. |
 | **RNF06** | Atomicidad en operaciones de inventario | **Implementado** (verificación parcial/inesperada) | `DB::transaction` con `lockForUpdate`; las llaves foráneas `RESTRICT` frenaron el borrado en el simulacro de PostgreSQL. |
-| **RNF07** | Análisis estático en CI y migraciones versionadas | **Parcial** | 59 migraciones reversibles, pruebas, `vue-tsc` y escáner de secretos en CI; faltan Pint/PHPStan y ESLint en pipeline. |
+| **RNF07** | Análisis estático en CI y migraciones versionadas | **Parcial** | 61 migraciones reversibles, pruebas, `vue-tsc` y escáner de secretos en CI; faltan Pint/PHPStan y ESLint en pipeline. |
 | **RNF08** | Respaldo diario (RPO 24 h / RTO 60 min) y simulacro | **Parcial** | Simulacro en PostgreSQL 16 ejecutado con **RTO = 0,93 s** (`CON-01`, `CON-03`); falta activar la programación diaria (RPO). |
 
 ### 33.4. Limitación declarada en correos transaccionales
 
-De acuerdo con `docs/CORREOS-TRANSACCIONALES.md`, la integración con **Resend** funciona con clave `sending_access`, pero **sin un dominio verificado en Resend el remitente `onboarding@resend.dev` solo entrega correos al titular de la cuenta**. Por ello, las pruebas de verificación de correo y recuperación de contraseña se validaron de punta a punta en entorno local con `MAIL_MAILER=log`, quedando pendiente la verificación DNS de un dominio propio para habilitar envíos reales a clientes.
+El 23 de noviembre de 2026 se probaron en producción registro, recuperación y compra. Resend informó `delivered` en los cuatro mensajes. Gmail dejó **bienvenida** y **pedido registrado** en Recibidos y mandó a **Spam** la **confirmación** y la **recuperación**. Sin dominio verificado, el remitente de pruebas solo entrega al titular de la cuenta; verificar un dominio propio (SPF/DKIM) es requisito para atender a clientes. La bitácora de producción registró cuatro `CORREO_ENVIADO` y ningún error. El remitente fue `onboarding@resend.dev`, compartido por Resend para pruebas.
 
 ### 33.5. Evidencias del sistema funcionando (corte v0.8.0)
 
