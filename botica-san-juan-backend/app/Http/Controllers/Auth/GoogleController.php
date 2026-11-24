@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\BienvenidaCliente;
 use App\Models\Usuario;
+use App\Services\Correo\CorreoTransaccional;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,6 +13,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -128,7 +131,7 @@ class GoogleController extends Controller
      * Quien llega aquí es el navegador de una persona, no un programa: un
      * error devuelto como JSON la dejaría mirando una llave y un corchete.
      */
-    public function callback(Request $request): RedirectResponse
+    public function callback(Request $request, CorreoTransaccional $correos): RedirectResponse
     {
         if (! $this->configurado()) {
             return $this->alPortal(['error' => 'no-configurado']);
@@ -168,10 +171,20 @@ class GoogleController extends Controller
             return $this->alPortal(['error' => 'correo-sin-verificar']);
         }
 
-        $usuario = $this->vincularOCrear((string) $cuenta->getId(), $correo, (string) $cuenta->getName());
+        [$usuario, $esNuevo] = $this->vincularOCrear((string) $cuenta->getId(), $correo, (string) $cuenta->getName());
 
         if ($usuario === null) {
             return $this->alPortal(['error' => 'cuenta-ocupada']);
+        }
+
+        /* Solo en alta nueva y después de cerrar la transacción, nunca al
+           vincular una cuenta existente ni en inicios de sesión posteriores. */
+        if ($esNuevo) {
+            $correos->enviar(
+                'bienvenida_google',
+                fn () => Mail::to($usuario->email)->send(new BienvenidaCliente($usuario)),
+                usuarioId: $usuario->id,
+            );
         }
 
         $codigo = Str::random(48);
@@ -291,8 +304,10 @@ class GoogleController extends Controller
      * Lo que NO se hace es tocar la contraseña ni el rol. Una cuenta de
      * administrador que se vincule con Google sigue entrando con su
      * contraseña, y entrar con Google no asciende a nadie.
+     *
+     * @return array{0: ?Usuario, 1: bool} [usuario, esNuevo]
      */
-    private function vincularOCrear(string $googleId, string $correo, string $nombre): ?Usuario
+    private function vincularOCrear(string $googleId, string $correo, string $nombre): array
     {
         return DB::transaction(function () use ($googleId, $correo, $nombre) {
             $porGoogle = Usuario::where('google_id', $googleId)->lockForUpdate()->first();
@@ -305,7 +320,7 @@ class GoogleController extends Controller
                     $porGoogle->forceFill(['email' => $correo])->save();
                 }
 
-                return $porGoogle;
+                return [$porGoogle, false];
             }
 
             $porCorreo = Usuario::where('email', $correo)->lockForUpdate()->first();
@@ -314,7 +329,7 @@ class GoogleController extends Controller
                 if ($porCorreo->google_id !== null) {
                     /* Ese correo ya cuelga de OTRA cuenta de Google. No se
                        toca: significa que alguien reusó la dirección. */
-                    return null;
+                    return [null, false];
                 }
 
                 $porCorreo->forceFill([
@@ -323,7 +338,7 @@ class GoogleController extends Controller
                     'email_verified_at' => $porCorreo->email_verified_at ?? now(),
                 ])->save();
 
-                return $porCorreo;
+                return [$porCorreo, false];
             }
 
             $usuario = Usuario::create([
@@ -354,7 +369,7 @@ class GoogleController extends Controller
                acababa de acreditar. */
             $usuario->forceFill(['email_verified_at' => now()])->save();
 
-            return $usuario;
+            return [$usuario, true];
         });
     }
 

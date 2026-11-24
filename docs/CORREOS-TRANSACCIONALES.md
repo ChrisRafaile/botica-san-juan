@@ -13,6 +13,8 @@
 | Remitente | `onboarding@resend.dev` (el único posible sin dominio) |
 | Verificación de cuenta al registrarse | Funciona |
 | Recuperación de contraseña | Funciona |
+| Bienvenida al registrarse o entrar por primera vez con Google | Implementada (Mailable `BienvenidaCliente`, envío síncrono) |
+| Confirmación de compra registrada (clientes con sesión) | Implementada (Mailable `CompraRegistrada`, envío síncrono) |
 | Envío real contra Resend | **Sin ejecutar** |
 
 Sin dominio verificado, Resend solo acepta `onboarding@resend.dev` como
@@ -110,6 +112,29 @@ inglés y sin salida.
   dejarían a alguien fuera de su propio restablecimiento.
 - El saludo del correo **no lleva nombre**. Si el mensaje llega a la persona
   equivocada, el saludo no tiene por qué confirmarle de quién es la cuenta.
+- Un fallo del transporte tampoco devuelve 500: pasa por `CorreoTransaccional`
+  y responde exactamente igual que cuando la cuenta no existe (cuando el
+  usuario no existe, no se registra evento en `eventos_operacion`).
+
+**Enviador único, bienvenida y confirmación de compra**
+
+- `App\Services\Correo\CorreoTransaccional` centraliza los envíos de forma
+  **síncrona** (sin `ShouldQueue`, porque en producción no hay worker de cola
+  activo).
+- En producción exige `MAIL_MAILER=resend` y `RESEND_API_KEY` definida; de lo
+  contrario registra `CORREO_TRANSPORTE_INVALIDO` en `eventos_operacion` y
+  devuelve `false` sin fallo silencioso.
+- Ante cualquier excepción al enviar, registra `CORREO_FALLIDO` con el tipo de
+  correo y la clase de la excepción, **nunca** la dirección, el token ni el
+  mensaje de la excepción (que puede contener correos), y nunca interrumpe la
+  operación principal.
+- `BienvenidaCliente` se envía al registrarse y al crear una cuenta nueva por
+  Google (después del commit, nunca en vinculación ni en inicios de sesión).
+- `CompraRegistrada` se envía tras confirmar un pedido del portal solo para
+  clientes con sesión y correo; los pedidos de invitado no tienen correo y no
+  disparan envío. El mensaje incluye número de pedido, identificador de
+  comprobante, ítems, total en soles, modalidad y estado, y **omite** DNI,
+  teléfono y dirección por privacidad.
 
 ## 5. Una cosa que se desactivó al instalar el paquete
 

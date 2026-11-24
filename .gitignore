@@ -103,3 +103,7 @@ botica-san-juan-frontend/aud-*.json
 # es binario, depende de la version del interprete y cambia solo.
 __pycache__/
 *.py[cod]
+
+# Instrucciones locales de herramientas de asistencia (no son documentacion del sistema)
+/CLAUDE.md
+.claude/

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Usuario;
+use App\Services\Correo\CorreoTransaccional;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -73,7 +74,7 @@ class VerificacionController extends Controller
      * motor de envio gratuito contra terceros, y ademas revelaria que cuentas
      * existen segun si el envio ocurre o no.
      */
-    public function reenviar(Request $request): JsonResponse
+    public function reenviar(Request $request, CorreoTransaccional $correos): JsonResponse
     {
         $usuario = $request->user();
 
@@ -84,7 +85,18 @@ class VerificacionController extends Controller
             ]);
         }
 
-        $usuario->sendEmailVerificationNotification();
+        $enviado = $correos->enviar(
+            'verificacion_reenvio',
+            fn () => $usuario->sendEmailVerificationNotification(),
+            usuarioId: $usuario->id,
+        );
+
+        if (! $enviado) {
+            return response()->json([
+                'enviado' => false,
+                'message' => 'No pudimos enviar el correo de confirmación en este momento. Intenta nuevamente más tarde.',
+            ]);
+        }
 
         return response()->json([
             'enviado' => true,

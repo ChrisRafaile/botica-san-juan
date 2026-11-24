@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\PedidoNoCancelableException;
 use App\Exceptions\VentaSinStockException;
+use App\Mail\CompraRegistrada;
 use App\Models\Pedido;
+use App\Services\Correo\CorreoTransaccional;
 use App\Services\PedidoService;
 use App\Services\ResumenClienteService;
 use App\Services\ResumenPedidosService;
 use App\Services\VentaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -215,7 +218,7 @@ class PedidoController extends Controller
      * Incluye el objeto `pedido`, `comprobante`, `seguimiento` y el campo `expira_en` (string ISO 8601 o null).
      * `expira_en` fija el TTL de reserva (15 minutos por omisión) únicamente si el cliente tiene sesión y seleccionó `metodo_pago: "tarjeta"`.
      */
-    public function confirmar(Request $request, PedidoService $pedidos)
+    public function confirmar(Request $request, PedidoService $pedidos, CorreoTransaccional $correos)
     {
         /* Quién es el cliente: la sesión si la hay, nadie si no.
            `auth('sanctum')` resuelve el token cuando viene en la cabecera y
@@ -344,15 +347,34 @@ class PedidoController extends Controller
             throw $e;
         }
 
+        $modalidadResuelta = $modalidadEntrega ?? ($observacion && $observacion !== 'Recojo en botica' ? 'entrega' : 'recojo');
+        $identificadorComprobante = $comprobante->serie.'-'.str_pad((string) $comprobante->numero, 8, '0', STR_PAD_LEFT);
+
+        if ($cliente !== null && filled($cliente->email)) {
+            /* Se carga una copia, y dentro del envío: cargar las relaciones en
+               `$pedido` las metería en la respuesta 201, y una consulta caída
+               aquí tumbaría una venta que ya está registrada. */
+            $correos->enviar(
+                'compra_registrada',
+                fn () => Mail::to($cliente->email)->send(new CompraRegistrada(
+                    pedido: Pedido::with('pedidoDetalles.producto')->findOrFail($pedido->id),
+                    identificadorComprobante: $identificadorComprobante,
+                    modalidadEntrega: $modalidadResuelta,
+                )),
+                usuarioId: $cliente->id,
+                pedidoId: $pedido->id,
+            );
+        }
+
         return response()->json([
             'message' => 'Pedido registrado. Queda pendiente de preparacion.',
             'pedido' => $pedido,
             'expira_en' => $pedido->expira_en?->toIso8601String(),
-            'modalidad_entrega' => $modalidadEntrega ?? ($observacion && $observacion !== 'Recojo en botica' ? 'entrega' : 'recojo'),
+            'modalidad_entrega' => $modalidadResuelta,
             'comprobante' => [
                 'id'            => $comprobante->id,
                 'tipo'          => $comprobante->tipo_comprobante,
-                'identificador' => $comprobante->serie.'-'.str_pad((string) $comprobante->numero, 8, '0', STR_PAD_LEFT),
+                'identificador' => $identificadorComprobante,
                 'estado_sunat'  => $comprobante->estado_sunat,
             ],
             /* Un invitado no tiene panel donde consultar su pedido, así que el
