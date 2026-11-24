@@ -111,7 +111,7 @@ services:
       #     `log`: los correos se escriben en el log del contenedor y no le
       #     llegan a nadie, sin ningun error que lo delate. ---
       - key: MAIL_MAILER
-        sync: false             # resend
+        value: resend
       - key: RESEND_API_KEY
         sync: false
       - key: MAIL_FROM_ADDRESS

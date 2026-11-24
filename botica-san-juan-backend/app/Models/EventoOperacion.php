@@ -28,6 +28,10 @@ class EventoOperacion extends Model
     public const SYNC_INCIDENCIA  = 'SYNC_STOCK_INSUFICIENTE';
     public const SYNC_LOTE        = 'SYNC_LOTE_PROCESADO';
 
+    public const CORREO_ENVIADO             = 'CORREO_ENVIADO';
+    public const CORREO_FALLIDO             = 'CORREO_FALLIDO';
+    public const CORREO_TRANSPORTE_INVALIDO = 'CORREO_TRANSPORTE_INVALIDO';
+
     protected $table = 'eventos_operacion';
 
     protected $fillable = [
