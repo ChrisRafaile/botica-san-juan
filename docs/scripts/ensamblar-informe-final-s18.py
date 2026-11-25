@@ -402,7 +402,8 @@ lineas, i, dg, seccion, sub = md.split('\n'), 0, 0, '', ''
 FIGURAS = {
     '29': [('EF-01-salud.png', 'Monitoreo activo: /api/salud responde 200 OK.')],
     '30': [('EF-02-bitacora.png', 'Bitácora de operación con los tres niveles de evento.'),
-           ('EF-03-alertas-fefo.png', 'Alertas de vencimiento y control FEFO.')],
+           ('EF-03-alertas-fefo.png', 'Alertas de vencimiento y control FEFO.'),
+           ('21-resend-api-logs-200.png', 'Registro de la API de Resend: cuatro llamadas POST /emails con estado 200.')],
     '33': [('EF-07-catalogo.png', 'Catálogo público.'),
            ('EF-08-checkout.png', 'Checkout del portal del cliente.'),
            ('EF-09-pos.png', 'Punto de venta visual.'),

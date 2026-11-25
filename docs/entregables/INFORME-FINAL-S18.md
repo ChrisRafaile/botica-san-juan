@@ -125,6 +125,10 @@ La gestión de eventos se apoya en el modelo `App\Models\EventoOperacion` (`boti
 
 En producción, la prueba de correo del 23 de noviembre de 2026 dejó **4** eventos `CORREO_ENVIADO`; la bitácora mostraba **7** `info`, **0** `warning` y **0** `error` (`15-admin-eventos-resend-ok.png`).
 
+El registro de la API de Resend corrobora esos cuatro envíos desde el lado del proveedor: cuatro llamadas `POST /emails` con `Status 200` hechas por el servidor (`21-resend-api-logs-200.png`). Un `200` acredita que Resend aceptó el mensaje; la entrega se comprueba aparte, en su panel de correos.
+
+![Registro de llamadas a la API de Resend](../evidencias/informe-final/21-resend-api-logs-200.png)
+
 ![Bitácora de eventos de operación](../evidencias/informe-final/EF-02-bitacora.png)
 
 ---
@@ -282,6 +286,8 @@ La retención por omisión de `backup_postgres.ps1` es de **14 días**. La regla
 | Migraciones versionadas y reversibles | **61** |
 | Catálogo en producción | **884** productos (**194** con fotografía real servida con `200`) |
 | Contrato API pública | **OpenAPI 0.8.0** (OpenAPI 3.1, navegable en Scalar y Stoplight) |
+
+Actualización posterior, v0.9.0 (24 de noviembre de 2026): **526** pruebas de backend y **217** de frontend (**743** en total), **62** migraciones y contrato **OpenAPI 0.9.0**. Añade foto de perfil persistida en la base, correos en cola con reintentos y modos de envío separados para SUNAT. Las figuras de este capítulo corresponden al corte v0.8.0.
 
 ### 33.2. Matriz de requerimientos funcionales (Tabla 7 del APF1)
 
