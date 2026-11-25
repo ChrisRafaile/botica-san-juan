@@ -42,17 +42,17 @@ flowchart LR
 ```
 
 - **Monitoreo activo (`botica-san-juan-backend/routes/api.php`):** `GET /api/salud` (público, protegido con `throttle:api`) verifica la conexión PDO a PostgreSQL y responde `200` con `{"ok": true, "base": true, "hora": "..."}` o `503` si falla la base. Se complementa con `GET /api/health/db` y `infra/monitoring/healthcheck_monitor.ps1`.
-- **Monitoreo pasivo:** Bitácora persistente en `eventos_operacion` consultable en `/admin/eventos`, middleware `AuditCriticalChanges` (`app/Http/Middleware/AuditCriticalChanges.php`) para mutaciones críticas, y trazas/errores en Sentry y PostHog cuando existen claves configuradas (`docs/OBSERVABILIDAD.md`).
+- **Monitoreo pasivo:** Bitácora persistente en `eventos_operacion` consultable en `/admin/eventos`, middleware `AuditCriticalChanges` (`app/Http/Middleware/AuditCriticalChanges.php`) para mutaciones críticas, y trazas/errores en Sentry y PostHog cuando existen claves configuradas, como ocurre en producción desde el 24-11-2026 (`docs/OBSERVABILIDAD.md`).
 
 ### 29.2. Matriz de indicadores y umbrales
 
 | # | Indicador | Cómo se mide | Preventivo | Crítico | Acción operativa | Estado real (v0.8.0) |
 |---|---|---|---|---|---|---|
-| **M1** | Disponibilidad del servicio | Sondeo `GET /api/salud` y `GET /api/health/db` cada 5 min (`200` con `ok:true`), franja 08:00–22:00 | < 99,5 % en 7 días | 2 sondeos seguidos fallidos (10 min) o < 99 % mensual | Revisar Render y Neon; abrir incidente P1 | **Script existente, sin programar** (ver 29.4) |
+| **M1** | Disponibilidad del servicio | Sondeo `GET /api/salud` y `GET /api/health/db` cada 5 min (`200` con `ok:true`), franja 08:00–22:00 | < 99,5 % en 7 días | 2 sondeos seguidos fallidos (10 min) o < 99 % mensual | Revisar Render y Neon; abrir incidente P1 | **Activo desde el 24-11-2026** con Better Stack, cada 3 min (ver 29.6); sin serie para los 7 días ni el mes |
 | **M2** | Latencia de la API (p95) | Percentil 95 de rutas de lectura, ventana 15 min (Sentry) | p95 > 800 ms (15 min) | p95 > 1 500 ms (15 min) | Identificar ruta por traza y revisar índices | **Instrumentado sin umbral configurado** |
 | **M3** | Latencia de búsqueda | p95 de `/api/productos?buscar=` y `/api/catalogo?buscar=` bajo carga | p95 > 1 000 ms | p95 > 2 000 ms | Detener promesa de «< 2 s» hasta optimizar | **Sin medir** (prueba de carga pendiente) |
 | **M4** | Tasa de error servidor (5xx) | `5xx ÷ total`, ventana 15 min (Sentry / Render) | > 0,5 % en 15 min | > 1 % en 15 min o **cualquier 5xx en catálogo público** | Incidente P2 mínimo | **Instrumentado sin umbral configurado** |
-| **M5** | Errores cliente por versión | Eventos Sentry en frontend por *release*, primeras 24 h | > 5 eventos nuevos | Error afecta > 1 % de sesiones | Revertir despliegue en Vercel | **Activo** (cuando hay `VITE_SENTRY_DSN`) |
+| **M5** | Errores cliente por versión | Eventos Sentry en frontend por *release*, primeras 24 h | > 5 eventos nuevos | Error afecta > 1 % de sesiones | Revertir despliegue en Vercel | **Activo desde el 24-11-2026**: Sentry recibe errores; sin regla de alerta por umbral ni *release* asignado |
 | **M6** | Coherencia del despliegue | Tras publicar: `/api/catalogo` → 200, `/docs/v1` → 200, `/api/productos/destacados` → 404 | Respuesta distinta a la esperada | Ídem + `update_failed` en Render | Re-desplegar; no dar por bueno el *release* | **Manual** (originado tras INC-01) |
 | **M7** | Memoria del proceso | Métrica instancia Render, media 15 min | > 70 % límite plan | > 90 % (15 min) o OOM | Perfilar petición causante | **Sin medir** |
 | **M8** | Consultas SQL por petición | Presupuesto en rutas de listado | > 15 consultas | > 40 consultas o patrón N+1 | Aplicar carga anticipada (`with()`) | **Sin medir** |
@@ -72,7 +72,7 @@ flowchart LR
 
 ### 29.4. Impedimento del 99 % de disponibilidad
 
-En la capa gratuita de Render la instancia se suspende tras **15 minutos sin tráfico**, con ~50 s de arranque en frío. Un sondeo cada 5 minutos mantendría artificialmente despierta la instancia, fabricando disponibilidad en lugar de medirla. Por ello, el compromiso del **99 % (RNF05)** se declara **no verificable en la infraestructura actual** y sujeto a migración a un plan de pago.
+En la capa gratuita de Render la instancia se suspende tras **15 minutos sin tráfico**, con ~50 s de arranque en frío. Un sondeo cada 5 minutos mantendría artificialmente despierta la instancia, fabricando disponibilidad en lugar de medirla. El monitor activado el 24-11-2026 sondea cada 3 minutos y produce justo ese efecto, además de consumir las horas gratuitas: sirve para avisar de una caída, no para acreditar disponibilidad. Por ello, el compromiso del **99 % (RNF05)** se declara **no verificable en la infraestructura actual** y sujeto a migración a un plan de pago.
 
 ### 29.5. Estados de alerta y recuperación
 
@@ -83,7 +83,13 @@ En la capa gratuita de Render la instancia se suspende tras **15 minutos sin tr�
 | **ERROR** | Cruza el crítico | 2 sondeos seguidos fallidos (10 min) | > 50 en 24 h o 5 del mismo código en 1 h | Abrir incidente y priorizar |
 | **RECOVERY** | Vuelve al rango | Sondeo en `200` verificado | Sin eventos nuevos del código afectado | Verificar, cerrar y anotar la causa |
 
-> **Nota:** `RECOVERY` es un estado del procedimiento, no un nivel de `EventoOperacion`: la bitácora guarda `info`, `warning` y `error`. El sondeo automático no está programado, así que hoy la transición la comprueba una persona.
+> **Nota:** `RECOVERY` es un estado del procedimiento, no un nivel de `EventoOperacion`: la bitácora guarda `info`, `warning` y `error`. Desde el 24-11-2026 Better Stack sondea el servicio y avisa por correo; cerrar el incidente y anotar la causa sigue correspondiendo a una persona.
+
+### 29.6. Monitoreo externo en producción (Better Stack)
+
+El 24 de noviembre de 2026 se creó el monitor «Botica San Juan API - salud» sobre `https://botica-san-juan-api.onrender.com/api/salud`. Exige código `200`, sondea cada 3 minutos desde cuatro regiones, espera hasta 60 segundos y avisa por correo. La captura lo muestra en estado `Up`, sin incidentes, a los 11 minutos de activarlo: acredita que el monitor funciona, no una disponibilidad histórica.
+
+![Monitor de Better Stack en estado Up](../evidencias/informe-final/24-betterstack-uptime-prod.png)
 
 ![Estado de salud del servicio](../evidencias/informe-final/EF-01-salud.png)
 
@@ -128,6 +134,17 @@ En producción, la prueba de correo del 23 de noviembre de 2026 dejó **4** even
 El registro de la API de Resend corrobora esos cuatro envíos desde el lado del proveedor: cuatro llamadas `POST /emails` con `Status 200` hechas por el servidor (`21-resend-api-logs-200.png`). Un `200` acredita que Resend aceptó el mensaje; la entrega se comprueba aparte, en su panel de correos.
 
 ![Registro de llamadas a la API de Resend](../evidencias/informe-final/21-resend-api-logs-200.png)
+
+### 30.3. Errores y analítica en producción (Sentry y PostHog)
+
+El 24 de noviembre de 2026 se activaron ambos servicios en producción y se comprobó que reciben eventos reales:
+
+- **Sentry:** un error provocado a propósito en el portal llegó al proyecto `botica-frontend`, y dos excepciones de la API al proyecto `botica-backend`. Estas dos son un defecto real hallado al probar: un identificador fuera del rango de `bigint` en `/api/catalogo/{producto}` y `/api/productos/{producto}` responde `500` en lugar de `404`. Queda abierto.
+- **PostHog:** siete vistas de página de la navegación de prueba, con identificador anónimo y sin términos de búsqueda en la dirección. En el proyecto se apagaron la autocaptura, los mapas de calor y la grabación de sesiones, y se activó el descarte de la dirección IP.
+
+![Incidencias recibidas en Sentry](../evidencias/informe-final/25-sentry-observabilidad-prod.png)
+
+![Eventos recibidos en PostHog](../evidencias/informe-final/26-posthog-eventos-prod.png)
 
 ![Bitácora de eventos de operación](../evidencias/informe-final/EF-02-bitacora.png)
 
@@ -287,7 +304,13 @@ La retención por omisión de `backup_postgres.ps1` es de **14 días**. La regla
 | Catálogo en producción | **884** productos (**194** con fotografía real servida con `200`) |
 | Contrato API pública | **OpenAPI 0.8.0** (OpenAPI 3.1, navegable en Scalar y Stoplight) |
 
-Actualización posterior, v0.9.0 (24 de noviembre de 2026): **526** pruebas de backend y **217** de frontend (**743** en total), **62** migraciones y contrato **OpenAPI 0.9.0**. Añade foto de perfil persistida en la base, correos en cola con reintentos y modos de envío separados para SUNAT. Las figuras de este capítulo corresponden al corte v0.8.0.
+Actualización posterior, v0.9.0 (24 de noviembre de 2026): **526** pruebas de backend y **217** de frontend (**743** en total), **62** migraciones y contrato **OpenAPI 0.9.0**. Añade foto de perfil persistida en la base, correos en cola con reintentos y modos de envío separados para SUNAT. Salvo las capturas fechadas el 24 de noviembre, las figuras de este capítulo corresponden al corte v0.8.0.
+
+La foto de perfil se verificó en producción con una sesión real de Google: se muestra la foto de la cuenta sin errores en la consola, una foto propia la sustituye y sigue ahí tras recargar, y «Volver a mi foto de Google» restaura la anterior.
+
+![Foto de Google en producción](../evidencias/informe-final/22-avatar-google-oauth-prod.png)
+
+![Foto propia tras recargar](../evidencias/informe-final/23-avatar-persistente-prod.png)
 
 ### 33.2. Matriz de requerimientos funcionales (Tabla 7 del APF1)
 

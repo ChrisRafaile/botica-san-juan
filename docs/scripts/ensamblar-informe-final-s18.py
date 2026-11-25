@@ -400,15 +400,20 @@ md = re.sub(r'La \*\*Tabla 64\*\* de.*?(?=\n> \*\*Nota)', 'Las cuatro observacio
 lineas, i, dg, seccion, sub = md.split('\n'), 0, 0, '', ''
 
 FIGURAS = {
-    '29': [('EF-01-salud.png', 'Monitoreo activo: /api/salud responde 200 OK.')],
+    '29': [('EF-01-salud.png', 'Monitoreo activo: /api/salud responde 200 OK.'),
+           ('24-betterstack-uptime-prod.png', 'Monitor externo de Better Stack sobre /api/salud en estado Up, 24 de noviembre de 2026.')],
     '30': [('EF-02-bitacora.png', 'Bitácora de operación con los tres niveles de evento.'),
            ('EF-03-alertas-fefo.png', 'Alertas de vencimiento y control FEFO.'),
-           ('21-resend-api-logs-200.png', 'Registro de la API de Resend: cuatro llamadas POST /emails con estado 200.')],
+           ('21-resend-api-logs-200.png', 'Registro de la API de Resend: cuatro llamadas POST /emails con estado 200.'),
+           ('25-sentry-observabilidad-prod.png', 'Sentry en producción: error controlado del portal y excepciones reales de la API.'),
+           ('26-posthog-eventos-prod.png', 'PostHog en producción: vistas de página con identificador anónimo.')],
     '33': [('EF-07-catalogo.png', 'Catálogo público.'),
            ('EF-08-checkout.png', 'Checkout del portal del cliente.'),
            ('EF-09-pos.png', 'Punto de venta visual.'),
            ('EF-10-asistente-importador.png', 'Asistente con importador de Excel y CSV.'),
-           ('EF-11-openapi.png', 'Documentación OpenAPI 0.8.0.')],
+           ('EF-11-openapi.png', 'Documentación OpenAPI 0.8.0.'),
+           ('22-avatar-google-oauth-prod.png', 'Foto de la cuenta de Google en producción, con la consola sin errores.'),
+           ('23-avatar-persistente-prod.png', 'Foto propia conservada tras recargar la página en producción.')],
 }
 TITULOS = {'28': 'Correcciones al APF3', '29': 'Indicadores, umbrales y segmentación', '30': 'Eventos de operación',
            '31': 'Gestión de incidentes', '32': 'Continuidad y simulacro de recuperación',
@@ -565,6 +570,12 @@ for e in list(d.element.body):
     for lado, tope in (('w:after', 60), ('w:before', 140)):
         if int(sp.get(qn(lado)) or 0) > tope and Paragraph(e, d._body).style.name != 'Heading 1':
             sp.set(qn(lado), str(tope))
+
+# Un titulo no se queda solo al pie de la pagina.
+for e in d.element.body.iter(qn('w:p')):
+    q = Paragraph(e, d._body)
+    if re.match(r'26\.\d', q.text) and q.style.name.startswith('Heading'):
+        q.paragraph_format.keep_with_next = True
 
 # Indice a dos niveles: el tercero ocupaba dos paginas.
 for it in d.element.body.iter(qn('w:instrText')):
