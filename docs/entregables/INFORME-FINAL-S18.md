@@ -89,7 +89,11 @@ En la capa gratuita de Render la instancia se suspende tras **15 minutos sin tr�
 
 El 24 de noviembre de 2026 se creó el monitor «Botica San Juan API - salud» sobre `https://botica-san-juan-api.onrender.com/api/salud`. Exige código `200`, sondea cada 3 minutos desde cuatro regiones, espera hasta 60 segundos y avisa por correo. La captura lo muestra en estado `Up`, sin incidentes, a los 11 minutos de activarlo: acredita que el monitor funciona, no una disponibilidad histórica.
 
+La página pública «Botica San Juan — Estado del Servicio» comunica ese estado a clientes y responsables, sin iniciar sesión: https://botica-san-juan.betteruptime.com. Solo refleja `/api/salud`; no cubre el portal de Vercel ni SUNAT. El «100% uptime» de la captura corresponde a poco más de una hora de sondeos: las barras grises son días sin monitorear, y no acredita disponibilidad.
+
 ![Monitor de Better Stack en estado Up](../evidencias/informe-final/24-betterstack-uptime-prod.png)
+
+![Página pública de estado](../evidencias/informe-final/27-betterstack-status-page.png)
 
 ![Estado de salud del servicio](../evidencias/informe-final/EF-01-salud.png)
 
@@ -140,7 +144,7 @@ El registro de la API de Resend corrobora esos cuatro envíos desde el lado del 
 El 24 de noviembre de 2026 se activaron ambos servicios en producción y se comprobó que reciben eventos reales:
 
 - **Sentry:** un error provocado a propósito en el portal llegó al proyecto `botica-frontend`, y dos excepciones de la API al proyecto `botica-backend`. Estas dos son un defecto real hallado al probar: un identificador fuera del rango de `bigint` en `/api/catalogo/{producto}` y `/api/productos/{producto}` responde `500` en lugar de `404`. Queda abierto.
-- **PostHog:** siete vistas de página de la navegación de prueba, con identificador anónimo y sin términos de búsqueda en la dirección. En el proyecto se apagaron la autocaptura, los mapas de calor y la grabación de sesiones, y se activó el descarte de la dirección IP.
+- **PostHog:** siete vistas de página de la navegación de prueba, con identificador anónimo y sin términos de búsqueda en la dirección. En el proyecto se apagaron la autocaptura, los mapas de calor y la grabación de sesiones, y se activó el descarte de la dirección IP, igual que en los dos proyectos de Sentry.
 
 ![Incidencias recibidas en Sentry](../evidencias/informe-final/25-sentry-observabilidad-prod.png)
 
@@ -275,7 +279,7 @@ Los límites globales comprometidos son **RTO ≤ 60 min** y **RPO ≤ 24 h** (`
 | Roles | Administrador técnico, soporte de operaciones y responsable funcional | Definido |
 | Inventario | Vercel, Render, Neon, repositorio y scripts de `infra/` | Definido |
 | Procedimiento | Confirmar, registrar, contener, restaurar en ensayo, restaurar, verificar y cerrar | Definido |
-| Comunicación | Aviso al responsable de la farmacia y paso a contingencia | Definido; sin ensayo registrado |
+| Comunicación | Aviso al responsable de la farmacia y paso a contingencia; página pública de estado (https://botica-san-juan.betteruptime.com) | Definido; página publicada, sin ensayo registrado |
 | Pruebas | Simulacro de restauración sobre PostgreSQL 16 | Ejecutado (`CON-01`, `CON-03`) |
 | Retorno | `/api/salud` en `200`, conteos verificados y cola del POS sincronizada | Definido |
 

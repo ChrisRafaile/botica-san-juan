@@ -184,8 +184,9 @@ Hay que decirlo porque lo contrario sería vender humo: **la dirección IP la ve
 el servicio de todos modos**, a nivel de red, por el simple hecho de que el
 navegador se conecta a él. Eso no se arregla con una opción del SDK; se
 desactiva en la configuración del proyecto, en el panel del proveedor. En
-PostHog está activado «Discard client IP data» desde el 2026-11-24; en Sentry
-(«Prevent Storing of IP Addresses») sigue pendiente.
+PostHog está activado «Discard client IP data» y, en los dos proyectos de
+Sentry, «Prevent Storing of IP Addresses», desde el 2026-11-24. Ambos dejan de
+guardarla en los eventos nuevos; la conexión la sigue viendo el proveedor.
 
 ---
 
@@ -253,6 +254,7 @@ gratuitas de Render y de cómputo de Neon.
 | Servicio | Estado | Evidencia |
 |---|---|---|
 | Better Stack | Monitor activo, código 200 cada 3 min, aviso por correo. No comprueba la palabra clave ni `cola` | `24-betterstack-uptime-prod.png` |
+| Página de estado | https://botica-san-juan.betteruptime.com, pública, solo `/api/salud` | `27-betterstack-status-page.png` |
 | Sentry | DSN en Render y Vercel; un error recibido del portal y dos de la API | `25-sentry-observabilidad-prod.png` |
 | PostHog | Clave en Vercel, región de EE. UU. Autocaptura, mapas de calor, web vitals y grabación apagados en el proyecto | `26-posthog-eventos-prod.png` |
 

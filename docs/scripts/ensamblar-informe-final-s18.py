@@ -401,7 +401,8 @@ lineas, i, dg, seccion, sub = md.split('\n'), 0, 0, '', ''
 
 FIGURAS = {
     '29': [('EF-01-salud.png', 'Monitoreo activo: /api/salud responde 200 OK.'),
-           ('24-betterstack-uptime-prod.png', 'Monitor externo de Better Stack sobre /api/salud en estado Up, 24 de noviembre de 2026.')],
+           ('24-betterstack-uptime-prod.png', 'Monitor externo de Better Stack sobre /api/salud en estado Up, 24 de noviembre de 2026.'),
+           ('27-betterstack-status-page.png', 'Página pública de estado del servicio, vista sin iniciar sesión, 24 de noviembre de 2026.')],
     '30': [('EF-02-bitacora.png', 'Bitácora de operación con los tres niveles de evento.'),
            ('EF-03-alertas-fefo.png', 'Alertas de vencimiento y control FEFO.'),
            ('21-resend-api-logs-200.png', 'Registro de la API de Resend: cuatro llamadas POST /emails con estado 200.'),
