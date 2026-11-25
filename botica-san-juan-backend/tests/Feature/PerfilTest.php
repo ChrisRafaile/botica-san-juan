@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Usuario;
+use App\Support\Imagen\OptimizadorAvatar;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
@@ -39,36 +40,126 @@ class PerfilTest extends TestCase
 
     // ------------------------------------------------------------- subida
 
-    public function test_la_foto_se_guarda_en_el_disco_y_queda_en_el_perfil(): void
+    public function test_la_foto_se_persiste_en_la_base_y_no_en_el_disco(): void
     {
         $usuario = $this->cliente();
 
-        $respuesta = $this->actingAs($usuario)->postJson('/api/perfil/foto', [
-            'foto' => UploadedFile::fake()->image('mi-cara.jpg', 400, 400),
-        ]);
+        $this->actingAs($usuario)->postJson('/api/perfil/foto', [
+            'foto' => UploadedFile::fake()->image('mi-cara.jpg', 1200, 800),
+        ])->assertOk()->assertJsonPath('usuario.avatar_origen', 'personalizado');
 
-        $respuesta->assertOk();
+        $avatar = (string) $usuario->fresh()->avatar_data;
 
-        $ruta = $usuario->fresh()->foto_perfil;
+        $this->assertMatchesRegularExpression('#^data:image/(webp|jpeg);base64,#', $avatar);
+        $this->assertLessThan(50 * 1024, strlen($avatar));
 
-        $this->assertStringStartsWith('storage/perfiles/', (string) $ruta);
-        Storage::disk('public')->assertExists(str_replace('storage/', '', (string) $ruta));
+        [$ancho, $alto] = getimagesizefromstring(base64_decode(explode(',', $avatar)[1]));
+        $this->assertSame([256, 256], [$ancho, $alto]);
+
+        /* El disco de Render se borra en cada despliegue: nada debe quedar ahí. */
+        $this->assertSame([], Storage::disk('public')->allFiles());
     }
 
-    public function test_el_nombre_del_archivo_no_es_el_que_envia_el_cliente(): void
+    public function test_una_foto_de_ruido_tambien_queda_bajo_los_50_kb(): void
+    {
+        /* El peor caso de compresión: sin él, el tope solo se probaría con
+           imágenes lisas que pesan casi nada. */
+        $imagen = imagecreatetruecolor(600, 600);
+        for ($x = 0; $x < 600; $x++) {
+            for ($y = 0; $y < 600; $y++) {
+                imagesetpixel($imagen, $x, $y, random_int(0, 0xFFFFFF));
+            }
+        }
+        $ruta = tempnam(sys_get_temp_dir(), 'ruido');
+        imagepng($imagen, $ruta);
+
+        $avatar = (new OptimizadorAvatar)->aDataUri($ruta);
+        unlink($ruta);
+
+        $this->assertLessThan(50 * 1024, strlen($avatar));
+    }
+
+    public function test_una_foto_pequena_no_se_agranda(): void
     {
         $usuario = $this->cliente();
 
-        /* Un nombre con recorrido de ruta. Si se respetara el nombre de
-           origen, el archivo acabaría fuera de la carpeta de perfiles. */
         $this->actingAs($usuario)->postJson('/api/perfil/foto', [
-            'foto' => UploadedFile::fake()->image('../../evil.jpg', 100, 100),
+            'foto' => UploadedFile::fake()->image('../../evil.jpg', 100, 80),
         ])->assertOk();
 
-        $ruta = (string) $usuario->fresh()->foto_perfil;
+        $binario = base64_decode(explode(',', (string) $usuario->fresh()->avatar_data)[1]);
+        $this->assertSame(80, getimagesizefromstring($binario)[0]);
+    }
 
-        $this->assertStringNotContainsString('..', $ruta);
-        $this->assertStringNotContainsString('evil', $ruta);
+    // --------------------------------------------------------- jerarquía
+
+    public function test_la_jerarquia_es_foto_propia_luego_google_luego_iniciales(): void
+    {
+        $usuario = $this->cliente();
+        $this->assertSame('iniciales', $usuario->fresh()->avatar_origen);
+
+        $usuario->actualizarAvatarOauth('https://lh3.googleusercontent.com/a/rosa=s96-c');
+        $this->assertSame('oauth', $usuario->fresh()->avatar_origen);
+
+        $this->actingAs($usuario)->postJson('/api/perfil/foto', [
+            'foto' => UploadedFile::fake()->image('rosa.jpg', 300, 300),
+        ])->assertOk()
+            ->assertJsonPath('usuario.avatar_origen', 'personalizado')
+            ->assertJsonPath('usuario.avatar_oauth_url', 'https://lh3.googleusercontent.com/a/rosa=s96-c');
+
+        // Quitar la propia vuelve a Google, no a las iniciales.
+        $this->actingAs($usuario)->deleteJson('/api/perfil/foto')->assertOk()
+            ->assertJsonPath('usuario.avatar_origen', 'oauth')
+            ->assertJsonPath('usuario.avatar_data', null);
+    }
+
+    public function test_el_avatar_de_google_solo_admite_https_de_google(): void
+    {
+        $usuario = $this->cliente();
+
+        foreach ([
+            'http://lh3.googleusercontent.com/a/x',
+            'https://rastreador.test/pixel.gif',
+            'https://googleusercontent.com.rastreador.test/a',
+            'javascript:alert(1)',
+            '',
+            null,
+        ] as $url) {
+            $usuario->actualizarAvatarOauth($url);
+        }
+
+        $this->assertNull($usuario->fresh()->avatar_oauth_url);
+    }
+
+    public function test_la_imagen_sale_en_la_cuenta_propia_y_no_en_los_listados(): void
+    {
+        $admin = $this->cliente(['dni' => '10000014', 'email' => 'admin.lista@prueba.test', 'rol' => 'administrador']);
+        $cliente = $this->cliente();
+        $cliente->forceFill(['avatar_data' => 'data:image/webp;base64,UklGRg=='])->save();
+
+        $this->actingAs($cliente)->getJson('/api/perfil')->assertOk()
+            ->assertJsonPath('avatar_data', 'data:image/webp;base64,UklGRg==');
+        $this->actingAs($cliente)->getJson('/api/user')->assertOk()
+            ->assertJsonPath('avatar_data', 'data:image/webp;base64,UklGRg==');
+
+        $this->assertStringNotContainsString(
+            'UklGRg',
+            (string) $this->actingAs($admin)->getJson('/api/usuarios')->assertOk()->getContent(),
+        );
+    }
+
+    public function test_el_avatar_no_se_puede_escribir_por_asignacion_masiva(): void
+    {
+        $usuario = $this->cliente();
+
+        $this->actingAs($usuario)->putJson('/api/perfil', [
+            'nombre' => 'Rosa Quispe',
+            'avatar_data' => 'data:image/svg+xml;base64,AAAA',
+            'avatar_oauth_url' => 'https://rastreador.test/x',
+        ])->assertOk();
+
+        $this->assertNull($usuario->fresh()->avatar_data);
+        $this->assertNull($usuario->fresh()->avatar_oauth_url);
     }
 
     public function test_un_archivo_que_no_es_imagen_se_rechaza(): void
@@ -79,7 +170,7 @@ class PerfilTest extends TestCase
             'foto' => UploadedFile::fake()->create('camuflado.jpg', 20, 'text/plain'),
         ])->assertStatus(422);
 
-        $this->assertNull($usuario->fresh()->foto_perfil);
+        $this->assertNull($usuario->fresh()->avatar_data);
     }
 
     public function test_una_imagen_demasiado_pesada_se_rechaza(): void
@@ -98,26 +189,20 @@ class PerfilTest extends TestCase
         ])->assertStatus(401);
     }
 
-    public function test_al_cambiar_la_foto_se_borra_la_anterior(): void
+    public function test_subir_una_foto_borra_el_archivo_antiguo_del_disco(): void
     {
-        $usuario = $this->cliente();
+        Storage::disk('public')->put('perfiles/antigua.jpg', 'contenido');
+        $usuario = $this->cliente(['foto_perfil' => 'storage/perfiles/antigua.jpg']);
 
         $this->actingAs($usuario)->postJson('/api/perfil/foto', [
-            'foto' => UploadedFile::fake()->image('primera.jpg'),
+            'foto' => UploadedFile::fake()->image('nueva.jpg'),
         ])->assertOk();
 
-        $primera = str_replace('storage/', '', (string) $usuario->fresh()->foto_perfil);
-
-        $this->actingAs($usuario)->postJson('/api/perfil/foto', [
-            'foto' => UploadedFile::fake()->image('segunda.jpg'),
-        ])->assertOk();
-
-        /* Sin esto, cada cambio de foto deja un archivo huérfano que nadie
-           recoge nunca. */
-        Storage::disk('public')->assertMissing($primera);
+        $this->assertNull($usuario->fresh()->foto_perfil);
+        Storage::disk('public')->assertMissing('perfiles/antigua.jpg');
     }
 
-    public function test_eliminar_la_foto_la_quita_del_perfil_y_del_disco(): void
+    public function test_eliminar_la_foto_la_quita_del_perfil(): void
     {
         $usuario = $this->cliente();
 
@@ -125,12 +210,10 @@ class PerfilTest extends TestCase
             'foto' => UploadedFile::fake()->image('adios.jpg'),
         ])->assertOk();
 
-        $ruta = str_replace('storage/', '', (string) $usuario->fresh()->foto_perfil);
+        $this->actingAs($usuario)->deleteJson('/api/perfil/foto')->assertOk()
+            ->assertJsonPath('usuario.avatar_origen', 'iniciales');
 
-        $this->actingAs($usuario)->deleteJson('/api/perfil/foto')->assertOk();
-
-        $this->assertNull($usuario->fresh()->foto_perfil);
-        Storage::disk('public')->assertMissing($ruta);
+        $this->assertNull($usuario->fresh()->avatar_data);
     }
 
     public function test_una_ruta_vieja_fuera_de_perfiles_no_se_borra(): void

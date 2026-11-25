@@ -52,14 +52,17 @@ FROM dunglas/frankenphp:1-php8.4-alpine
 
 # pdo_pgsql es la unica extension imprescindible (PostgreSQL); intl la pide
 # Laravel para el formato de numeros y fechas en es-PE, y opcache evita
-# recompilar el codigo en cada peticion.
+# recompilar el codigo en cada peticion. exif endereza las fotos de perfil de
+# movil; redis es opcional (colas en Upstash) y no se usa sin REDIS_URL.
 RUN install-php-extensions \
         pdo_pgsql \
         pgsql \
         intl \
         opcache \
         zip \
-        gd
+        gd \
+        exif \
+        redis
 
 # Endurecimiento del interprete frente a CVE-2026-109618 y CVE-2026-109619.
 # El prefijo zz- hace que se cargue despues de la configuracion de las

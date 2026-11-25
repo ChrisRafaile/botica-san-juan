@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\EventoOperacion;
+use App\Support\Imagen\OptimizadorAvatar;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -11,6 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\File;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Perfil de la persona que ha iniciado sesión.
@@ -29,7 +32,11 @@ use Illuminate\Validation\Rules\File;
  * cual: el cliente mandaba una ruta y el servidor la creía. Eso permitía
  * apuntar el avatar a cualquier cosa y no subía nada, de modo que el campo
  * acababa señalando archivos que no existían. Ahora el único camino para
- * escribir ese campo es subir un archivo real por aquí.
+ * cambiar la foto es subir un archivo real por aquí.
+ *
+ * Y NO SE GUARDA EN DISCO: el de Render es efímero y la foto desaparecía en el
+ * siguiente despliegue. Se reduce y se persiste en `avatar_data`. `foto_perfil`
+ * queda solo para las fotos anteriores a ese cambio.
  */
 class PerfilController extends Controller
 {
@@ -41,10 +48,14 @@ class PerfilController extends Controller
      *
      * Incluye datos personales, rol, estado de verificación de correo,
      * vinculación con Google, autenticación multifactor (MFA) y dirección de entrega predeterminada (`direccion_entrega`).
+     *
+     * El avatar se resuelve en cascada: `avatar_data` (foto propia, data URI de hasta 50 KB),
+     * `avatar_oauth_url` (foto de Google) y, sin ninguna, las iniciales. `avatar_origen` dice cuál
+     * corresponde: `personalizado`, `oauth` o `iniciales`.
      */
     public function mostrar(Request $request)
     {
-        return response()->json($request->user());
+        return response()->json($request->user()->conAvatar());
     }
 
     /**
@@ -137,7 +148,7 @@ class PerfilController extends Controller
             }
         }
 
-        return response()->json($usuario->fresh());
+        return response()->json($usuario->fresh()->conAvatar());
     }
 
     /**
@@ -147,13 +158,15 @@ class PerfilController extends Controller
      *
      * - `File::image()` comprueba el contenido, no la extensión. Un `.jpg` que
      *   por dentro es un script deja de pasar.
-     * - El nombre lo genera Laravel. Usar el que trae el archivo permite
-     *   recorridos de ruta y colisiones entre usuarios.
+     * - Se recodifica a WebP de 256×256 como máximo y menos de 50 KB, lo que de
+     *   paso descarta cualquier contenido ajeno a la imagen, EXIF incluido.
      * - Hay tope de peso y de dimensiones: sin ellos, una foto de 40 megapíxeles
      *   entra entera y luego hay que servirla en un círculo de 32 píxeles.
-     * - La anterior se borra. Si no, cada cambio deja basura que nadie recoge.
+     * - El archivo antiguo, si lo había, se borra del disco.
+     *
+     * El avatar de Google (`avatar_oauth_url`) se conserva para poder volver a él.
      */
-    public function subirFoto(Request $request)
+    public function subirFoto(Request $request, OptimizadorAvatar $optimizador): JsonResponse
     {
         $request->validate([
             'foto' => [
@@ -174,13 +187,17 @@ class PerfilController extends Controller
         $usuario = $request->user();
         $anterior = $usuario->foto_perfil;
 
-        $ruta = $request->file('foto')->store(self::CARPETA, 'public');
+        try {
+            $avatar = $optimizador->aDataUri($request->file('foto')->getRealPath());
+        } catch (\RuntimeException) {
+            throw ValidationException::withMessages([
+                'foto' => 'No pudimos procesar la imagen. Prueba con otra.',
+            ]);
+        }
 
-        /* Se guarda con el prefijo `storage/` porque es la ruta pública: el
-           enlace simbólico de `public/storage` apunta a `storage/app/public`.
-           El frontend la resuelve contra el origen de la API sin saber nada
-           más. */
-        $usuario->forceFill(['foto_perfil' => 'storage/'.$ruta])->save();
+        /* `foto_perfil` se vacía: si quedara, la foto vieja volvería a
+           aparecer al quitar la nueva. */
+        $usuario->forceFill(['avatar_data' => $avatar, 'foto_perfil' => null])->save();
 
         $this->borrarAnterior($anterior);
 
@@ -192,23 +209,27 @@ class PerfilController extends Controller
 
         return response()->json([
             'mensaje' => 'Foto actualizada.',
-            'foto_perfil' => $usuario->foto_perfil,
-            'usuario' => $usuario->fresh(),
+            'usuario' => $usuario->fresh()->conAvatar(),
         ]);
     }
 
-    /** Quita la foto y vuelve a las iniciales. */
-    public function eliminarFoto(Request $request)
+    /**
+     * Quita la foto personalizada.
+     *
+     * La cuenta vuelve a su avatar de Google si lo tiene (`avatar_origen: oauth`)
+     * y, si no, a las iniciales (`avatar_origen: iniciales`).
+     */
+    public function eliminarFoto(Request $request): JsonResponse
     {
         $usuario = $request->user();
         $anterior = $usuario->foto_perfil;
 
-        $usuario->forceFill(['foto_perfil' => null])->save();
+        $usuario->forceFill(['avatar_data' => null, 'foto_perfil' => null])->save();
         $this->borrarAnterior($anterior);
 
         return response()->json([
             'mensaje' => 'Foto eliminada.',
-            'usuario' => $usuario->fresh(),
+            'usuario' => $usuario->fresh()->conAvatar(),
         ]);
     }
 
@@ -304,6 +325,7 @@ class PerfilController extends Controller
         $usuario->forceFill([
             'google_id' => null,
             'google_vinculado_en' => null,
+            'avatar_oauth_url' => null,
         ])->save();
 
         /* En la bitácora va el identificador, no el correo: un registro de
@@ -318,7 +340,7 @@ class PerfilController extends Controller
 
         return response()->json([
             'mensaje' => 'Google desvinculado. A partir de ahora entra con tu correo y contraseña.',
-            'usuario' => $usuario->fresh(),
+            'usuario' => $usuario->fresh()->conAvatar(),
         ]);
     }
 

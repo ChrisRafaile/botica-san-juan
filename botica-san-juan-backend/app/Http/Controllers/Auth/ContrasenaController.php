@@ -49,13 +49,9 @@ class ContrasenaController extends Controller
         $usuario = Password::broker()->getUser(['email' => $validado['email']]);
 
         if ($usuario !== null) {
-            $correos->enviar(
-                'recuperacion_contrasena',
-                /* Solo RESET_LINK_SENT es un envío: con RESET_THROTTLED no salió
-                   ningún correo y anotarlo como enviado falsearía la bitácora. */
-                fn () => Password::broker()->sendResetLink(['email' => $validado['email']]) === Password::RESET_LINK_SENT,
-                usuarioId: $usuario instanceof Usuario ? $usuario->id : null,
-            );
+            /* Se encola el identificador, nunca el token: el token lo genera el
+               trabajo al ejecutarse, para que no quede en claro en `jobs`. */
+            $correos->encolar('recuperacion_contrasena', (int) $usuario->getAuthIdentifier());
         }
 
         return response()->json([

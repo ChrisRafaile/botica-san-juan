@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Mail\BienvenidaCliente;
 use App\Models\Usuario;
 use App\Services\Correo\CorreoTransaccional;
 use App\Support\TotpService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 
 class UsuarioController extends Controller
@@ -177,11 +175,7 @@ class UsuarioController extends Controller
             usuarioId: $usuario->id,
         );
 
-        $correos->enviar(
-            'bienvenida',
-            fn () => Mail::to($usuario->email)->send(new BienvenidaCliente($usuario)),
-            usuarioId: $usuario->id,
-        );
+        $correos->encolar('bienvenida', $usuario->id);
 
         return response()->json([
             'user' => $usuario,
@@ -289,7 +283,7 @@ class UsuarioController extends Controller
         ]);
 
         return response()->json([
-            'user' => $usuario,
+            'user' => $usuario->conAvatar(),
             'token' => $token,
             'token_type' => 'Bearer',
             'message' => 'Inicio de sesión exitoso'

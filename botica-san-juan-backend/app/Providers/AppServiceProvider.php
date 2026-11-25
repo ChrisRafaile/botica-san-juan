@@ -15,6 +15,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(\App\Services\Correo\VaciadoDeCola::class);
+
         // El sistema depende del contrato, no de Izipay. Cambiar de pasarela
         // consiste en enlazar otra implementacion aqui.
         $this->app->bind(

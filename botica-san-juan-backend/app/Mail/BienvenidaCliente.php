@@ -10,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Correo de bienvenida para cuentas nuevas del portal (registro o alta con Google).
- * Se envía de forma síncrona: en producción no hay worker de cola activo.
+ * La despacha el trabajo encolable EnviarCorreoTransaccional.
  */
 class BienvenidaCliente extends Mailable
 {
