@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Sentry\Laravel\Integration;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,6 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Desde Laravel 11 el paquete de Sentry no se engancha solo: sin esta
+        // linea, con DSN puesto, no llegaba ninguna excepcion. Sin DSN no se
+        // envia nada.
+        Integration::handles($exceptions);
+
         // Esta aplicacion expone una API sin sesiones de navegador. Sin esta
         // configuracion, una peticion no autenticada que no envie la cabecera
         // "Accept: application/json" hace que Laravel intente redirigir a la
