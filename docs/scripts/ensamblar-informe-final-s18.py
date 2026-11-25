@@ -512,6 +512,12 @@ for n, i in enumerate(REPRESENTA, 1):
     assert Table(T[1], d._body).rows[n].cells[0].text == h
 poner(1141, 'Registro fotográfico', par(1141).text + ' Se conserva una fotografía representativa por hallazgo (H-01 a H-08).')
 
+# Anexo B: el pie afirmaba que bastaba la configuracion; lo contradice 26.7.3.
+# Solo el tramo en cursiva, para no perder el formato del pie.
+pie_b3 = [r for r in par(1220).runs if 'sin modificar el código' in r.text]
+assert len(pie_b3) == 1, 'el pie de la Figura B.3 no es el esperado'
+pie_b3[0].text = pie_b3[0].text.replace('la integración conmuta entre modo simulado y modo API mediante configuración, sin modificar el código.', 'la configuración selecciona el modo simulado o API; emitir ante la SUNAT exige además lo indicado en 26.7.3.')
+
 # Anexo C: C.3 repite la Figura 23 y C.6 y C.7 se ven en el capitulo XXVI.
 for i in (*range(1239, 1242), *range(1247, 1255)):
     B[i].getparent().remove(B[i])
