@@ -74,4 +74,28 @@ class SaludYSeguridadTest extends TestCase
 
         $this->assertContains('x-silenciar-aviso', $cabecerasPermitidas);
     }
+
+    public function test_salud_sirve_para_un_monitor_externo(): void
+    {
+        config(['queue.default' => 'database']);
+
+        $respuesta = $this->getJson('/api/salud')->assertOk()
+            ->assertJsonPath('ok', true)
+            ->assertJsonPath('cola', true)
+            ->assertJsonPath('version', '0.9.0');
+
+        $this->assertStringContainsString('no-store', (string) $respuesta->headers->get('Cache-Control'));
+    }
+
+    public function test_una_cola_atascada_se_informa_sin_tumbar_la_comprobacion_de_vida(): void
+    {
+        config(['queue.default' => 'database']);
+        \Illuminate\Support\Facades\DB::table('jobs')->insert([
+            'queue' => 'correos', 'payload' => '{}', 'attempts' => 0,
+            'available_at' => now()->subHour()->timestamp,
+            'created_at' => now()->subHour()->timestamp,
+        ]);
+
+        $this->getJson('/api/salud')->assertOk()->assertJsonPath('cola', false);
+    }
 }

@@ -49,6 +49,9 @@ AMBAR = (210, 153, 34)
 
 MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 MONO_B = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"
+# En Windows no existe DejaVu en esa ruta: Consolas es la monoespaciada del sistema.
+if not Path(MONO).exists():
+    MONO, MONO_B = "consola.ttf", "consolab.ttf"
 
 CUERPO = 30
 INTERLINEA = 44

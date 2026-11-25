@@ -138,6 +138,15 @@ class FacturadorSunat
     /** Devuelve el sobre SOAP de respuesta, venga de donde venga. */
     private function despachar(ComprobanteElectronico $comprobante, string $nombreBase, string $zip): string
     {
+        /* `beta` y `produccion` van por el microservicio REST (SunatClient).
+           Simular aquí en silencio daría por aceptado un comprobante que nunca
+           salió. */
+        if (in_array($this->modo(), ['beta', 'produccion'], true)) {
+            throw new \RuntimeException(
+                "El modo {$this->modo()} se envía por SunatClient (REST); el sobre SOAP directo solo admite simulado o api."
+            );
+        }
+
         if ($this->modo() !== 'api') {
             return $this->simulador->responder($comprobante, $nombreBase);
         }

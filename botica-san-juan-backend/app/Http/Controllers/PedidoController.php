@@ -351,19 +351,10 @@ class PedidoController extends Controller
         $identificadorComprobante = $comprobante->serie.'-'.str_pad((string) $comprobante->numero, 8, '0', STR_PAD_LEFT);
 
         if ($cliente !== null && filled($cliente->email)) {
-            /* Se carga una copia, y dentro del envío: cargar las relaciones en
-               `$pedido` las metería en la respuesta 201, y una consulta caída
-               aquí tumbaría una venta que ya está registrada. */
-            $correos->enviar(
-                'compra_registrada',
-                fn () => Mail::to($cliente->email)->send(new CompraRegistrada(
-                    pedido: Pedido::with('pedidoDetalles.producto')->findOrFail($pedido->id),
-                    identificadorComprobante: $identificadorComprobante,
-                    modalidadEntrega: $modalidadResuelta,
-                )),
-                usuarioId: $cliente->id,
-                pedidoId: $pedido->id,
-            );
+            $correos->encolar('compra_registrada', $cliente->id, $pedido->id, [
+                'identificador' => $identificadorComprobante,
+                'modalidad' => $modalidadResuelta,
+            ]);
         }
 
         return response()->json([

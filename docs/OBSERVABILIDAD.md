@@ -220,3 +220,42 @@ encontrado ninguno de los cuatro.
 
 **Si alguien amplía la analítica y una de estas pruebas se pone roja, la
 pregunta correcta no es cómo arreglar la prueba: es si ese dato debía salir.**
+
+---
+
+## 7. Monitoreo externo y perfilado (v0.9.0)
+
+**Sentry en el servidor.** Desde Laravel 11 el paquete no se engancha solo:
+faltaba `Integration::handles()` en `bootstrap/app.php`, y con el DSN puesto no
+habría llegado ninguna excepción. Sin DSN sigue sin enviarse nada.
+
+**Better Stack.** `GET /api/salud` está listo para un monitor externo: público,
+`Cache-Control: no-store`, `200` o `503`. Configuración recomendada:
+
+| Campo | Valor |
+|---|---|
+| URL | `https://botica-san-juan-api.onrender.com/api/salud` |
+| Tipo | *Keyword present* |
+| Palabra | `"ok":true` (disponibilidad); otro monitor con `"cola":true` |
+| Frecuencia | 3 min o más (límite de la ruta: 120 por minuto) |
+| Tiempo de espera | 60 s: el arranque en frío de Render ronda los 50 |
+
+`cola` es `false` cuando un correo lleva más de diez minutos esperando y `null`
+si la cola no es la base de datos. **No cambia el código de estado**: Render usa
+esta ruta como comprobación de vida y un 503 reiniciaría la API por un correo.
+
+Sondear cada pocos minutos mantiene despierto el servicio y consume las horas
+gratuitas de Render y de cómputo de Neon.
+
+**Laravel Pulse.** No está instalado. Para perfilar en local:
+
+```bash
+composer require --dev laravel/pulse
+php artisan vendor:publish --provider="Laravel\Pulse\PulseServiceProvider"
+php artisan migrate
+```
+
+Antes de llevarlo a producción hay que restringir `/pulse` con la puerta
+`viewPulse`, apagar el registro por usuario y por clave de caché (guardan
+identidades y términos de búsqueda) y fijar `PULSE_STORAGE_KEEP`: escribe en la
+misma base de Neon. En las pruebas ya está apagado (`PULSE_ENABLED=false`).

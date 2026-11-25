@@ -29,8 +29,7 @@ import {
   Settings as IconoAjustes,
 } from 'lucide-vue-next'
 import AdminBreadcrumbs from './AdminBreadcrumbs.vue'
-import BoticaAvatar from './ui/BoticaAvatar.vue'
-import { urlDeMedia } from '@/utils/media'
+import AvatarUsuario from '@/components/AvatarUsuario.vue'
 import { useTheme, type PreferenciaTema } from '../../composables/useTheme'
 
 const props = defineProps<{
@@ -39,6 +38,8 @@ const props = defineProps<{
   usuario?: {
     nombre?: string
     rol?: string
+    avatar_data?: string | null
+    avatar_oauth_url?: string | null
     foto_perfil?: string | null
     foto?: string | null
   } | null
@@ -57,21 +58,6 @@ const { preferencia, esOscuro, establecerTema } = useTheme()
 const menuAbierto = ref(false)
 const contenedorMenu = useTemplateRef<HTMLElement>('contenedorMenu')
 const botonMenu = useTemplateRef<HTMLButtonElement>('botonMenu')
-
-/**
- * Foto del usuario, resuelta contra el origen de la API.
- *
- * Se prefiere `foto_perfil`, que es el campo que escribe la pantalla de
- * perfil, y se cae a `foto` para las cuentas antiguas que todavía lo usan.
- * Mismo criterio que el lateral: si las dos vistas resolvieran la foto de
- * forma distinta, acabarían mostrando cosas distintas de la misma persona.
- *
- * Las iniciales ya no se calculan aquí: de eso se encarga BoticaAvatar, que
- * además las usa como respaldo cuando el archivo ya no está en el servidor.
- */
-const fotoPerfil = computed(
-  () => urlDeMedia(props.usuario?.foto_perfil || props.usuario?.foto),
-)
 
 const opcionesTema: { valor: PreferenciaTema; etiqueta: string; icono: typeof Sun }[] = [
   { valor: 'claro', etiqueta: 'Claro', icono: Sun },
@@ -222,9 +208,8 @@ onUnmounted(() => {
         aria-haspopup="menu"
         @click="menuAbierto = !menuAbierto"
       >
-        <BoticaAvatar
-          :nombre="usuario?.nombre"
-          :foto="fotoPerfil"
+        <AvatarUsuario
+          :usuario="usuario"
           tamano="sm"
         />
         <span class="hidden text-left leading-tight lg:block">
@@ -249,9 +234,8 @@ onUnmounted(() => {
           role="menu"
         >
           <div class="flex items-center gap-2.5 border-b border-borde-sutil px-3 py-2.5">
-            <BoticaAvatar
-              :nombre="usuario?.nombre"
-              :foto="fotoPerfil"
+            <AvatarUsuario
+              :usuario="usuario"
               tamano="md"
             />
             <div class="min-w-0">

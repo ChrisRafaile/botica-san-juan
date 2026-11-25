@@ -17,6 +17,16 @@ Schedule::command('pedidos:liberar-expirados')
     ->withoutOverlapping();
 
 /*
+ * Worker de la cola de correos sin proceso dedicado: en la capa gratuita de
+ * Render no hay otro. Solo esa cola; `--stop-when-empty` la hace barata.
+ */
+Schedule::command('queue:work --queue=correos --stop-when-empty --max-time=50 --tries=3')
+    ->everyMinute()
+    ->withoutOverlapping(5)
+    ->when(fn () => config('queue.default') !== 'sync')
+    ->name('correos:atender-cola');
+
+/*
  * Purga diaria de claves de idempotencia cuya vigencia de 24 horas haya expirado.
  */
 Schedule::call(function () {

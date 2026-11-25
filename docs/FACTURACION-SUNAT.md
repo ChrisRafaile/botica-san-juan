@@ -207,3 +207,22 @@ asesoría tributaria.** Los plazos de envío, qué se entrega al cliente en
 contingencia y qué régimen aplica a esta botica son cosas que debe confirmar
 su contador, como ya quedó anotado en la sección 6 de
 `docs/ARQUITECTURA-OFFLINE.md`.
+
+---
+
+## Entornos de envío (v0.9.0)
+
+`SunatClient` habla REST con un microservicio OSE-Greenter desacoplado, que es
+quien genera el UBL, firma y habla SOAP con la SUNAT. **Ese microservicio no está
+desplegado**: el modo vigente es `simulado`.
+
+| Código | Motivo del rechazo, sin llegar a enviar |
+|---|---|
+| `CFG01` | Falta `SUNAT_BASE_URL` o `SUNAT_TOKEN` |
+| `CFG02` | `SUNAT_MODE` no reconocido (antes se simulaba en silencio) |
+| `CFG03` | La URL apunta a `sunat.gob.pe` |
+| `CFG04` | URL inválida o sin HTTPS (en beta se admite HTTP local) |
+| `CFG05` | `produccion` con `APP_ENV` distinto de `production` |
+
+`beta` y `produccion` añaden la cabecera `X-Sunat-Entorno` y descartan el estado
+forzado del simulador. `api` conserva su contrato.

@@ -21,7 +21,12 @@ export interface User {
   telefono?: string
   direccion_entrega?: string | null
   foto?: string
+  /** Anterior a v0.9.0: ruta de archivo. Hoy la foto va en `avatar_data`. */
   foto_perfil?: string
+  /** Foto propia como data URI. Solo viene en la respuesta de la cuenta propia. */
+  avatar_data?: string | null
+  avatar_oauth_url?: string | null
+  avatar_origen?: 'personalizado' | 'oauth' | 'iniciales'
   foto_portada?: string
   rol?: string
   /** Fecha de confirmación del correo, o null si todavía no se confirmó. */

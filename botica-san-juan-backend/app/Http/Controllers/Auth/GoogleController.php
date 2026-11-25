@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Mail\BienvenidaCliente;
 use App\Models\Usuario;
 use App\Services\Correo\CorreoTransaccional;
 use Illuminate\Http\JsonResponse;
@@ -13,7 +12,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -177,14 +175,12 @@ class GoogleController extends Controller
             return $this->alPortal(['error' => 'cuenta-ocupada']);
         }
 
+        $usuario->actualizarAvatarOauth($cuenta->getAvatar());
+
         /* Solo en alta nueva y después de cerrar la transacción, nunca al
            vincular una cuenta existente ni en inicios de sesión posteriores. */
         if ($esNuevo) {
-            $correos->enviar(
-                'bienvenida_google',
-                fn () => Mail::to($usuario->email)->send(new BienvenidaCliente($usuario)),
-                usuarioId: $usuario->id,
-            );
+            $correos->encolar('bienvenida_google', $usuario->id);
         }
 
         $codigo = Str::random(48);
@@ -223,7 +219,7 @@ class GoogleController extends Controller
         }
 
         return response()->json([
-            'user' => $usuario,
+            'user' => $usuario->conAvatar(),
             'token' => $usuario->createToken('Acceso con Google')->plainTextToken,
             'token_type' => 'Bearer',
             /* El portal lo usa para avisar de que falta el documento antes de

@@ -107,3 +107,7 @@ __pycache__/
 # Instrucciones locales de herramientas de asistencia (no son documentacion del sistema)
 /CLAUDE.md
 .claude/
+
+# El informe final contiene datos personales y fotografias del negocio: se regenera
+# con docs/scripts/ensamblar-informe-final-s18.py y no se publica en el repositorio.
+/docs/entregables/*.docx

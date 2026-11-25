@@ -29,7 +29,8 @@ SUNAT_TIMEOUT=20
 ```
 
 - `SUNAT_MODE=simulado`: usa respuesta mock para ambientes de desarrollo.
-- `SUNAT_MODE=api`: envia al endpoint configurado en `SUNAT_BASE_URL`.
+- `SUNAT_MODE=beta` / `produccion`: envia por REST al microservicio OSE-Greenter de `SUNAT_BASE_URL` (HTTPS, nunca `sunat.gob.pe`; `produccion` exige `APP_ENV=production`).
+- `SUNAT_MODE=api`: modo historico; envia al endpoint configurado en `SUNAT_BASE_URL` sin validar el entorno.
 - Para demo deterministica en modo simulado, puedes forzar estado en el endpoint usando `force_status=aceptada|rechazada`.
 
 ## Production Checklist
