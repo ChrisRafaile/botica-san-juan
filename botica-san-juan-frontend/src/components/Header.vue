@@ -62,9 +62,8 @@
               class="flex items-center space-x-2 p-2 rounded-lg hover:bg-superficie-interactiva transition-colors duration-200"
               @click="toggleUserMenu"
             >
-              <BoticaAvatar
-                :nombre="usuario?.nombre"
-                :foto="fotoPerfil"
+              <AvatarUsuario
+                :usuario="usuario"
                 tamano="sm"
               />
               <ChevronDownIcon
@@ -218,8 +217,7 @@ import {
 
 import SelectorTema from './SelectorTema.vue'
 import DialogoConfirmacion from './DialogoConfirmacion.vue'
-import BoticaAvatar from '@/admin/components/ui/BoticaAvatar.vue'
-import { urlDeMedia } from '@/utils/media'
+import AvatarUsuario from '@/components/AvatarUsuario.vue'
 const router = useRouter()
 const cartStore = useCartStore()
 const authStore = useAuthStore()
@@ -246,9 +244,6 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
    sitio del portal. Se reutiliza el mismo avatar del panel para que la cara
    sea la misma en los dos lados y el respaldo a iniciales se comporte igual. */
 const usuario = computed(() => authStore.user)
-const fotoPerfil = computed(
-  () => urlDeMedia(usuario.value?.foto_perfil || usuario.value?.foto),
-)
 
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
