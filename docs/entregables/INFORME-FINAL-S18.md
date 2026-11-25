@@ -144,9 +144,12 @@ El registro de la API de Resend corrobora esos cuatro envíos desde el lado del 
 El 24 de noviembre de 2026 se activaron ambos servicios en producción y se comprobó que reciben eventos reales:
 
 - **Sentry:** un error provocado a propósito en el portal llegó al proyecto `botica-frontend`, y dos excepciones de la API al proyecto `botica-backend`. Estas dos son un defecto real hallado al probar: un identificador fuera del rango de `bigint` en `/api/catalogo/{producto}` y `/api/productos/{producto}` responde `500` en lugar de `404`. Queda abierto.
+- **Aviso por correo:** la regla de Sentry para incidencias de prioridad alta avisó del error del portal sin intervención. El evento ocurrió a las 21:25:55 del 24-11-2026 (hora de Lima) y Gmail recibió el correo a las 21:26:22: **27 segundos** entre la detección y la notificación. Es una sola medición con un error provocado; no acredita un tiempo garantizado.
 - **PostHog:** siete vistas de página de la navegación de prueba, con identificador anónimo y sin términos de búsqueda en la dirección. En el proyecto se apagaron la autocaptura, los mapas de calor y la grabación de sesiones, y se activó el descarte de la dirección IP, igual que en los dos proyectos de Sentry.
 
 ![Incidencias recibidas en Sentry](../evidencias/informe-final/25-sentry-observabilidad-prod.png)
+
+![Alerta automática de Sentry recibida por correo](../evidencias/informe-final/28-sentry-alerta-correo-prod.png)
 
 ![Eventos recibidos en PostHog](../evidencias/informe-final/26-posthog-eventos-prod.png)
 
@@ -391,3 +394,13 @@ El 23 de noviembre de 2026 se probaron en producción registro, recuperación y 
 | **R3** | Migrar los archivos subidos (`storage/app`) a almacenamiento de objetos (S3 o R2) y evaluar plan de pago en Render si se requiere cumplir RNF05 (≥ 99 %). | Pérdida por disco efímero y arranque en frío (~50 s) |
 | **R4** | Verificar un dominio propio en Resend (registros SPF/DKIM) y cambiar `MAIL_FROM_ADDRESS` antes de habilitar correos transaccionales a clientes reales. | Limitación de entrega exclusiva al titular en Resend |
 | **R5** | Incorporar Pint/PHPStan y ESLint al pipeline CI, ejecutar prueba de carga p95 sobre búsqueda (RNF03) y activar MFA en la cuenta administrativa de producción (RF01). | Brechas parciales en RNF07, RNF03 y RF01 |
+
+### 34.3. Transición hacia SUNAT productiva
+
+Hoy `SUNAT_MODE=simulado`: ningún comprobante tiene efecto tributario. El cambio a `beta` y después a `produccion` se hace en Render con variables de entorno, sin modificar el selector de modos del código (`SunatClient`):
+
+- **Conexión:** `SUNAT_MODE`, `SUNAT_BASE_URL` y `SUNAT_TOKEN`, que apuntan al microservicio OSE-Greenter. `produccion` exige además `APP_ENV=production` y HTTPS.
+- **Usuario Secundario SOL** dedicado, `<RUC>BOTICAWEB`: separa este sistema de la clave principal del contribuyente y puede revocarse por separado.
+- **Certificado Digital Tributario (`.pfx`):** según el establecimiento, ya está operativo; se reutilizaría para firmar. No se ha cargado ni verificado en este sistema. El certificado y la clave SOL van como secretos en el microservicio que firma, nunca en el repositorio.
+
+Las variables no bastan por sí solas. Antes de emitir debe estar desplegado ese microservicio, que no forma parte del repositorio, con la generación del XML UBL 2.1 y la firma; y la carga que envía la API, hoy limitada a los datos de cabecera, debe incluir el detalle de líneas e impuestos. La transición se da por cerrada cuando SUNAT beta devuelva un CDR aceptado.

@@ -407,6 +407,7 @@ FIGURAS = {
            ('EF-03-alertas-fefo.png', 'Alertas de vencimiento y control FEFO.'),
            ('21-resend-api-logs-200.png', 'Registro de la API de Resend: cuatro llamadas POST /emails con estado 200.'),
            ('25-sentry-observabilidad-prod.png', 'Sentry en producción: error controlado del portal y excepciones reales de la API.'),
+           ('28-sentry-alerta-correo-prod.png', 'Alerta automática de Sentry recibida por correo 27 segundos después del error, 24 de noviembre de 2026.'),
            ('26-posthog-eventos-prod.png', 'PostHog en producción: vistas de página con identificador anónimo.')],
     '33': [('EF-07-catalogo.png', 'Catálogo público.'),
            ('EF-08-checkout.png', 'Checkout del portal del cliente.'),

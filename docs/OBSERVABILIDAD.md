@@ -255,7 +255,7 @@ gratuitas de Render y de cómputo de Neon.
 |---|---|---|
 | Better Stack | Monitor activo, código 200 cada 3 min, aviso por correo. No comprueba la palabra clave ni `cola` | `24-betterstack-uptime-prod.png` |
 | Página de estado | https://botica-san-juan.betteruptime.com, pública, solo `/api/salud` | `27-betterstack-status-page.png` |
-| Sentry | DSN en Render y Vercel; un error recibido del portal y dos de la API | `25-sentry-observabilidad-prod.png` |
+| Sentry | DSN en Render y Vercel; un error recibido del portal y dos de la API | `25-sentry-observabilidad-prod.png`, `28-sentry-alerta-correo-prod.png` (aviso por correo a los 27 s) |
 | PostHog | Clave en Vercel, región de EE. UU. Autocaptura, mapas de calor, web vitals y grabación apagados en el proyecto | `26-posthog-eventos-prod.png` |
 
 La grabación debe seguir apagada: `rutaGrabable` compara por el principio de la
