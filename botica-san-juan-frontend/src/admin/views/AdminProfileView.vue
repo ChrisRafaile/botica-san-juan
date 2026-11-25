@@ -17,8 +17,7 @@
         Foto de perfil
       </h2>
       <ZonaDeFoto
-        :nombre="authStore.user?.nombre"
-        :foto-actual="fotoPerfil"
+        :usuario="authStore.user"
         :subiendo="subiendoFoto"
         @seleccionar="alSeleccionarFoto"
         @eliminar="alQuitarFoto"
@@ -79,10 +78,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import api from '@/services/api'
-import { urlDeMedia } from '@/utils/media'
 import { eliminarFoto, subirFoto } from '@/services/perfil'
 import { erroresPorCampo } from '@/utils/validacionServidor'
 import ZonaDeFoto from '@/components/ZonaDeFoto.vue'
@@ -91,9 +89,6 @@ import { useAdminToast } from '../composables/useAdminToast'
 const authStore = useAuthStore()
 const { notifyError, notifySuccess } = useAdminToast()
 
-const fotoPerfil = computed(
-  () => urlDeMedia(authStore.user?.foto_perfil || authStore.user?.foto),
-)
 const subiendoFoto = ref(false)
 
 async function alSeleccionarFoto(archivo: File) {
@@ -112,7 +107,7 @@ async function alQuitarFoto() {
   subiendoFoto.value = true
   try {
     authStore.setUser(await eliminarFoto())
-    notifySuccess('Perfil', 'Foto eliminada.')
+    notifySuccess('Perfil', authStore.user?.avatar_oauth_url ? 'Volviste a tu foto de Google.' : 'Foto eliminada.')
   } catch {
     notifyError('Perfil', 'No se pudo eliminar la foto.')
   } finally {

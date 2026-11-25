@@ -93,6 +93,8 @@ fi
 #
 # LO QUE ESTO NO ARREGLA
 #
+# (Las fotos de perfil ya no dependen de el: viven en usuarios.avatar_data.)
+#
 # El disco del contenedor es EFIMERO. El enlace hace que los archivos se
 # sirvan; no hace que sobrevivan. Una foto que un administrador suba hoy
 # desaparece en el siguiente despliegue, junto con el contenedor que la
@@ -134,6 +136,9 @@ php artisan catalogo:poblar-imagenes \
 # el. No es un problema: mientras duerme nadie esta comprando, y al despertar
 # la siguiente pasada libera todo lo vencido de golpe. Lo que no garantiza es
 # puntualidad al minuto.
+#
+# Tambien atiende la cola `correos`: sin worker dedicado, es quien reintenta los
+# envios que fallaron justo despues de la respuesta.
 #
 # Si el planificador muere, la API sigue atendiendo: por eso va con `&` y no
 # encadenado al arranque. Una reserva que tarda en liberarse es stock que no

@@ -23,8 +23,7 @@ import { ChevronDown } from 'lucide-vue-next'
 import gsap from 'gsap'
 import { useAdminMenu, type ElementoMenu } from '../composables/useAdminMenu'
 import { useEstadoConexion } from '../composables/useEstadoConexion'
-import BoticaAvatar from './ui/BoticaAvatar.vue'
-import { urlDeMedia } from '@/utils/media'
+import AvatarUsuario from '@/components/AvatarUsuario.vue'
 import { EASE, DUR, duracion } from '../../utils/motion'
 
 const props = defineProps<{
@@ -34,6 +33,8 @@ const props = defineProps<{
     nombre?: string
     rol?: string
     foto?: string | null
+    avatar_data?: string | null
+    avatar_oauth_url?: string | null
     foto_perfil?: string | null
   } | null
 }>()
@@ -63,19 +64,6 @@ const claseLatido = computed(() => {
       return 'bg-neutro-400'
   }
 })
-
-/**
- * La foto puede venir en dos campos según por dónde se haya subido.
- *
- * Se prefiere `foto_perfil`, que es el que usa la pantalla de perfil, y se cae
- * a `foto` para las cuentas antiguas. La resolución de la ruta vive en
- * `utils/media` porque el mismo problema aparece con cada imagen que sirve la
- * API: una ruta relativa se resolvería contra el frontend y no contra el
- * backend, que en desarrollo son orígenes distintos.
- */
-const fotoPerfil = computed(
-  () => urlDeMedia(props.usuario?.foto_perfil || props.usuario?.foto),
-)
 
 /** Estado colapsado, sincronizado con el layout mediante v-model. */
 const colapsada = defineModel<boolean>('colapsada', { default: false })
@@ -464,9 +452,8 @@ onMounted(() => {
         :class="colapsada ? 'justify-center' : ''"
         :title="colapsada ? `${usuario?.nombre ?? 'Administrador'} · ${etiquetaConexion}` : undefined"
       >
-        <BoticaAvatar
-          :nombre="usuario?.nombre"
-          :foto="fotoPerfil"
+        <AvatarUsuario
+          :usuario="usuario"
           :estado="estadoConexion"
           tamano="md"
           class="transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/perfil:scale-105"

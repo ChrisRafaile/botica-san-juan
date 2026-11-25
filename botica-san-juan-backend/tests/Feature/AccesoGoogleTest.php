@@ -32,6 +32,8 @@ class AccesoGoogleTest extends TestCase
 
     private int $dni = 30000000;
 
+    private ?object $proveedorGoogle = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -64,17 +66,20 @@ class AccesoGoogleTest extends TestCase
     }
 
     /** Sustituye a Google por una cuenta de mentira con los datos que se quiera. */
-    private function fingirGoogle(string $id, string $correo, string $nombre = 'Rosa Quispe', bool $verificado = true): void
+    private function fingirGoogle(string $id, string $correo, string $nombre = 'Rosa Quispe', bool $verificado = true, ?string $foto = null): void
     {
         $cuenta = new UsuarioSocialite;
-        $cuenta->map(['id' => $id, 'email' => $correo, 'name' => $nombre]);
+        $cuenta->map(['id' => $id, 'email' => $correo, 'name' => $nombre, 'avatar' => $foto]);
         $cuenta->setRaw(['email_verified' => $verificado]);
 
         $proveedor = Mockery::mock('Laravel\Socialite\Two\GoogleProvider');
         $proveedor->shouldReceive('stateless')->andReturnSelf();
         $proveedor->shouldReceive('user')->andReturn($cuenta);
 
-        Socialite::shouldReceive('driver')->with('google')->andReturn($proveedor);
+        /* Por propiedad: Mockery conserva la primera expectativa, y con dos
+           accesos seguidos el segundo recibiría la cuenta del primero. */
+        $this->proveedorGoogle = $proveedor;
+        Socialite::shouldReceive('driver')->with('google')->andReturnUsing(fn () => $this->proveedorGoogle);
     }
 
     /**
@@ -410,5 +415,36 @@ class AccesoGoogleTest extends TestCase
         $this->actingAs($usuario)->putJson('/api/perfil', ['dni' => $otra->dni])
             ->assertStatus(422)
             ->assertJsonValidationErrors('dni');
+    }
+
+    // ------------------------------------------------------------- avatar
+
+    public function test_entrar_con_google_no_pisa_la_foto_personalizada(): void
+    {
+        $usuario = $this->usuario(['email' => 'rosa@prueba.test']);
+        $usuario->forceFill(['avatar_data' => 'data:image/webp;base64,UklGRg=='])->save();
+
+        foreach (['primera', 'segunda'] as $foto) {
+            $this->fingirGoogle('g-rosa', 'rosa@prueba.test', foto: "https://lh3.googleusercontent.com/a/{$foto}");
+            $this->volver($this->stateValido())->assertRedirect();
+        }
+
+        $usuario->refresh();
+        $this->assertSame('data:image/webp;base64,UklGRg==', $usuario->avatar_data);
+        $this->assertSame('https://lh3.googleusercontent.com/a/segunda', $usuario->avatar_oauth_url);
+        $this->assertSame('personalizado', $usuario->avatar_origen);
+    }
+
+    public function test_si_google_no_manda_foto_se_conserva_la_anterior(): void
+    {
+        $this->fingirGoogle('g-luis', 'luis@prueba.test', foto: 'https://lh3.googleusercontent.com/a/luis');
+        $this->volver($this->stateValido());
+        $this->fingirGoogle('g-luis', 'luis@prueba.test');
+        $this->volver($this->stateValido());
+
+        $this->assertSame(
+            'https://lh3.googleusercontent.com/a/luis',
+            Usuario::where('google_id', 'g-luis')->firstOrFail()->avatar_oauth_url,
+        );
     }
 }

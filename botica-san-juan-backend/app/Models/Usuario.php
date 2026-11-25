@@ -44,9 +44,14 @@ class Usuario extends Authenticatable implements MustVerifyEmail
            del backend y publicarlo solo da material para correlacionar
            cuentas entre servicios. El portal pregunta por `tiene_google`. */
         'google_id',
+        /* Hasta 50 KB por fila. Los listados de usuarios, pedidos y
+           comprobantes cargan esta relación entera: la imagen solo sale en las
+           respuestas de la propia cuenta, con `conAvatar()`. */
+        'avatar_data',
     ];
 
     protected $appends = [
+        'avatar_origen',
         'tiene_google',
         'tiene_contrasena',
         'puede_desvincular_google',
@@ -76,6 +81,52 @@ class Usuario extends Authenticatable implements MustVerifyEmail
      | proveedor de servicios para que, leyendo el modelo, se vea que estos
      | correos existen.
      */
+
+    /* ------------------------------------------------------------------
+     | Avatar jerárquico: foto propia > Google > iniciales
+     */
+
+    /**
+     * Nivel del avatar que corresponde mostrar.
+     *
+     * @return 'personalizado'|'oauth'|'iniciales'
+     */
+    public function getAvatarOrigenAttribute(): string
+    {
+        return match (true) {
+            filled($this->avatar_data), filled($this->foto_perfil) => 'personalizado',
+            filled($this->avatar_oauth_url) => 'oauth',
+            default => 'iniciales',
+        };
+    }
+
+    /** Incluye la imagen persistida. Solo para respuestas de la propia cuenta. */
+    public function conAvatar(): static
+    {
+        return $this->makeVisible('avatar_data');
+    }
+
+    /**
+     * Guarda el avatar de Google SIN tocar la foto personalizada.
+     *
+     * Solo HTTPS y dominio de Google: la URL acaba en el `src` de una imagen y
+     * no debe poder apuntar a un tercero. Si Google no manda foto se conserva
+     * la anterior, porque omitirla no significa que se haya borrado.
+     */
+    public function actualizarAvatarOauth(?string $url): void
+    {
+        $url = trim((string) $url);
+        $partes = parse_url($url) ?: [];
+
+        if (strlen($url) > 2048
+            || ($partes['scheme'] ?? '') !== 'https'
+            || ! str_ends_with(strtolower($partes['host'] ?? ''), '.googleusercontent.com')
+            || $this->avatar_oauth_url === $url) {
+            return;
+        }
+
+        $this->forceFill(['avatar_oauth_url' => $url])->save();
+    }
 
     /* ------------------------------------------------------------------
      | Acceso con Google

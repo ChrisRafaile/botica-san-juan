@@ -15,13 +15,12 @@ import {
   User,
   X,
 } from 'lucide-vue-next'
-import BoticaAvatar from '@/admin/components/ui/BoticaAvatar.vue'
+import AvatarUsuario from '@/components/AvatarUsuario.vue'
 import AsistenteBoticaWidget from '@/components/AsistenteBoticaWidget.vue'
 import DialogoConfirmacion from '@/components/DialogoConfirmacion.vue'
 import SelectorTema from '@/components/SelectorTema.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useCartStore } from '@/stores/carrito'
-import { urlDeMedia } from '@/utils/media'
 import {
   cargarPedidosCliente,
   formatearMoneda,
@@ -68,7 +67,6 @@ const botonMenuRef = ref<HTMLButtonElement | null>(null)
 
 let mediaDesktop: MediaQueryList | null = null
 
-const fotoPerfil = computed(() => urlDeMedia(authStore.user?.foto_perfil) || undefined)
 const primerNombre = computed(() => {
   const nombre = authStore.user?.nombre?.trim()
   if (!nombre) return 'Cliente'
@@ -480,7 +478,7 @@ onUnmounted(() => {
               class="foco-dentro flex items-center gap-2 rounded-xl px-2 py-1 transition-colors hover:bg-superficie-interactiva"
               aria-label="Ir a mi perfil"
             >
-              <BoticaAvatar :nombre="authStore.user?.nombre" :foto="fotoPerfil" tamano="sm" />
+              <AvatarUsuario :usuario="authStore.user" tamano="sm" />
               <span class="hidden max-w-28 truncate text-sm font-medium text-texto-primario sm:inline">
                 {{ primerNombre }}
               </span>

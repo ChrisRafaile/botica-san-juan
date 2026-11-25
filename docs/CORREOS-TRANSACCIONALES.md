@@ -12,8 +12,8 @@
 | Remitente | `onboarding@resend.dev` (el único posible sin dominio) |
 | Verificación de cuenta al registrarse | Funciona |
 | Recuperación de contraseña | Funciona |
-| Bienvenida al registrarse o entrar por primera vez con Google | Implementada (Mailable `BienvenidaCliente`, envío síncrono) |
-| Confirmación de compra registrada (clientes con sesión) | Implementada (Mailable `CompraRegistrada`, envío síncrono) |
+| Bienvenida al registrarse o entrar por primera vez con Google | Implementada (Mailable `BienvenidaCliente`, en cola) |
+| Confirmación de compra registrada (clientes con sesión) | Implementada (Mailable `CompraRegistrada`, en cola) |
 | Envío real contra Resend | Probado en producción el 2026-11-23: 4 de 4 `delivered`; Gmail mandó 2 a Spam |
 
 Sin dominio verificado, Resend solo acepta `onboarding@resend.dev` como
@@ -117,9 +117,9 @@ inglés y sin salida.
 
 **Enviador único, bienvenida y confirmación de compra**
 
-- `App\Services\Correo\CorreoTransaccional` centraliza los envíos de forma
-  **síncrona** (sin `ShouldQueue`, porque en producción no hay worker de cola
-  activo).
+- `App\Services\Correo\CorreoTransaccional` centraliza los envíos. Desde v0.9.0
+  la bienvenida, la compra y la recuperación van **en cola** (ver «La cola»); la
+  verificación sigue siendo síncrona porque su respuesta informa del resultado.
 - En producción exige `MAIL_MAILER=resend` y `RESEND_API_KEY` definida; de lo
   contrario registra `CORREO_TRANSPORTE_INVALIDO` en `eventos_operacion` y
   devuelve `false` sin fallo silencioso.
@@ -134,6 +134,25 @@ inglés y sin salida.
   disparan envío. El mensaje incluye número de pedido, identificador de
   comprobante, ítems, total en soles, modalidad y estado, y **omite** DNI,
   teléfono y dirección por privacidad.
+
+**La cola (v0.9.0)**
+
+Render gratuito no da un worker, así que un trabajo encolado sin más no saldría
+nunca. Se combinan tres piezas:
+
+1. `EnviarCorreoTransaccional` se **persiste** en `jobs` (Neon).
+2. `VaciadoDeCola` lo procesa en cuanto la respuesta salió, en el mismo proceso.
+3. El planificador ejecuta `queue:work --queue=correos --stop-when-empty` cada
+   minuto: recoge lo que quedó si el contenedor murió o Resend falló (tres
+   intentos, a los 60 y 300 s).
+
+Si la propia cola no admite el trabajo, se envía en el acto. La carga útil son
+identificadores: el token de recuperación **se genera al ejecutar**, así que no
+pasa en claro por la tabla. La excepción de Resend se sustituye por
+`CorreoNoEnviado` antes de llegar a `failed_jobs`, porque suele llevar el
+destinatario.
+
+Para escalar: `QUEUE_CONNECTION=redis` y `REDIS_URL` de Upstash (`rediss://`).
 
 ## 5. Una cosa que se desactivó al instalar el paquete
 

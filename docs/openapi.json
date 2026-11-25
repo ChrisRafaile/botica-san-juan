@@ -2,7 +2,7 @@
     "openapi": "3.1.0",
     "info": {
         "title": "API Botica San Juan",
-        "version": "0.5.0",
+        "version": "0.9.0",
         "description": "Servicios del sistema de gesti\u00f3n de la Botica San Juan: cat\u00e1logo, inventario, punto de venta, pedidos del portal, sincronizaci\u00f3n de ventas en contingencia y facturaci\u00f3n electr\u00f3nica. Las rutas protegidas esperan un token Bearer emitido por /api/login."
     },
     "servers": [
@@ -18,6 +18,7 @@
     "paths": {
         "/user": {
             "get": {
+                "operationId": "sistema.usuario",
                 "responses": {
                     "200": {
                         "description": "`Usuario`",
@@ -37,6 +38,7 @@
         },
         "/test": {
             "get": {
+                "operationId": "sistema.prueba",
                 "responses": {
                     "200": {
                         "description": "",
@@ -63,6 +65,7 @@
         },
         "/health": {
             "get": {
+                "operationId": "sistema.health",
                 "responses": {
                     "200": {
                         "description": "",
@@ -98,6 +101,7 @@
         },
         "/health/db": {
             "get": {
+                "operationId": "sistema.health_db",
                 "responses": {
                     "503": {
                         "description": "",
@@ -166,6 +170,7 @@
         },
         "/salud": {
             "get": {
+                "operationId": "sistema.salud",
                 "responses": {
                     "200": {
                         "description": "",
@@ -179,6 +184,1697 @@
                     }
                 },
                 "security": []
+            }
+        },
+        "/inventario/vencimientos": {
+            "get": {
+                "operationId": "alertaVencimiento.index",
+                "summary": "GET /api/inventario/vencimientos?bucket=<=30",
+                "tags": [
+                    "AlertaVencimiento"
+                ],
+                "parameters": [
+                    {
+                        "name": "bucket",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "enum": [
+                                "vencido",
+                                "<=30",
+                                "<=60",
+                                "<=90",
+                                "vigente",
+                                null
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "resumen": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "vencido": {
+                                                    "type": "integer"
+                                                },
+                                                "<=30": {
+                                                    "type": "integer"
+                                                },
+                                                "<=60": {
+                                                    "type": "integer"
+                                                },
+                                                "<=90": {
+                                                    "type": "integer"
+                                                },
+                                                "vigente": {
+                                                    "type": "integer"
+                                                },
+                                                "valor_en_riesgo_90d": {
+                                                    "type": "number"
+                                                },
+                                                "valor_vencido": {
+                                                    "type": "number"
+                                                }
+                                            },
+                                            "required": [
+                                                "total",
+                                                "vencido",
+                                                "<=30",
+                                                "<=60",
+                                                "<=90",
+                                                "vigente",
+                                                "valor_en_riesgo_90d",
+                                                "valor_vencido"
+                                            ]
+                                        },
+                                        "lotes": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "resumen",
+                                        "lotes"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/asistente/estado": {
+            "get": {
+                "operationId": "asistente.estado",
+                "summary": "GET /api/asistente/estado",
+                "tags": [
+                    "Asistente"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "habilitado": {
+                                            "type": "boolean"
+                                        },
+                                        "rol": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "habilitado",
+                                        "rol"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/asistente/mensajes": {
+            "post": {
+                "operationId": "asistente.responder",
+                "summary": "POST /api/asistente/mensajes",
+                "tags": [
+                    "Asistente"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "mensaje": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 1000
+                                    },
+                                    "historial": {
+                                        "type": [
+                                            "array",
+                                            "null"
+                                        ],
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "role": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "user",
+                                                        "assistant"
+                                                    ]
+                                                },
+                                                "content": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "maxLength": 1000
+                                                }
+                                            }
+                                        },
+                                        "maxItems": 12
+                                    }
+                                },
+                                "required": [
+                                    "mensaje"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "respuesta": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "respuesta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "El asistente no pudo responder en este momento. Int\u00e9ntalo nuevamente en unos segundos."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "El asistente inteligente est\u00e1 deshabilitado porque no hay proveedor de IA configurado."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/asistente/importaciones/previsualizar": {
+            "post": {
+                "operationId": "asistenteImportacion.previsualizar",
+                "summary": "POST /api/asistente/importaciones/previsualizar",
+                "tags": [
+                    "AsistenteImportacion"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "archivo": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "contentMediaType": "application/octet-stream",
+                                        "description": "Maximum file size: 5120 kilobytes."
+                                    }
+                                },
+                                "required": [
+                                    "archivo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "formato": {
+                                            "type": "string",
+                                            "enum": [
+                                                "csv",
+                                                "xlsx"
+                                            ]
+                                        },
+                                        "token_confirmacion": {
+                                            "type": "string"
+                                        },
+                                        "expira_en_minutos": {
+                                            "type": [
+                                                "integer",
+                                                "null"
+                                            ],
+                                            "enum": [
+                                                15,
+                                                null
+                                            ]
+                                        },
+                                        "resumen": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total_filas": {
+                                                    "type": "integer"
+                                                },
+                                                "validas": {
+                                                    "type": "integer"
+                                                },
+                                                "con_errores": {
+                                                    "type": "integer"
+                                                },
+                                                "duplicados": {
+                                                    "type": "integer"
+                                                },
+                                                "advertencias": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "total_filas",
+                                                "validas",
+                                                "con_errores",
+                                                "duplicados",
+                                                "advertencias"
+                                            ]
+                                        },
+                                        "filas_validas": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "fila": {
+                                                        "type": "string"
+                                                    },
+                                                    "producto": {
+                                                        "type": "string"
+                                                    },
+                                                    "concentracion": {
+                                                        "type": "string"
+                                                    },
+                                                    "laboratorio": {
+                                                        "type": "string"
+                                                    },
+                                                    "lote": {
+                                                        "type": "string"
+                                                    },
+                                                    "fecha_vencimiento": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "stock": {
+                                                        "type": [
+                                                            "integer",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "precio_venta": {
+                                                        "type": [
+                                                            "number",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "presentacion": {
+                                                        "type": "string"
+                                                    },
+                                                    "tipo": {
+                                                        "type": "string"
+                                                    },
+                                                    "costo_unitario": {
+                                                        "type": [
+                                                            "number",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "accion": {
+                                                        "type": "string",
+                                                        "const": "agregar_lote"
+                                                    },
+                                                    "producto_existente_id": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "fila",
+                                                    "producto",
+                                                    "concentracion",
+                                                    "laboratorio",
+                                                    "lote",
+                                                    "fecha_vencimiento",
+                                                    "stock",
+                                                    "precio_venta",
+                                                    "presentacion",
+                                                    "tipo",
+                                                    "costo_unitario",
+                                                    "accion",
+                                                    "producto_existente_id"
+                                                ]
+                                            }
+                                        },
+                                        "duplicados": {
+                                            "type": "array",
+                                            "items": {
+                                                "anyOf": [
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "fila": {
+                                                                "type": "string"
+                                                            },
+                                                            "tipo": {
+                                                                "type": "string",
+                                                                "const": "duplicado_en_archivo"
+                                                            },
+                                                            "producto": {
+                                                                "type": "string"
+                                                            },
+                                                            "lote": {
+                                                                "type": "string"
+                                                            },
+                                                            "mensaje": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "fila",
+                                                            "tipo",
+                                                            "producto",
+                                                            "lote",
+                                                            "mensaje"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "fila": {
+                                                                "type": "string"
+                                                            },
+                                                            "tipo": {
+                                                                "type": "string",
+                                                                "const": "lote_existente"
+                                                            },
+                                                            "producto": {
+                                                                "type": "string"
+                                                            },
+                                                            "lote": {
+                                                                "type": "string"
+                                                            },
+                                                            "mensaje": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "fila",
+                                                            "tipo",
+                                                            "producto",
+                                                            "lote",
+                                                            "mensaje"
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        "advertencias": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "fila": {
+                                                        "type": "string"
+                                                    },
+                                                    "mensaje": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "fila",
+                                                    "mensaje"
+                                                ]
+                                            }
+                                        },
+                                        "errores": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "fila": {
+                                                        "type": "string"
+                                                    },
+                                                    "mensaje": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "fila",
+                                                    "mensaje"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "formato",
+                                        "token_confirmacion",
+                                        "expira_en_minutos",
+                                        "resumen",
+                                        "filas_validas",
+                                        "duplicados",
+                                        "advertencias",
+                                        "errores"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/asistente/importaciones/confirmar": {
+            "post": {
+                "operationId": "asistenteImportacion.confirmar",
+                "summary": "POST /api/asistente/importaciones/confirmar",
+                "tags": [
+                    "AsistenteImportacion"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "token_confirmacion": {
+                                        "type": "string",
+                                        "maxLength": 100
+                                    }
+                                },
+                                "required": [
+                                    "token_confirmacion"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Importaci\u00f3n confirmada y registrada en la bit\u00e1cora."
+                                        },
+                                        "resultado": {
+                                            "type": "object",
+                                            "properties": {
+                                                "filas_procesadas": {
+                                                    "type": "integer"
+                                                },
+                                                "productos_creados": {
+                                                    "type": "integer"
+                                                },
+                                                "productos_actualizados": {
+                                                    "type": "integer"
+                                                },
+                                                "lotes_creados": {
+                                                    "type": "integer"
+                                                },
+                                                "lotes_actualizados": {
+                                                    "type": "integer"
+                                                },
+                                                "unidades_ingresadas": {
+                                                    "type": "integer"
+                                                },
+                                                "evento_id": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "filas_procesadas",
+                                                "productos_creados",
+                                                "productos_actualizados",
+                                                "lotes_creados",
+                                                "lotes_actualizados",
+                                                "unidades_ingresadas",
+                                                "evento_id"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "resultado"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/asistente/importaciones/cancelar": {
+            "post": {
+                "operationId": "asistenteImportacion.cancelar",
+                "summary": "POST /api/asistente/importaciones/cancelar",
+                "tags": [
+                    "AsistenteImportacion"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "token_confirmacion": {
+                                        "type": "string",
+                                        "maxLength": 100
+                                    }
+                                },
+                                "required": [
+                                    "token_confirmacion"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cancelado": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "cancelado"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/caja/actual": {
+            "get": {
+                "operationId": "caja.actual",
+                "tags": [
+                    "Caja"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "sesion": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer"
+                                                        },
+                                                        "usuario_id": {
+                                                            "type": "integer"
+                                                        },
+                                                        "cajero": {
+                                                            "type": "string"
+                                                        },
+                                                        "estado": {
+                                                            "type": "string"
+                                                        },
+                                                        "monto_inicial": {
+                                                            "type": "number"
+                                                        },
+                                                        "ventas_efectivo": {
+                                                            "type": "number"
+                                                        },
+                                                        "total_ingresos": {
+                                                            "type": "number"
+                                                        },
+                                                        "total_egresos": {
+                                                            "type": "number"
+                                                        },
+                                                        "monto_esperado": {
+                                                            "type": [
+                                                                "number",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "monto_contado": {
+                                                            "type": [
+                                                                "number",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "diferencia": {
+                                                            "type": [
+                                                                "number",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "observacion_apertura": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "observacion_cierre": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "abierta_en": {
+                                                            "type": "string"
+                                                        },
+                                                        "cerrada_en": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "movimientos": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "tipo": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "monto": {
+                                                                        "type": "number"
+                                                                    },
+                                                                    "motivo": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "referencia": {
+                                                                        "type": [
+                                                                            "string",
+                                                                            "null"
+                                                                        ]
+                                                                    },
+                                                                    "pedido_id": {
+                                                                        "type": [
+                                                                            "integer",
+                                                                            "null"
+                                                                        ]
+                                                                    },
+                                                                    "created_at": {
+                                                                        "type": [
+                                                                            "string",
+                                                                            "null"
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "tipo",
+                                                                    "monto",
+                                                                    "motivo",
+                                                                    "referencia",
+                                                                    "pedido_id",
+                                                                    "created_at"
+                                                                ]
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id",
+                                                        "usuario_id",
+                                                        "cajero",
+                                                        "estado",
+                                                        "monto_inicial",
+                                                        "ventas_efectivo",
+                                                        "total_ingresos",
+                                                        "total_egresos",
+                                                        "monto_esperado",
+                                                        "monto_contado",
+                                                        "diferencia",
+                                                        "observacion_apertura",
+                                                        "observacion_cierre",
+                                                        "abierta_en",
+                                                        "cerrada_en",
+                                                        "movimientos"
+                                                    ]
+                                                },
+                                                "arqueo": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "monto_inicial": {
+                                                            "type": "number"
+                                                        },
+                                                        "ventas_efectivo": {
+                                                            "type": "number"
+                                                        },
+                                                        "ingresos": {
+                                                            "type": "number"
+                                                        },
+                                                        "egresos": {
+                                                            "type": "number"
+                                                        },
+                                                        "monto_esperado": {
+                                                            "type": "number"
+                                                        },
+                                                        "movimientos_count": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "monto_inicial",
+                                                        "ventas_efectivo",
+                                                        "ingresos",
+                                                        "egresos",
+                                                        "monto_esperado",
+                                                        "movimientos_count"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "sesion",
+                                                "arqueo"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "sesion": {
+                                                    "type": "null"
+                                                },
+                                                "arqueo": {
+                                                    "type": "null"
+                                                }
+                                            },
+                                            "required": [
+                                                "sesion",
+                                                "arqueo"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/caja/historial": {
+            "get": {
+                "operationId": "caja.historial",
+                "tags": [
+                    "Caja"
+                ],
+                "parameters": [
+                    {
+                        "name": "limite",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "kpis": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total_sesiones": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "total_ventas_efectivo": {
+                                                    "type": "number"
+                                                },
+                                                "diferencia_acumulada": {
+                                                    "type": "number"
+                                                }
+                                            },
+                                            "required": [
+                                                "total_sesiones",
+                                                "total_ventas_efectivo",
+                                                "diferencia_acumulada"
+                                            ]
+                                        },
+                                        "sesiones": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "usuario_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "cajero": {
+                                                        "type": "string"
+                                                    },
+                                                    "estado": {
+                                                        "type": "string"
+                                                    },
+                                                    "monto_inicial": {
+                                                        "type": "number"
+                                                    },
+                                                    "ventas_efectivo": {
+                                                        "type": "number"
+                                                    },
+                                                    "total_ingresos": {
+                                                        "type": "number"
+                                                    },
+                                                    "total_egresos": {
+                                                        "type": "number"
+                                                    },
+                                                    "monto_esperado": {
+                                                        "type": [
+                                                            "number",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "monto_contado": {
+                                                        "type": [
+                                                            "number",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "diferencia": {
+                                                        "type": [
+                                                            "number",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "observacion_apertura": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "observacion_cierre": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "abierta_en": {
+                                                        "type": "string"
+                                                    },
+                                                    "cerrada_en": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "usuario_id",
+                                                    "cajero",
+                                                    "estado",
+                                                    "monto_inicial",
+                                                    "ventas_efectivo",
+                                                    "total_ingresos",
+                                                    "total_egresos",
+                                                    "monto_esperado",
+                                                    "monto_contado",
+                                                    "diferencia",
+                                                    "observacion_apertura",
+                                                    "observacion_cierre",
+                                                    "abierta_en",
+                                                    "cerrada_en"
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "kpis",
+                                        "sesiones"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/caja/abrir": {
+            "post": {
+                "operationId": "caja.abrir",
+                "tags": [
+                    "Caja"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "monto_inicial": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "maximum": 999999.99
+                                    },
+                                    "observacion_apertura": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 500
+                                    }
+                                },
+                                "required": [
+                                    "monto_inicial"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Sesi\u00f3n de caja abierta."
+                                        },
+                                        "sesion": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "usuario_id": {
+                                                    "type": "integer"
+                                                },
+                                                "cajero": {
+                                                    "type": "string"
+                                                },
+                                                "estado": {
+                                                    "type": "string"
+                                                },
+                                                "monto_inicial": {
+                                                    "type": "number"
+                                                },
+                                                "ventas_efectivo": {
+                                                    "type": "number"
+                                                },
+                                                "total_ingresos": {
+                                                    "type": "number"
+                                                },
+                                                "total_egresos": {
+                                                    "type": "number"
+                                                },
+                                                "monto_esperado": {
+                                                    "type": [
+                                                        "number",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "monto_contado": {
+                                                    "type": [
+                                                        "number",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "diferencia": {
+                                                    "type": [
+                                                        "number",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "observacion_apertura": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "observacion_cierre": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "abierta_en": {
+                                                    "type": "string"
+                                                },
+                                                "cerrada_en": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "movimientos": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "tipo": {
+                                                                "type": "string"
+                                                            },
+                                                            "monto": {
+                                                                "type": "number"
+                                                            },
+                                                            "motivo": {
+                                                                "type": "string"
+                                                            },
+                                                            "referencia": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "pedido_id": {
+                                                                "type": [
+                                                                    "integer",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "created_at": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "tipo",
+                                                            "monto",
+                                                            "motivo",
+                                                            "referencia",
+                                                            "pedido_id",
+                                                            "created_at"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "usuario_id",
+                                                "cajero",
+                                                "estado",
+                                                "monto_inicial",
+                                                "ventas_efectivo",
+                                                "total_ingresos",
+                                                "total_egresos",
+                                                "monto_esperado",
+                                                "monto_contado",
+                                                "diferencia",
+                                                "observacion_apertura",
+                                                "observacion_cierre",
+                                                "abierta_en",
+                                                "cerrada_en",
+                                                "movimientos"
+                                            ]
+                                        },
+                                        "arqueo": {
+                                            "type": "object",
+                                            "properties": {
+                                                "monto_inicial": {
+                                                    "type": "number"
+                                                },
+                                                "ventas_efectivo": {
+                                                    "type": "number"
+                                                },
+                                                "ingresos": {
+                                                    "type": "number"
+                                                },
+                                                "egresos": {
+                                                    "type": "number"
+                                                },
+                                                "monto_esperado": {
+                                                    "type": "number"
+                                                },
+                                                "movimientos_count": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "monto_inicial",
+                                                "ventas_efectivo",
+                                                "ingresos",
+                                                "egresos",
+                                                "monto_esperado",
+                                                "movimientos_count"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "sesion",
+                                        "arqueo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/caja/movimientos": {
+            "post": {
+                "operationId": "caja.registrarMovimiento",
+                "tags": [
+                    "Caja"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tipo": {
+                                        "type": "string",
+                                        "enum": [
+                                            "ingreso",
+                                            "egreso"
+                                        ]
+                                    },
+                                    "monto": {
+                                        "type": "number",
+                                        "minimum": 0.01,
+                                        "maximum": 999999.99
+                                    },
+                                    "motivo": {
+                                        "type": "string",
+                                        "minLength": 3,
+                                        "maxLength": 255
+                                    },
+                                    "referencia": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 100
+                                    }
+                                },
+                                "required": [
+                                    "tipo",
+                                    "monto",
+                                    "motivo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Movimiento registrado."
+                                        },
+                                        "movimiento": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "tipo": {
+                                                    "type": "string"
+                                                },
+                                                "monto": {
+                                                    "type": "number"
+                                                },
+                                                "motivo": {
+                                                    "type": "string"
+                                                },
+                                                "referencia": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "pedido_id": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "tipo",
+                                                "monto",
+                                                "motivo",
+                                                "referencia",
+                                                "pedido_id",
+                                                "created_at"
+                                            ]
+                                        },
+                                        "arqueo": {
+                                            "type": [
+                                                "object",
+                                                "null"
+                                            ],
+                                            "properties": {
+                                                "monto_inicial": {
+                                                    "type": "number"
+                                                },
+                                                "ventas_efectivo": {
+                                                    "type": "number"
+                                                },
+                                                "ingresos": {
+                                                    "type": "number"
+                                                },
+                                                "egresos": {
+                                                    "type": "number"
+                                                },
+                                                "monto_esperado": {
+                                                    "type": "number"
+                                                },
+                                                "movimientos_count": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "monto_inicial",
+                                                "ventas_efectivo",
+                                                "ingresos",
+                                                "egresos",
+                                                "monto_esperado",
+                                                "movimientos_count"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "movimiento",
+                                        "arqueo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/caja/{sesion}/cerrar": {
+            "post": {
+                "operationId": "caja.cerrar",
+                "tags": [
+                    "Caja"
+                ],
+                "parameters": [
+                    {
+                        "name": "sesion",
+                        "in": "path",
+                        "required": true,
+                        "description": "The sesion ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "monto_contado": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "maximum": 999999.99
+                                    },
+                                    "observacion_cierre": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 500
+                                    }
+                                },
+                                "required": [
+                                    "monto_contado"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Sesi\u00f3n de caja cerrada."
+                                        },
+                                        "sesion": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "usuario_id": {
+                                                    "type": "integer"
+                                                },
+                                                "cajero": {
+                                                    "type": "string"
+                                                },
+                                                "estado": {
+                                                    "type": "string"
+                                                },
+                                                "monto_inicial": {
+                                                    "type": "number"
+                                                },
+                                                "ventas_efectivo": {
+                                                    "type": "number"
+                                                },
+                                                "total_ingresos": {
+                                                    "type": "number"
+                                                },
+                                                "total_egresos": {
+                                                    "type": "number"
+                                                },
+                                                "monto_esperado": {
+                                                    "type": [
+                                                        "number",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "monto_contado": {
+                                                    "type": [
+                                                        "number",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "diferencia": {
+                                                    "type": [
+                                                        "number",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "observacion_apertura": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "observacion_cierre": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "abierta_en": {
+                                                    "type": "string"
+                                                },
+                                                "cerrada_en": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "movimientos": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "tipo": {
+                                                                "type": "string"
+                                                            },
+                                                            "monto": {
+                                                                "type": "number"
+                                                            },
+                                                            "motivo": {
+                                                                "type": "string"
+                                                            },
+                                                            "referencia": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "pedido_id": {
+                                                                "type": [
+                                                                    "integer",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "created_at": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "tipo",
+                                                            "monto",
+                                                            "motivo",
+                                                            "referencia",
+                                                            "pedido_id",
+                                                            "created_at"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "usuario_id",
+                                                "cajero",
+                                                "estado",
+                                                "monto_inicial",
+                                                "ventas_efectivo",
+                                                "total_ingresos",
+                                                "total_egresos",
+                                                "monto_esperado",
+                                                "monto_contado",
+                                                "diferencia",
+                                                "observacion_apertura",
+                                                "observacion_cierre",
+                                                "abierta_en",
+                                                "cerrada_en",
+                                                "movimientos"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "sesion"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
             }
         },
         "/carrito": {
@@ -1356,7 +3052,7 @@
                 "security": []
             },
             "put": {
-                "operationId": "categoria.update_108",
+                "operationId": "categoria.update_113",
                 "tags": [
                     "Categoria"
                 ],
@@ -1399,7 +3095,7 @@
                 }
             },
             "patch": {
-                "operationId": "categoria.update_109",
+                "operationId": "categoria.update_114",
                 "tags": [
                     "Categoria"
                 ],
@@ -1948,7 +3644,7 @@
                 }
             },
             "put": {
-                "operationId": "compra.update_120",
+                "operationId": "compra.update_125",
                 "tags": [
                     "Compra"
                 ],
@@ -2028,7 +3724,7 @@
                 }
             },
             "patch": {
-                "operationId": "compra.update_121",
+                "operationId": "compra.update_126",
                 "tags": [
                     "Compra"
                 ],
@@ -3838,7 +5534,7 @@
                 "security": []
             },
             "put": {
-                "operationId": "digemidCatalogo.update_125",
+                "operationId": "digemidCatalogo.update_130",
                 "tags": [
                     "DigemidCatalogo"
                 ],
@@ -3924,7 +5620,7 @@
                 }
             },
             "patch": {
-                "operationId": "digemidCatalogo.update_126",
+                "operationId": "digemidCatalogo.update_131",
                 "tags": [
                     "DigemidCatalogo"
                 ],
@@ -4221,10 +5917,106 @@
         "/eventos": {
             "get": {
                 "operationId": "eventoOperacion.index",
-                "description": "Los filtros son los que se usan de verdad cuando algo va mal: \u00abens\u00e9\u00f1ame\nlos errores\u00bb, \u00abens\u00e9\u00f1ame qu\u00e9 pas\u00f3 con este c\u00f3digo\u00bb, \u00abens\u00e9\u00f1ame el d\u00eda del\nincidente\u00bb. No hay m\u00e1s, a prop\u00f3sito: un formulario con doce campos se\nusa con dos.\u26a0\ufe0f Cannot generate request documentation: Cannot evaluate validation rules (1 evaluators failed):\n  [NodeRulesEvaluator] Cannot access private constant App\\Http\\Controllers\\EventoOperacionController::MAXIMO_POR_PAGINA (at C:\\tareas universitarios\\TAREAS U\\Tareas Univ\\Ciclo 5\\Taller de programacion Web\\botica_san_juan\\botica-san-juan-backend\\vendor\\dedoc\\scramble\\src\\Support\\OperationExtensions\\RulesEvaluator\\ConstFetchEvaluator.php:42)",
+                "description": "Los filtros son los que se usan de verdad cuando algo va mal: \u00abens\u00e9\u00f1ame\nlos errores\u00bb, \u00abens\u00e9\u00f1ame qu\u00e9 pas\u00f3 con este c\u00f3digo\u00bb, \u00abens\u00e9\u00f1ame el d\u00eda del\nincidente\u00bb. No hay m\u00e1s, a prop\u00f3sito: un formulario con doce campos se\nusa con dos.",
                 "summary": "Listado con filtros",
                 "tags": [
                     "EventoOperacion"
+                ],
+                "parameters": [
+                    {
+                        "name": "nivel",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "enum": [
+                                "info",
+                                "warning",
+                                "error",
+                                null
+                            ]
+                        }
+                    },
+                    {
+                        "name": "codigo",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 60
+                        }
+                    },
+                    {
+                        "name": "buscar",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 120
+                        }
+                    },
+                    {
+                        "name": "desde",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "hasta",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "origen",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 20
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ],
+                            "minimum": 1
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -5186,14 +6978,7 @@
                                     "type": "object",
                                     "properties": {
                                         "user": {
-                                            "anyOf": [
-                                                {
-                                                    "$ref": "#/components/schemas/Usuario"
-                                                },
-                                                {
-                                                    "type": "null"
-                                                }
-                                            ]
+                                            "$ref": "#/components/schemas/Usuario"
                                         },
                                         "token": {
                                             "type": "string"
@@ -6326,7 +8111,6 @@
                                             "string",
                                             "null"
                                         ],
-                                        "description": "M\u00e9todo de pago seleccionado: 'tarjeta' (pasarela online con reserva temporal de stock) o 'contra_entrega' (pago al recibir o recoger).",
                                         "enum": [
                                             "tarjeta",
                                             "contra_entrega",
@@ -6338,7 +8122,6 @@
                                             "string",
                                             "null"
                                         ],
-                                        "minLength": 0,
                                         "maxLength": 255
                                     },
                                     "cliente_nombre": {
@@ -6346,11 +8129,14 @@
                                             "string",
                                             "null"
                                         ],
-                                        "description": "Checkout r\u00e1pido: sin cuenta, pero no sin datos. Estos tres son lo\nm\u00ednimo para poder entregar el pedido y avisar cuando est\u00e9 listo.\nSe exigen SOLO al invitado; quien inici\u00f3 sesi\u00f3n ya los tiene.",
                                         "maxLength": 255
                                     },
                                     "cliente_documento": {
-                                        "type": "string"
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "pattern": "^(\\d{8}|\\d{11})$"
                                     },
                                     "cliente_telefono": {
                                         "type": [
@@ -7667,7 +9453,7 @@
         "/perfil": {
             "get": {
                 "operationId": "perfil.mostrar",
-                "description": "Incluye datos personales, rol, estado de verificaci\u00f3n de correo,\nvinculaci\u00f3n con Google, autenticaci\u00f3n multifactor (MFA) y direcci\u00f3n de entrega predeterminada (`direccion_entrega`).",
+                "description": "Incluye datos personales, rol, estado de verificaci\u00f3n de correo,\nvinculaci\u00f3n con Google, autenticaci\u00f3n multifactor (MFA) y direcci\u00f3n de entrega predeterminada (`direccion_entrega`).\n\nEl avatar se resuelve en cascada: `avatar_data` (foto propia, data URI de hasta 50 KB),\n`avatar_oauth_url` (foto de Google) y, sin ninguna, las iniciales. `avatar_origen` dice cu\u00e1l\ncorresponde: `personalizado`, `oauth` o `iniciales`.",
                 "summary": "Devuelve los datos de la cuenta actual",
                 "tags": [
                     "Perfil"
@@ -7717,7 +9503,6 @@
                                             "string",
                                             "null"
                                         ],
-                                        "description": "Direcci\u00f3n habitual o predeterminada para entregas a domicilio (delivery).\nSe precarga autom\u00e1ticamente en el formulario del carrito si el usuario no ha especificado otra.",
                                         "maxLength": 255
                                     },
                                     "email": {
@@ -7727,7 +9512,6 @@
                                     },
                                     "dni": {
                                         "type": "string",
-                                        "description": "El rol NO se acepta aqu\u00ed a prop\u00f3sito. Si se aceptara, cualquier\ncliente podr\u00eda ascenderse a administrador editando su perfil. El DNI tampoco se CAMBIA: identifica a la persona ante la SUNAT\ny ya figura en los comprobantes emitidos.\n\nPero s\u00ed se puede COMPLETAR una vez, y solo si est\u00e1 vac\u00edo. Ese\nes el caso de quien entr\u00f3 con Google: Google acredita un correo\ny no sabe el documento de nadie, as\u00ed que esas cuentas nacen sin\nDNI. Sin esta puerta, la \u00fanica forma de ponerlo ser\u00eda tecleando\nel documento en cada compra, para siempre.\n\n`sometimes` + la comprobaci\u00f3n de abajo: la regla de validaci\u00f3n\nno puede por s\u00ed sola distinguir \u00abvac\u00edo\u00bb de \u00abya tiene uno\u00bb.",
                                         "pattern": "^\\d{8}$",
                                         "minLength": 8,
                                         "maxLength": 8
@@ -7743,14 +9527,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "anyOf": [
-                                        {
-                                            "$ref": "#/components/schemas/Usuario"
-                                        },
-                                        {
-                                            "type": "null"
-                                        }
-                                    ]
+                                    "$ref": "#/components/schemas/Usuario"
                                 }
                             }
                         }
@@ -7832,7 +9609,8 @@
         "/perfil/foto": {
             "delete": {
                 "operationId": "perfil.eliminarFoto",
-                "summary": "Quita la foto y vuelve a las iniciales",
+                "description": "La cuenta vuelve a su avatar de Google si lo tiene (`avatar_origen: oauth`)\ny, si no, a las iniciales (`avatar_origen: iniciales`).",
+                "summary": "Quita la foto personalizada",
                 "tags": [
                     "Perfil"
                 ],
@@ -7849,14 +9627,7 @@
                                             "const": "Foto eliminada."
                                         },
                                         "usuario": {
-                                            "anyOf": [
-                                                {
-                                                    "$ref": "#/components/schemas/Usuario"
-                                                },
-                                                {
-                                                    "type": "null"
-                                                }
-                                            ]
+                                            "$ref": "#/components/schemas/Usuario"
                                         }
                                     },
                                     "required": [
@@ -7874,7 +9645,7 @@
             },
             "post": {
                 "operationId": "perfil.subirFoto",
-                "description": "Reglas que importan, y por qu\u00e9:\n\n- `File::image()` comprueba el contenido, no la extensi\u00f3n. Un `.jpg` que\n  por dentro es un script deja de pasar.\n- El nombre lo genera Laravel. Usar el que trae el archivo permite\n  recorridos de ruta y colisiones entre usuarios.\n- Hay tope de peso y de dimensiones: sin ellos, una foto de 40 megap\u00edxeles\n  entra entera y luego hay que servirla en un c\u00edrculo de 32 p\u00edxeles.\n- La anterior se borra. Si no, cada cambio deja basura que nadie recoge.",
+                "description": "Reglas que importan, y por qu\u00e9:\n\n- `File::image()` comprueba el contenido, no la extensi\u00f3n. Un `.jpg` que\n  por dentro es un script deja de pasar.\n- Se recodifica a WebP de 256\u00d7256 como m\u00e1ximo y menos de 50 KB, lo que de\n  paso descarta cualquier contenido ajeno a la imagen, EXIF incluido.\n- Hay tope de peso y de dimensiones: sin ellos, una foto de 40 megap\u00edxeles\n  entra entera y luego hay que servirla en un c\u00edrculo de 32 p\u00edxeles.\n- El archivo antiguo, si lo hab\u00eda, se borra del disco.\n\nEl avatar de Google (`avatar_oauth_url`) se conserva para poder volver a \u00e9l.",
                 "summary": "Sustituye la foto de perfil",
                 "tags": [
                     "Perfil"
@@ -7912,26 +9683,12 @@
                                             "type": "string",
                                             "const": "Foto actualizada."
                                         },
-                                        "foto_perfil": {
-                                            "type": [
-                                                "string",
-                                                "null"
-                                            ]
-                                        },
                                         "usuario": {
-                                            "anyOf": [
-                                                {
-                                                    "$ref": "#/components/schemas/Usuario"
-                                                },
-                                                {
-                                                    "type": "null"
-                                                }
-                                            ]
+                                            "$ref": "#/components/schemas/Usuario"
                                         }
                                     },
                                     "required": [
                                         "mensaje",
-                                        "foto_perfil",
                                         "usuario"
                                     ]
                                 }
@@ -7968,14 +9725,7 @@
                                             "const": "Google desvinculado. A partir de ahora entra con tu correo y contrase\u00f1a."
                                         },
                                         "usuario": {
-                                            "anyOf": [
-                                                {
-                                                    "$ref": "#/components/schemas/Usuario"
-                                                },
-                                                {
-                                                    "type": "null"
-                                                }
-                                            ]
+                                            "$ref": "#/components/schemas/Usuario"
                                         }
                                     },
                                     "required": [
@@ -8078,6 +9828,27 @@
                             "minimum": 1,
                             "maximum": 50
                         }
+                    },
+                    {
+                        "name": "explorar",
+                        "in": "query",
+                        "description": "Modo cat\u00e1logo para la cuadr\u00edcula del mostrador: lista productos\nsin exigir t\u00e9rmino de b\u00fasqueda, opcionalmente de una categor\u00eda.",
+                        "schema": {
+                            "type": [
+                                "boolean",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "categoria_id",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -8122,6 +9893,15 @@
                                                                     "null"
                                                                 ]
                                                             },
+                                                            "imagen": {
+                                                                "type": "string"
+                                                            },
+                                                            "categoria_id": {
+                                                                "type": [
+                                                                    "integer",
+                                                                    "null"
+                                                                ]
+                                                            },
                                                             "requiere_receta": {
                                                                 "type": "boolean"
                                                             },
@@ -8140,6 +9920,34 @@
                                                             },
                                                             "stock_disponible": {
                                                                 "type": "integer"
+                                                            },
+                                                            "dias_para_vencer": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "integer",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "nivel_vencimiento": {
+                                                                "anyOf": [
+                                                                    {
+                                                                        "type": "string"
+                                                                    },
+                                                                    {
+                                                                        "type": "null"
+                                                                    },
+                                                                    {
+                                                                        "type": "string",
+                                                                        "enum": [
+                                                                            "vigente",
+                                                                            "medio",
+                                                                            "alto",
+                                                                            "critico",
+                                                                            "vencido",
+                                                                            "sin_fecha"
+                                                                        ]
+                                                                    }
+                                                                ]
                                                             },
                                                             "venta_fraccionada": {
                                                                 "type": "boolean"
@@ -8184,12 +9992,16 @@
                                                             "laboratorio",
                                                             "principio_activo",
                                                             "codigo_barras",
+                                                            "imagen",
+                                                            "categoria_id",
                                                             "requiere_receta",
                                                             "afecto_igv",
                                                             "tipo_afectacion_igv",
                                                             "afectacion",
                                                             "stock_contable",
                                                             "stock_disponible",
+                                                            "dias_para_vencer",
+                                                            "nivel_vencimiento",
                                                             "venta_fraccionada",
                                                             "formas_venta"
                                                         ]
@@ -9044,11 +10856,20 @@
                                                 "items",
                                                 "incidencias"
                                             ]
+                                        },
+                                        "caja_vinculada": {
+                                            "type": "boolean"
+                                        },
+                                        "caja_aviso": {
+                                            "type": "string",
+                                            "const": "Venta registrada sin sesi\u00f3n de caja abierta; abre caja para cuadrar el efectivo del turno."
                                         }
                                     },
                                     "required": [
                                         "message",
-                                        "data"
+                                        "data",
+                                        "caja_vinculada",
+                                        "caja_aviso"
                                     ]
                                 }
                             }
@@ -10275,7 +12096,7 @@
                 "security": []
             },
             "put": {
-                "operationId": "producto.update_103",
+                "operationId": "producto.update_108",
                 "summary": "Update the specified resource in storage",
                 "tags": [
                     "Producto"
@@ -10477,7 +12298,7 @@
                 }
             },
             "patch": {
-                "operationId": "producto.update_104",
+                "operationId": "producto.update_109",
                 "summary": "Update the specified resource in storage",
                 "tags": [
                     "Producto"
@@ -11127,7 +12948,7 @@
                 }
             },
             "put": {
-                "operationId": "proveedor.update_116",
+                "operationId": "proveedor.update_121",
                 "tags": [
                     "Proveedor"
                 ],
@@ -11227,7 +13048,7 @@
                 }
             },
             "patch": {
-                "operationId": "proveedor.update_117",
+                "operationId": "proveedor.update_122",
                 "tags": [
                     "Proveedor"
                 ],
@@ -11502,12 +13323,15 @@
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
                                     "archivo": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "binary",
+                                        "contentMediaType": "application/octet-stream",
+                                        "description": "Maximum file size: 8192 kilobytes."
                                     }
                                 },
                                 "required": [
@@ -12942,7 +14766,7 @@
                 "security": []
             },
             "put": {
-                "operationId": "subcategoria.update_112",
+                "operationId": "subcategoria.update_117",
                 "tags": [
                     "Subcategoria"
                 ],
@@ -12985,7 +14809,7 @@
                 }
             },
             "patch": {
-                "operationId": "subcategoria.update_113",
+                "operationId": "subcategoria.update_118",
                 "tags": [
                     "Subcategoria"
                 ],
@@ -13303,6 +15127,78 @@
                                                     "importe"
                                                 ]
                                             }
+                                        },
+                                        "comparativa_semanal": {
+                                            "type": "object",
+                                            "properties": {
+                                                "dias": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "etiqueta": {
+                                                                "type": "string"
+                                                            },
+                                                            "fecha": {
+                                                                "type": "string"
+                                                            },
+                                                            "actual": {
+                                                                "type": "number"
+                                                            },
+                                                            "anterior": {
+                                                                "type": "number"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "etiqueta",
+                                                            "fecha",
+                                                            "actual",
+                                                            "anterior"
+                                                        ]
+                                                    }
+                                                },
+                                                "total_actual": {
+                                                    "type": "number"
+                                                },
+                                                "total_anterior": {
+                                                    "type": "number"
+                                                },
+                                                "variacion_absoluta": {
+                                                    "type": "number"
+                                                }
+                                            },
+                                            "required": [
+                                                "dias",
+                                                "total_actual",
+                                                "total_anterior",
+                                                "variacion_absoluta"
+                                            ]
+                                        },
+                                        "metodos_pago": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "medio": {
+                                                        "type": "string"
+                                                    },
+                                                    "comprobantes": {
+                                                        "type": "integer"
+                                                    },
+                                                    "importe": {
+                                                        "type": "number"
+                                                    },
+                                                    "porcentaje": {
+                                                        "type": "number"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "medio",
+                                                    "comprobantes",
+                                                    "importe",
+                                                    "porcentaje"
+                                                ]
+                                            }
                                         }
                                     },
                                     "required": [
@@ -13311,7 +15207,9 @@
                                         "reposicion",
                                         "catalogo",
                                         "ultimas",
-                                        "mas_vendidos"
+                                        "mas_vendidos",
+                                        "comparativa_semanal",
+                                        "metodos_pago"
                                     ]
                                 }
                             }
@@ -13349,14 +15247,7 @@
                                     "type": "object",
                                     "properties": {
                                         "user": {
-                                            "anyOf": [
-                                                {
-                                                    "$ref": "#/components/schemas/Usuario"
-                                                },
-                                                {
-                                                    "type": "null"
-                                                }
-                                            ]
+                                            "$ref": "#/components/schemas/Usuario"
                                         },
                                         "token": {
                                             "type": "string"
@@ -14162,6 +16053,22 @@
                                                 "message": {
                                                     "type": "string",
                                                     "const": "Te enviamos un correo de confirmaci\u00f3n. Revisa tu bandeja y la carpeta de no deseados."
+                                                }
+                                            },
+                                            "required": [
+                                                "enviado",
+                                                "message"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "enviado": {
+                                                    "type": "boolean"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "const": "No pudimos enviar el correo de confirmaci\u00f3n en este momento. Intenta nuevamente m\u00e1s tarde."
                                                 }
                                             },
                                             "required": [
@@ -15654,6 +17561,20 @@
                             "null"
                         ]
                     },
+                    "avatar_oauth_url": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "avatar_origen": {
+                        "type": "string",
+                        "enum": [
+                            "personalizado",
+                            "oauth",
+                            "iniciales"
+                        ]
+                    },
                     "tiene_google": {
                         "type": "boolean"
                     },
@@ -15682,6 +17603,8 @@
                     "google_vinculado_en",
                     "contrasena_establecida_en",
                     "direccion_entrega",
+                    "avatar_oauth_url",
+                    "avatar_origen",
                     "tiene_google",
                     "tiene_contrasena",
                     "puede_desvincular_google"

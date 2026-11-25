@@ -40,7 +40,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
+    return $request->user()->conAvatar();
 })->middleware('auth:sanctum')->name('sistema.usuario');
 
 /* Ruta de diagnostico, SOLO en local.
@@ -102,11 +102,30 @@ Route::get('/salud', function () {
         $baseViva = false;
     }
 
+    /* Un correo con más de diez minutos en cola delata que nadie la atiende.
+       Se informa SIN cambiar el código: Render usa esta misma ruta como
+       healthCheckPath, y un 503 reiniciaría la API por un correo atrasado.
+       Better Stack lo vigila por palabra clave (`"cola":true`). */
+    $colaAlDia = null;
+
+    if ($baseViva && config('queue.default') === 'database') {
+        try {
+            $colaAlDia = ! DB::table(config('queue.connections.database.table'))
+                ->where('queue', \App\Jobs\EnviarCorreoTransaccional::COLA)
+                ->where('created_at', '<', now()->subMinutes(10)->timestamp)
+                ->exists();
+        } catch (\Throwable) {
+            $colaAlDia = false;
+        }
+    }
+
     return response()->json([
-        'ok'   => $baseViva,
-        'base' => $baseViva,
-        'hora' => now()->toIso8601String(),
-    ], $baseViva ? 200 : 503);
+        'ok'      => $baseViva,
+        'base'    => $baseViva,
+        'cola'    => $colaAlDia,
+        'version' => (string) config('scramble.info.version'),
+        'hora'    => now()->toIso8601String(),
+    ], $baseViva ? 200 : 503)->header('Cache-Control', 'no-store');
 })->middleware('throttle:api')->name('sistema.salud');
 
 // Authentication routes

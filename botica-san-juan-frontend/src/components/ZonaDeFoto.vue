@@ -24,14 +24,12 @@
  *   un contador de entradas y salidas en lugar de un booleano, que es lo que
  *   hace que el resaltado no parpadee.
  */
-import { computed, onBeforeUnmount, ref } from 'vue'
-import { UploadCloud, Trash2, Loader2 } from 'lucide-vue-next'
-import BoticaAvatar from '@/admin/components/ui/BoticaAvatar.vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { UploadCloud, Trash2, Loader2, Undo2 } from 'lucide-vue-next'
+import AvatarUsuario, { type CuentaConAvatar } from './AvatarUsuario.vue'
 
 const props = defineProps<{
-  nombre?: string | null
-  /** Foto actual, ya resuelta a URL absoluta. */
-  fotoActual?: string | null
+  usuario?: CuentaConAvatar | null
   subiendo?: boolean
 }>()
 
@@ -48,7 +46,17 @@ const error = ref<string | null>(null)
 const vistaPrevia = ref<string | null>(null)
 const entrada = ref<HTMLInputElement | null>(null)
 
-const fotoMostrada = computed(() => vistaPrevia.value ?? props.fotoActual ?? null)
+/** Solo la foto propia se quita; la de Google es la que queda debajo. */
+const tieneFotoPropia = computed(
+  () => Boolean(props.usuario?.avatar_data || props.usuario?.foto_perfil || props.usuario?.foto),
+)
+const etiquetaQuitar = computed(
+  () => (props.usuario?.avatar_oauth_url ? 'Volver a mi foto de Google' : 'Quitar foto'),
+)
+
+/* Al llegar la cuenta actualizada manda la foto guardada, no la local: si la
+   subida se quedó en vista previa, parecería guardada sin estarlo. */
+watch(() => props.usuario?.avatar_data, liberarVistaPrevia)
 
 function liberarVistaPrevia() {
   if (vistaPrevia.value) {
@@ -109,9 +117,9 @@ defineExpose({ limpiarVistaPrevia: liberarVistaPrevia })
 
 <template>
   <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
-    <BoticaAvatar
-      :nombre="nombre"
-      :foto="fotoMostrada"
+    <AvatarUsuario
+      :usuario="usuario"
+      :vista-previa="vistaPrevia"
       tamano="lg"
       class="shrink-0"
     />
@@ -166,13 +174,16 @@ defineExpose({ limpiarVistaPrevia: liberarVistaPrevia })
       </p>
 
       <button
-        v-if="fotoActual && !subiendo"
+        v-if="tieneFotoPropia && !subiendo"
         type="button"
         class="mt-2 inline-flex items-center gap-1.5 text-xs text-texto-secundario transition-colors hover:text-peligro-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-anillo-foco"
         @click="quitar"
       >
-        <Trash2 class="size-3.5" />
-        Quitar foto
+        <component
+          :is="usuario?.avatar_oauth_url ? Undo2 : Trash2"
+          class="size-3.5"
+        />
+        {{ etiquetaQuitar }}
       </button>
     </div>
   </div>

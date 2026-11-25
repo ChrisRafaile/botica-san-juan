@@ -102,6 +102,8 @@ return [
     ],
 
     'sunat' => [
+        /* simulado | beta | produccion | api (historico). `base_url` es la del
+           microservicio OSE-Greenter, nunca la de SUNAT. Ver SunatClient. */
         'mode' => env('SUNAT_MODE', 'simulado'),
         'base_url' => env('SUNAT_BASE_URL'),
         'token' => env('SUNAT_TOKEN'),

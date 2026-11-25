@@ -13,7 +13,6 @@
  */
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { urlDeMedia } from '@/utils/media'
 import {
   cambiarContrasena,
   desvincularGoogle,
@@ -32,9 +31,6 @@ import SelectorTema from '@/components/SelectorTema.vue'
 const auth = useAuthStore()
 
 const usuario = computed(() => auth.user)
-const fotoPerfil = computed(
-  () => urlDeMedia(usuario.value?.foto_perfil || usuario.value?.foto),
-)
 
 /* Verificación del correo. El aviso aparece solo cuando falta, porque un
    banner permanente que diga «tu correo está confirmado» es ruido: la persona
@@ -120,7 +116,7 @@ async function alQuitarFoto() {
   subiendoFoto.value = true
   try {
     auth.setUser(await eliminarFoto())
-    anunciar('exito', 'Foto eliminada.')
+    anunciar('exito', auth.user?.avatar_oauth_url ? 'Volviste a tu foto de Google.' : 'Foto eliminada.')
   } catch {
     anunciar('error', 'No se pudo eliminar la foto.')
   } finally {
@@ -279,8 +275,7 @@ async function confirmarDesvinculacion() {
           Foto de perfil
         </h2>
         <ZonaDeFoto
-          :nombre="usuario?.nombre"
-          :foto-actual="fotoPerfil"
+          :usuario="usuario"
           :subiendo="subiendoFoto"
           @seleccionar="alSeleccionarFoto"
           @eliminar="alQuitarFoto"
