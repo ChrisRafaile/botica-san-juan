@@ -7,8 +7,8 @@ Los requerimientos salen de las **Tablas 7 y 8 del APF1**, tal como se
 declararon en la semana 5. No se han reescrito para que encajen con lo
 construido: si algo quedó corto, la fila lo dice.
 
-**Estado del repositorio:** 379 pruebas de backend (1 068 aserciones), 116 de
-frontend, 54 migraciones, sistema desplegado en Render y Vercel.
+**Estado del repositorio (v0.9.0, 2026-11-24):** 526 pruebas de backend (1 764 aserciones), 217 de
+frontend (743 en total), 62 migraciones, sistema desplegado en Render y Vercel.
 
 ---
 
@@ -60,12 +60,12 @@ verificado, por mucho que el código parezca correcto.
 |---|---|---|---|---|
 | **RNF01** | Las funciones administrativas exigen autenticación y rol de administrador | Prueba automatizada de autorización | **Implementado y verificado** | `AutorizacionRolTest`; `BitacoraDeOperacionTest` añade el caso del visor (401 sin sesión, 403 con rol cliente) |
 | **RNF02** | Contraseñas cifradas con bcrypt; bloqueo tras cinco intentos fallidos | Inspección de la base y prueba de límite | **Parcial** | bcrypt verificado (`'password' => 'hashed'`, `DesvincularGoogleTest`). El bloqueo **no es de cuenta**: es un límite de 5 intentos por minuto por IP + DNI (`RateLimiter::for('login')`). Frena la fuerza bruta, pero no bloquea la cuenta como prometía el RNF |
-| **RNF03** | Búsqueda en menos de dos segundos con hasta 10 000 registros | Prueba de carga, percentil 95 | **Pendiente** | `E8-tiempos-respuesta-api.txt` mide tiempos de respuesta sin carga concurrente. La prueba de carga con percentil 95 **nunca se ejecutó**, y el catálogo real tiene 884 productos, no 10 000 |
-| **RNF04** | Interfaces adaptables a distintos tamaños de pantalla | Matriz de pruebas de compatibilidad | **Parcial** | Diseño adaptable verificado por inspección a 1280×720 y 1440×950 (`M01`, `EVT-01`–`EVT-03`). No existe la **matriz** de compatibilidad que pedía la verificación |
-| **RNF05** | Disponibilidad mínima del 99 % en horario de atención | Monitoreo cada cinco minutos | **Pendiente** | `infra/monitoring/healthcheck_monitor.ps1` existe pero no está programado. Y hay un impedimento real: la capa gratuita de Render **duerme el servicio tras quince minutos** sin tráfico, con unos 50 s de arranque. Con esa infraestructura, el 99 % no es alcanzable ni medible honestamente |
+| **RNF03** | Búsqueda en menos de dos segundos con hasta 10 000 registros | Prueba de carga, percentil 95 | **Trabajo futuro** | `E8-tiempos-respuesta-api.txt` mide tiempos de respuesta sin carga concurrente. La prueba de carga con percentil 95 no se ejecutó en este ciclo, y el catálogo real tiene 884 productos, no 10 000 |
+| **RNF04** | Interfaces adaptables a distintos tamaños de pantalla | Matriz de pruebas de compatibilidad | **Parcial** | Diseño adaptable verificado por inspección a 1280×720 y 1440×950 (`M01`, `EVT-01`–`EVT-03`). La **matriz** formal de compatibilidad queda como trabajo futuro |
+| **RNF05** | Disponibilidad mínima del 99 % en horario de atención | Monitoreo cada cinco minutos | **Trabajo futuro** (no verificable en capa gratuita) | `infra/monitoring/healthcheck_monitor.ps1` existe pero no está programado (Better Stack sondea cada 3 min desde el 24-11-2026). En la capa gratuita de Render el servicio se suspende tras 15 min sin tráfico, por lo que el 99 % exige plan de pago |
 | **RNF06** | Toda operación que afecte el inventario se ejecuta en transacción atómica | Prueba de interrupción forzada | **Implementado**, verificación parcial | `DB::transaction` con `lockForUpdate` en venta, sincronización y vinculación de cuentas; `SincronizacionVentasOfflineTest` cubre el rechazo que no arrastra al lote. No se hizo la **interrupción forzada** que pedía la verificación |
-| **RNF07** | El código supera el análisis estático sin errores; el esquema evoluciona por migraciones versionadas | Ejecución del pipeline de CI | **Parcial** | 54 migraciones versionadas y reversibles ✓. El pipeline corre pruebas, `vue-tsc` y un escáner de secretos; **no ejecuta análisis estático de PHP** (Pint/PHPStan) ni ESLint. `CI-01`–`CI-03` |
-| **RNF08** | Respaldo diario automatizado, RPO 24 h y RTO 60 min | Simulacro de restauración con verificación por hash | **Parcial** | **El simulacro se ejecutó** sobre PostgreSQL 16 y recuperó las 5 filas borradas a propósito; RTO medido **0,93 s** frente a los 3 600 s comprometidos (`CON-01`, `CON-03`). Lo que sigue pendiente es el RPO: **la programación diaria no está activa**, así que las 24 horas son una intención, no un hecho |
+| **RNF07** | El código supera el análisis estático sin errores; el esquema evoluciona por migraciones versionadas | Ejecución del pipeline de CI | **Parcial** | 62 migraciones versionadas y reversibles ✓. El pipeline corre pruebas, `vue-tsc` y un escáner de secretos; incorporar Pint/PHPStan y ESLint queda como trabajo futuro. `CI-01`–`CI-03` |
+| **RNF08** | Respaldo diario automatizado, RPO 24 h y RTO 60 min | Simulacro de restauración con verificación por hash | **Parcial** | **El simulacro se ejecutó** sobre PostgreSQL 16 y recuperó las 5 filas borradas a propósito; RTO medido **0,93 s** frente a los 3 600 s comprometidos (`CON-01`, `CON-03`). La automatización diaria (RPO 24 h) queda como trabajo futuro |
 
 **1 implementado y verificado, 5 parciales, 2 pendientes.**
 

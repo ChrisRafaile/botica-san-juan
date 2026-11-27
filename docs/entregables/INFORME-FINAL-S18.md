@@ -1,19 +1,19 @@
 # Informe Final · Sección V: Operación del Sistema (S18)
 
 **Proyecto:** Botica San Juan · Sistema Web de Gestión Farmacéutica, POS Offline y Portal Cliente  
-**Estado del proyecto:** Finalizado en **v0.8.0**  
+**Estado del proyecto:** Finalizado en **v0.9.0**  
 **Alcance de este documento:** Puntos **28 al 34** del Informe Final (Sección V · Operación del Sistema). El entregable previo **APF3** (`docs/INFORME-APF3.md` y su `.docx`) permanece intacto como registro histórico.
 
 ---
 
 ## 28. Correcciones al APF3
 
-La **Tabla 64** de `docs/INFORME-APF3.md` dejó cuatro observaciones abiertas (`O-B1` a `O-B4`). A continuación se detalla la corrección aplicada y su estado al cierre en **v0.8.0**:
+La **Tabla 64** de `docs/INFORME-APF3.md` dejó cuatro observaciones abiertas (`O-B1` a `O-B4`). A continuación se detalla la corrección aplicada y su estado al cierre en **v0.9.0**:
 
 | N.º | Observación original (Tabla 64 del APF3) | Corrección aplicada | Estado actual | Evidencia |
 |---|---|---|---|---|
-| **O-B1** | Las Figuras 43 y C.3 muestran ejecuciones de la suite con 98/246 y 139/421, cifras ya superadas. | Se re-ejecutaron las suites completas sobre PostgreSQL 16 y Vitest para reflejar el corte final (**500** pruebas de backend, **209** de frontend, **709** en total). | **Cerrada** (actualizada al corte v0.8.0) | `docs/evidencias/cortes/CRT-35-suite-440.png`, `CRT-37-suite-frontend-196.png`, informe v0.5.0 y corte final **709** |
-| **O-B2** | La Figura 11 rotula «26 migraciones versionadas» dentro del PNG; en APF3 eran 46/49. | Se creó `docs/scripts/generar-figura11.py` para contar dinámicamente los archivos de migración y regenerar el diagrama sin cifras fijas. | **Cerrada** | `docs/evidencias/figura11/LEEME.md` (54 migraciones al momento del script; **61** al cierre) |
+| **O-B1** | Las Figuras 43 y C.3 muestran ejecuciones de la suite con 98/246 y 139/421, cifras ya superadas. | Se re-ejecutaron las suites completas sobre PostgreSQL 16 y Vitest hasta alcanzar el corte vigente (**526** pruebas de backend y **1 764** aserciones, **217** de frontend, **743** en total). | **Cerrada** (actualizada al corte v0.9.0) | `docs/evidencias/cortes/CRT-43-suite-500.png`, `CRT-44-suite-frontend-209.png` (corte previo) y recuento final **743** (24-11-2026) |
+| **O-B2** | La Figura 11 rotula «26 migraciones versionadas» dentro del PNG; en APF3 eran 46/49. | Se creó `docs/scripts/generar-figura11.py` para contar dinámicamente los archivos de migración y regenerar el diagrama sin cifras fijas. | **Cerrada** | `docs/evidencias/figura11/LEEME.md` (54 migraciones al momento del script; **62** al cierre) |
 | **O-B3** | Las cifras del portal público («más de 10 años», «8k clientes») no coinciden entre Inicio, Sobre Nosotros y el pie. | Se homologó el texto por decisión de negocio en las cuatro vistas públicas («+800 productos farmacéuticos», «Más de 8 años de servicio en San Juan de Lurigancho», «Atención directa en nuestro local principal y delivery local»). | **Cerrada** | `Hero.vue`, `Stats.vue`, `AboutContent.vue`, `Footer.vue` |
 | **O-B4** | Los 884 productos del catálogo apuntan a `images/default_image.png`, archivo que respondía 404. | Se verificó el archivo servido en producción y se ejecutaron pasadas de extracción/emparejamiento de fotografías reales. | **Cerrada** | `docs/evidencias/produccion/INFORME-QA-PROD.md` (`200`, `image/png`, 2 255 B, 512×512; **194** productos con foto real en producción) |
 
@@ -46,11 +46,11 @@ flowchart LR
 
 ### 29.2. Matriz de indicadores y umbrales
 
-| # | Indicador | Cómo se mide | Preventivo | Crítico | Acción operativa | Estado real (v0.8.0) |
+| # | Indicador | Cómo se mide | Preventivo | Crítico | Acción operativa | Estado real (v0.9.0) |
 |---|---|---|---|---|---|---|
 | **M1** | Disponibilidad del servicio | Sondeo `GET /api/salud` y `GET /api/health/db` cada 5 min (`200` con `ok:true`), franja 08:00–22:00 | < 99,5 % en 7 días | 2 sondeos seguidos fallidos (10 min) o < 99 % mensual | Revisar Render y Neon; abrir incidente P1 | **Activo desde el 24-11-2026** con Better Stack, cada 3 min (ver 29.6); sin serie para los 7 días ni el mes |
 | **M2** | Latencia de la API (p95) | Percentil 95 de rutas de lectura, ventana 15 min (Sentry) | p95 > 800 ms (15 min) | p95 > 1 500 ms (15 min) | Identificar ruta por traza y revisar índices | **Instrumentado sin umbral configurado** |
-| **M3** | Latencia de búsqueda | p95 de `/api/productos?buscar=` y `/api/catalogo?buscar=` bajo carga | p95 > 1 000 ms | p95 > 2 000 ms | Detener promesa de «< 2 s» hasta optimizar | **Sin medir** (prueba de carga pendiente) |
+| **M3** | Latencia de búsqueda | p95 de `/api/productos?buscar=` y `/api/catalogo?buscar=` bajo carga | p95 > 1 000 ms | p95 > 2 000 ms | Detener promesa de «< 2 s» hasta optimizar | **Trabajo futuro** (sin prueba de carga p95) |
 | **M4** | Tasa de error servidor (5xx) | `5xx ÷ total`, ventana 15 min (Sentry / Render) | > 0,5 % en 15 min | > 1 % en 15 min o **cualquier 5xx en catálogo público** | Incidente P2 mínimo | **Instrumentado sin umbral configurado** |
 | **M5** | Errores cliente por versión | Eventos Sentry en frontend por *release*, primeras 24 h | > 5 eventos nuevos | Error afecta > 1 % de sesiones | Revertir despliegue en Vercel | **Activo desde el 24-11-2026**: Sentry recibe errores; sin regla de alerta por umbral ni *release* asignado |
 | **M6** | Coherencia del despliegue | Tras publicar: `/api/catalogo` → 200, `/docs/v1` → 200, `/api/productos/destacados` → 404 | Respuesta distinta a la esperada | Ídem + `update_failed` en Render | Re-desplegar; no dar por bueno el *release* | **Manual** (originado tras INC-01) |
@@ -184,7 +184,7 @@ flowchart TB
 
 ### 31.3. Fichas de incidentes reales registrados en el repositorio
 
-Además de los incidentes previos **INC-01** (P1, fallo silencioso de `config:cache` por closure en `config/sentry.php`, PR #36) e **INC-02** (P2, `500` en `/api/productos/destacados`, PR #32) documentados en `docs/GESTION-DE-INCIDENTES.md`, durante el cierre hacia **v0.8.0** se atendieron y cerraron los siguientes tres incidentes:
+Además de los incidentes previos **INC-01** (P1, fallo silencioso de `config:cache` por closure en `config/sentry.php`, PR #36) e **INC-02** (P2, `500` en `/api/productos/destacados`, PR #32) documentados en `docs/GESTION-DE-INCIDENTES.md`, durante el cierre hacia la versión final **v0.9.0** (en el ciclo de `0.8.0`) se atendieron y cerraron los siguientes tres incidentes:
 
 #### Ficha A · Bloqueo CORS en checkout de pagos (P1)
 
@@ -217,9 +217,9 @@ Además de los incidentes previos **INC-01** (P1, fallo silencioso de `config:ca
 | **Prioridad** | **P3** (defecto de documentación técnica y contrato OpenAPI; no detiene operación comercial) |
 | **Fecha de resolución** | 20 de noviembre de 2026 (commit `81f489f`, PR **#63** merge `b3f391b` y PR **#64** merge `23b9bfc`) |
 | **Tiempo de detección / atención** | No consta |
-| **Síntoma** | Scramble reportaba errores/advertencias (`VR002`/`VR003`) al analizar rutas de validación dinámica y la especificación publicada mostraba versión `0.5.0` en lugar de `0.8.0`. |
+| **Síntoma** | Scramble reportaba errores/advertencias (`VR002`/`VR003`) al analizar rutas de validación dinámica y la especificación publicada mostraba versión `0.5.0` en lugar de la versión de cierre (`0.8.0`, luego `0.9.0`). |
 | **Causa raíz** | Reglas de validación dependientes del estado de sesión o tipo de comprobante en `PedidoController.php` y referencias a constantes privadas/dinámicas en `EventoOperacionController.php`, `PerfilController.php` y `RecetaController.php`, además de `API_VERSION` en `0.5.0` en `config/scramble.php` y `.env.example`. |
-| **Resolución y verificación** | En `PedidoController.php` se mantuvo la validación real con `Validator::make(...)` y se añadió el subconjunto literal documentable para Scramble sin cambiar el comportamiento; se ajustaron literales/visibilidad en los controladores afectados y se actualizó la versión a `0.8.0`. |
+| **Resolución y verificación** | En `PedidoController.php` se mantuvo la validación real con `Validator::make(...)` y se añadió el subconjunto literal documentable para Scramble sin cambiar el comportamiento; se ajustaron literales/visibilidad en los controladores afectados y se actualizó la versión del contrato (`0.9.0` al cierre). |
 | **Estado** | **Cerrado** |
 
 ---
@@ -237,14 +237,14 @@ Además de los incidentes previos **INC-01** (P1, fallo silencioso de `config:ca
 | Tiempo de respaldo / restauración inicial | 0,19 s / 0,73 s |
 | Recuperación tras daño simulado (5 → 0 → 5 filas DIGEMID) | **0,74 s** (5 de 5 recuperadas; 884 productos, 50 pedidos y 9 usuarios intactos) |
 | **RTO medido vs. comprometido** | **0,93 s** vs. 3 600 s (60 min) — **Cumple** (condicionado al tamaño de 0,16 MB en entorno local) |
-| **RPO de 24 horas** | **Pendiente de automatización** (los scripts existen, pero la tarea programada diaria no está activa) |
+| **RPO de 24 horas** | **Trabajo futuro** (los scripts existen, pero la tarea programada diaria no está activa) |
 
 ### 32.2. Contingencia POS Offline (`docs/ARQUITECTURA-OFFLINE.md`)
 
 - **Persistencia local:** Capa abstracta (`src/offline/`) con driver IndexedDB en navegador (y diseño preparado para SQLite en Tauri) más cola y bitácora local (`src/offline/bitacora.ts`).
 - **Idempotencia:** Cada venta sin conexión genera un **UUID v4** (`pedidos.uuid_local` con índice `UNIQUE`) y una nota de contingencia interna (`NV-*`, que no sustituye al comprobante SUNAT).
 - **Sincronización:** `POST /api/v1/ventas/sincronizar` procesa lotes de hasta **50 ventas**, cada una en su propia transacción (`creada`, `duplicada` tratada como éxito, o `rechazada` sin arrastrar al lote). Umbrales de atraso en cola: **24 h** (`warning`) y **48 h** (`error`).
-- **Pendiente operativo detectado en ensayo:** La búsqueda en caja sigue consultando la API si no se conecta al catálogo maestro descargado localmente (`docs/ARQUITECTURA-OFFLINE.md`, sección 11).
+- **Limitación operativa detectada en ensayo (trabajo futuro):** La búsqueda en caja sigue consultando la API si no se conecta al catálogo maestro descargado localmente (`docs/ARQUITECTURA-OFFLINE.md`, sección 11).
 
 ### 32.3. Límite del disco efímero de Render
 
@@ -272,7 +272,7 @@ Los límites globales comprometidos son **RTO ≤ 60 min** y **RPO ≤ 24 h** (`
 | Portal del cliente (Vercel) | Sin pedidos web | P2 | 60 min | No aplica | Atención en mostrador y WhatsApp |
 | Comprobantes electrónicos | Emisión diferida | P2 | 24 h | 24 h | Quedan en `pendiente` y se reenvían |
 | Correo transaccional (Resend) | Sin avisos ni recuperación de clave | P3 | 24 h | No aplica | La operación continúa; queda `CORREO_FALLIDO` |
-| Archivos subidos (recetas y fotos) | Se pierden al redesplegar | P2 | No cubierto | No cubierto | Pendiente: almacenamiento de objetos |
+| Archivos subidos (recetas y fotos) | Se pierden al redesplegar | P2 | No cubierto | No cubierto | Trabajo futuro: almacenamiento de objetos |
 
 ### 32.6. Componentes del plan de recuperación (DRP)
 
@@ -300,18 +300,18 @@ La retención por omisión de `backup_postgres.ps1` es de **14 días**. La regla
 
 ## 33. Resultados finales y matriz de requerimientos
 
-### 33.1. Cierre cuantitativo (v0.8.0)
+### 33.1. Cierre cuantitativo (v0.9.0)
 
 | Dimensión | Resultado |
 |---|---|
-| Pruebas de backend | **500** |
-| Pruebas de frontend | **209** |
-| Total de pruebas automatizadas | **709** |
-| Migraciones versionadas y reversibles | **61** |
-| Catálogo en producción | **884** productos (**194** con fotografía real servida con `200`) |
-| Contrato API pública | **OpenAPI 0.8.0** (OpenAPI 3.1, navegable en Scalar y Stoplight) |
+| Pruebas de backend | **526** (1 764 aserciones) |
+| Pruebas de frontend | **217** |
+| Total de pruebas automatizadas | **743** |
+| Migraciones versionadas y reversibles | **62** |
+| Catálogo en producción | **884** productos (**194** con fotografía real servida con `200`; 195 en base local) |
+| Contrato API pública | **OpenAPI 0.9.0** (OpenAPI 3.1, navegable en Scalar y Stoplight) |
 
-Actualización posterior, v0.9.0 (24 de noviembre de 2026): **526** pruebas de backend y **217** de frontend (**743** en total), **62** migraciones y contrato **OpenAPI 0.9.0**. Añade foto de perfil persistida en la base, correos en cola con reintentos y modos de envío separados para SUNAT. Salvo las capturas fechadas el 24 de noviembre, las figuras de este capítulo corresponden al corte v0.8.0.
+Corte vigente medido el **24 de noviembre de 2026** (**v0.9.0**): incorpora foto de perfil persistida en la base de datos, correos en cola con reintentos y modos de envío separados para SUNAT. Las capturas generales del módulo (`EF-01` a `EF-11`) se tomaron el 23 de noviembre sobre el entorno operativo previo al corte final; las de observabilidad y perfil en producción (`22` a `28`) corresponden al 24 de noviembre de 2026.
 
 La foto de perfil se verificó en producción con una sesión real de Google: se muestra la foto de la cuenta sin errores en la consola, una foto propia la sustituye y sigue ahí tras recargar, y «Volver a mi foto de Google» restaura la anterior.
 
@@ -347,18 +347,18 @@ La foto de perfil se verificó en producción con una sesión real de Google: se
 |---|---|---|---|
 | **RNF01** | Autorización administrativa (prueba automatizada) | **Verificado** | `AutorizacionRolTest`, `BitacoraDeOperacionTest` (`401` / `403`). |
 | **RNF02** | Cifrado bcrypt y bloqueo tras 5 intentos fallidos | **Parcial** | bcrypt verificado. En lugar de bloqueo de cuenta, usa `RateLimiter::for('login')` (5 intentos/min por IP+DNI) para evitar denegación de servicio a usuarios legítimos. |
-| **RNF03** | Búsqueda < 2 s con hasta 10 000 registros (prueba de carga p95) | **Pendiente** | No se ejecutó prueba de carga p95 y el catálogo real tiene 884 productos. |
+| **RNF03** | Búsqueda < 2 s con hasta 10 000 registros (prueba de carga p95) | **Trabajo futuro** | No se ejecutó prueba de carga p95 y el catálogo real tiene 884 productos. |
 | **RNF04** | Interfaces adaptables (matriz de compatibilidad) | **Parcial** | Verificado en 1280×720 y 1440×950 (`EVT-01`–`EVT-03`), sin matriz formal de navegadores/resoluciones. |
-| **RNF05** | Disponibilidad ≥ 99 % (monitoreo cada 5 min) | **Pendiente** | Script existe sin programar; no verificable en capa gratuita de Render que duerme a los 15 min. |
+| **RNF05** | Disponibilidad ≥ 99 % (monitoreo cada 5 min) | **Trabajo futuro** (no verificable en capa gratuita) | Script existe sin programar; no verificable en capa gratuita de Render que duerme a los 15 min. |
 | **RNF06** | Atomicidad en operaciones de inventario | **Implementado** (verificación parcial/inesperada) | `DB::transaction` con `lockForUpdate`; las llaves foráneas `RESTRICT` frenaron el borrado en el simulacro de PostgreSQL. |
-| **RNF07** | Análisis estático en CI y migraciones versionadas | **Parcial** | 61 migraciones reversibles, pruebas, `vue-tsc` y escáner de secretos en CI; faltan Pint/PHPStan y ESLint en pipeline. |
-| **RNF08** | Respaldo diario (RPO 24 h / RTO 60 min) y simulacro | **Parcial** | Simulacro en PostgreSQL 16 ejecutado con **RTO = 0,93 s** (`CON-01`, `CON-03`); falta activar la programación diaria (RPO). |
+| **RNF07** | Análisis estático en CI y migraciones versionadas | **Parcial** | 62 migraciones reversibles, pruebas, `vue-tsc` y escáner de secretos en CI; Pint/PHPStan y ESLint en pipeline quedan como trabajo futuro. |
+| **RNF08** | Respaldo diario (RPO 24 h / RTO 60 min) y simulacro | **Parcial** | Simulacro en PostgreSQL 16 ejecutado con **RTO = 0,93 s** (`CON-01`, `CON-03`); activar la programación diaria (RPO) queda como trabajo futuro. |
 
 ### 33.4. Limitación declarada en correos transaccionales
 
 El 23 de noviembre de 2026 se probaron en producción registro, recuperación y compra. Resend informó `delivered` en los cuatro mensajes. Gmail dejó **bienvenida** y **pedido registrado** en Recibidos y mandó a **Spam** la **confirmación** y la **recuperación**. Sin dominio verificado, el remitente de pruebas solo entrega al titular de la cuenta; verificar un dominio propio (SPF/DKIM) es requisito para atender a clientes. La bitácora de producción registró cuatro `CORREO_ENVIADO` y ningún error. El remitente fue `onboarding@resend.dev`, compartido por Resend para pruebas.
 
-### 33.5. Evidencias del sistema funcionando (corte v0.8.0)
+### 33.5. Evidencias del sistema funcionando
 
 | Código | Descripción | Referencia |
 |---|---|---|
@@ -372,7 +372,7 @@ El 23 de noviembre de 2026 se probaron en producción registro, recuperación y 
 | `EF-08` | Checkout del portal cliente | ![Checkout](../evidencias/informe-final/EF-08-checkout.png) |
 | `EF-09` | Punto de venta (POS) | ![POS](../evidencias/informe-final/EF-09-pos.png) |
 | `EF-10` | Asistente importador de Excel/CSV | ![Asistente importador](../evidencias/informe-final/EF-10-asistente-importador.png) |
-| `EF-11` | Documentación OpenAPI 0.8.0 | ![OpenAPI 0.8.0](../evidencias/informe-final/EF-11-openapi.png) |
+| `EF-11` | Documentación OpenAPI (captura previa; contrato vigente 0.9.0) | ![OpenAPI](../evidencias/informe-final/EF-11-openapi.png) |
 
 ---
 
