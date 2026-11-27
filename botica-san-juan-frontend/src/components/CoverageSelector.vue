@@ -1,317 +1,195 @@
 <template>
-  <section class="py-24 bg-superficie-elevada">
+  <section id="zonas" class="py-24 bg-superficie-elevada scroll-mt-20">
     <div class="container mx-auto px-6">
       <div class="text-center mb-16">
         <div class="inline-flex items-center gap-2 bg-clinico-100 text-clinico-700 dark:bg-clinico-500/15 dark:text-clinico-300 px-4 py-2 rounded-full text-sm font-medium mb-6">
-          <MapPinIcon class="w-4 h-4" />
-          Selecciona tu Zona
+          <MapPinIcon class="size-4" aria-hidden="true" />
+          San Juan de Lurigancho
         </div>
         <h2 class="text-4xl md:text-5xl font-bold text-texto-primario mb-6">
-          Encuentra tu Distrito
+          Encuentra tu zona
         </h2>
         <p class="text-xl text-texto-secundario max-w-3xl mx-auto">
-          Selecciona el distrito donde resides para conocer los tiempos de entrega, costos de envío y áreas específicas de cobertura
+          Repartimos en todo el distrito desde nuestro local. Elige tu urbanización para ver
+          el tiempo de entrega y la tarifa.
         </p>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        <!-- District Selector -->
-        <div class="bg-superficie-elevada rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300">
+        <!-- Zonas -->
+        <div class="min-w-0 bg-superficie-elevada rounded-2xl shadow-lg p-6 sm:p-8 border border-borde-sutil">
           <h3 class="text-2xl font-bold text-texto-primario mb-6">
-            Distritos Disponibles
+            Zonas de reparto
           </h3>
 
-          <div class="grid grid-cols-1 gap-4">
-            <button
-              v-for="district in districts"
-              :key="district.id"
-              :class="[
-                'p-4 rounded-lg border-2 transition-all text-left hover:shadow-md',
-                selectedDistrict?.id === district.id
-                  ? 'border-clinico-500 bg-clinico-50 text-clinico-700 dark:bg-clinico-500/15 dark:text-clinico-300 shadow-md'
-                  : 'border-borde-control hover:border-clinico-300 hover:bg-superficie-hundida'
-              ]"
-              @click="selectDistrict(district)"
-            >
-              <h4 class="font-semibold text-texto-primario mb-1">
-                {{ district.name }}
-              </h4>
-              <p class="text-sm text-texto-secundario mb-2">
-                {{ district.description }}
-              </p>
-              <div class="flex items-center gap-4 text-xs text-texto-terciario">
-                <span>🚚 {{ district.deliveryTime }}</span>
-                <span>💰 {{ district.shippingCost }}</span>
-              </div>
-            </button>
-          </div>
+          <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3" aria-label="Zonas de reparto en San Juan de Lurigancho">
+            <li v-for="zona in ZONAS" :key="zona.id" class="min-w-0">
+              <button
+                type="button"
+                :aria-pressed="seleccionada?.id === zona.id"
+                :class="[
+                  'foco-dentro w-full min-w-0 p-4 rounded-xl border-2 text-left transition-colors duration-200',
+                  seleccionada?.id === zona.id
+                    ? 'border-clinico-500 bg-clinico-50 dark:bg-clinico-500/15'
+                    : 'border-borde-control hover:border-clinico-300 hover:bg-superficie-hundida'
+                ]"
+                @click="seleccionar(zona)"
+              >
+                <span class="block font-semibold text-texto-primario truncate">{{ zona.nombre }}</span>
+                <span class="mt-2 flex items-center gap-4 text-sm text-texto-secundario cifras-tabulares">
+                  <span class="inline-flex items-center gap-1.5">
+                    <TruckIcon class="size-4 shrink-0 text-clinico-600" aria-hidden="true" />
+                    {{ rangoMinutos(zona) }}
+                  </span>
+                  <span class="inline-flex items-center gap-1.5">
+                    <WalletIcon class="size-4 shrink-0 text-botica-600" aria-hidden="true" />
+                    {{ soles(zona.tarifa) }}
+                  </span>
+                </span>
+              </button>
+            </li>
+          </ul>
         </div>
 
-        <!-- Map Section -->
-        <div class="bg-superficie-elevada rounded-2xl shadow-lg p-8 hover:shadow-xl transition-all duration-300">
+        <!-- Mapa -->
+        <div class="min-w-0 bg-superficie-elevada rounded-2xl shadow-lg p-6 sm:p-8 border border-borde-sutil">
           <h3 class="text-2xl font-bold text-texto-primario mb-6">
-            Mapa de San Juan de Lurigancho
+            Mapa de cobertura
           </h3>
 
-          <div class="relative">
-            <!-- Leaflet Map -->
-            <div class="rounded-lg h-96 overflow-hidden">
-              <div
-                id="sjl-map"
-                class="w-full h-full"
-              ></div>
-            </div>
+          <!-- Altura fija: el mapa se monta después del primer pintado y no
+               debe empujar nada al aparecer. -->
+          <div class="rounded-xl h-96 overflow-hidden isolate">
+            <div ref="contenedorMapa" class="size-full" role="region" aria-label="Mapa de zonas de reparto en San Juan de Lurigancho"></div>
           </div>
 
-          <!-- Address Info -->
-          <div class="mt-6 p-4 bg-clinico-50 dark:bg-clinico-500/15 rounded-lg">
-            <h4 class="font-semibold text-clinico-800 dark:text-clinico-200 mb-2">
-              📍 Dirección de Nuestra Botica
-            </h4>
-            <p class="text-clinico-700 dark:text-clinico-300">
-              Av. Sta. Rosa de Lima 103<br />
-              San Juan de Lurigancho 15423, Perú
-            </p>
-          </div>
-
-          <!-- Legend -->
-          <div class="mt-6">
-            <h4 class="font-semibold text-texto-primario mb-3">
-              Leyenda del Mapa
-            </h4>
-            <div class="flex flex-wrap gap-4">
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-botica-500 rounded-full mr-2" />
-                <span class="text-sm text-texto-secundario">Zona de cobertura SJL</span>
-              </div>
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-peligro-500 rounded-full mr-2" />
-                <span class="text-sm text-texto-secundario">Ubicación de la botica</span>
-              </div>
+          <div class="mt-6 flex items-start gap-3 p-4 bg-clinico-50 dark:bg-clinico-500/15 rounded-xl">
+            <StoreIcon class="size-5 shrink-0 mt-0.5 text-clinico-700 dark:text-clinico-300" aria-hidden="true" />
+            <div>
+              <p class="font-semibold text-clinico-800 dark:text-clinico-200">Nuestro local</p>
+              <p class="text-clinico-700 dark:text-clinico-300">
+                {{ DIRECCION.calle }}, {{ DIRECCION.distrito }} {{ DIRECCION.codigoPostal }}
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Coverage Info -->
+      <!-- Detalle de la zona elegida. Siempre hay una elegida: así el bloque
+           no aparece de golpe al primer clic y no desplaza la página. -->
       <div
-        v-if="selectedDistrict"
-        class="mt-12 bg-superficie-hundida rounded-2xl p-8"
+        v-if="seleccionada"
+        class="mt-12 bg-superficie-hundida rounded-2xl p-6 sm:p-8"
+        aria-live="polite"
       >
-        <h3 class="text-2xl font-bold text-texto-primario mb-6 text-center">
-          Información de Cobertura - {{ selectedDistrict.name }}
+        <h3 class="text-2xl font-bold text-texto-primario mb-2 text-center">
+          {{ seleccionada.nombre }}
         </h3>
+        <p class="text-center text-texto-secundario mb-8">{{ seleccionada.referencia }}</p>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div class="bg-superficie-elevada p-6 rounded-lg shadow-sm">
-            <div class="flex items-center mb-3">
-              <ClockIcon class="w-5 h-5 text-clinico-600 mr-3" />
-              <span class="font-semibold text-texto-primario">Tiempo de entrega</span>
-            </div>
-            <p class="text-texto-secundario">
-              {{ selectedDistrict.deliveryTime }}
-            </p>
+        <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div v-for="dato in detalle" :key="dato.titulo" class="bg-superficie-elevada p-5 rounded-xl shadow-sm">
+            <dt class="flex items-center gap-3 mb-2 font-semibold text-texto-primario">
+              <component :is="dato.icono" class="size-5 shrink-0 text-clinico-600" aria-hidden="true" />
+              {{ dato.titulo }}
+            </dt>
+            <dd class="text-texto-secundario cifras-tabulares">{{ dato.valor }}</dd>
           </div>
-
-          <div class="bg-superficie-elevada p-6 rounded-lg shadow-sm">
-            <div class="flex items-center mb-3">
-              <DollarSignIcon class="w-5 h-5 text-botica-600 mr-3" />
-              <span class="font-semibold text-texto-primario">Costo de envío</span>
-            </div>
-            <p class="text-texto-secundario">
-              {{ selectedDistrict.shippingCost }}
-            </p>
-          </div>
-
-          <div class="bg-superficie-elevada p-6 rounded-lg shadow-sm">
-            <div class="flex items-center mb-3">
-              <CalendarIcon class="w-5 h-5 text-clinico-600 mr-3" />
-              <span class="font-semibold text-texto-primario">Horario</span>
-            </div>
-            <p class="text-texto-secundario">
-              {{ selectedDistrict.schedule }}
-            </p>
-          </div>
-
-          <div class="bg-superficie-elevada p-6 rounded-lg shadow-sm">
-            <div class="flex items-center mb-3">
-              <ShoppingCartIcon class="w-5 h-5 text-clinico-600 mr-3" />
-              <span class="font-semibold text-texto-primario">Mínimo de compra</span>
-            </div>
-            <p class="text-texto-secundario">
-              {{ selectedDistrict.minOrder }}
-            </p>
-          </div>
-        </div>
-
-        <div class="mt-8">
-          <h4 class="font-semibold text-texto-primario mb-4 text-center">
-            Áreas específicas de cobertura:
-          </h4>
-          <div class="flex flex-wrap gap-3 justify-center">
-            <span
-              v-for="area in selectedDistrict.areas"
-              :key="area"
-              class="px-4 py-2 bg-clinico-100 text-clinico-700 rounded-full text-sm font-medium"
-            >
-              {{ area }}
-            </span>
-          </div>
-        </div>
+        </dl>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue'
 import {
   MapPinIcon,
   ClockIcon,
-  DollarSignIcon,
+  WalletIcon,
   CalendarIcon,
-  ShoppingCartIcon
+  ShoppingCartIcon,
+  TruckIcon,
+  StoreIcon,
 } from 'lucide-vue-next'
-import { onMounted } from 'vue'
-import { gsap } from 'gsap'
 import L from 'leaflet'
-
-// Import Leaflet CSS
 import 'leaflet/dist/leaflet.css'
-import { prefiereMenosMovimiento } from '@/utils/motion'
+import { DIRECCION, HORARIO } from '@/datos/botica'
+import { LOCAL, PEDIDO_MINIMO, ZONAS, rangoMinutos, soles, type ZonaReparto } from '@/datos/cobertura'
 
-interface District {
-  id: number
-  name: string
-  description: string
-  deliveryTime: string
-  shippingCost: string
-  schedule: string
-  minOrder: string
-  areas: string[]
-  mapImage: string
-}
+const seleccionada = ref<ZonaReparto>(ZONAS[0]!)
 
-const districts = ref<District[]>([
-  {
-    id: 1,
-    name: 'San Juan de Lurigancho',
-    description: 'Nuestra ubicación principal',
-    deliveryTime: '20-35 minutos',
-    shippingCost: 'S/ 5.00',
-    schedule: '7:00 AM - 11:00 PM',
-    minOrder: 'S/ 15.00',
-    areas: ['Centro', 'Los Pinos', 'Santa Rosa', 'Manchay'],
-    mapImage: '/images/SJL.jpg'
-  },
-  {
-    id: 2,
-    name: 'Surco',
-    description: 'Zona residencial moderna',
-    deliveryTime: '35-50 minutos',
-    shippingCost: 'S/ 8.00',
-    schedule: '7:00 AM - 11:00 PM',
-    minOrder: 'S/ 20.00',
-    areas: ['Chacarilla', 'La Molina', 'Santiago de Surco'],
-    mapImage: '/images/SURCO.jpg'
-  },
-  {
-    id: 3,
-    name: 'San Borja',
-    description: 'Zona comercial y residencial',
-    deliveryTime: '30-45 minutos',
-    shippingCost: 'S/ 7.00',
-    schedule: '7:00 AM - 11:00 PM',
-    minOrder: 'S/ 20.00',
-    areas: ['Centro', 'Parque San Borja', 'Jockey Plaza'],
-    mapImage: '/images/SANBORJA.jpg'
-  },
-  {
-    id: 4,
-    name: 'Cercado de Lima',
-    description: 'Centro histórico de Lima',
-    deliveryTime: '25-40 minutos',
-    shippingCost: 'S/ 6.00',
-    schedule: '7:00 AM - 11:00 PM',
-    minOrder: 'S/ 15.00',
-    areas: ['Centro Histórico', 'Plaza Mayor', 'Barrios Coloniales'],
-    mapImage: '/images/CERCADO.jpg'
-  },
-  {
-    id: 5,
-    name: 'Callao',
-    description: 'Puerto principal del Perú',
-    deliveryTime: '40-60 minutos',
-    shippingCost: 'S/ 10.00',
-    schedule: '7:00 AM - 11:00 PM',
-    minOrder: 'S/ 25.00',
-    areas: ['Centro', 'La Punta', 'Bellavista'],
-    mapImage: '/images/CALLAO.jpg'
-  }
+const detalle = computed(() => [
+  { titulo: 'Tiempo de entrega', valor: rangoMinutos(seleccionada.value), icono: ClockIcon },
+  { titulo: 'Tarifa de envío', valor: soles(seleccionada.value.tarifa), icono: WalletIcon },
+  { titulo: 'Horario de reparto', valor: HORARIO[0]!.texto + ' (lun.–vie.)', icono: CalendarIcon },
+  { titulo: 'Pedido mínimo', valor: soles(PEDIDO_MINIMO), icono: ShoppingCartIcon },
 ])
 
-const selectedDistrict = ref<District | null>(null)
+const contenedorMapa = ref<HTMLElement | null>(null)
+const mapa = shallowRef<L.Map | null>(null)
+const marcadores = new Map<string, L.CircleMarker>()
 
-const selectDistrict = (district: District) => {
-  selectedDistrict.value = district
+/* Leaflet pinta en SVG y no entiende clases de Tailwind: se lee el valor del
+   token en tiempo de ejecución para que el mapa siga la paleta (y el tema). */
+function token(nombre: string, respaldo: string) {
+  const valor = getComputedStyle(document.documentElement).getPropertyValue(nombre).trim()
+  return valor || respaldo
+}
+
+function pintarSeleccion() {
+  const activo = token('--color-clinico-700', '#1d4ed8')
+  const reposo = token('--color-clinico-400', '#60a5fa')
+  for (const [id, marcador] of marcadores) {
+    const elegido = id === seleccionada.value.id
+    marcador.setStyle({ color: elegido ? activo : reposo, fillColor: elegido ? activo : reposo, radius: elegido ? 11 : 7, fillOpacity: elegido ? 0.6 : 0.35 })
+  }
+}
+
+function seleccionar(zona: ZonaReparto) {
+  seleccionada.value = zona
+  pintarSeleccion()
+  marcadores.get(zona.id)?.openPopup()
 }
 
 onMounted(() => {
-  // Initialize SJL map with exact coordinates from Google Maps
-  const sjlMap = L.map('sjl-map').setView([-11.9686252, -76.9943794], 16)
+  if (!contenedorMapa.value) return
 
-  // Add OpenStreetMap tiles
+  const m = L.map(contenedorMapa.value, { scrollWheelZoom: false }).setView([-11.99, -76.995], 12)
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(sjlMap)
+    attribution: '© OpenStreetMap contributors',
+  }).addTo(m)
 
-  // Define SJL polygon (approximate coordinates around the pharmacy)
-  const sjlCoordinates: [number, number][] = [
-    [-11.965, -76.997] as [number, number],
-    [-11.965, -76.992] as [number, number],
-    [-11.972, -76.992] as [number, number],
-    [-11.972, -76.997] as [number, number],
-    [-11.965, -76.997] as [number, number]
-  ]
+  for (const zona of ZONAS) {
+    const marcador = L.circleMarker(zona.coordenadas, { weight: 2 })
+      .addTo(m)
+      .bindPopup(`<b>${zona.nombre}</b><br>${rangoMinutos(zona)} · ${soles(zona.tarifa)}`)
+    marcador.on('click', () => {
+      seleccionada.value = zona
+      pintarSeleccion()
+    })
+    marcadores.set(zona.id, marcador)
+  }
 
-  // Add SJL polygon
-  L.polygon(sjlCoordinates, {
-    color: '#10B981', // green-500
-    fillColor: '#10B981',
-    fillOpacity: 0.3,
-    weight: 2
-  }).addTo(sjlMap).bindPopup('<b>San Juan de Lurigancho</b><br>Zona de cobertura de delivery')
-
-  // Add marker for pharmacy location with exact coordinates
-  L.marker([-11.9686252, -76.9943794]).addTo(sjlMap)
-    .bindPopup('<b>Boticas San Juan</b><br>Av. Sta. Rosa de Lima 103<br>San Juan de Lurigancho 15423, Perú')
-    .openPopup()
-
-  /* Sólo la animación va detrás de la guarda: el mapa de Leaflet se monta
-     justo arriba y tiene que montarse igual con o sin movimiento. */
-  if (prefiereMenosMovimiento()) return
-
-  // Animate district buttons with stagger
-  gsap.from('.district-button', {
-    duration: 0.8,
-    y: 30,
-    opacity: 0,
-    stagger: 0.1,
-    ease: 'power3.out'
+  L.circleMarker(LOCAL, {
+    radius: 9,
+    weight: 3,
+    color: token('--color-peligro-600', '#dc2626'),
+    fillColor: token('--color-peligro-500', '#ef4444'),
+    fillOpacity: 0.9,
   })
+    .addTo(m)
+    .bindPopup(`<b>Boticas San Juan</b><br>${DIRECCION.calle}`)
 
-  // Animate coverage points
-  gsap.from('.coverage-point', {
-    duration: 0.6,
-    scale: 0,
-    opacity: 0,
-    stagger: 0.2,
-    ease: 'back.out(1.7)',
-    delay: 0.5
-  })
+  mapa.value = m
+  pintarSeleccion()
+})
+
+/* Leaflet registra escuchadores en window (resize) y en el contenedor; sin
+   remove() siguen vivos tras salir de la ruta. */
+onBeforeUnmount(() => {
+  mapa.value?.remove()
+  mapa.value = null
+  marcadores.clear()
 })
 </script>
-
-<style scoped>
-/* Coverage selector styles */
-</style>
