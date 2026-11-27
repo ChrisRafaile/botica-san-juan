@@ -149,7 +149,7 @@ servicio. Con el intérprete ya parcheado, habría empeorado el riesgo real.
 | **Componentes** | Base de datos (dos migraciones), API (endpoint de sincronización), Front-End (almacén local, cola, búsqueda), documentación |
 | **Impacto** | Toda la operación de caja |
 | **Riesgo del cambio** | **Alto**: duplicar ventas o duplicar comprobantes es una contingencia tributaria, no un defecto cosmético |
-| **Dependencias** | Migración sobre `pedidos` en producción, pendiente de ventana |
+| **Dependencias** | Migración sobre `pedidos` aplicada en producción |
 | **Autorización** | Propietario |
 | **Vuelta atrás** | Las migraciones tienen `down()`; el endpoint es aditivo y ninguna pantalla anterior depende de él. Revertir no rompe lo que ya funcionaba |
 | **Prueba** | 14 pruebas de sincronización en el backend y 24 en el frontend, más el ensayo de continuidad del 24/10 con corte y restablecimiento reales |
@@ -275,8 +275,8 @@ descubrir antes y no durante la ventana de cambio.
 
 ## 9. Ficha de ejemplo para la práctica de clase
 
-El material pide seleccionar un cambio pendiente y recorrerlo entero. El
-elegido es el que se está ejecutando ahora mismo:
+El material pide seleccionar un cambio y recorrerlo entero. El
+elegido como caso de estudio fue **CAM-004**:
 
 | Campo | Valor |
 |---|---|
@@ -292,4 +292,4 @@ elegido es el que se está ejecutando ahora mismo:
 | **Prueba** | 9 pruebas de catálogo local y 3 de endpoint; el stock se declara «sin verificar» en vez de inventarse |
 | **Vuelta atrás** | Revertir el commit; la búsqueda vuelve a depender de la red, que es como estaba |
 | **Fecha** | 29/10/2026, dentro de ventana |
-| **Cierre** | Pendiente de recorrido de verificación con la red cortada |
+| **Cierre** | Implantado y cubierto por las 12 pruebas automáticas. El recorrido manual con la red cortada queda como trabajo futuro: el ensayo de continuidad del 24/10 es anterior a este cambio y no lo verifica |
