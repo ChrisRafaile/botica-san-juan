@@ -16,7 +16,9 @@ Scalar (`/docs/v1`) y Stoplight (`/docs/api`): muestran **0.9.0**, sin `VR002` y
 sin errores de consola.
 
 **Límite:** el nivel 2 se simuló interceptando la imagen y la respuesta de
-`/api/user`; no se inició sesión con una cuenta real de Google.
+`/api/user`; no se inició sesión con una cuenta real de Google. El mismo día se
+verificó en producción con una sesión real: `../informe-final/22-avatar-google-oauth-prod.png`
+y `23-avatar-persistente-prod.png`.
 
 **Reproducir:** API en 8083, portal en 5173, `setInputFiles` en el perfil,
 recargar y leer `data-nivel` en `[data-testid=avatar-usuario]`.

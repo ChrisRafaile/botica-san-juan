@@ -1,190 +1,99 @@
 <template>
   <section class="py-24 bg-clinico-700">
-    <div class="container mx-auto px-6 text-center">
-      <div class="max-w-4xl mx-auto">
+    <div class="container mx-auto px-6">
+      <div class="max-w-5xl mx-auto text-center">
         <div class="inline-flex items-center gap-2 bg-black/15 backdrop-blur-sm text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
-          <MessageCircleIcon class="w-4 h-4" />
-          ¿Necesitas Ayuda?
+          <MessageCircleIcon class="size-4" aria-hidden="true" />
+          ¿Tienes dudas?
         </div>
 
         <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
-          Estamos Aquí para Ti
+          Te confirmamos si llegamos a tu calle
         </h2>
 
         <p class="text-xl text-white/90 mb-12 max-w-3xl mx-auto">
-          Nuestro equipo de atención al cliente está listo para resolver cualquier duda sobre cobertura de delivery, tiempos de entrega o servicios adicionales
+          Si tu dirección queda en el límite entre dos zonas, escríbenos y te decimos la tarifa
+          exacta antes de pedir.
         </p>
 
-        <!-- Contact Options -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <!-- WhatsApp -->
-          <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all duration-300 contact-card">
-            <div class="bg-botica-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-              <MessageCircleIcon class="w-8 h-8 text-white" />
-            </div>
-            <h3 class="text-xl font-bold text-white mb-4">
-              WhatsApp
-            </h3>
-            <p class="text-white/90 mb-6">
-              Atención inmediata y personalizada a través de WhatsApp Business
-            </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div v-if="enlaceWa" class="bg-black/15 backdrop-blur-sm rounded-2xl p-8">
+            <MessageCircleIcon class="size-10 mx-auto mb-4 text-white" aria-hidden="true" />
+            <h3 class="text-xl font-bold text-white mb-3">WhatsApp</h3>
+            <p class="text-white/90 mb-6">Respuesta en el horario de atención.</p>
             <a
-              v-if="enlaceWa"
               :href="enlaceWa"
               target="_blank"
               rel="noopener noreferrer"
               class="foco-dentro inline-flex items-center justify-center w-full bg-botica-600 text-white py-3 px-6 rounded-lg hover:bg-botica-700 transition-colors font-medium"
             >
-              <MessageCircleIcon class="w-4 h-4 mr-2" aria-hidden="true" />
-              Contactar por WhatsApp
+              Escribir por WhatsApp
             </a>
-            <RouterLink
-              v-else
-              to="/contact"
-              class="foco-dentro inline-flex items-center justify-center w-full bg-botica-600 text-white py-3 px-6 rounded-lg hover:bg-botica-700 transition-colors font-medium"
-            >
-              Ver cómo contactarnos
-            </RouterLink>
           </div>
 
-          <!-- Phone -->
-          <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all duration-300 contact-card">
-            <div class="bg-clinico-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-              <PhoneIcon class="w-8 h-8 text-white" />
-            </div>
-            <h3 class="text-xl font-bold text-white mb-4">
-              Teléfono
-            </h3>
-            <p class="text-white/90 mb-6">
-              Llama directamente a nuestra línea dedicada de atención al cliente
-            </p>
+          <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-8">
+            <PhoneIcon class="size-10 mx-auto mb-4 text-white" aria-hidden="true" />
+            <h3 class="text-xl font-bold text-white mb-3">Teléfono</h3>
+            <p class="text-white/90 mb-6">Línea fija del local.</p>
             <a
               :href="`tel:${TELEFONO_FIJO_E164}`"
-              class="foco-dentro inline-flex items-center justify-center w-full bg-clinico-700 text-white py-3 px-6 rounded-lg hover:bg-clinico-700 transition-colors font-medium"
+              class="foco-dentro inline-flex items-center justify-center w-full bg-clinico-900 text-white py-3 px-6 rounded-lg hover:bg-clinico-800 transition-colors font-medium cifras-tabulares"
             >
-              <PhoneIcon class="w-4 h-4 mr-2" aria-hidden="true" />
               Llamar al {{ TELEFONO_FIJO }}
             </a>
           </div>
 
-          <!-- Email -->
-          <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all duration-300 contact-card">
-            <div class="bg-clinico-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-              <MailIcon class="w-8 h-8 text-white" />
-            </div>
-            <h3 class="text-xl font-bold text-white mb-4">
-              Correo Electrónico
-            </h3>
-            <p class="text-white/90 mb-6">
-              Envíanos un mensaje detallado y te responderemos lo antes posible
-            </p>
+          <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-8">
+            <MailIcon class="size-10 mx-auto mb-4 text-white" aria-hidden="true" />
+            <h3 class="text-xl font-bold text-white mb-3">Correo</h3>
+            <p class="text-white/90 mb-6">Para pedidos grandes o institucionales.</p>
             <a
-              href="mailto:Boticassanjuan16@gmail.com"
-              class="inline-flex items-center justify-center w-full bg-clinico-700 text-white py-3 px-6 rounded-lg hover:bg-clinico-700 transition-colors font-medium"
+              :href="`mailto:${CORREO}`"
+              class="foco-dentro inline-flex items-center justify-center w-full bg-clinico-900 text-white py-3 px-6 rounded-lg hover:bg-clinico-800 transition-colors font-medium"
             >
-              <MailIcon class="w-4 h-4 mr-2" />
-              Enviar Email
+              Enviar correo
             </a>
           </div>
         </div>
 
-        <!-- Additional Info -->
-        <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-8">
-          <h3 class="text-2xl font-bold text-white mb-6">
-            Información Importante
-          </h3>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+        <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-6 sm:p-8 text-left">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <h4 class="text-lg font-semibold text-white mb-4">
-                Horarios de Atención
-              </h4>
-              <div class="space-y-2 text-white/90">
-                <p><strong>Lunes - Domingo:</strong> 7:00 AM - 11:00 PM</p>
-                <p><strong>Servicio continuo de delivery</strong></p>
-              </div>
+              <h3 class="flex items-center gap-2 text-lg font-semibold text-white mb-4">
+                <ClockIcon class="size-5" aria-hidden="true" />
+                Horario de reparto
+              </h3>
+              <dl class="space-y-2 text-white/90">
+                <div v-for="franja in HORARIO" :key="franja.etiqueta" class="flex justify-between gap-4">
+                  <dt>{{ franja.etiqueta }}</dt>
+                  <dd class="cifras-tabulares">{{ franja.texto }}</dd>
+                </div>
+              </dl>
             </div>
 
-            <div>
-              <h4 class="text-lg font-semibold text-white mb-4">
-                Nuestra Ubicación
-              </h4>
-              <div class="space-y-2 text-white/90">
-                <p><strong>Dirección:</strong></p>
-                <p>Av. Sta. Rosa de Lima 103</p>
-                <p>San Juan de Lurigancho 15423, Perú</p>
-              </div>
-            </div>
-
-            <div>
-              <h4 class="text-lg font-semibold text-white mb-4">
-                Preguntas Frecuentes
-              </h4>
-              <div class="space-y-3">
-                <div class="flex items-start">
-                  <HelpCircleIcon class="w-5 h-5 text-white/85 mr-3 mt-0.5 shrink-0" />
-                  <div class="text-white/90 text-sm">
-                    <strong>¿Cuánto cuesta el delivery?</strong>
-                    <br />
-                    Depende del distrito: SJL S/ 5.00, Surco S/ 8.00, San Borja S/ 7.00, Cercado S/ 6.00, Callao S/ 10.00
-                  </div>
-                </div>
-                <div class="flex items-start">
-                  <HelpCircleIcon class="w-5 h-5 text-white/85 mr-3 mt-0.5 shrink-0" />
-                  <div class="text-white/90 text-sm">
-                    <strong>¿Cuál es el tiempo de entrega?</strong>
-                    <br />
-                    SJL: 20-35 min, Surco: 35-50 min, San Borja: 30-45 min, Cercado: 25-40 min, Callao: 40-60 min
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Pharmacy Location Map -->
-          <div class="bg-black/15 backdrop-blur-sm rounded-2xl p-8 mt-8">
-            <h3 class="text-2xl font-bold text-white mb-6 text-center">
-              Mapa Interactivo de Cobertura
-            </h3>
-            <div class="aspect-video rounded-xl overflow-hidden relative">
-              <div
-                id="map"
-                class="w-full h-full"
-              ></div>
-              <!-- Leyenda -->
-              <div class="absolute top-4 right-4 bg-superficie-elevada/90 backdrop-blur-sm rounded-lg p-4 shadow-lg">
-                <h4
-                  class="text-sm font-semibold text-texto-primario mb-2"
-                >
-                  Leyenda de Cobertura
-                </h4>
-                <div class="space-y-2">
-                  <div class="flex items-center">
-                    <div class="w-4 h-4 bg-botica-500 rounded mr-2"></div>
-                    <span class="text-sm text-texto-secundario">San Juan de Lurigancho (SJL)</span>
-                  </div>
-                  <div class="flex items-center">
-                    <div class="w-4 h-4 bg-clinico-500 rounded mr-2"></div>
-                    <span class="text-sm text-texto-secundario">Surco</span>
-                  </div>
-                  <div class="flex items-center">
-                    <div class="w-4 h-4 bg-ambar-500 rounded mr-2"></div>
-                    <span class="text-sm text-texto-secundario">San Borja</span>
-                  </div>
-                  <div class="flex items-center">
-                    <div class="w-4 h-4 bg-clinico-500 rounded mr-2"></div>
-                    <span class="text-sm text-texto-secundario">Cercado de Lima</span>
-                  </div>
-                  <div class="flex items-center">
-                    <div class="w-4 h-4 bg-peligro-500 rounded mr-2"></div>
-                    <span class="text-sm text-texto-secundario">Callao</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="mt-4 text-center">
-              <p class="text-white/90 text-sm">
-                <strong>Dirección:</strong> Av. Sta. Rosa de Lima 103, San Juan de Lurigancho 15423, Perú
-              </p>
+            <div class="min-w-0">
+              <h3 class="flex items-center gap-2 text-lg font-semibold text-white mb-4">
+                <WalletIcon class="size-5" aria-hidden="true" />
+                Tarifas por zona
+              </h3>
+              <table class="w-full text-sm text-white/90">
+                <caption class="sr-only">Tiempo y tarifa de envío por zona de San Juan de Lurigancho</caption>
+                <thead>
+                  <tr class="text-left text-white">
+                    <th scope="col" class="pb-2 font-semibold">Zona</th>
+                    <th scope="col" class="pb-2 font-semibold">Tiempo</th>
+                    <th scope="col" class="pb-2 font-semibold text-right">Tarifa</th>
+                  </tr>
+                </thead>
+                <tbody class="cifras-tabulares">
+                  <tr v-for="zona in ZONAS" :key="zona.id" class="border-t border-white/15">
+                    <th scope="row" class="py-1.5 font-normal">{{ zona.nombre }}</th>
+                    <td class="py-1.5">{{ rangoMinutos(zona) }}</td>
+                    <td class="py-1.5 text-right">{{ soles(zona.tarifa) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p class="mt-3 text-xs text-white/80">Pedido mínimo {{ soles(PEDIDO_MINIMO) }}. La tarifa se confirma al tomar el pedido.</p>
             </div>
           </div>
         </div>
@@ -194,128 +103,12 @@
 </template>
 
 <script setup lang="ts">
-import {
-  MessageCircleIcon,
-  PhoneIcon,
-  MailIcon,
-  HelpCircleIcon
-} from 'lucide-vue-next'
-import { onMounted } from 'vue'
-import { gsap } from 'gsap'
-import L from 'leaflet'
+/* Esta sección tenía un segundo mapa de Leaflet con rectángulos de Surco,
+   San Borja, Cercado y Callao. Con la cobertura reducida a SJL, el mapa del
+   selector ya lo cuenta todo; un segundo mapa solo duplicaba peso y teselas. */
+import { MessageCircleIcon, PhoneIcon, MailIcon, ClockIcon, WalletIcon } from 'lucide-vue-next'
+import { CORREO, HORARIO, TELEFONO_FIJO, TELEFONO_FIJO_E164, enlaceWhatsApp } from '@/datos/botica'
+import { PEDIDO_MINIMO, ZONAS, rangoMinutos, soles } from '@/datos/cobertura'
 
-// Import Leaflet CSS
-import 'leaflet/dist/leaflet.css'
-import { RouterLink } from 'vue-router'
-import { prefiereMenosMovimiento } from '@/utils/motion'
-import { TELEFONO_FIJO, TELEFONO_FIJO_E164, enlaceWhatsApp } from '@/datos/botica'
-
-const enlaceWa = enlaceWhatsApp('Hola, quisiera consultar si llegan a mi zona.')
-
-onMounted(() => {
-  /* La guarda rodea SÓLO la animación: más abajo se monta el mapa de Leaflet,
-     y una vuelta temprana dejaría la página de cobertura sin mapa. */
-  if (!prefiereMenosMovimiento()) {
-    // Set initial state
-    gsap.set('.contact-card', {
-      y: 30,
-      opacity: 0
-    })
-
-    // Animate contact cards with stagger
-    gsap.to('.contact-card', {
-      duration: 0.8,
-      y: 0,
-      opacity: 1,
-      stagger: 0.2,
-      ease: 'power3.out'
-    })
-  }
-
-  // Initialize interactive map
-  const map = L.map('map').setView([-11.9686252, -76.9943794], 13) // Centered on exact pharmacy location
-
-  // Add OpenStreetMap tiles
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map)
-
-  // Define district polygons (approximate coordinates)
-  const districts = [
-    {
-      name: 'San Juan de Lurigancho',
-      color: '#10B981', // green-500
-      coordinates: [
-        [-11.965, -76.997] as [number, number],
-        [-11.965, -76.992] as [number, number],
-        [-11.972, -76.992] as [number, number],
-        [-11.972, -76.997] as [number, number],
-        [-11.965, -76.997] as [number, number]
-      ]
-    },
-    {
-      name: 'Surco',
-      color: '#3B82F6', // blue-500
-      coordinates: [
-        [-12.1, -77.0] as [number, number],
-        [-12.1, -76.9] as [number, number],
-        [-12.15, -76.9] as [number, number],
-        [-12.15, -77.0] as [number, number],
-        [-12.1, -77.0] as [number, number]
-      ]
-    },
-    {
-      name: 'San Borja',
-      color: '#EAB308', // yellow-500
-      coordinates: [
-        [-12.08, -77.0] as [number, number],
-        [-12.08, -76.95] as [number, number],
-        [-12.12, -76.95] as [number, number],
-        [-12.12, -77.0] as [number, number],
-        [-12.08, -77.0] as [number, number]
-      ]
-    },
-    {
-      name: 'Cercado de Lima',
-      color: '#A855F7', // purple-500
-      coordinates: [
-        [-12.05, -77.05] as [number, number],
-        [-12.05, -77.0] as [number, number],
-        [-12.08, -77.0] as [number, number],
-        [-12.08, -77.05] as [number, number],
-        [-12.05, -77.05] as [number, number]
-      ]
-    },
-    {
-      name: 'Callao',
-      color: '#EF4444', // red-500
-      coordinates: [
-        [-12.0, -77.15] as [number, number],
-        [-12.0, -77.1] as [number, number],
-        [-12.05, -77.1] as [number, number],
-        [-12.05, -77.15] as [number, number],
-        [-12.0, -77.15] as [number, number]
-      ]
-    }
-  ]
-
-  // Add polygons to map
-  districts.forEach(district => {
-    L.polygon(district.coordinates, {
-      color: district.color,
-      fillColor: district.color,
-      fillOpacity: 0.3,
-      weight: 2
-    }).addTo(map).bindPopup(`<b>${district.name}</b><br>Cobertura de delivery disponible`)
-  })
-
-  // Add marker for pharmacy location
-  L.marker([-11.9686252, -76.9943794]).addTo(map)
-    .bindPopup('<b>Boticas San Juan</b><br>Av. Sta. Rosa de Lima 103<br>San Juan de Lurigancho 15423, Perú')
-    .openPopup()
-})
+const enlaceWa = enlaceWhatsApp('Hola, quisiera confirmar si llegan a mi dirección en SJL.')
 </script>
-
-<style scoped>
-/* Coverage contact styles */
-</style>

@@ -2,7 +2,12 @@
 """
 Ensambla el informe final (semana 18) a partir del APF3 entregado.
 
-    python -X utf8 docs/scripts/ensamblar-informe-final-s18.py <APF3.docx> <salida.docx>
+    python -X utf8 docs/scripts/ensamblar-informe-final-s18.py [<APF3.docx> <salida.docx>]
+
+Si se invoca sin argumentos, actualiza directamente
+`docs/entregables/PROYECTO-FINAL-S18-Botica-San-Juan-ChristopherRafaile.docx`
+alineando las cifras al corte vigente (v0.9.0) y regenerando el capítulo XXVI
+desde `docs/entregables/INFORME-FINAL-S18.md`.
 
 El APF3 es un registro historico: se lee y nunca se escribe. Cada sustitucion
 comprueba el texto que espera encontrar y aborta si no esta, para que un APF3
@@ -36,9 +41,14 @@ CORTES = RAIZ / 'docs/evidencias/cortes'
 INFORME = RAIZ / 'docs/entregables/INFORME-FINAL-S18.md'
 RUC = re.compile(r'\b[12]0\d{9}\b')
 
-origen, salida = Path(sys.argv[1]), Path(sys.argv[2])
-if origen.resolve() == salida.resolve():
-    sys.exit('La salida no puede ser el propio APF3.')
+SALIDA_DEFECTO = RAIZ / 'docs/entregables/PROYECTO-FINAL-S18-Botica-San-Juan-ChristopherRafaile.docx'
+MODO_ACTUALIZAR = len(sys.argv) == 1
+if MODO_ACTUALIZAR:
+    origen = salida = SALIDA_DEFECTO
+else:
+    origen, salida = Path(sys.argv[1]), Path(sys.argv[2])
+    if origen.resolve() == salida.resolve():
+        sys.exit('La salida no puede ser el propio APF3.')
 
 d = docx.Document(str(origen))
 B = list(d.element.body)  # indices del documento ORIGINAL
@@ -78,131 +88,132 @@ def celda(t: int, f: int, c: int, espera: str, texto: str) -> None:
         p._p.getparent().remove(p._p)
 
 
-# --------------------------------------------------------------- portada
-poner(5, 'TERCER AVANCE', 'PROYECTO FINAL')
-poner(6, 'Semana 13', 'Semana 18: Operación del Servicio · Sistema finalizado en v0.8.0')
-for s in d.sections:
-    for p in s.header.paragraphs:
-        if 'APF3' in p.text:
-            fijar(p, p.text.replace('APF3', 'Proyecto Final'))
+if not MODO_ACTUALIZAR:
+    # --------------------------------------------------------------- portada
+    poner(5, 'TERCER AVANCE', 'PROYECTO FINAL')
+    poner(6, 'Semana 13', 'Semana 18: Operación del Servicio · Sistema finalizado en v0.9.0')
+    for s in d.sections:
+        for p in s.header.paragraphs:
+            if 'APF3' in p.text:
+                fijar(p, p.text.replace('APF3', 'Proyecto Final'))
 
-# ------------------------------------------------------ datos reservados
-for t in T:
-    for row in Table(t, d._body).rows:
-        for c in row.cells:
-            for p in c.paragraphs:
-                if RUC.search(p.text):
-                    # Solo el dato: en el recuadro del anexo A va dentro de una
-                    # frase que se conserva. En 1.1 el titular le sigue entre parentesis.
-                    fijar(p, RUC.sub('[dato reservado]', re.sub(r'(' + RUC.pattern + r')\s*\([^)]*\)', lambda m: m[1], p.text)))
-for e in B:
-    if e.tag == qn('w:p'):
-        p = Paragraph(e, d._body)
-        if RUC.search(p.text):
-            fijar(p, RUC.sub('[dato reservado]', p.text))
+    # ------------------------------------------------------ datos reservados
+    for t in T:
+        for row in Table(t, d._body).rows:
+            for c in row.cells:
+                for p in c.paragraphs:
+                    if RUC.search(p.text):
+                        # Solo el dato: en el recuadro del anexo A va dentro de una
+                        # frase que se conserva. En 1.1 el titular le sigue entre parentesis.
+                        fijar(p, RUC.sub('[dato reservado]', re.sub(r'(' + RUC.pattern + r')\s*\([^)]*\)', lambda m: m[1], p.text)))
+    for e in B:
+        if e.tag == qn('w:p'):
+            p = Paragraph(e, d._body)
+            if RUC.search(p.text):
+                fijar(p, RUC.sub('[dato reservado]', p.text))
 
-# Zonas con el RUC, el titular o el AnyDesk, en pixeles de la foto original. Se tapan con
-# un rectangulo opaco: un desenfoque sobre digitos puede revertirse.
-TAPAR = {
-    'image74.jpg': [(0, 0, 280, 70)],
-    'image76.jpg': [(0, 0, 280, 70)],
-    'image85.jpg': [(0, 0, 220, 30)],
-    'image82.jpg': [(0, 0, 290, 80), (865, 300, 1520, 368), (125, 495, 260, 960)],
-    'image83.jpg': [(625, 285, 1262, 352)],
-    'image84.jpg': [(845, 222, 1540, 262), (66, 445, 212, 880)],
-}
-tapadas = set()
-for parte in d.part.package.iter_parts():
-    nombre = str(parte.partname).rsplit('/', 1)[-1]
-    if nombre in TAPAR:
-        foto = Image.open(io.BytesIO(parte.blob)).convert('RGB')
-        assert foto.size == (1600, 1204), f'{nombre}: no es la foto esperada'
-        for caja in TAPAR[nombre]:
-            ImageDraw.Draw(foto).rectangle(caja, fill=(70, 70, 70))
-        buf = io.BytesIO()
-        foto.save(buf, 'JPEG', quality=88)
-        parte._blob = buf.getvalue()
-        tapadas.add(nombre)
-assert tapadas == set(TAPAR), f'sin tapar: {set(TAPAR) - tapadas}'
+    # Zonas con el RUC, el titular o el AnyDesk, en pixeles de la foto original. Se tapan con
+    # un rectangulo opaco: un desenfoque sobre digitos puede revertirse.
+    TAPAR = {
+        'image74.jpg': [(0, 0, 280, 70)],
+        'image76.jpg': [(0, 0, 280, 70)],
+        'image85.jpg': [(0, 0, 220, 30)],
+        'image82.jpg': [(0, 0, 290, 80), (865, 300, 1520, 368), (125, 495, 260, 960)],
+        'image83.jpg': [(625, 285, 1262, 352)],
+        'image84.jpg': [(845, 222, 1540, 262), (66, 445, 212, 880)],
+    }
+    tapadas = set()
+    for parte in d.part.package.iter_parts():
+        nombre = str(parte.partname).rsplit('/', 1)[-1]
+        if nombre in TAPAR:
+            foto = Image.open(io.BytesIO(parte.blob)).convert('RGB')
+            assert foto.size == (1600, 1204), f'{nombre}: no es la foto esperada'
+            for caja in TAPAR[nombre]:
+                ImageDraw.Draw(foto).rectangle(caja, fill=(70, 70, 70))
+            buf = io.BytesIO()
+            foto.save(buf, 'JPEG', quality=88)
+            parte._blob = buf.getvalue()
+            tapadas.add(nombre)
+    assert tapadas == set(TAPAR), f'sin tapar: {set(TAPAR) - tapadas}'
 
-# -------------------------------------------- estado temporal: III a V, IX
-cambia(337, 'al cierre del Sprint 2', 'al cierre del proyecto (v0.8.0)')
-for f, hu in ((9, 'HU07'), (10, 'HU10'), (11, 'HU11'), (12, 'HU12')):
-    assert Table(T[22], d._body).rows[f].cells[1].text == hu
-    celda(22, f, 6, 'Pendiente', 'Terminado')
-poner(358, 'se encuentra en ejecución', 'El proyecto está cerrado en v0.8.0 con todos sus Sprints ejecutados. Se conserva el Sprint Backlog de los tres primeros como registro de la planificación; el estado de cada tarea es el final.')
-poner(371, 'en ejecución', '4.3. Sprint 3')
-celda(26, 5, 3, 'En proceso', 'Terminado')
-for f in (6, 7):
-    celda(26, f, 3, 'Pendiente', 'Terminado')
-celda(28, 1, 3, 'En curso', 'Cerrada con el Sprint 3')
-celda(28, 6, 3, 'En curso', 'Cerrada: se sustituyó por integración propia')
-for f, e in ((1, 'En entrega'), (2, 'Planificado'), (3, 'Planificado')):
-    celda(29, f, 3, e, 'Entregado')
-celda(29, 4, 3, 'Planificado', 'Finalizado · v0.8.0')
-poner(485, 'EN DESARROLLO', 'IX. SISTEMA CONSTRUIDO')
-txt = par(486).text
-poner(486, 'Se distingue de forma', txt[:txt.index('Se distingue de forma')] + 'Las capturas de este capítulo son las del momento en que se construyó cada módulo; las de la versión final están en el capítulo XXVI. El detalle por componente se resume en la Tabla 25.')
-poner(505, 'a la fecha', 'Componentes de la versión final')
-celda(37, 1, 1, '46 migraciones', 'PostgreSQL 16 con 61 migraciones versionadas y 3 537 registros migrados en origen')
-celda(37, 7, 1, '198 pruebas', '500 pruebas de backend (1 678 aserciones) y 209 de frontend, ejecutadas en la integración continua')
-celda(37, 8, 1, 'Cliente conmutable', 'XML firmado, empaquetado, sobre SOAP y CDR; el envío recorre el camino real en modo simulado, sin remisión productiva a la SUNAT')
-celda(37, 8, 2, 'En desarrollo', 'Operativa en modo simulado')
-celda(44, 4, 3, 'en curso', 'Cliente conmutable implementado; la remisión productiva exige credenciales del contribuyente')
-for f, caso in ((9, 'Suites EmpaquetadoSunatTest y EnvioAsincronoSunatTest'), (10, 'IndicadoresTest y exportación CSV')):
-    celda(64, f, 2, 'Sin caso', caso)
-    celda(64, f, 3, 'Pendiente', 'Cubierto por la suite')
-    celda(64, f, 4, 'Programado', 'Pruebas automatizadas')
-for i in range(722, 736):
-    if B[i].tag == qn('w:p') and 'se declaran pendientes' in par(i).text:
-        fijar(par(i), 'Las dos últimas filas no tienen caso manual ejecutado: las cubre la suite automatizada de los Sprints 5 y 6.')
-cambia(684, '198 pruebas', '500 pruebas')
-poner(737, '198 pruebas', 'La suite reúne 500 pruebas con 1 678 aserciones en el servidor, sobre PostgreSQL 16, y 209 pruebas en el frontend: 709 en total. No es una cifra decorativa: tres de los defectos corregidos los detectó la suite y no una revisión visual.')
-for t in T:
-    for row in Table(t, d._body).rows:
-        for c in row.cells:
-            for p in c.paragraphs:
-                if '198 pruebas' in p.text:
-                    fijar(p, re.sub(r'198 pruebas(,| y| con) 603 aserciones(, 13\.31 s)?', '500 pruebas y 1 678 aserciones', p.text))
-
-
-# ------------------------------------------------ figuras recapturadas
-def reemplaza_imagen(i_pie: int, espera: str, png: Path, pie: str) -> None:
-    poner(i_pie, espera, pie)
-    i = i_pie - 1
-    while not B[i].findall('.//' + qn('a:blip')):
-        i -= 1
-    rid, imagen = d.part.get_or_add_image(str(png))
-    B[i].findall('.//' + qn('a:blip'))[0].set(qn('r:embed'), rid)
-    for ext in B[i].findall('.//' + qn('wp:extent')) + B[i].findall('.//' + qn('a:ext')):
-        if ext.get('cx'):
-            cx = int(ext.get('cx'))
-            cy = int(cx * imagen.px_height / imagen.px_width)
-            if cy > int(Cm(17)):
-                cx, cy = int(cx * int(Cm(17)) / cy), int(Cm(17))
-            ext.set('cx', str(cx))
-            ext.set('cy', str(cy))
+    # -------------------------------------------- estado temporal: III a V, IX
+    cambia(337, 'al cierre del Sprint 2', 'al cierre del proyecto (v0.9.0)')
+    for f, hu in ((9, 'HU07'), (10, 'HU10'), (11, 'HU11'), (12, 'HU12')):
+        assert Table(T[22], d._body).rows[f].cells[1].text == hu
+        celda(22, f, 6, 'Pendiente', 'Terminado')
+    poner(358, 'se encuentra en ejecución', 'El proyecto está cerrado en v0.9.0 con todos sus Sprints ejecutados. Se conserva el Sprint Backlog de los tres primeros como registro de la planificación; el estado de cada tarea es el final.')
+    poner(371, 'en ejecución', '4.3. Sprint 3')
+    celda(26, 5, 3, 'En proceso', 'Terminado')
+    for f in (6, 7):
+        celda(26, f, 3, 'Pendiente', 'Terminado')
+    celda(28, 1, 3, 'En curso', 'Cerrada con el Sprint 3')
+    celda(28, 6, 3, 'En curso', 'Cerrada: se sustituyó por integración propia')
+    for f, e in ((1, 'En entrega'), (2, 'Planificado'), (3, 'Planificado')):
+        celda(29, f, 3, e, 'Entregado')
+    celda(29, 4, 3, 'Planificado', 'Finalizado · v0.9.0')
+    poner(485, 'EN DESARROLLO', 'IX. SISTEMA CONSTRUIDO')
+    txt = par(486).text
+    poner(486, 'Se distingue de forma', txt[:txt.index('Se distingue de forma')] + 'Las capturas de este capítulo son las del momento en que se construyó cada módulo; las de la versión final están en el capítulo XXVI. El detalle por componente se resume en la Tabla 25.')
+    poner(505, 'a la fecha', 'Componentes de la versión final')
+    celda(37, 1, 1, '46 migraciones', 'PostgreSQL 16 con 62 migraciones versionadas y 3 537 registros migrados en origen')
+    celda(37, 7, 1, '198 pruebas', '526 pruebas de backend (1 764 aserciones) y 217 de frontend, ejecutadas en la integración continua')
+    celda(37, 8, 1, 'Cliente conmutable', 'XML firmado, empaquetado, sobre SOAP y CDR; el envío recorre el camino real en modo simulado, sin remisión productiva a la SUNAT')
+    celda(37, 8, 2, 'En desarrollo', 'Operativa en modo simulado')
+    celda(44, 4, 3, 'en curso', 'Cliente conmutable implementado; la remisión productiva exige credenciales del contribuyente')
+    for f, caso in ((9, 'Suites EmpaquetadoSunatTest y EnvioAsincronoSunatTest'), (10, 'IndicadoresTest y exportación CSV')):
+        celda(64, f, 2, 'Sin caso', caso)
+        celda(64, f, 3, 'Pendiente', 'Cubierto por la suite')
+        celda(64, f, 4, 'Programado', 'Pruebas automatizadas')
+    for i in range(722, 736):
+        if B[i].tag == qn('w:p') and 'se declaran pendientes' in par(i).text:
+            fijar(par(i), 'Las dos últimas filas no tienen caso manual ejecutado: las cubre la suite automatizada de los Sprints 5 y 6.')
+    cambia(684, '198 pruebas', '526 pruebas')
+    poner(737, '198 pruebas', 'La suite reúne 526 pruebas con 1 764 aserciones en el servidor, sobre PostgreSQL 16, y 217 pruebas en el frontend: 743 en total. No es una cifra decorativa: tres de los defectos corregidos los detectó la suite y no una revisión visual.')
+    for t in T:
+        for row in Table(t, d._body).rows:
+            for c in row.cells:
+                for p in c.paragraphs:
+                    if '198 pruebas' in p.text:
+                        fijar(p, re.sub(r'198 pruebas(,| y| con) 603 aserciones(, 13\.31 s)?', '526 pruebas y 1 764 aserciones', p.text))
 
 
-S500 = CORTES / 'CRT-43-suite-500.png'
-reemplaza_imagen(452, 'Figura 11.', RAIZ / 'docs/evidencias/figura11/Figura11-modelo-de-datos.png', 'Figura 11. Modelo de datos conceptual (61 migraciones, contadas por script). Fuente: Elaboración propia.')
-reemplaza_imagen(509, 'Figura 23.', S500, 'Figura 23. Ejecución final de la suite del Backend: 500 pruebas y 1 678 aserciones. Fuente: Elaboración propia.')
-reemplaza_imagen(750, 'Figura 43.', CORTES / 'CRT-44-suite-frontend-209.png', 'Figura 43. Suite automatizada del Frontend: 209 pruebas en verde. La del Backend, con 500 pruebas y 1 678 aserciones, está en la Figura 23. Fuente: Elaboración propia.')
-reemplaza_imagen(1241, 'Figura C.3', S500, 'Figura C.3. Las 500 pruebas con 1 678 aserciones ejecutadas sobre PostgreSQL 16. Fuente: Elaboración propia.')
+    # ------------------------------------------------ figuras recapturadas
+    def reemplaza_imagen(i_pie: int, espera: str, png: Path, pie: str) -> None:
+        poner(i_pie, espera, pie)
+        i = i_pie - 1
+        while not B[i].findall('.//' + qn('a:blip')):
+            i -= 1
+        rid, imagen = d.part.get_or_add_image(str(png))
+        B[i].findall('.//' + qn('a:blip'))[0].set(qn('r:embed'), rid)
+        for ext in B[i].findall('.//' + qn('wp:extent')) + B[i].findall('.//' + qn('a:ext')):
+            if ext.get('cx'):
+                cx = int(ext.get('cx'))
+                cy = int(cx * imagen.px_height / imagen.px_width)
+                if cy > int(Cm(17)):
+                    cx, cy = int(cx * int(Cm(17)) / cy), int(Cm(17))
+                ext.set('cx', str(cx))
+                ext.set('cy', str(cy))
 
-# ------------------------------------------------ XX: cierre de la Tabla 64
-poner(852, 'siguen abiertas', 'Este capítulo recoge las observaciones detectadas sobre los avances anteriores y el estado en que queda cada una. Las cuatro que el APF3 dejó abiertas se cierran aquí con su evidencia.')
-poner(858, 'siguen abiertas', '20.2. Observaciones del APF3 cerradas')
-poner(860, 'pendientes', 'Cierre de las observaciones O-B1 a O-B4')
-celda(77, 0, 2, 'Por qué', 'Cómo se cerró')
-for f, e, txt in (
-    (1, 'Son capturas', 'CERRADA. Figuras 23, 43 y C.3 recapturadas con la ejecución final: 500 pruebas de backend (1 678 aserciones) y 209 de frontend. Evidencia: CRT-39 a CRT-44'),
-    (2, 'El dato', 'CERRADA. Diagrama regenerado por script con la cifra contada: 61 migraciones. El contrato publicado declara OpenAPI 0.8.0'),
-    (3, 'Decisión', 'CERRADA. Texto homologado en Inicio, Estadísticas, Sobre Nosotros y pie: más de 8 años de servicio y +800 productos'),
-    (4, 'Todas las', 'CERRADA. La imagen de respaldo responde 200 y 195 productos del catálogo tienen fotografía real (194 medidos en producción); el resto muestra el respaldo'),
-):
-    celda(77, f, 2, e, txt)
-celda(76, 9, 3, 'Figuras 54 a 62', 'Capturas de este capítulo')
+
+    S500 = CORTES / 'CRT-43-suite-500.png'
+    reemplaza_imagen(452, 'Figura 11.', RAIZ / 'docs/evidencias/figura11/Figura11-modelo-de-datos.png', 'Figura 11. Modelo de datos conceptual (62 migraciones al cierre v0.9.0). Fuente: Elaboración propia.')
+    reemplaza_imagen(509, 'Figura 23.', S500, 'Figura 23. Ejecución de la suite del Backend (corte 500 pruebas y 1 678 aserciones; corte final v0.9.0: 526 pruebas y 1 764 aserciones). Fuente: Elaboración propia.')
+    reemplaza_imagen(750, 'Figura 43.', CORTES / 'CRT-44-suite-frontend-209.png', 'Figura 43. Suite automatizada del Frontend (corte 209 pruebas en verde; corte final v0.9.0: 217 pruebas). La del Backend está en la Figura 23. Fuente: Elaboración propia.')
+    reemplaza_imagen(1241, 'Figura C.3', S500, 'Figura C.3. Las 500 pruebas con 1 678 aserciones ejecutadas sobre PostgreSQL 16. Fuente: Elaboración propia.')
+
+    # ------------------------------------------------ XX: cierre de la Tabla 64
+    poner(852, 'siguen abiertas', 'Este capítulo recoge las observaciones detectadas sobre los avances anteriores y el estado en que queda cada una. Las cuatro que el APF3 dejó abiertas se cierran aquí con su evidencia.')
+    poner(858, 'siguen abiertas', '20.2. Observaciones del APF3 cerradas')
+    poner(860, 'pendientes', 'Cierre de las observaciones O-B1 a O-B4')
+    celda(77, 0, 2, 'Por qué', 'Cómo se cerró')
+    for f, e, txt in (
+        (1, 'Son capturas', 'CERRADA. Figuras 23 y 43 recapturadas (500/209); corte final v0.9.0: 526 pruebas de backend (1 764 aserciones) y 217 de frontend (743 en total). Evidencia: CRT-39 a CRT-44'),
+        (2, 'El dato', 'CERRADA. Diagrama regenerado por script (62 migraciones al cierre v0.9.0). El contrato publicado declara OpenAPI 0.9.0'),
+        (3, 'Decisión', 'CERRADA. Texto homologado en Inicio, Estadísticas, Sobre Nosotros y pie: más de 8 años de servicio y +800 productos'),
+        (4, 'Todas las', 'CERRADA. La imagen de respaldo responde 200 y 194 productos del catálogo tienen fotografía real en producción (195 en base local); el resto muestra el respaldo'),
+    ):
+        celda(77, f, 2, e, txt)
+    celda(76, 9, 3, 'Figuras 54 a 62', 'Capturas de este capítulo')
 
 # ------------------------------------------------------------ constructores
 MODELO = T[77]
@@ -333,61 +344,144 @@ def recorta(v: str, n: int = 1) -> str:
     return '. '.join(v.split('. ')[:n]).rstrip('.') + '.'
 
 
-# ------------------------------------------------ XXI: solicitudes
-fichas = [ficha(t) for t in range(80, 86)]
-assert [f['Código'] for f in fichas] == [f'SOL-00{n}' for n in range(1, 7)]
-poner(895, '21.3', '21.3. Resumen de las seis solicitudes y caso detallado')
-poner(896, 'se recorre entero', 'Las seis solicitudes recorrieron los siete pasos del ciclo. Se resumen en una tabla y se detalla solo SOL-004, la única rechazada y la que mejor justifica el paso de autorización. Las fichas completas están en las issues #14 a #19 del repositorio.')
-Cursor(B[897]).tabla(
-    'Resumen de atención de las solicitudes',
-    [['Código', 'Solicitante y prioridad', 'Requiere aprobación', 'Solución brindada', 'Estado']]
-    + [[f['Código'], f"{f['Solicitante']} · {f['Prioridad']}", recorta(f['¿Requiere aprobación?']), recorta(f['Solución brindada']), f['Estado final'].split('. ')[0]] for f in fichas],
-    [1000, 1900, 1500, 3470, 1200])
-for i in (*range(897, 939), *range(953, 981)):
-    B[i].getparent().remove(B[i])
+if not MODO_ACTUALIZAR:
+    # ------------------------------------------------ XXI: solicitudes
+    fichas = [ficha(t) for t in range(80, 86)]
+    assert [f['Código'] for f in fichas] == [f'SOL-00{n}' for n in range(1, 7)]
+    poner(895, '21.3', '21.3. Resumen de las seis solicitudes y caso detallado')
+    poner(896, 'se recorre entero', 'Las seis solicitudes recorrieron los siete pasos del ciclo. Se resumen en una tabla y se detalla solo SOL-004, la única rechazada y la que mejor justifica el paso de autorización. Las fichas completas están en las issues #14 a #19 del repositorio.')
+    Cursor(B[897]).tabla(
+        'Resumen de atención de las solicitudes',
+        [['Código', 'Solicitante y prioridad', 'Requiere aprobación', 'Solución brindada', 'Estado']]
+        + [[f['Código'], f"{f['Solicitante']} · {f['Prioridad']}", recorta(f['¿Requiere aprobación?']), recorta(f['Solución brindada']), f['Estado final'].split('. ')[0]] for f in fichas],
+        [1000, 1900, 1500, 3470, 1200])
+    for i in (*range(897, 939), *range(953, 981)):
+        B[i].getparent().remove(B[i])
 
-# ------------------------------------------------ XXII: cambios
-exp = [ficha(t) for t in range(94, 99)]
-
-
-def paso(e: dict[str, str], n: int) -> str:
-    return next(v for k, v in e.items() if k.startswith(str(n)))
+    # ------------------------------------------------ XXII: cambios
+    exp = [ficha(t) for t in range(94, 99)]
 
 
-poner(1040, '22.9', '22.9. Resumen de los expedientes de cambio')
-poner(1041, 'Los seis pasos', 'Los seis pasos del procedimiento se recorrieron en los cinco cambios. Se resumen aquí; el caso detallado es CAM-001, desarrollado en el apartado 22.2.')
-PENDIENTE = 'la migración sobre producción queda pendiente de ventana.'
-assert PENDIENTE in paso(exp[2], 4)
-Cursor(B[1042]).tabla(
-    'Resumen de los expedientes CAM-001 a CAM-005',
-    [['Código', 'Qué motivó el cambio', 'Prueba y vuelta atrás', 'Trazabilidad']]
-    + [[f'CAM-00{n}', recorta(paso(e, 1)), paso(e, 4).replace(PENDIENTE, 'la migración se aplicó con el despliegue posterior.'), paso(e, 5)] for n, e in enumerate(exp, 1)],
-    [1000, 2500, 3270, 2300])
-quitar(1042, 1066)
-cambia(1067, 'estas cinco fichas dejan', 'este resumen deja')
-poner(1033, '22.8', '22.8. Cambios propuestos: estado al cierre')
-poner(1034, 'no implementados', 'Estos cambios se registraron y analizaron por separado para que el registro del apartado 22.4 siga diciendo la verdad sobre lo que se hizo. CR-P01 se ejecutó en v0.7.0 (PR #61); CR-P02 y CR-P03 quedan como propuestas no ejecutadas.')
-poner(1036, 'pendientes', 'Cambios propuestos y su estado al cierre del proyecto')
+    def paso(e: dict[str, str], n: int) -> str:
+        return next(v for k, v in e.items() if k.startswith(str(n)))
 
-# ------------------------------------------------ XXV: compromisos
-poner(1113, '25.4', '25.4. Cierre de los compromisos')
-poner(1115, 'Sprint 7', 'Estado final de las acciones comprometidas')
-celda(104, 0, 2, 'Indicador', 'Estado final')
-for f, txt in (
-    (1, 'Cumplida: figuras 23, 43 y C.3 recapturadas'),
-    (2, 'Cumplida: figura 11 regenerada con 61 migraciones'),
-    (3, 'Cumplida en parte: 195 productos con fotografía real'),
-    (4, 'Cumplida en parte: AutorizacionRolTest y AccesoDocumentosTributariosTest'),
-    (5, 'No ejecutada: RNF03 queda pendiente de prueba de carga'),
-):
-    celda(104, f, 2, '', txt)
 
-# ------------------------------------------------ XXVI: operacion (28 a 34)
-poner(1118, 'XXVI.', 'XXVII. CONCLUSIONES')
-poner(1129, 'XXVII.', 'XXVIII. REFERENCIAS')
-cur = Cursor(B[1118])
+    poner(1040, '22.9', '22.9. Resumen de los expedientes de cambio')
+    poner(1041, 'Los seis pasos', 'Los seis pasos del procedimiento se recorrieron en los cinco cambios. Se resumen aquí; el caso detallado es CAM-001, desarrollado en el apartado 22.2.')
+    PENDIENTE = 'la migración sobre producción queda pendiente de ventana.'
+    assert PENDIENTE in paso(exp[2], 4)
+    Cursor(B[1042]).tabla(
+        'Resumen de los expedientes CAM-001 a CAM-005',
+        [['Código', 'Qué motivó el cambio', 'Prueba y vuelta atrás', 'Trazabilidad']]
+        + [[f'CAM-00{n}', recorta(paso(e, 1)), paso(e, 4).replace(PENDIENTE, 'la migración se aplicó con el despliegue posterior.'), paso(e, 5)] for n, e in enumerate(exp, 1)],
+        [1000, 2500, 3270, 2300])
+    quitar(1042, 1066)
+    cambia(1067, 'estas cinco fichas dejan', 'este resumen deja')
+    poner(1033, '22.8', '22.8. Cambios propuestos: estado al cierre')
+    poner(1034, 'no implementados', 'Estos cambios se registraron y analizaron por separado para que el registro del apartado 22.4 siga diciendo la verdad sobre lo que se hizo. CR-P01 se ejecutó en v0.7.0 (PR #61); CR-P02 y CR-P03 quedan como propuestas no ejecutadas.')
+    poner(1036, 'pendientes', 'Cambios propuestos y su estado al cierre del proyecto')
+
+    # ------------------------------------------------ XXV: compromisos
+    poner(1113, '25.4', '25.4. Cierre de los compromisos')
+    poner(1115, 'Sprint 7', 'Estado final de las acciones comprometidas')
+    celda(104, 0, 2, 'Indicador', 'Estado final')
+    for f, txt in (
+        (1, 'Cumplida: figuras 23 y 43 recapturadas'),
+        (2, 'Cumplida: figura 11 regenerada (62 migraciones al cierre v0.9.0)'),
+        (3, 'Cumplida en parte: 194 productos con fotografía real en producción de 884 (195 en base local)'),
+        (4, 'Cumplida en parte: AutorizacionRolTest y AccesoDocumentosTributariosTest'),
+        (5, 'Trabajo futuro: prueba de carga p95 sobre búsqueda (RNF03)'),
+    ):
+        celda(104, f, 2, '', txt)
+
+    # ------------------------------------------------ XXVI: operacion (28 a 34)
+    poner(1118, 'XXVI.', 'XXVII. CONCLUSIONES')
+    poner(1129, 'XXVII.', 'XXVIII. REFERENCIAS')
+    cur = Cursor(B[1118])
+else:
+    # En modo actualizar, actualizamos las cifras de I-XXV y Anexos y regeneramos XXVI
+    REEMPLAZOS = [
+        ('v0.8.0', 'v0.9.0'),
+        ('500 pruebas de backend (1 678 aserciones) y 209 de frontend', '526 pruebas de backend (1 764 aserciones) y 217 de frontend'),
+        ('500 pruebas con 1 678 aserciones en el servidor, sobre PostgreSQL 16, y 209 pruebas en el frontend: 709 en total', '526 pruebas con 1 764 aserciones en el servidor, sobre PostgreSQL 16, y 217 pruebas en el frontend: 743 en total'),
+        ('500 pruebas y 1 678 aserciones', '526 pruebas y 1 764 aserciones (corte v0.9.0; captura de corte 500)'),
+        ('209 pruebas en verde', '217 pruebas en verde (corte v0.9.0; captura de corte 209)'),
+        ('61 migraciones, contadas por script', '62 migraciones al cierre v0.9.0'),
+        ('61 migraciones versionadas', '62 migraciones versionadas'),
+        ('61 migraciones', '62 migraciones'),
+        ('OpenAPI 0.8.0', 'OpenAPI 0.9.0'),
+        ('195 productos del catálogo tienen fotografía real (194 medidos en producción)', '194 productos del catálogo tienen fotografía real en producción (195 en base local)'),
+        ('Cumplida en parte: 195 productos con fotografía real', 'Cumplida en parte: 194 productos con fotografía real en producción de 884'),
+        ('No ejecutada: RNF03 queda pendiente de prueba de carga', 'Trabajo futuro: prueba de carga p95 sobre búsqueda (RNF03)'),
+    ]
+    for p in d.paragraphs:
+        if (p.style.name or '').startswith('toc'):
+            continue
+        t = p.text
+        for a, b in REEMPLAZOS:
+            if a in t:
+                t = t.replace(a, b)
+        if t != p.text:
+            fijar(p, t)
+    for tabla in d.tables:
+        for row in tabla.rows:
+            for c in row.cells:
+                for p in c.paragraphs:
+                    t = p.text
+                    for a, b in REEMPLAZOS:
+                        if a in t:
+                            t = t.replace(a, b)
+                    if t != p.text:
+                        fijar(p, t)
+
+    # Localizar XXVI y XXVII para reemplazar el bloque del capitulo XXVI
+    i_xxvi = next(idx for idx, el in enumerate(B) if el.tag == qn('w:p') and Paragraph(el, d._body).text.strip() == 'XXVI. OPERACIÓN DEL SISTEMA')
+    i_xxvii = next(idx for idx, el in enumerate(B) if el.tag == qn('w:p') and Paragraph(el, d._body).text.strip() == 'XXVII. CONCLUSIONES')
+    # Guardar prototipos de estilo desde el documento antes de borrar XXVI
+    PROTO = {
+        'h1': copy.deepcopy(B[i_xxvi]),
+        'h2': copy.deepcopy(next(el for el in B[i_xxvi:i_xxvii] if el.tag == qn('w:p') and Paragraph(el, d._body).style.name == 'Heading 2')),
+        'h3': copy.deepcopy(next(el for el in B[i_xxvi:i_xxvii] if el.tag == qn('w:p') and Paragraph(el, d._body).style.name == 'Heading 3')),
+        'normal': copy.deepcopy(B[i_xxvi + 1]),
+        'tbl_lbl': copy.deepcopy(next(el for el in B[i_xxvi:i_xxvii] if el.tag == qn('w:p') and re.fullmatch(r'Tabla \d+', Paragraph(el, d._body).text.strip()))),
+        'tbl_tit': copy.deepcopy(next(el for el in B[i_xxvi:i_xxvii] if el.tag == qn('w:p') and re.fullmatch(r'Tabla \d+', Paragraph(el.getprevious(), d._body).text.strip() if el.getprevious() is not None and el.getprevious().tag == qn('w:p') else ''))),
+        'nota': copy.deepcopy(next(el for el in B[i_xxvi:i_xxvii] if el.tag == qn('w:p') and Paragraph(el, d._body).text.strip() == 'Nota. Elaboración propia.')),
+        'fig': copy.deepcopy(next(el for el in B[i_xxvi:i_xxvii] if el.tag == qn('w:p') and re.match(r'Figura \d+\. ', Paragraph(el, d._body).text.strip()))),
+    }
+    for el in B[i_xxvi:i_xxvii]:
+        el.getparent().remove(el)
+    cur = Cursor(B[i_xxvii])
+    cur.h1 = lambda t: cur.clon(PROTO['h1'], t)
+    cur.h2 = lambda t: cur.clon(PROTO['h2'], t)
+    cur.h3 = lambda t: cur.clon(PROTO['h3'], t)
+    cur.normal = lambda t: cur.clon(PROTO['normal'], t)
+
+    def _tabla_upd(titulo, filas, anchos):
+        cur.clon(PROTO['tbl_lbl'], 'Tabla 0')
+        cur.clon(PROTO['tbl_tit'], titulo)
+        cur.antes.addprevious(nueva_tabla(filas, anchos))
+        cur.clon(PROTO['nota'], 'Nota. Elaboración propia.')
+
+    def _figura_upd(png: Path, pie: str, hueco: str = ''):
+        p = cur.clon(PROTO['nota'], ' ')
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.paragraph_format.keep_with_next = True
+        p.paragraph_format.line_spacing = 1.0
+        if png.exists():
+            p.add_run().add_picture(str(png), width=Cm(11.5 if png.name.startswith(('EF-', '1')) and not png.name.startswith(('16', '19')) else 15.5))
+        else:
+            r = p.add_run(f'[INSERTAR CAPTURA: {png.name} · {hueco}]')
+            r.bold = True
+            r.font.color.rgb = RGBColor(0xB0, 0x20, 0x20)
+            r.font.size = Pt(11)
+            FALTAN.append(png.name)
+        cur.clon(PROTO['fig'], f'Figura 0. {pie} Fuente: Elaboración propia.')
+
+    cur.tabla = _tabla_upd
+    cur.figura = _figura_upd
+
 cur.h1('XXVI. OPERACIÓN DEL SISTEMA')
-cur.normal('Este capítulo cubre los puntos 28 a 34 de la rúbrica. El sistema está finalizado en v0.8.0, desplegado y operado como servicio.')
+cur.normal('Este capítulo cubre los puntos 28 a 34 de la rúbrica. El sistema está finalizado en v0.9.0, desplegado y operado como servicio.')
 
 md = INFORME.read_text(encoding='utf8')
 md = md[md.index('## 28.'):]
@@ -396,19 +490,26 @@ md = md[md.index('## 28.'):]
 md = re.sub(r'### 33\.4\..*?(?=\n## 34)', '@@CORREOS@@\n', md, flags=re.S)
 md = md.replace('ver 29.4', 'ver 26.2.4').replace('en las secciones **29**, **32**, **33** y **34**', 'en los apartados 26.2, 26.5, 26.6 y 26.7')
 # La tabla del punto 28 es la Tabla 64: no se repite.
-md = re.sub(r'La \*\*Tabla 64\*\* de.*?(?=\n> \*\*Nota)', 'Las cuatro observaciones abiertas del APF3 (O-B1 a O-B4) se cierran en la Tabla 64, apartado 20.2. Además se unificó el estado del documento a proyecto finalizado en v0.8.0 y se compactaron las fichas de solicitudes y los expedientes de cambio.\n', md, flags=re.S)
+md = re.sub(r'La \*\*Tabla 64\*\* de.*?(?=\n> \*\*Nota)', 'Las cuatro observaciones abiertas del APF3 (O-B1 a O-B4) se cierran en la Tabla 64, apartado 20.2. Además se unificó el estado del documento a proyecto finalizado en v0.9.0 y se compactaron las fichas de solicitudes y los expedientes de cambio.\n', md, flags=re.S)
 lineas, i, dg, seccion, sub = md.split('\n'), 0, 0, '', ''
 
 FIGURAS = {
-    '29': [('EF-01-salud.png', 'Monitoreo activo: /api/salud responde 200 OK.')],
+    '29': [('EF-01-salud.png', 'Monitoreo activo: /api/salud responde 200 OK.'),
+           ('24-betterstack-uptime-prod.png', 'Monitor externo de Better Stack sobre /api/salud en estado Up, 24 de noviembre de 2026.'),
+           ('27-betterstack-status-page.png', 'Página pública de estado del servicio, vista sin iniciar sesión, 24 de noviembre de 2026.')],
     '30': [('EF-02-bitacora.png', 'Bitácora de operación con los tres niveles de evento.'),
            ('EF-03-alertas-fefo.png', 'Alertas de vencimiento y control FEFO.'),
-           ('21-resend-api-logs-200.png', 'Registro de la API de Resend: cuatro llamadas POST /emails con estado 200.')],
+           ('21-resend-api-logs-200.png', 'Registro de la API de Resend: cuatro llamadas POST /emails con estado 200.'),
+           ('25-sentry-observabilidad-prod.png', 'Sentry en producción: error controlado del portal y excepciones reales de la API.'),
+           ('28-sentry-alerta-correo-prod.png', 'Alerta automática de Sentry recibida por correo 27 segundos después del error, 24 de noviembre de 2026.'),
+           ('26-posthog-eventos-prod.png', 'PostHog en producción: vistas de página con identificador anónimo.')],
     '33': [('EF-07-catalogo.png', 'Catálogo público.'),
            ('EF-08-checkout.png', 'Checkout del portal del cliente.'),
            ('EF-09-pos.png', 'Punto de venta visual.'),
            ('EF-10-asistente-importador.png', 'Asistente con importador de Excel y CSV.'),
-           ('EF-11-openapi.png', 'Documentación OpenAPI 0.8.0.')],
+           ('EF-11-openapi.png', 'Documentación OpenAPI (captura previa; contrato vigente 0.9.0).'),
+           ('22-avatar-google-oauth-prod.png', 'Foto de la cuenta de Google en producción, con la consola sin errores.'),
+           ('23-avatar-persistente-prod.png', 'Foto propia conservada tras recargar la página en producción.')],
 }
 TITULOS = {'28': 'Correcciones al APF3', '29': 'Indicadores, umbrales y segmentación', '30': 'Eventos de operación',
            '31': 'Gestión de incidentes', '32': 'Continuidad y simulacro de recuperación',
@@ -479,61 +580,68 @@ while i < len(lineas):
     i += 1
 cierra_seccion()
 
-# ------------------------------------------------ anexos
-# Anexo A: una foto por hallazgo. La Tabla 1 remite a ellas por numero, asi que
-# se numeran en el orden de los hallazgos. (hallazgo -> indice de la foto)
-REPRESENTA = [1194, 1186, 1146, 1161, 1179, 1207, 1144, 1167]
-ancla = B[1210]
-assert not par(1209).text.strip()
-B[1209].getparent().remove(B[1209])  # salto de pagina que precedia al anexo B
-for i in range(1143, 1209):
-    if i not in REPRESENTA and i - 1 not in REPRESENTA:
-        B[i].getparent().remove(B[i])
-for n, i in enumerate(REPRESENTA, 1):
-    h = f'H-0{n}'
-    pie = par(i + 1).text
-    assert h in pie and B[i].findall('.//' + qn('a:blip')), f'{h}: {pie[:60]}'
-    texto = re.sub(r'^Figura A\.\d+\.\s*', '', pie).split('Fuente:')[0].strip().rstrip('.')
-    fijar(par(i + 1), f'Figura A.{n}. {texto}. Fuente: Registro fotográfico propio. Hallazgo: {h}.')
-    ancla.addprevious(B[i])
-    ancla.addprevious(B[i + 1])
-    for k in (i, i + 1):
-        par(k).paragraph_format.page_break_before = False
-    par(i).paragraph_format.keep_with_next = True
-    par(i + 1).paragraph_format.keep_with_next = False
-    celda(1, n, 2, 'A.', f'Figura A.{n}')
-    assert Table(T[1], d._body).rows[n].cells[0].text == h
-poner(1141, 'Registro fotográfico', par(1141).text + ' Se conserva una fotografía representativa por hallazgo (H-01 a H-08).')
+if not MODO_ACTUALIZAR:
+    # ------------------------------------------------ anexos
+    # Anexo A: una foto por hallazgo. La Tabla 1 remite a ellas por numero, asi que
+    # se numeran en el orden de los hallazgos. (hallazgo -> indice de la foto)
+    REPRESENTA = [1194, 1186, 1146, 1161, 1179, 1207, 1144, 1167]
+    ancla = B[1210]
+    assert not par(1209).text.strip()
+    B[1209].getparent().remove(B[1209])  # salto de pagina que precedia al anexo B
+    for i in range(1143, 1209):
+        if i not in REPRESENTA and i - 1 not in REPRESENTA:
+            B[i].getparent().remove(B[i])
+    for n, i in enumerate(REPRESENTA, 1):
+        h = f'H-0{n}'
+        pie = par(i + 1).text
+        assert h in pie and B[i].findall('.//' + qn('a:blip')), f'{h}: {pie[:60]}'
+        texto = re.sub(r'^Figura A\.\d+\.\s*', '', pie).split('Fuente:')[0].strip().rstrip('.')
+        fijar(par(i + 1), f'Figura A.{n}. {texto}. Fuente: Registro fotográfico propio. Hallazgo: {h}.')
+        ancla.addprevious(B[i])
+        ancla.addprevious(B[i + 1])
+        for k in (i, i + 1):
+            par(k).paragraph_format.page_break_before = False
+        par(i).paragraph_format.keep_with_next = True
+        par(i + 1).paragraph_format.keep_with_next = False
+        celda(1, n, 2, 'A.', f'Figura A.{n}')
+        assert Table(T[1], d._body).rows[n].cells[0].text == h
+    poner(1141, 'Registro fotográfico', par(1141).text + ' Se conserva una fotografía representativa por hallazgo (H-01 a H-08).')
 
-# Anexo C: C.3 repite la Figura 23 y C.6 y C.7 se ven en el capitulo XXVI.
-for i in (*range(1239, 1242), *range(1247, 1255)):
-    B[i].getparent().remove(B[i])
-B[1246].addnext(B[1255])  # el pie de C.5 estaba separado de su imagen
-fijar(par(1242), par(1242).text.replace('C.4', 'C.3'))
-fijar(par(1244), par(1244).text.replace('C.4', 'C.3'))
-fijar(par(1245), par(1245).text.replace('C.5', 'C.4'))
-fijar(par(1255), par(1255).text.replace('C.5', 'C.4'))
-celda(77, 1, 2, 'Figuras 23, 43 y C.3', 'CERRADA. Figuras 23 y 43 recapturadas con la ejecución final: 500 pruebas de backend (1 678 aserciones) y 209 de frontend; la C.3, duplicada, se retiró. Evidencia: CRT-39 a CRT-44')
-celda(104, 1, 2, 'Cumplida', 'Cumplida: figuras 23 y 43 recapturadas')
-for tabla in d.tables:
-    for fila in tabla.rows:
-        for c in fila.cells:
-            for q in c.paragraphs:
-                if 'Figura 43 · Anexo C' in q.text:
-                    fijar(q, q.text.replace('Figura 43 · Anexo C', 'Figuras 23 y 43'))
+    # Anexo B: el pie afirmaba que bastaba la configuracion; lo contradice 26.7.3.
+    # Solo el tramo en cursiva, para no perder el formato del pie.
+    pie_b3 = [r for r in par(1220).runs if 'sin modificar el código' in r.text]
+    assert len(pie_b3) == 1, 'el pie de la Figura B.3 no es el esperado'
+    pie_b3[0].text = pie_b3[0].text.replace('la integración conmuta entre modo simulado y modo API mediante configuración, sin modificar el código.', 'la configuración selecciona el modo simulado o API; emitir ante la SUNAT exige además lo indicado en 26.7.3.')
 
-# Anexo D: solo lo que no muestra ya el capitulo XXVI.
-QUEDAN = [(1267, 1269), (1270, 1272), (1273, 1275), (1286, 1289)]
-guardar = {i for a, b in QUEDAN for i in range(a, b + 1)}
-for i in range(1258, 1294):
-    if i not in guardar:
+    # Anexo C: C.3 repite la Figura 23 y C.6 y C.7 se ven en el capitulo XXVI.
+    for i in (*range(1239, 1242), *range(1247, 1255)):
         B[i].getparent().remove(B[i])
-for n, (a, b) in enumerate(QUEDAN, 1):
-    fijar(par(a), re.sub(r'^D\.\d+', f'D.{n}', par(a).text))
-    for i in range(a, b + 1):
-        if par(i).text.startswith('Figura D.'):
-            fijar(par(i), re.sub(r'^Figura D\.\d+', f'Figura D.{n}', par(i).text))
-poner(1257, 'Capturas tomadas', 'Cuatro vistas que completan las del capítulo XXVI, donde están las de la versión final v0.8.0: catálogo, checkout, punto de venta, bitácora, alertas, asistente y OpenAPI. Se tomaron durante el desarrollo sobre la base real. El resto vive en docs/evidencias/ del repositorio.')
+    B[1246].addnext(B[1255])  # el pie de C.5 estaba separado de su imagen
+    fijar(par(1242), par(1242).text.replace('C.4', 'C.3'))
+    fijar(par(1244), par(1244).text.replace('C.4', 'C.3'))
+    fijar(par(1245), par(1245).text.replace('C.5', 'C.4'))
+    fijar(par(1255), par(1255).text.replace('C.5', 'C.4'))
+    celda(77, 1, 2, 'Figuras 23, 43 y C.3', 'CERRADA. Figuras 23 y 43 recapturadas (500/209); corte final v0.9.0: 526 pruebas de backend (1 764 aserciones) y 217 de frontend (743 en total); la C.3, duplicada, se retiró. Evidencia: CRT-39 a CRT-44')
+    celda(104, 1, 2, 'Cumplida', 'Cumplida: figuras 23 y 43 recapturadas')
+    for tabla in d.tables:
+        for fila in tabla.rows:
+            for c in fila.cells:
+                for q in c.paragraphs:
+                    if 'Figura 43 · Anexo C' in q.text:
+                        fijar(q, q.text.replace('Figura 43 · Anexo C', 'Figuras 23 y 43'))
+
+    # Anexo D: solo lo que no muestra ya el capitulo XXVI.
+    QUEDAN = [(1267, 1269), (1270, 1272), (1273, 1275), (1286, 1289)]
+    guardar = {i for a, b in QUEDAN for i in range(a, b + 1)}
+    for i in range(1258, 1294):
+        if i not in guardar:
+            B[i].getparent().remove(B[i])
+    for n, (a, b) in enumerate(QUEDAN, 1):
+        fijar(par(a), re.sub(r'^D\.\d+', f'D.{n}', par(a).text))
+        for i in range(a, b + 1):
+            if par(i).text.startswith('Figura D.'):
+                fijar(par(i), re.sub(r'^Figura D\.\d+', f'Figura D.{n}', par(i).text))
+    poner(1257, 'Capturas tomadas', 'Cuatro vistas que completan las del capítulo XXVI, donde están las de la versión final v0.9.0: catálogo, checkout, punto de venta, bitácora, alertas, asistente y OpenAPI. Se tomaron durante el desarrollo sobre la base real. El resto vive en docs/evidencias/ del repositorio.')
 
 # ------------------------------------------------ maquetacion compacta
 TOPE, ANCHO = int(Cm(6.9)), int(Cm(13))
@@ -565,6 +673,12 @@ for e in list(d.element.body):
     for lado, tope in (('w:after', 60), ('w:before', 140)):
         if int(sp.get(qn(lado)) or 0) > tope and Paragraph(e, d._body).style.name != 'Heading 1':
             sp.set(qn(lado), str(tope))
+
+# Un titulo no se queda solo al pie de la pagina.
+for e in d.element.body.iter(qn('w:p')):
+    q = Paragraph(e, d._body)
+    if re.match(r'26\.\d', q.text) and q.style.name.startswith('Heading'):
+        q.paragraph_format.keep_with_next = True
 
 # Indice a dos niveles: el tercero ocupaba dos paginas.
 for it in d.element.body.iter(qn('w:instrText')):
@@ -613,7 +727,7 @@ textos = [p.text for p in d.paragraphs if not (p.style.name or '').startswith('t
 textos += [c.text for t in d.tables for r in t.rows for c in r.cells]
 for t in textos:
     assert not RUC.search(t), 'queda un RUC en el texto'
-    for frase in ('se encuentra en ejecución', '(en ejecución)', 'todavía en desarrollo', '198 pruebas', 'En entrega', '{{', 'Planificado'):
+    for frase in ('se encuentra en ejecución', '(en ejecución)', 'todavía en desarrollo', '198 pruebas', 'En entrega', '{{', 'Planificado', 'v0.8.0', '709 en total', '61 migraciones', 'pendiente de prueba de carga', 'Pendiente de automatización'):
         assert frase not in t, f'queda {frase!r}: {t[:90]}'
 
 # Lo retirado sale tambien del paquete: python-docx conserva la imagen aunque ya

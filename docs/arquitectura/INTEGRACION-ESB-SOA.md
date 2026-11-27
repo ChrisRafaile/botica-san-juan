@@ -114,8 +114,8 @@ flowchart TB
 
 | Herramienta | Qué vigila | Estado |
 |---|---|---|
-| **Sentry** | Excepciones de API y portal, depuradas | Integrado; activo solo con DSN |
-| **Better Stack** | Sondeo externo de `/api/salud` | Endpoint listo; el monitor se crea en su panel |
+| **Sentry** | Excepciones de API y portal, depuradas | Integrado y activo en producción desde el 2026-11-24 |
+| **Better Stack** | Sondeo externo de `/api/salud` | Monitor activo desde el 2026-11-24 |
 | **Cola** | `/api/salud` informa `cola: false` si un correo lleva más de 10 min | Implementado |
 | **Bitácora** | `CORREO_ENVIADO`, `CORREO_FALLIDO`, `SUNAT_*` | Implementado |
 | **Resend** | Registro de llamadas `POST /emails` | [Captura](../evidencias/informe-final/21-resend-api-logs-200.png) |

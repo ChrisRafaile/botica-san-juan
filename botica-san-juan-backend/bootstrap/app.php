@@ -14,7 +14,18 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // `use()` REEMPLAZA la pila global por defecto, y con ella se había
+        // perdido TrustProxies. Detrás de Render eso hacía que $request->ip()
+        // fuera la IP interna del proxy en todas las peticiones: cada
+        // limitador «por IP» era un solo cubo para todo el público, y HSTS no
+        // salía porque la petición no parecía segura. En Render solo el
+        // balanceador llega al contenedor, así que se confía en el salto
+        // inmediato; la IP del cliente es la que ese salto añade al final de
+        // X-Forwarded-For, y no la que el cliente quiera anteponer.
+        $middleware->trustProxies(at: '*');
+
         $middleware->use([
+            \Illuminate\Http\Middleware\TrustProxies::class,
             \App\Http\Middleware\AttachRequestId::class,
             \App\Http\Middleware\HandleCors::class,
             \App\Http\Middleware\SecurityHeaders::class,

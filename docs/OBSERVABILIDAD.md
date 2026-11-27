@@ -183,8 +183,10 @@ cualquier imagen cuyo texto alternativo mencione una receta.
 Hay que decirlo porque lo contrario sería vender humo: **la dirección IP la ve
 el servicio de todos modos**, a nivel de red, por el simple hecho de que el
 navegador se conecta a él. Eso no se arregla con una opción del SDK; se
-desactiva en la configuración del proyecto, en el panel del proveedor. Queda
-anotado como paso pendiente de administración, no de código.
+desactiva en la configuración del proyecto, en el panel del proveedor. En
+PostHog está activado «Discard client IP data» y, en los dos proyectos de
+Sentry, «Prevent Storing of IP Addresses», desde el 2026-11-24. Ambos dejan de
+guardarla en los eventos nuevos; la conexión la sigue viendo el proveedor.
 
 ---
 
@@ -246,6 +248,19 @@ esta ruta como comprobación de vida y un 503 reiniciaría la API por un correo.
 
 Sondear cada pocos minutos mantiene despierto el servicio y consume las horas
 gratuitas de Render y de cómputo de Neon.
+
+### Estado en producción (2026-11-24)
+
+| Servicio | Estado | Evidencia |
+|---|---|---|
+| Better Stack | Monitor activo, código 200 cada 3 min, aviso por correo. No comprueba la palabra clave ni `cola` | `24-betterstack-uptime-prod.png` |
+| Página de estado | https://botica-san-juan.betteruptime.com, pública, solo `/api/salud` | `27-betterstack-status-page.png` |
+| Sentry | DSN en Render y Vercel; un error recibido del portal y dos de la API | `25-sentry-observabilidad-prod.png`, `28-sentry-alerta-correo-prod.png` (aviso por correo a los 27 s) |
+| PostHog | Clave en Vercel, región de EE. UU. Autocaptura, mapas de calor, web vitals y grabación apagados en el proyecto | `26-posthog-eventos-prod.png` |
+
+La grabación debe seguir apagada: `rutaGrabable` compara por el principio de la
+ruta, así que `/perfil` no excluye `/client/perfil`. Hay que corregirlo antes de
+encenderla.
 
 **Laravel Pulse.** No está instalado. Para perfilar en local:
 

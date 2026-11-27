@@ -23,6 +23,17 @@ describe('Footer.vue', () => {
     expect(wrapper.find('[title="Plin"]').exists()).toBe(true)
   })
 
+  it('sirve los cinco logos como archivos del mismo tamaño, no SVG en línea', () => {
+    const wrapper = mount(Footer)
+    const logos = wrapper.findAll('img[src^="/images/pagos/"]')
+
+    expect(logos.map((l) => l.attributes('alt'))).toEqual(['Visa', 'Mastercard', 'American Express', 'Yape', 'Plin'])
+    for (const logo of logos) {
+      expect(logo.attributes('width')).toBe('48')
+      expect(logo.attributes('height')).toBe('48')
+    }
+  })
+
   it('renderiza el enlace al Libro de Reclamaciones con su ruta correcta', () => {
     const wrapper = mount(Footer)
 

@@ -1,19 +1,19 @@
 # Informe Final · Sección V: Operación del Sistema (S18)
 
 **Proyecto:** Botica San Juan · Sistema Web de Gestión Farmacéutica, POS Offline y Portal Cliente  
-**Estado del proyecto:** Finalizado en **v0.8.0**  
+**Estado del proyecto:** Finalizado en **v0.9.0**  
 **Alcance de este documento:** Puntos **28 al 34** del Informe Final (Sección V · Operación del Sistema). El entregable previo **APF3** (`docs/INFORME-APF3.md` y su `.docx`) permanece intacto como registro histórico.
 
 ---
 
 ## 28. Correcciones al APF3
 
-La **Tabla 64** de `docs/INFORME-APF3.md` dejó cuatro observaciones abiertas (`O-B1` a `O-B4`). A continuación se detalla la corrección aplicada y su estado al cierre en **v0.8.0**:
+La **Tabla 64** de `docs/INFORME-APF3.md` dejó cuatro observaciones abiertas (`O-B1` a `O-B4`). A continuación se detalla la corrección aplicada y su estado al cierre en **v0.9.0**:
 
 | N.º | Observación original (Tabla 64 del APF3) | Corrección aplicada | Estado actual | Evidencia |
 |---|---|---|---|---|
-| **O-B1** | Las Figuras 43 y C.3 muestran ejecuciones de la suite con 98/246 y 139/421, cifras ya superadas. | Se re-ejecutaron las suites completas sobre PostgreSQL 16 y Vitest para reflejar el corte final (**500** pruebas de backend, **209** de frontend, **709** en total). | **Cerrada** (actualizada al corte v0.8.0) | `docs/evidencias/cortes/CRT-35-suite-440.png`, `CRT-37-suite-frontend-196.png`, informe v0.5.0 y corte final **709** |
-| **O-B2** | La Figura 11 rotula «26 migraciones versionadas» dentro del PNG; en APF3 eran 46/49. | Se creó `docs/scripts/generar-figura11.py` para contar dinámicamente los archivos de migración y regenerar el diagrama sin cifras fijas. | **Cerrada** | `docs/evidencias/figura11/LEEME.md` (54 migraciones al momento del script; **61** al cierre) |
+| **O-B1** | Las Figuras 43 y C.3 muestran ejecuciones de la suite con 98/246 y 139/421, cifras ya superadas. | Se re-ejecutaron las suites completas sobre PostgreSQL 16 y Vitest hasta alcanzar el corte vigente (**526** pruebas de backend y **1 764** aserciones, **217** de frontend, **743** en total). | **Cerrada** (actualizada al corte v0.9.0) | `docs/evidencias/cortes/CRT-43-suite-500.png`, `CRT-44-suite-frontend-209.png` (corte previo) y recuento final **743** (24-11-2026) |
+| **O-B2** | La Figura 11 rotula «26 migraciones versionadas» dentro del PNG; en APF3 eran 46/49. | Se creó `docs/scripts/generar-figura11.py` para contar dinámicamente los archivos de migración y regenerar el diagrama sin cifras fijas. | **Cerrada** | `docs/evidencias/figura11/LEEME.md` (54 migraciones al momento del script; **62** al cierre) |
 | **O-B3** | Las cifras del portal público («más de 10 años», «8k clientes») no coinciden entre Inicio, Sobre Nosotros y el pie. | Se homologó el texto por decisión de negocio en las cuatro vistas públicas («+800 productos farmacéuticos», «Más de 8 años de servicio en San Juan de Lurigancho», «Atención directa en nuestro local principal y delivery local»). | **Cerrada** | `Hero.vue`, `Stats.vue`, `AboutContent.vue`, `Footer.vue` |
 | **O-B4** | Los 884 productos del catálogo apuntan a `images/default_image.png`, archivo que respondía 404. | Se verificó el archivo servido en producción y se ejecutaron pasadas de extracción/emparejamiento de fotografías reales. | **Cerrada** | `docs/evidencias/produccion/INFORME-QA-PROD.md` (`200`, `image/png`, 2 255 B, 512×512; **194** productos con foto real en producción) |
 
@@ -42,17 +42,17 @@ flowchart LR
 ```
 
 - **Monitoreo activo (`botica-san-juan-backend/routes/api.php`):** `GET /api/salud` (público, protegido con `throttle:api`) verifica la conexión PDO a PostgreSQL y responde `200` con `{"ok": true, "base": true, "hora": "..."}` o `503` si falla la base. Se complementa con `GET /api/health/db` y `infra/monitoring/healthcheck_monitor.ps1`.
-- **Monitoreo pasivo:** Bitácora persistente en `eventos_operacion` consultable en `/admin/eventos`, middleware `AuditCriticalChanges` (`app/Http/Middleware/AuditCriticalChanges.php`) para mutaciones críticas, y trazas/errores en Sentry y PostHog cuando existen claves configuradas (`docs/OBSERVABILIDAD.md`).
+- **Monitoreo pasivo:** Bitácora persistente en `eventos_operacion` consultable en `/admin/eventos`, middleware `AuditCriticalChanges` (`app/Http/Middleware/AuditCriticalChanges.php`) para mutaciones críticas, y trazas/errores en Sentry y PostHog cuando existen claves configuradas, como ocurre en producción desde el 24-11-2026 (`docs/OBSERVABILIDAD.md`).
 
 ### 29.2. Matriz de indicadores y umbrales
 
-| # | Indicador | Cómo se mide | Preventivo | Crítico | Acción operativa | Estado real (v0.8.0) |
+| # | Indicador | Cómo se mide | Preventivo | Crítico | Acción operativa | Estado real (v0.9.0) |
 |---|---|---|---|---|---|---|
-| **M1** | Disponibilidad del servicio | Sondeo `GET /api/salud` y `GET /api/health/db` cada 5 min (`200` con `ok:true`), franja 08:00–22:00 | < 99,5 % en 7 días | 2 sondeos seguidos fallidos (10 min) o < 99 % mensual | Revisar Render y Neon; abrir incidente P1 | **Script existente, sin programar** (ver 29.4) |
+| **M1** | Disponibilidad del servicio | Sondeo `GET /api/salud` y `GET /api/health/db` cada 5 min (`200` con `ok:true`), franja 08:00–22:00 | < 99,5 % en 7 días | 2 sondeos seguidos fallidos (10 min) o < 99 % mensual | Revisar Render y Neon; abrir incidente P1 | **Activo desde el 24-11-2026** con Better Stack, cada 3 min (ver 29.6); sin serie para los 7 días ni el mes |
 | **M2** | Latencia de la API (p95) | Percentil 95 de rutas de lectura, ventana 15 min (Sentry) | p95 > 800 ms (15 min) | p95 > 1 500 ms (15 min) | Identificar ruta por traza y revisar índices | **Instrumentado sin umbral configurado** |
-| **M3** | Latencia de búsqueda | p95 de `/api/productos?buscar=` y `/api/catalogo?buscar=` bajo carga | p95 > 1 000 ms | p95 > 2 000 ms | Detener promesa de «< 2 s» hasta optimizar | **Sin medir** (prueba de carga pendiente) |
+| **M3** | Latencia de búsqueda | p95 de `/api/productos?buscar=` y `/api/catalogo?buscar=` bajo carga | p95 > 1 000 ms | p95 > 2 000 ms | Detener promesa de «< 2 s» hasta optimizar | **Trabajo futuro** (sin prueba de carga p95) |
 | **M4** | Tasa de error servidor (5xx) | `5xx ÷ total`, ventana 15 min (Sentry / Render) | > 0,5 % en 15 min | > 1 % en 15 min o **cualquier 5xx en catálogo público** | Incidente P2 mínimo | **Instrumentado sin umbral configurado** |
-| **M5** | Errores cliente por versión | Eventos Sentry en frontend por *release*, primeras 24 h | > 5 eventos nuevos | Error afecta > 1 % de sesiones | Revertir despliegue en Vercel | **Activo** (cuando hay `VITE_SENTRY_DSN`) |
+| **M5** | Errores cliente por versión | Eventos Sentry en frontend por *release*, primeras 24 h | > 5 eventos nuevos | Error afecta > 1 % de sesiones | Revertir despliegue en Vercel | **Activo desde el 24-11-2026**: Sentry recibe errores; sin regla de alerta por umbral ni *release* asignado |
 | **M6** | Coherencia del despliegue | Tras publicar: `/api/catalogo` → 200, `/docs/v1` → 200, `/api/productos/destacados` → 404 | Respuesta distinta a la esperada | Ídem + `update_failed` en Render | Re-desplegar; no dar por bueno el *release* | **Manual** (originado tras INC-01) |
 | **M7** | Memoria del proceso | Métrica instancia Render, media 15 min | > 70 % límite plan | > 90 % (15 min) o OOM | Perfilar petición causante | **Sin medir** |
 | **M8** | Consultas SQL por petición | Presupuesto en rutas de listado | > 15 consultas | > 40 consultas o patrón N+1 | Aplicar carga anticipada (`with()`) | **Sin medir** |
@@ -72,7 +72,7 @@ flowchart LR
 
 ### 29.4. Impedimento del 99 % de disponibilidad
 
-En la capa gratuita de Render la instancia se suspende tras **15 minutos sin tráfico**, con ~50 s de arranque en frío. Un sondeo cada 5 minutos mantendría artificialmente despierta la instancia, fabricando disponibilidad en lugar de medirla. Por ello, el compromiso del **99 % (RNF05)** se declara **no verificable en la infraestructura actual** y sujeto a migración a un plan de pago.
+En la capa gratuita de Render la instancia se suspende tras **15 minutos sin tráfico**, con ~50 s de arranque en frío. Un sondeo cada 5 minutos mantendría artificialmente despierta la instancia, fabricando disponibilidad en lugar de medirla. El monitor activado el 24-11-2026 sondea cada 3 minutos y produce justo ese efecto, además de consumir las horas gratuitas: sirve para avisar de una caída, no para acreditar disponibilidad. Por ello, el compromiso del **99 % (RNF05)** se declara **no verificable en la infraestructura actual** y sujeto a migración a un plan de pago.
 
 ### 29.5. Estados de alerta y recuperación
 
@@ -83,7 +83,17 @@ En la capa gratuita de Render la instancia se suspende tras **15 minutos sin tr�
 | **ERROR** | Cruza el crítico | 2 sondeos seguidos fallidos (10 min) | > 50 en 24 h o 5 del mismo código en 1 h | Abrir incidente y priorizar |
 | **RECOVERY** | Vuelve al rango | Sondeo en `200` verificado | Sin eventos nuevos del código afectado | Verificar, cerrar y anotar la causa |
 
-> **Nota:** `RECOVERY` es un estado del procedimiento, no un nivel de `EventoOperacion`: la bitácora guarda `info`, `warning` y `error`. El sondeo automático no está programado, así que hoy la transición la comprueba una persona.
+> **Nota:** `RECOVERY` es un estado del procedimiento, no un nivel de `EventoOperacion`: la bitácora guarda `info`, `warning` y `error`. Desde el 24-11-2026 Better Stack sondea el servicio y avisa por correo; cerrar el incidente y anotar la causa sigue correspondiendo a una persona.
+
+### 29.6. Monitoreo externo en producción (Better Stack)
+
+El 24 de noviembre de 2026 se creó el monitor «Botica San Juan API - salud» sobre `https://botica-san-juan-api.onrender.com/api/salud`. Exige código `200`, sondea cada 3 minutos desde cuatro regiones, espera hasta 60 segundos y avisa por correo. La captura lo muestra en estado `Up`, sin incidentes, a los 11 minutos de activarlo: acredita que el monitor funciona, no una disponibilidad histórica.
+
+La página pública «Botica San Juan — Estado del Servicio» comunica ese estado a clientes y responsables, sin iniciar sesión: https://botica-san-juan.betteruptime.com. Solo refleja `/api/salud`; no cubre el portal de Vercel ni SUNAT. El «100% uptime» de la captura corresponde a poco más de una hora de sondeos: las barras grises son días sin monitorear, y no acredita disponibilidad.
+
+![Monitor de Better Stack en estado Up](../evidencias/informe-final/24-betterstack-uptime-prod.png)
+
+![Página pública de estado](../evidencias/informe-final/27-betterstack-status-page.png)
 
 ![Estado de salud del servicio](../evidencias/informe-final/EF-01-salud.png)
 
@@ -129,6 +139,20 @@ El registro de la API de Resend corrobora esos cuatro envíos desde el lado del 
 
 ![Registro de llamadas a la API de Resend](../evidencias/informe-final/21-resend-api-logs-200.png)
 
+### 30.3. Errores y analítica en producción (Sentry y PostHog)
+
+El 24 de noviembre de 2026 se activaron ambos servicios en producción y se comprobó que reciben eventos reales:
+
+- **Sentry:** un error provocado a propósito en el portal llegó al proyecto `botica-frontend`, y dos excepciones de la API al proyecto `botica-backend`. Estas dos son un defecto real hallado al probar: un identificador fuera del rango de `bigint` en `/api/catalogo/{producto}` y `/api/productos/{producto}` responde `500` en lugar de `404`. Queda abierto.
+- **Aviso por correo:** la regla de Sentry para incidencias de prioridad alta avisó del error del portal sin intervención. El evento ocurrió a las 21:25:55 del 24-11-2026 (hora de Lima) y Gmail recibió el correo a las 21:26:22: **27 segundos** entre la detección y la notificación. Es una sola medición con un error provocado; no acredita un tiempo garantizado.
+- **PostHog:** siete vistas de página de la navegación de prueba, con identificador anónimo y sin términos de búsqueda en la dirección. En el proyecto se apagaron la autocaptura, los mapas de calor y la grabación de sesiones, y se activó el descarte de la dirección IP, igual que en los dos proyectos de Sentry.
+
+![Incidencias recibidas en Sentry](../evidencias/informe-final/25-sentry-observabilidad-prod.png)
+
+![Alerta automática de Sentry recibida por correo](../evidencias/informe-final/28-sentry-alerta-correo-prod.png)
+
+![Eventos recibidos en PostHog](../evidencias/informe-final/26-posthog-eventos-prod.png)
+
 ![Bitácora de eventos de operación](../evidencias/informe-final/EF-02-bitacora.png)
 
 ---
@@ -160,7 +184,7 @@ flowchart TB
 
 ### 31.3. Fichas de incidentes reales registrados en el repositorio
 
-Además de los incidentes previos **INC-01** (P1, fallo silencioso de `config:cache` por closure en `config/sentry.php`, PR #36) e **INC-02** (P2, `500` en `/api/productos/destacados`, PR #32) documentados en `docs/GESTION-DE-INCIDENTES.md`, durante el cierre hacia **v0.8.0** se atendieron y cerraron los siguientes tres incidentes:
+Además de los incidentes previos **INC-01** (P1, fallo silencioso de `config:cache` por closure en `config/sentry.php`, PR #36) e **INC-02** (P2, `500` en `/api/productos/destacados`, PR #32) documentados en `docs/GESTION-DE-INCIDENTES.md`, durante el cierre hacia la versión final **v0.9.0** (en el ciclo de `0.8.0`) se atendieron y cerraron los siguientes tres incidentes:
 
 #### Ficha A · Bloqueo CORS en checkout de pagos (P1)
 
@@ -193,9 +217,9 @@ Además de los incidentes previos **INC-01** (P1, fallo silencioso de `config:ca
 | **Prioridad** | **P3** (defecto de documentación técnica y contrato OpenAPI; no detiene operación comercial) |
 | **Fecha de resolución** | 20 de noviembre de 2026 (commit `81f489f`, PR **#63** merge `b3f391b` y PR **#64** merge `23b9bfc`) |
 | **Tiempo de detección / atención** | No consta |
-| **Síntoma** | Scramble reportaba errores/advertencias (`VR002`/`VR003`) al analizar rutas de validación dinámica y la especificación publicada mostraba versión `0.5.0` en lugar de `0.8.0`. |
+| **Síntoma** | Scramble reportaba errores/advertencias (`VR002`/`VR003`) al analizar rutas de validación dinámica y la especificación publicada mostraba versión `0.5.0` en lugar de la versión de cierre (`0.8.0`, luego `0.9.0`). |
 | **Causa raíz** | Reglas de validación dependientes del estado de sesión o tipo de comprobante en `PedidoController.php` y referencias a constantes privadas/dinámicas en `EventoOperacionController.php`, `PerfilController.php` y `RecetaController.php`, además de `API_VERSION` en `0.5.0` en `config/scramble.php` y `.env.example`. |
-| **Resolución y verificación** | En `PedidoController.php` se mantuvo la validación real con `Validator::make(...)` y se añadió el subconjunto literal documentable para Scramble sin cambiar el comportamiento; se ajustaron literales/visibilidad en los controladores afectados y se actualizó la versión a `0.8.0`. |
+| **Resolución y verificación** | En `PedidoController.php` se mantuvo la validación real con `Validator::make(...)` y se añadió el subconjunto literal documentable para Scramble sin cambiar el comportamiento; se ajustaron literales/visibilidad en los controladores afectados y se actualizó la versión del contrato (`0.9.0` al cierre). |
 | **Estado** | **Cerrado** |
 
 ---
@@ -213,14 +237,14 @@ Además de los incidentes previos **INC-01** (P1, fallo silencioso de `config:ca
 | Tiempo de respaldo / restauración inicial | 0,19 s / 0,73 s |
 | Recuperación tras daño simulado (5 → 0 → 5 filas DIGEMID) | **0,74 s** (5 de 5 recuperadas; 884 productos, 50 pedidos y 9 usuarios intactos) |
 | **RTO medido vs. comprometido** | **0,93 s** vs. 3 600 s (60 min) — **Cumple** (condicionado al tamaño de 0,16 MB en entorno local) |
-| **RPO de 24 horas** | **Pendiente de automatización** (los scripts existen, pero la tarea programada diaria no está activa) |
+| **RPO de 24 horas** | **Trabajo futuro** (los scripts existen, pero la tarea programada diaria no está activa) |
 
 ### 32.2. Contingencia POS Offline (`docs/ARQUITECTURA-OFFLINE.md`)
 
 - **Persistencia local:** Capa abstracta (`src/offline/`) con driver IndexedDB en navegador (y diseño preparado para SQLite en Tauri) más cola y bitácora local (`src/offline/bitacora.ts`).
 - **Idempotencia:** Cada venta sin conexión genera un **UUID v4** (`pedidos.uuid_local` con índice `UNIQUE`) y una nota de contingencia interna (`NV-*`, que no sustituye al comprobante SUNAT).
 - **Sincronización:** `POST /api/v1/ventas/sincronizar` procesa lotes de hasta **50 ventas**, cada una en su propia transacción (`creada`, `duplicada` tratada como éxito, o `rechazada` sin arrastrar al lote). Umbrales de atraso en cola: **24 h** (`warning`) y **48 h** (`error`).
-- **Pendiente operativo detectado en ensayo:** La búsqueda en caja sigue consultando la API si no se conecta al catálogo maestro descargado localmente (`docs/ARQUITECTURA-OFFLINE.md`, sección 11).
+- **Limitación operativa detectada en ensayo (trabajo futuro):** La búsqueda en caja sigue consultando la API si no se conecta al catálogo maestro descargado localmente (`docs/ARQUITECTURA-OFFLINE.md`, sección 11).
 
 ### 32.3. Límite del disco efímero de Render
 
@@ -248,7 +272,7 @@ Los límites globales comprometidos son **RTO ≤ 60 min** y **RPO ≤ 24 h** (`
 | Portal del cliente (Vercel) | Sin pedidos web | P2 | 60 min | No aplica | Atención en mostrador y WhatsApp |
 | Comprobantes electrónicos | Emisión diferida | P2 | 24 h | 24 h | Quedan en `pendiente` y se reenvían |
 | Correo transaccional (Resend) | Sin avisos ni recuperación de clave | P3 | 24 h | No aplica | La operación continúa; queda `CORREO_FALLIDO` |
-| Archivos subidos (recetas y fotos) | Se pierden al redesplegar | P2 | No cubierto | No cubierto | Pendiente: almacenamiento de objetos |
+| Archivos subidos (recetas y fotos) | Se pierden al redesplegar | P2 | No cubierto | No cubierto | Trabajo futuro: almacenamiento de objetos |
 
 ### 32.6. Componentes del plan de recuperación (DRP)
 
@@ -258,7 +282,7 @@ Los límites globales comprometidos son **RTO ≤ 60 min** y **RPO ≤ 24 h** (`
 | Roles | Administrador técnico, soporte de operaciones y responsable funcional | Definido |
 | Inventario | Vercel, Render, Neon, repositorio y scripts de `infra/` | Definido |
 | Procedimiento | Confirmar, registrar, contener, restaurar en ensayo, restaurar, verificar y cerrar | Definido |
-| Comunicación | Aviso al responsable de la farmacia y paso a contingencia | Definido; sin ensayo registrado |
+| Comunicación | Aviso al responsable de la farmacia y paso a contingencia; página pública de estado (https://botica-san-juan.betteruptime.com) | Definido; página publicada, sin ensayo registrado |
 | Pruebas | Simulacro de restauración sobre PostgreSQL 16 | Ejecutado (`CON-01`, `CON-03`) |
 | Retorno | `/api/salud` en `200`, conteos verificados y cola del POS sincronizada | Definido |
 
@@ -276,18 +300,24 @@ La retención por omisión de `backup_postgres.ps1` es de **14 días**. La regla
 
 ## 33. Resultados finales y matriz de requerimientos
 
-### 33.1. Cierre cuantitativo (v0.8.0)
+### 33.1. Cierre cuantitativo (v0.9.0)
 
 | Dimensión | Resultado |
 |---|---|
-| Pruebas de backend | **500** |
-| Pruebas de frontend | **209** |
-| Total de pruebas automatizadas | **709** |
-| Migraciones versionadas y reversibles | **61** |
-| Catálogo en producción | **884** productos (**194** con fotografía real servida con `200`) |
-| Contrato API pública | **OpenAPI 0.8.0** (OpenAPI 3.1, navegable en Scalar y Stoplight) |
+| Pruebas de backend | **526** (1 764 aserciones) |
+| Pruebas de frontend | **217** |
+| Total de pruebas automatizadas | **743** |
+| Migraciones versionadas y reversibles | **62** |
+| Catálogo en producción | **884** productos (**194** con fotografía real servida con `200`; 195 en base local) |
+| Contrato API pública | **OpenAPI 0.9.0** (OpenAPI 3.1, navegable en Scalar y Stoplight) |
 
-Actualización posterior, v0.9.0 (24 de noviembre de 2026): **526** pruebas de backend y **217** de frontend (**743** en total), **62** migraciones y contrato **OpenAPI 0.9.0**. Añade foto de perfil persistida en la base, correos en cola con reintentos y modos de envío separados para SUNAT. Las figuras de este capítulo corresponden al corte v0.8.0.
+Corte vigente medido el **24 de noviembre de 2026** (**v0.9.0**): incorpora foto de perfil persistida en la base de datos, correos en cola con reintentos y modos de envío separados para SUNAT. Las capturas generales del módulo (`EF-01` a `EF-11`) se tomaron el 23 de noviembre sobre el entorno operativo previo al corte final; las de observabilidad y perfil en producción (`22` a `28`) corresponden al 24 de noviembre de 2026.
+
+La foto de perfil se verificó en producción con una sesión real de Google: se muestra la foto de la cuenta sin errores en la consola, una foto propia la sustituye y sigue ahí tras recargar, y «Volver a mi foto de Google» restaura la anterior.
+
+![Foto de Google en producción](../evidencias/informe-final/22-avatar-google-oauth-prod.png)
+
+![Foto propia tras recargar](../evidencias/informe-final/23-avatar-persistente-prod.png)
 
 ### 33.2. Matriz de requerimientos funcionales (Tabla 7 del APF1)
 
@@ -317,18 +347,18 @@ Actualización posterior, v0.9.0 (24 de noviembre de 2026): **526** pruebas de b
 |---|---|---|---|
 | **RNF01** | Autorización administrativa (prueba automatizada) | **Verificado** | `AutorizacionRolTest`, `BitacoraDeOperacionTest` (`401` / `403`). |
 | **RNF02** | Cifrado bcrypt y bloqueo tras 5 intentos fallidos | **Parcial** | bcrypt verificado. En lugar de bloqueo de cuenta, usa `RateLimiter::for('login')` (5 intentos/min por IP+DNI) para evitar denegación de servicio a usuarios legítimos. |
-| **RNF03** | Búsqueda < 2 s con hasta 10 000 registros (prueba de carga p95) | **Pendiente** | No se ejecutó prueba de carga p95 y el catálogo real tiene 884 productos. |
+| **RNF03** | Búsqueda < 2 s con hasta 10 000 registros (prueba de carga p95) | **Trabajo futuro** | No se ejecutó prueba de carga p95 y el catálogo real tiene 884 productos. |
 | **RNF04** | Interfaces adaptables (matriz de compatibilidad) | **Parcial** | Verificado en 1280×720 y 1440×950 (`EVT-01`–`EVT-03`), sin matriz formal de navegadores/resoluciones. |
-| **RNF05** | Disponibilidad ≥ 99 % (monitoreo cada 5 min) | **Pendiente** | Script existe sin programar; no verificable en capa gratuita de Render que duerme a los 15 min. |
+| **RNF05** | Disponibilidad ≥ 99 % (monitoreo cada 5 min) | **Trabajo futuro** (no verificable en capa gratuita) | Script existe sin programar; no verificable en capa gratuita de Render que duerme a los 15 min. |
 | **RNF06** | Atomicidad en operaciones de inventario | **Implementado** (verificación parcial/inesperada) | `DB::transaction` con `lockForUpdate`; las llaves foráneas `RESTRICT` frenaron el borrado en el simulacro de PostgreSQL. |
-| **RNF07** | Análisis estático en CI y migraciones versionadas | **Parcial** | 61 migraciones reversibles, pruebas, `vue-tsc` y escáner de secretos en CI; faltan Pint/PHPStan y ESLint en pipeline. |
-| **RNF08** | Respaldo diario (RPO 24 h / RTO 60 min) y simulacro | **Parcial** | Simulacro en PostgreSQL 16 ejecutado con **RTO = 0,93 s** (`CON-01`, `CON-03`); falta activar la programación diaria (RPO). |
+| **RNF07** | Análisis estático en CI y migraciones versionadas | **Parcial** | 62 migraciones reversibles, pruebas, `vue-tsc` y escáner de secretos en CI; Pint/PHPStan y ESLint en pipeline quedan como trabajo futuro. |
+| **RNF08** | Respaldo diario (RPO 24 h / RTO 60 min) y simulacro | **Parcial** | Simulacro en PostgreSQL 16 ejecutado con **RTO = 0,93 s** (`CON-01`, `CON-03`); activar la programación diaria (RPO) queda como trabajo futuro. |
 
 ### 33.4. Limitación declarada en correos transaccionales
 
 El 23 de noviembre de 2026 se probaron en producción registro, recuperación y compra. Resend informó `delivered` en los cuatro mensajes. Gmail dejó **bienvenida** y **pedido registrado** en Recibidos y mandó a **Spam** la **confirmación** y la **recuperación**. Sin dominio verificado, el remitente de pruebas solo entrega al titular de la cuenta; verificar un dominio propio (SPF/DKIM) es requisito para atender a clientes. La bitácora de producción registró cuatro `CORREO_ENVIADO` y ningún error. El remitente fue `onboarding@resend.dev`, compartido por Resend para pruebas.
 
-### 33.5. Evidencias del sistema funcionando (corte v0.8.0)
+### 33.5. Evidencias del sistema funcionando
 
 | Código | Descripción | Referencia |
 |---|---|---|
@@ -342,7 +372,7 @@ El 23 de noviembre de 2026 se probaron en producción registro, recuperación y 
 | `EF-08` | Checkout del portal cliente | ![Checkout](../evidencias/informe-final/EF-08-checkout.png) |
 | `EF-09` | Punto de venta (POS) | ![POS](../evidencias/informe-final/EF-09-pos.png) |
 | `EF-10` | Asistente importador de Excel/CSV | ![Asistente importador](../evidencias/informe-final/EF-10-asistente-importador.png) |
-| `EF-11` | Documentación OpenAPI 0.8.0 | ![OpenAPI 0.8.0](../evidencias/informe-final/EF-11-openapi.png) |
+| `EF-11` | Documentación OpenAPI (captura previa; contrato vigente 0.9.0) | ![OpenAPI](../evidencias/informe-final/EF-11-openapi.png) |
 
 ---
 
@@ -364,3 +394,13 @@ El 23 de noviembre de 2026 se probaron en producción registro, recuperación y 
 | **R3** | Migrar los archivos subidos (`storage/app`) a almacenamiento de objetos (S3 o R2) y evaluar plan de pago en Render si se requiere cumplir RNF05 (≥ 99 %). | Pérdida por disco efímero y arranque en frío (~50 s) |
 | **R4** | Verificar un dominio propio en Resend (registros SPF/DKIM) y cambiar `MAIL_FROM_ADDRESS` antes de habilitar correos transaccionales a clientes reales. | Limitación de entrega exclusiva al titular en Resend |
 | **R5** | Incorporar Pint/PHPStan y ESLint al pipeline CI, ejecutar prueba de carga p95 sobre búsqueda (RNF03) y activar MFA en la cuenta administrativa de producción (RF01). | Brechas parciales en RNF07, RNF03 y RF01 |
+
+### 34.3. Transición hacia SUNAT productiva
+
+Hoy `SUNAT_MODE=simulado`: ningún comprobante tiene efecto tributario. El cambio a `beta` y después a `produccion` se hace en Render con variables de entorno, sin modificar el selector de modos del código (`SunatClient`):
+
+- **Conexión:** `SUNAT_MODE`, `SUNAT_BASE_URL` y `SUNAT_TOKEN`, que apuntan al microservicio OSE-Greenter. `produccion` exige además `APP_ENV=production` y HTTPS.
+- **Usuario Secundario SOL** dedicado, `<RUC>BOTICAWEB`: separa este sistema de la clave principal del contribuyente y puede revocarse por separado.
+- **Certificado Digital Tributario (`.pfx`):** según el establecimiento, ya está operativo; se reutilizaría para firmar. No se ha cargado ni verificado en este sistema. El certificado y la clave SOL van como secretos en el microservicio que firma, nunca en el repositorio.
+
+Las variables no bastan por sí solas. Antes de emitir debe estar desplegado ese microservicio, que no forma parte del repositorio, con la generación del XML UBL 2.1 y la firma; y la carga que envía la API, hoy limitada a los datos de cabecera, debe incluir el detalle de líneas e impuestos. La transición se da por cerrada cuando SUNAT beta devuelva un CDR aceptado.

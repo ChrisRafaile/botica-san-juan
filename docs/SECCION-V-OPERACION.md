@@ -49,8 +49,8 @@ detectar: la Tabla 64 del APF3 ya está entregada y calificada.
 
 | N.º | Qué se hizo | Resultado verificado | Evidencia |
 |---|---|---|---|
-| **O-B1** | Se volvió a ejecutar la suite completa y se recompusieron las figuras desde la salida literal | **379** pruebas de backend y **116** de frontend al cerrar la observación (`CRT-11` a `CRT-17`). El corte vigente, medido de nuevo el 16-11-2026 tras incorporar la arquitectura SOA, la concurrencia y la cancelación de pedidos (v0.5.0), es de **462** de backend (1 446 aserciones, 40 clases) y **200** de frontend (31 archivos): 662 en total | `CRT-32` a `CRT-38`; Figuras 78 y 79 |
-| **O-B2** | En vez de retocar el PNG se escribió `docs/scripts/generar-figura11.py`, que **cuenta** los archivos de migración | **54** migraciones, contadas por el script. La cifra no puede volver a quedarse vieja sin que alguien ejecute el script y lo vea | `docs/evidencias/figura11/` |
+| **O-B1** | Se volvió a ejecutar la suite completa y se recompusieron las figuras desde la salida literal | Corte vigente (v0.9.0, 24-11-2026): **526** pruebas de backend (**1 764** aserciones) y **217** de frontend (**743** en total). Las capturas de respaldo más recientes en `cortes/` son `CRT-43` (500) y `CRT-44` (209) | `CRT-39` a `CRT-44`; Figuras 78 y 79 |
+| **O-B2** | En vez de retocar el PNG se escribió `docs/scripts/generar-figura11.py`, que **cuenta** los archivos de migración | **62** migraciones en el repositorio al cierre de la v0.9.0 (54 al momento inicial del script). La cifra se calcula desde los archivos reales | `docs/evidencias/figura11/` |
 | **O-B3** | Decisión de negocio tomada y aplicada a las cuatro vistas públicas | Homologado: «+800 productos farmacéuticos», «Más de 8 años de servicio en San Juan de Lurigancho», «Atención directa en nuestro local principal y delivery local» | `Hero.vue`, `Stats.vue`, `AboutContent.vue`, `Footer.vue` |
 | **O-B4** | Se comprobó el archivo real servido en producción, en lugar de suponer la causa | `200`, `image/png`, **2 255 B**, **512×512**, decodifica correctamente | `M02`, `M03` |
 
@@ -575,12 +575,12 @@ está verificado, por correcto que parezca el código.
 |---|---|---|---|
 | **RNF01** | Prueba automatizada de autorización | **Verificado** | `AutorizacionRolTest`; `BitacoraDeOperacionTest` añade el caso del visor |
 | **RNF02** | Inspección de la base y prueba de límite | **Parcial** | bcrypt verificado. El bloqueo **no es de cuenta**: es un límite de 5 intentos por minuto por IP y DNI. Frena la fuerza bruta, pero no bloquea la cuenta como prometía el RNF |
-| **RNF03** | Prueba de carga, percentil 95 | **Pendiente** | La prueba de carga **nunca se ejecutó**, y el catálogo real tiene 884 productos, no 10 000 |
-| **RNF04** | Matriz de pruebas de compatibilidad | **Parcial** | Diseño adaptable verificado a 1280×720 y 1440×950. No existe la **matriz** que pedía la verificación |
-| **RNF05** | Monitoreo cada cinco minutos | **Pendiente** | El script existe sin programar, y el 99 % no es verificable en esta infraestructura (apartado 29.5) |
+| **RNF03** | Prueba de carga, percentil 95 | **Trabajo futuro** | La prueba de carga no se ejecutó en este ciclo, y el catálogo real tiene 884 productos, no 10 000 |
+| **RNF04** | Matriz de pruebas de compatibilidad | **Parcial** | Diseño adaptable verificado a 1280×720 y 1440×950. La **matriz** formal queda como trabajo futuro |
+| **RNF05** | Monitoreo cada cinco minutos | **Trabajo futuro** (no verificable en capa gratuita) | El script existe sin programar (Better Stack sondea cada 3 min desde el 24-11-2026), y el 99 % no es verificable en esta infraestructura (apartado 29.5) |
 | **RNF06** | Prueba de interrupción forzada | **Verificado por vía inesperada** | `DB::transaction` con `lockForUpdate`. **El simulacro de restauración lo demostró**: la llave foránea impidió borrar un producto con ventas (apartado 32.4) |
-| **RNF07** | Ejecución del pipeline de CI | **Parcial** | 59 migraciones versionadas y reversibles. El pipeline corre pruebas, `vue-tsc` y un escáner de secretos; **no ejecuta Pint, PHPStan ni ESLint**. `CI-01`–`CI-03` |
-| **RNF08** | Simulacro de restauración | **Parcial** | **El simulacro se ejecutó** y recuperó lo borrado; RTO medido 0,93 s (`CON-01`, `CON-03`). Sigue pendiente la **programación diaria** del respaldo |
+| **RNF07** | Ejecución del pipeline de CI | **Parcial** | 62 migraciones versionadas y reversibles. El pipeline corre pruebas, `vue-tsc` y un escáner de secretos; Pint, PHPStan y ESLint quedan como trabajo futuro. `CI-01`–`CI-03` |
+| **RNF08** | Simulacro de restauración | **Parcial** | **El simulacro se ejecutó** y recuperó lo borrado; RTO medido 0,93 s (`CON-01`, `CON-03`). La **programación diaria** del respaldo queda como trabajo futuro |
 
 *Nota.* Elaboración propia. **2 verificados, 4 parciales, 2 pendientes.**
 
@@ -608,17 +608,17 @@ razonadas que como incumplimientos, siempre que la matriz las muestre.
 
 | Dimensión | Valor | Evidencia |
 |---|---|---|
-| Pruebas de backend | **462** (1 446 aserciones, 40 clases) | `docs/evidencias/soa-concurrencia-v050/INFORME-QA-SOA.md` |
-| Pruebas de frontend | **200** (31 archivos) | `docs/evidencias/soa-concurrencia-v050/INFORME-QA-SOA.md` |
-| Total de pruebas automatizadas | **662** | `docs/evidencias/soa-concurrencia-v050/INFORME-QA-SOA.md` |
-| Migraciones versionadas y reversibles | **59** | `docs/evidencias/figura11/` |
+| Pruebas de backend | **526** (1 764 aserciones) | Corte vigente v0.9.0 (24-11-2026); capturas previas en `CRT-43` (500) |
+| Pruebas de frontend | **217** | Corte vigente v0.9.0 (24-11-2026); capturas previas en `CRT-44` (209) |
+| Total de pruebas automatizadas | **743** | Corte vigente v0.9.0 (24-11-2026) |
+| Migraciones versionadas y reversibles | **62** | `docs/evidencias/figura11/` |
 | Productos en el catálogo de producción | **884** | `CON-01` |
-| Productos con fotografía real en producción | **194**, las 194 servidas con `200` | `docs/evidencias/produccion/INFORME-QA-PROD.md` |
+| Productos con fotografía real en producción | **194**, las 194 servidas con `200` (195 en base local) | `docs/evidencias/produccion/INFORME-QA-PROD.md` |
 | Archivos de evidencia | **156** en 19 carpetas | `docs/evidencias/INDICE.md` |
 | Entornos en producción | API y portal desplegados; documentación pública | `DEP-01`, `DEP-02`, `SOA-06`, `SOA-07` |
-| Contrato público de la API | OpenAPI **3.1**, navegable con Scalar y Stoplight | `SOA-10`, `SOA-11` |
+| Contrato público de la API | OpenAPI **0.9.0** (**3.1**), navegable con Scalar y Stoplight | `SOA-10`, `SOA-11` |
 
-*Nota.* Elaboración propia. Las Figuras 78 y 79 conservan las capturas del corte del 15-11-2026 (440 y 196 pruebas); el corte del 16-11-2026 (462 y 200) consta en el informe de evidencias de la v0.5.0.
+*Nota.* Elaboración propia. Las Figuras 78 y 79 conservan las capturas del corte previo; el corte vigente (24-11-2026, v0.9.0) es de **526** pruebas de backend (1 764 aserciones) y **217** de frontend (**743** en total).
 
 **Figura 78.** Suite de backend: 440 pruebas y 1 325 aserciones sobre
 PostgreSQL 16.
