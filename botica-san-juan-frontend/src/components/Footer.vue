@@ -82,6 +82,18 @@ import {
 
 const enlaceWa = enlaceWhatsApp('Hola, quisiera consultar por un producto.')
 
+/* Los SVG de Yape y Plin del pie se dibujaban en línea con un lienzo de
+   48 de ancho y un texto que empezaba en x=32: «YAPE» se salía y quedaba
+   cortado. Ahora los cinco son archivos con el mismo lienzo y la misma
+   tarjeta, servidos desde public/ para no inflar el paquete. */
+const mediosDePago = [
+  { nombre: 'Visa', archivo: 'visa.svg' },
+  { nombre: 'Mastercard', archivo: 'mastercard.svg' },
+  { nombre: 'American Express', archivo: 'amex.svg' },
+  { nombre: 'Yape', archivo: 'yape.svg' },
+  { nombre: 'Plin', archivo: 'plin.svg' },
+] as const
+
 const anioActual = computed(() => new Date().getFullYear())
 
 const raiz = ref<HTMLElement | null>(null)
@@ -388,56 +400,22 @@ onBeforeUnmount(() => {
             <span class="text-xs font-medium uppercase tracking-wider text-lateral-texto-tenue">
               Métodos de pago aceptados
             </span>
-            <div class="flex flex-wrap items-center justify-center gap-2" role="group" aria-label="Tarjetas y billeteras digitales aceptadas">
-              <!-- Visa -->
-              <div class="relative" title="Visa">
-                <span class="sr-only">Visa</span>
-                <svg viewBox="0 0 48 32" class="h-8 w-12 rounded border border-white/20 bg-white p-1" aria-hidden="true">
-                  <path d="M18.8 21.6l2.4-11.2h3.9l-2.4 11.2h-3.9zm14.7-10.9c-.8-.3-2-.6-3.5-.6-3.8 0-6.5 2-6.5 4.9 0 2.1 1.9 3.3 3.4 4 1.5.8 2 1.3 2 2 0 1.1-1.3 1.6-2.5 1.6-1.7 0-2.6-.3-4-.9l-.6-.3-.6 3.1c.9.4 2.6.8 4.4.8 4.1 0 6.8-2 6.8-5.1 0-1.7-1.1-3-3.5-4.1-1.4-.7-2.3-1.2-2.3-1.9 0-.7.7-1.4 2.4-1.4 1.3 0 2.3.3 3 .6l.4.2.6-2.9zm8.5 0h-3c-.9 0-1.6.3-2 1.3l-5.7 10.9h4.1l.8-2.3h5l.5 2.3h3.6l-3.3-11.2zm-4.7 6.3l1.8-4.9.9 4.9h-2.7zM14.6 10.4l-3.7 7.7-.4-2c-.7-2.3-2.9-4.8-5.3-6.1l3.5 11.6h4.1l6.1-11.2h-4.3z" fill="#1A1F71"/>
-                  <path d="M8.2 10.4H2.4l-.1.4c4.6 1.1 7.6 3.8 8.8 7.3l-1.3-6.4c-.2-.7-.8-1.2-1.6-1.3z" fill="#F7B600"/>
-                </svg>
-              </div>
-
-              <!-- Mastercard -->
-              <div class="relative" title="Mastercard">
-                <span class="sr-only">Mastercard</span>
-                <svg viewBox="0 0 48 32" class="h-8 w-12 rounded border border-white/20 bg-white p-1" aria-hidden="true">
-                  <circle cx="18" cy="16" r="10" fill="#EB001B"/>
-                  <circle cx="30" cy="16" r="10" fill="#F79E1B"/>
-                  <path d="M24 8.7a9.96 9.96 0 0 1 3.8 7.3 9.96 9.96 0 0 1-3.8 7.3 9.96 9.96 0 0 1-3.8-7.3c0-2.8 1.5-5.3 3.8-7.3z" fill="#FF5F00"/>
-                </svg>
-              </div>
-
-              <!-- American Express -->
-              <div class="relative" title="American Express">
-                <span class="sr-only">American Express</span>
-                <svg viewBox="0 0 48 32" class="h-8 w-12 rounded border border-white/20 bg-[#006FCF] p-1 text-white" aria-hidden="true">
-                  <rect width="48" height="32" rx="4" fill="#006FCF"/>
-                  <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="8.5" fill="#FFFFFF" letter-spacing="0.5">AMEX</text>
-                </svg>
-              </div>
-
-              <!-- Yape -->
-              <div class="relative" title="Yape">
-                <span class="sr-only">Yape</span>
-                <svg viewBox="0 0 48 32" class="h-8 w-12 rounded border border-white/20 bg-[#742284] p-1 text-white" aria-hidden="true">
-                  <rect width="48" height="32" rx="4" fill="#742284"/>
-                  <circle cx="15" cy="16" r="6.5" fill="#00D4B8"/>
-                  <text x="32" y="20" font-family="sans-serif" font-weight="900" font-size="9" fill="#FFFFFF" letter-spacing="0.5">YAPE</text>
-                </svg>
-              </div>
-
-              <!-- Plin -->
-              <div class="relative" title="Plin">
-                <span class="sr-only">Plin</span>
-                <svg viewBox="0 0 48 32" class="h-8 w-12 rounded border border-white/20 bg-[#00D4B8] p-1 text-white" aria-hidden="true">
-                  <rect width="48" height="32" rx="4" fill="#00D4B8"/>
-                  <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="11" fill="#FFFFFF" letter-spacing="0.5">plin</text>
-                </svg>
-              </div>
-            </div>
+            <ul class="flex flex-wrap items-center justify-center gap-2" aria-label="Tarjetas y billeteras digitales aceptadas">
+              <li v-for="medio in mediosDePago" :key="medio.archivo" :title="medio.nombre">
+                <!-- Mismo lienzo 48×48 y misma tarjeta 46×34 en los cinco
+                     archivos: así comparten tamaño visual sin recortes. -->
+                <img
+                  :src="`/images/pagos/${medio.archivo}`"
+                  :alt="medio.nombre"
+                  width="48"
+                  height="48"
+                  loading="lazy"
+                  decoding="async"
+                  class="size-12"
+                />
+              </li>
+            </ul>
           </div>
-
           <!-- Libro de Reclamaciones -->
           <div class="flex items-center">
             <RouterLink

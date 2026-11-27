@@ -24,16 +24,16 @@
             Entrega Express
           </h3>
           <p class="text-texto-secundario text-lg leading-relaxed mb-6">
-            Entregas en menos de 2 horas para pedidos urgentes en zonas de cobertura completa. Ideal para medicamentos de uso inmediato.
+            Pedidos urgentes salen primero en cola: en las zonas cercanas al local llegan en menos de 30 minutos.
           </p>
           <div class="space-y-3 mb-6">
             <div class="flex items-center justify-center text-sm text-texto-secundario">
               <CheckIcon class="w-4 h-4 text-botica-600 mr-2 shrink-0" />
-              <span>Menos de 2 horas</span>
+              <span>Prioridad en cola</span>
             </div>
             <div class="flex items-center justify-center text-sm text-texto-secundario">
               <CheckIcon class="w-4 h-4 text-botica-600 mr-2 shrink-0" />
-              <span>Zonas prioritarias</span>
+              <span>Todo SJL</span>
             </div>
             <div class="flex items-center justify-center text-sm text-texto-secundario">
               <CheckIcon class="w-4 h-4 text-botica-600 mr-2 shrink-0" />
@@ -54,7 +54,7 @@
             Horarios Extendidos
           </h3>
           <p class="text-texto-secundario text-lg leading-relaxed mb-6">
-            Servicio de delivery disponible de lunes a domingo, incluyendo feriados. Nunca te quedes sin tus medicamentos.
+            Repartimos de lunes a domingo, feriados incluidos, dentro del horario del local.
           </p>
           <div class="space-y-3 mb-6">
             <div class="flex items-center justify-center text-sm text-texto-secundario">
@@ -67,7 +67,7 @@
             </div>
             <div class="flex items-center justify-center text-sm text-texto-secundario">
               <CheckIcon class="w-4 h-4 text-botica-600 mr-2 shrink-0" />
-              <span>Atención 24/7</span>
+              <span>Mismo horario del local</span>
             </div>
           </div>
           <button class="w-full bg-clinico-700 text-white py-3 px-4 rounded-lg hover:bg-clinico-700 transition-colors font-medium">
@@ -84,20 +84,20 @@
             Envío Seguro
           </h3>
           <p class="text-texto-secundario text-lg leading-relaxed mb-6">
-            Todos nuestros envíos incluyen seguro completo y seguimiento en tiempo real. Tus medicamentos llegan intactos y seguros.
+            Los medicamentos viajan sellados y los que requieren frío, en contenedor térmico. Entregamos con comprobante.
           </p>
           <div class="space-y-3 mb-6">
             <div class="flex items-center justify-center text-sm text-texto-secundario">
               <CheckIcon class="w-4 h-4 text-botica-600 mr-2 shrink-0" />
-              <span>Seguro incluido</span>
+              <span>Empaque sellado</span>
             </div>
             <div class="flex items-center justify-center text-sm text-texto-secundario">
               <CheckIcon class="w-4 h-4 text-botica-600 mr-2 shrink-0" />
-              <span>Seguimiento GPS</span>
+              <span>Cadena de frío</span>
             </div>
             <div class="flex items-center justify-center text-sm text-texto-secundario">
               <CheckIcon class="w-4 h-4 text-botica-600 mr-2 shrink-0" />
-              <span>Entrega garantizada</span>
+              <span>Comprobante SUNAT</span>
             </div>
           </div>
           <button class="w-full bg-botica-600 text-white py-3 px-4 rounded-lg hover:bg-botica-700 transition-colors font-medium">

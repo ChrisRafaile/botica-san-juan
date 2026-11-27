@@ -40,41 +40,41 @@
               </div>
             </div>
           </div>
-          <div class="history-image">
-            <div class="relative">
-              <div class="bg-linear-to-br from-clinico-500/15 to-clinico-500/20 rounded-3xl p-8 transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                <div class="w-full h-80 bg-linear-to-br from-clinico-500/20 to-clinico-300 rounded-2xl shadow-lg flex items-center justify-center">
-                  <div class="text-center text-clinico-700">
-                    <Heart class="w-16 h-16 mx-auto mb-4 opacity-50" />
-                    <p class="font-semibold">
-                      Botica San Juan
-                    </p>
-                    <p class="text-sm opacity-75">
-                      Desde 2018
-                    </p>
-                  </div>
+          <div class="history-image min-w-0">
+            <!-- Antes: una tarjeta vacía con un corazón y una insignia
+                 «Premio Calidad 2023» sin premio conocido detrás. Ahora,
+                 cuatro hechos que el sistema puede respaldar. -->
+            <div class="relative rounded-3xl bg-clinico-700 p-6 sm:p-8 text-white shadow-xl overflow-hidden isolate">
+              <div class="absolute -right-16 -top-16 -z-10 size-56 rounded-full bg-clinico-500/40" aria-hidden="true" />
+              <div class="absolute -bottom-20 -left-10 -z-10 size-48 rounded-full bg-clinico-900/50" aria-hidden="true" />
+
+              <div class="flex items-center gap-4 mb-8">
+                <div class="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-white/15">
+                  <PillIcon class="size-7" aria-hidden="true" />
+                </div>
+                <div>
+                  <p class="text-xl font-bold">Botica San Juan</p>
+                  <p class="text-white/85">{{ DIRECCION.calle }} · SJL</p>
                 </div>
               </div>
-              <div class="absolute -bottom-6 -left-6 bg-superficie-elevada rounded-2xl p-4 shadow-lg">
-                <div class="flex items-center gap-3">
-                  <div class="w-12 h-12 bg-clinico-100 rounded-full flex items-center justify-center">
-                    <Award class="w-6 h-6 text-clinico-600" />
+
+              <ul class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <li
+                  v-for="insignia in insignias"
+                  :key="insignia.titulo"
+                  class="flex items-start gap-3 rounded-2xl bg-white/10 p-4 backdrop-blur-sm"
+                >
+                  <component :is="insignia.icono" class="mt-0.5 size-6 shrink-0 text-clinico-200" aria-hidden="true" />
+                  <div class="min-w-0">
+                    <p class="font-semibold leading-snug">{{ insignia.titulo }}</p>
+                    <p class="text-sm text-white/80">{{ insignia.detalle }}</p>
                   </div>
-                  <div>
-                    <div class="font-semibold text-texto-primario">
-                      Premio Calidad
-                    </div>
-                    <div class="text-sm text-texto-secundario">
-                      2023
-                    </div>
-                  </div>
-                </div>
-              </div>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
-
       <!-- Vision & Mission Section -->
       <div class="mb-24">
         <div class="text-center mb-16">
@@ -181,7 +181,15 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { gsap } from 'gsap'
-import { Heart, Eye, Target, Shield, Users, Award } from 'lucide-vue-next'
+import { Heart, Eye, Target, Shield, Users, Award, Pill as PillIcon, BadgeCheck, Snowflake, ReceiptText, MapPin } from 'lucide-vue-next'
+import { DIRECCION } from '@/datos/botica'
+
+const insignias = [
+  { titulo: 'Autorizado por DIGEMID', detalle: 'Establecimiento farmacéutico registrado', icono: BadgeCheck },
+  { titulo: 'Cadena de frío controlada', detalle: 'Insulinas y vacunas refrigeradas', icono: Snowflake },
+  { titulo: 'Comprobantes SUNAT', detalle: 'Boletas y facturas electrónicas', icono: ReceiptText },
+  { titulo: '+8 años en SJL', detalle: 'Atendiendo al distrito desde 2018', icono: MapPin },
+]
 import { prefiereMenosMovimiento } from '@/utils/motion'
 
 onMounted(() => {
